@@ -1,0 +1,441 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// USER MANAGEMENT
+// ============================================
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      UserRole @default(CUSTOMER)
+
+  // Profile
+  name      String?
+  phone     String?
+  avatar    String?
+  birthdate DateTime?
+  gender    String?
+
+  // Preferences
+  marketingEmails   Boolean @default(true)
+  orderEmails       Boolean @default(true)
+  newArrivalsEmails Boolean @default(true)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  cart      CartItem[]
+  orders    Order[]      @relation("UserOrders")
+  addresses Address[]
+  // Other relations (wishlist, reviews, etc.) will be added later
+
+  @@index([email])
+  @@map("users")
+}
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+}
+
+// ============================================
+// PRODUCTS
+// ============================================
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String   @db.Text
+
+  // Pricing
+  price          Float
+  compareAtPrice Float? // For showing "was $X, now $Y"
+
+  // Product Details
+  sku      String  @unique
+  material String  // "300+ GSM Cotton Blend"
+  fit      FitType
+  category String
+
+  // Media
+  images String[] // Array of S3 URLs
+
+  // Variants
+  colors Json // [{ name: "Black", hex: "#000000", available: true }]
+  sizes  Json // [{ name: "S", available: true }, ...]
+
+  // Status
+  featured Boolean @default(false)
+  isNew    Boolean @default(false)
+  inStock  Boolean @default(true)
+
+  // SEO
+  metaTitle       String?
+  metaDescription String?
+  keywords        String[] // ["hoodie", "premium", "streetwear"]
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  variants        ProductVariant[]
+  cartItems       CartItem[]
+  cogs            ProductCOGS[]
+  orderItems      OrderItem[]
+  supplierProducts SupplierProduct[]
+  // Other relations (orderItems, wishlist, reviews, etc.) will be added later
+
+  @@index([slug])
+  @@index([category])
+  @@index([featured])
+  @@map("products")
+}
+
+enum FitType {
+  REGULAR
+  OVERSIZED
+  SLIM
+}
+
+// ============================================
+// INVENTORY MANAGEMENT (PARTIAL)
+// ============================================
+
+model ProductVariant {
+  id        String @id @default(cuid())
+  productId String
+
+  // Variant Details
+  color    String // "Charcoal Black"
+  colorHex String // "#1f1f1f"
+  size     String // "L"
+
+  // Inventory
+  stock            Int @default(0)
+  reserved         Int @default(0) // In active carts
+  available        Int // Calculated: stock - reserved
+  restockThreshold Int @default(10) // Alert when below this
+
+  // Tracking
+  sku String @unique // Variant-specific SKU
+
+  // Status
+  discontinued Boolean @default(false)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  // stockHistory will be added later when StockHistory model is introduced
+
+  @@unique([productId, color, size])
+  @@index([productId])
+  @@index([stock])
+  @@map("product_variants")
+}
+
+// ============================================
+// SHOPPING CART
+// ============================================
+
+model CartItem {
+  id        String @id @default(cuid())
+  userId    String
+  productId String
+
+  // Selection
+  size     String
+  color    String
+  quantity Int
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId, size, color])
+  @@index([userId])
+  @@map("cart_items")
+}
+
+// ============================================
+// PRODUCT COGS (COST OF GOODS)
+// ============================================
+
+model ProductCOGS {
+  id        String   @id @default(cuid())
+  productId String
+
+  // Materials
+  fabricCost    Float
+  fabricYards   Float
+  trimsCost     Float
+  packagingCost Float
+
+  // Manufacturing
+  laborCost    Float
+  patternCost  Float
+  gradingCost  Float
+  sampleCost   Float
+  printingCost Float
+  qcCost       Float
+
+  // Freight & Logistics
+  freightCost      Float
+  dutiesCost       Float
+  brokerageCost    Float
+  domesticShipping Float
+
+  // Inventory
+  warehousingCost Float
+  handlingCost    Float
+  shrinkageRate   Float
+
+  // Calculated
+  totalCOGS     Float
+  effectiveDate DateTime
+  notes         String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([productId, effectiveDate])
+  @@map("product_cogs")
+}
+
+// ============================================
+// EXPENSES
+// ============================================
+
+model Expense {
+  id          String   @id @default(cuid())
+
+  category    String   // MARKETING, PLATFORM, TEAM, RETURNS, OTHER
+  subcategory String?
+  description String
+  amount      Float
+
+  date        DateTime
+  vendor      String?
+
+  isRecurring Boolean  @default(false)
+  frequency   String?  // MONTHLY, QUARTERLY, ANNUAL
+
+  receiptUrl  String?
+  notes       String?
+
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([date])
+  @@map("expenses")
+}
+
+// ============================================
+// ORDERS (MINIMAL FOR PROFIT ANALYSIS)
+// ============================================
+
+model Order {
+  id          String      @id @default(cuid())
+  orderNumber String      @unique
+  userId      String
+
+  status      OrderStatus @default(PENDING)
+
+  subtotal    Float
+  shipping    Float
+  tax         Float
+  discount    Float       @default(0)
+  total       Float
+
+  // Basic shipment tracking
+  trackingNumber   String?
+  carrier          String?  // "UPS", "USPS", etc.
+  shippedAt        DateTime?
+  deliveredAt      DateTime?
+
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  user  User       @relation("UserOrders", fields: [userId], references: [id])
+  items OrderItem[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  orderId   String
+  productId String
+
+  name      String
+  image     String
+  size      String
+  color     String
+  quantity  Int
+  price     Float
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+  @@map("order_items")
+}
+
+// ============================================
+// SUPPLIERS & SUPPLIER PRODUCTS
+// ============================================
+
+model Supplier {
+  id                  String   @id @default(cuid())
+
+  name                String
+  contactPerson       String?
+  email               String
+  phone               String?
+  country             String
+
+  supplierType        String?  // FABRIC, MANUFACTURER, TRIMS, PACKAGING
+
+  moq                 Int?
+  leadTimeDays        Int?
+  paymentTerms        String?  // NET_30, NET_60, PREPAY
+  currency            String   @default("USD")
+
+  qualityRating       Float?   // 1-5
+  onTimeRate          Float?   // percentage
+  defectRate          Float?   // percentage
+  communicationRating Float?   // 1-5
+
+  notes               String?
+
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  products            SupplierProduct[]
+
+  @@index([name])
+  @@map("suppliers")
+}
+
+model SupplierProduct {
+  id           String   @id @default(cuid())
+  supplierId   String
+  productId    String
+
+  unitPrice    Float
+  moq          Int?
+  leadTimeDays Int?
+
+  effectiveDate DateTime
+  expiryDate    DateTime?
+
+  supplier     Supplier @relation(fields: [supplierId], references: [id])
+  product      Product  @relation(fields: [productId], references: [id])
+
+  @@unique([supplierId, productId])
+  @@index([productId])
+  @@map("supplier_products")
+}
+
+// ============================================
+// CONTENT MANAGEMENT
+// ============================================
+
+model Content {
+  id    String @id @default(cuid())
+  key   String @unique  // "hero", "featured_split", "full_width_banner", etc.
+  data  Json            // All content for that section
+
+  published Boolean  @default(true)
+  version   Int      @default(1)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([key])
+  @@map("content")
+}
+
+// ============================================
+// NEWSLETTER
+// ============================================
+
+model Newsletter {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  subscribed Boolean  @default(true)
+
+  subscribedAt   DateTime @default(now())
+  unsubscribedAt DateTime?
+
+  @@index([email])
+  @@map("newsletter")
+}
+
+// ============================================
+// ADDRESSES
+// ============================================
+
+model Address {
+  id        String  @id @default(cuid())
+  userId    String
+
+  label     String?  // "Home", "Work", etc.
+  name      String
+  street    String
+  city      String
+  state     String
+  zipCode   String
+  country   String
+  phone     String
+
+  isDefault Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("addresses")
+}
+
+
+
+

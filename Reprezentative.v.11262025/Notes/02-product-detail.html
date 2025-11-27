@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heritage Hoodie - REPREZENTATIVE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #27272a;
+        }
+
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: -0.05em;
+        }
+
+        .back-link {
+            color: #9ca3af;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover {
+            color: #fff;
+        }
+
+        /* Product Section */
+        .product-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+        }
+
+        /* Images */
+        .product-images {
+            position: sticky;
+            top: 2rem;
+        }
+
+        .main-image {
+            width: 100%;
+            aspect-ratio: 1;
+            background: #18181b;
+            margin-bottom: 1rem;
+        }
+
+        .main-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .thumbnail-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .thumbnail {
+            aspect-ratio: 1;
+            background: #18181b;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.3s;
+        }
+
+        .thumbnail.active {
+            border-color: #fff;
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Product Info */
+        .product-info h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            letter-spacing: -0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .price {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+        }
+
+        .description {
+            color: #d1d5db;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+
+        /* Color Selection */
+        .selector {
+            margin-bottom: 2rem;
+        }
+
+        .selector label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .selector label span {
+            color: #9ca3af;
+        }
+
+        .color-options {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .color-swatch {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #3f3f46;
+            transition: border-color 0.3s;
+        }
+
+        .color-swatch.active {
+            border-color: #fff;
+        }
+
+        .color-swatch.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* Size Selection */
+        .size-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+        }
+
+        .size-btn {
+            padding: 0.75rem;
+            background: transparent;
+            border: 1px solid #3f3f46;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .size-btn:hover:not(.disabled) {
+            border-color: #fff;
+        }
+
+        .size-btn.active {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+        }
+
+        .size-btn.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            text-decoration: line-through;
+        }
+
+        .size-guide {
+            color: #9ca3af;
+            font-size: 0.875rem;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .size-guide:hover {
+            color: #fff;
+        }
+
+        /* Quantity */
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .quantity-btn {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: transparent;
+            border: 1px solid #3f3f46;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .quantity-btn:hover {
+            border-color: #fff;
+        }
+
+        .quantity-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            min-width: 3rem;
+            text-align: center;
+        }
+
+        /* Add to Cart */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .add-to-cart-btn {
+            flex: 1;
+            background: #fff;
+            color: #000;
+            padding: 1rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .add-to-cart-btn:hover {
+            background: #e5e7eb;
+        }
+
+        .add-to-cart-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .icon-btn {
+            width: 3.5rem;
+            background: transparent;
+            border: 1px solid #3f3f46;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .icon-btn:hover {
+            border-color: #fff;
+        }
+
+        /* Features */
+        .features {
+            border-top: 1px solid #27272a;
+            padding-top: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .feature {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-icon {
+            color: #9ca3af;
+        }
+
+        .feature-text h4 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .feature-text p {
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+
+        /* Product Details */
+        .product-details {
+            border-top: 1px solid #27272a;
+            padding-top: 2rem;
+        }
+
+        .product-details h3 {
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .details-grid {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .detail-row {
+            display: grid;
+            grid-template-columns: 6rem 1fr;
+            font-size: 0.875rem;
+        }
+
+        .detail-row dt {
+            color: #9ca3af;
+        }
+
+        /* Reviews */
+        .reviews-section {
+            max-width: 1280px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+            border-top: 1px solid #27272a;
+            padding-top: 3rem;
+        }
+
+        .reviews-section h2 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+        }
+
+        .review {
+            border-bottom: 1px solid #27272a;
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stars {
+            color: #fbbf24;
+        }
+
+        .reviewer-name {
+            font-weight: 600;
+        }
+
+        .verified-badge {
+            background: #065f46;
+            color: #6ee7b7;
+            padding: 0.125rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: 0.25rem;
+        }
+
+        .review-text {
+            color: #d1d5db;
+            margin-bottom: 0.5rem;
+        }
+
+        .review-date {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .product-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .product-images {
+                position: static;
+            }
+
+            .product-info h1 {
+                font-size: 2rem;
+            }
+
+            .size-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="01-homepage.html" class="back-link">
+                <span>←</span>
+                <span>Back to Shop</span>
+            </a>
+            <div class="logo">REPREZENTATIVE</div>
+        </div>
+    </nav>
+
+    <!-- Product Section -->
+    <div class="product-container">
+        <div class="product-grid">
+            <!-- Product Images -->
+            <div class="product-images">
+                <div class="main-image" id="mainImage">
+                    <img src="https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Heritage Hoodie">
+                </div>
+                <div class="thumbnail-grid">
+                    <div class="thumbnail active" onclick="changeImage(0)">
+                        <img src="https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?auto=compress&cs=tinysrgb&w=400" alt="View 1">
+                    </div>
+                    <div class="thumbnail" onclick="changeImage(1)">
+                        <img src="https://images.pexels.com/photos/7679454/pexels-photo-7679454.jpeg?auto=compress&cs=tinysrgb&w=400" alt="View 2">
+                    </div>
+                    <div class="thumbnail" onclick="changeImage(2)">
+                        <img src="https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?auto=compress&cs=tinysrgb&w=400" alt="View 3">
+                    </div>
+                    <div class="thumbnail" onclick="changeImage(3)">
+                        <img src="https://images.pexels.com/photos/7679454/pexels-photo-7679454.jpeg?auto=compress&cs=tinysrgb&w=400" alt="View 4">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Info -->
+            <div class="product-info">
+                <h1>Heritage Hoodie</h1>
+                <p class="price">$145</p>
+                <p class="description">
+                    Classic comfort meets timeless design. Crafted with premium 300+ GSM cotton blend, 
+                    this hoodie represents quality and authenticity. Built to last, designed to stand out.
+                </p>
+
+                <!-- Color Selection -->
+                <div class="selector">
+                    <label>Color: <span id="selectedColor">Charcoal Black</span></label>
+                    <div class="color-options">
+                        <div class="color-swatch active" style="background: #1f1f1f;" onclick="selectColor('Charcoal Black', this)"></div>
+                        <div class="color-swatch" style="background: #9ca3af;" onclick="selectColor('Stone Grey', this)"></div>
+                        <div class="color-swatch" style="background: #1e3a8a;" onclick="selectColor('Navy', this)"></div>
+                        <div class="color-swatch disabled" style="background: #7c2d12;"></div>
+                    </div>
+                </div>
+
+                <!-- Size Selection -->
+                <div class="selector">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <label style="margin: 0;">Size</label>
+                        <a href="#" class="size-guide">Size Guide</a>
+                    </div>
+                    <div class="size-options">
+                        <button class="size-btn" onclick="selectSize('S', this)">S</button>
+                        <button class="size-btn" onclick="selectSize('M', this)">M</button>
+                        <button class="size-btn" onclick="selectSize('L', this)">L</button>
+                        <button class="size-btn" onclick="selectSize('XL', this)">XL</button>
+                    </div>
+                </div>
+
+                <!-- Quantity -->
+                <div class="selector">
+                    <label>Quantity</label>
+                    <div class="quantity-selector">
+                        <button class="quantity-btn" onclick="changeQuantity(-1)">−</button>
+                        <span class="quantity-value" id="quantity">1</span>
+                        <button class="quantity-btn" onclick="changeQuantity(1)">+</button>
+                    </div>
+                </div>
+
+                <!-- Add to Cart -->
+                <div class="action-buttons">
+                    <button class="add-to-cart-btn" id="addToCartBtn" onclick="addToCart()" disabled>
+                        Select a Size
+                    </button>
+                    <button class="icon-btn"></button>
+                    <button class="icon-btn"></button>
+                </div>
+
+                <!-- Features -->
+                <div class="features">
+                    <div class="feature">
+                        <span class="feature-icon">🚚</span>
+                        <div class="feature-text">
+                            <h4>Free Shipping</h4>
+                            <p>On orders over $150</p>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🛡️</span>
+                        <div class="feature-text">
+                            <h4>2 Year Warranty</h4>
+                            <p>Quality guaranteed</p>
+                        </div>
+                    </div>
+                    <div class="feature">
+                        <span class="feature-icon">🔄</span>
+                        <div class="feature-text">
+                            <h4>30 Day Returns</h4>
+                            <p>Free returns and exchanges</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Details -->
+                <div class="product-details">
+                    <h3>Product Details</h3>
+                    <dl class="details-grid">
+                        <div class="detail-row">
+                            <dt>Material:</dt>
+                            <dd>300+ GSM Cotton Blend</dd>
+                        </div>
+                        <div class="detail-row">
+                            <dt>Fit:</dt>
+                            <dd>Oversized</dd>
+                        </div>
+                        <div class="detail-row">
+                            <dt>Category:</dt>
+                            <dd>Hoodies</dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="reviews-section">
+        <h2>Customer Reviews</h2>
+        
+        <div class="review">
+            <div class="review-header">
+                <div class="stars">*****</div>
+                <span class="reviewer-name">John Anderson</span>
+                <span class="verified-badge">Verified Purchase</span>
+            </div>
+            <p class="review-text">
+                Absolutely love this hoodie! The quality is outstanding and the fit is perfect. 
+                Worth every penny.
+            </p>
+            <p class="review-date">November 20, 2024</p>
+        </div>
+
+        <div class="review">
+            <div class="review-header">
+                <div class="stars">*****</div>
+                <span class="reviewer-name">Sarah M.</span>
+                <span class="verified-badge">Verified Purchase</span>
+            </div>
+            <p class="review-text">
+                Best hoodie I've ever owned. The material is thick and premium, and it gets better 
+                with every wash. Highly recommend!
+            </p>
+            <p class="review-date">November 15, 2024</p>
+        </div>
+
+        <div class="review">
+            <div class="review-header">
+                <div class="stars">****☆</div>
+                <span class="reviewer-name">Mike Chen</span>
+                <span class="verified-badge">Verified Purchase</span>
+            </div>
+            <p class="review-text">
+                Great quality and design. Runs a bit large, so consider sizing down if you don't 
+                want an oversized fit.
+            </p>
+            <p class="review-date">November 10, 2024</p>
+        </div>
+    </div>
+
+    <script>
+        let selectedSize = null;
+        let quantity = 1;
+
+        const images = [
+            'https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?auto=compress&cs=tinysrgb&w=1200',
+            'https://images.pexels.com/photos/7679454/pexels-photo-7679454.jpeg?auto=compress&cs=tinysrgb&w=1200',
+            'https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?auto=compress&cs=tinysrgb&w=1200',
+            'https://images.pexels.com/photos/7679454/pexels-photo-7679454.jpeg?auto=compress&cs=tinysrgb&w=1200'
+        ];
+
+        function changeImage(index) {
+            document.querySelector('#mainImage img').src = images[index];
+            document.querySelectorAll('.thumbnail').forEach((thumb, i) => {
+                thumb.classList.toggle('active', i === index);
+            });
+        }
+
+        function selectColor(colorName, element) {
+            if (element.classList.contains('disabled')) return;
+            document.getElementById('selectedColor').textContent = colorName;
+            document.querySelectorAll('.color-swatch').forEach(swatch => {
+                swatch.classList.remove('active');
+            });
+            element.classList.add('active');
+        }
+
+        function selectSize(size, element) {
+            if (element.classList.contains('disabled')) return;
+            selectedSize = size;
+            document.querySelectorAll('.size-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            element.classList.add('active');
+            updateAddToCartButton();
+        }
+
+        function changeQuantity(delta) {
+            quantity = Math.max(1, quantity + delta);
+            document.getElementById('quantity').textContent = quantity;
+        }
+
+        function updateAddToCartButton() {
+            const btn = document.getElementById('addToCartBtn');
+            if (selectedSize) {
+                btn.textContent = 'Add to Cart';
+                btn.disabled = false;
+            } else {
+                btn.textContent = 'Select a Size';
+                btn.disabled = true;
+            }
+        }
+
+        function addToCart() {
+            if (!selectedSize) {
+                alert('Please select a size');
+                return;
+            }
+            alert(`Added ${quantity} × Heritage Hoodie (${selectedSize}) to cart!`);
+        }
+    </script>
+</body>
+</html>

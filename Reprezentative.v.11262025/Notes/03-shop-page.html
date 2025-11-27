@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop All - REPREZENTATIVE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .page-header {
+            border-bottom: 1px solid #27272a;
+            padding: 3rem 2rem;
+        }
+
+        .page-header-content {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .page-header h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            letter-spacing: -0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: #9ca3af;
+        }
+
+        /* Main Container */
+        .shop-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+        }
+
+        /* Filters Sidebar */
+        .filters-sidebar {
+            position: sticky;
+            top: 2rem;
+            height: fit-content;
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-header h2 {
+            font-size: 1.125rem;
+            font-weight: bold;
+        }
+
+        .clear-filters {
+            color: #9ca3af;
+            font-size: 0.875rem;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .clear-filters:hover {
+            color: #fff;
+        }
+
+        .filter-section {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #27272a;
+        }
+
+        .filter-section:last-child {
+            border-bottom: none;
+        }
+
+        .filter-section h3 {
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+        }
+
+        .filter-option input[type="checkbox"],
+        .filter-option input[type="radio"] {
+            width: 1rem;
+            height: 1rem;
+            cursor: pointer;
+        }
+
+        .filter-option label {
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+
+        .color-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .color-filter {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #3f3f46;
+            transition: border-color 0.3s;
+        }
+
+        .color-filter.active {
+            border-color: #fff;
+        }
+
+        .size-filters {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+        }
+
+        .size-filter {
+            padding: 0.5rem;
+            background: transparent;
+            border: 1px solid #3f3f46;
+            color: #fff;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .size-filter.active {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+        }
+
+        /* Products Area */
+        .products-area {
+            min-height: 100vh;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #27272a;
+        }
+
+        .result-count {
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+
+        .sort-select {
+            padding: 0.5rem 1rem;
+            background: #18181b;
+            border: 1px solid #3f3f46;
+            color: #fff;
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+
+        .sort-select:focus {
+            outline: none;
+            border-color: #fff;
+        }
+
+        /* Products Grid */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .product-card {
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-image {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1;
+            background: #18181b;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s;
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.05);
+        }
+
+        .badge {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: #fff;
+            color: #000;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .sold-out-badge {
+            background: #dc2626;
+            color: #fff;
+        }
+
+        .product-info h3 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .product-info .colors {
+            color: #9ca3af;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .product-info .price {
+            font-weight: bold;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 3rem;
+        }
+
+        .page-btn {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: transparent;
+            border: 1px solid #3f3f46;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            border-color: #fff;
+        }
+
+        .page-btn.active {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .shop-container {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-sidebar {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="page-header">
+        <div class="page-header-content">
+            <h1>Shop All</h1>
+            <p>Premium hoodies for those who stand for something</p>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="shop-container">
+        <!-- Filters Sidebar -->
+        <aside class="filters-sidebar">
+            <div class="filter-header">
+                <h2>Filters</h2>
+                <a href="#" class="clear-filters" onclick="clearAllFilters()">Clear All</a>
+            </div>
+
+            <!-- Category Filter -->
+            <div class="filter-section">
+                <h3>Category</h3>
+                <div class="filter-option">
+                    <input type="radio" name="category" id="cat-all" value="all" checked onchange="applyFilters()">
+                    <label for="cat-all">All Products</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="category" id="cat-hoodies" value="hoodies" onchange="applyFilters()">
+                    <label for="cat-hoodies">Hoodies</label>
+                </div>
+                <div class="filter-option">
+                    <input type="radio" name="category" id="cat-new" value="new" onchange="applyFilters()">
+                    <label for="cat-new">New Arrivals</label>
+                </div>
+            </div>
+
+            <!-- Color Filter -->
+            <div class="filter-section">
+                <h3>Color</h3>
+                <div class="color-filters">
+                    <div class="color-filter" style="background: #1f1f1f;" onclick="toggleColorFilter(this, 'black')"></div>
+                    <div class="color-filter" style="background: #9ca3af;" onclick="toggleColorFilter(this, 'grey')"></div>
+                    <div class="color-filter" style="background: #1e3a8a;" onclick="toggleColorFilter(this, 'navy')"></div>
+                    <div class="color-filter" style="background: #ffffff; border-color: #3f3f46;" onclick="toggleColorFilter(this, 'white')"></div>
+                </div>
+            </div>
+
+            <!-- Size Filter -->
+            <div class="filter-section">
+                <h3>Size</h3>
+                <div class="size-filters">
+                    <button class="size-filter" onclick="toggleSizeFilter(this, 'S')">S</button>
+                    <button class="size-filter" onclick="toggleSizeFilter(this, 'M')">M</button>
+                    <button class="size-filter" onclick="toggleSizeFilter(this, 'L')">L</button>
+                    <button class="size-filter" onclick="toggleSizeFilter(this, 'XL')">XL</button>
+                </div>
+            </div>
+
+            <!-- Price Range -->
+            <div class="filter-section">
+                <h3>Price Range</h3>
+                <input type="range" min="0" max="200" value="200" style="width: 100%; margin-bottom: 0.5rem;" onchange="updatePriceRange(this)">
+                <div style="display: flex; justify-content: space-between; font-size: 0.875rem;">
+                    <span>$0</span>
+                    <span id="maxPrice">$200</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Products Area -->
+        <main class="products-area">
+            <!-- Toolbar -->
+            <div class="toolbar">
+                <span class="result-count">Showing <span id="productCount">12</span> products</span>
+                <select class="sort-select" onchange="sortProducts(this.value)">
+                    <option value="featured">Featured</option>
+                    <option value="price-asc">Price: Low to High</option>
+                    <option value="price-desc">Price: High to Low</option>
+                    <option value="newest">Newest</option>
+                </select>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="products-grid" id="productsGrid">
+                <!-- Products will be dynamically loaded -->
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <button class="page-btn" onclick="changePage(-1)" id="prevBtn" disabled>←</button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn" onclick="changePage(1)" id="nextBtn">→</button>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Sample products data
+        const products = [
+            { id: 1, name: "Heritage Hoodie", price: 145, color: "Charcoal Black", image: "https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?auto=compress&cs=tinysrgb&w=600", isNew: true, inStock: true },
+            { id: 2, name: "Essential Hoodie", price: 135, color: "Stone Grey", image: "https://images.pexels.com/photos/7679454/pexels-photo-7679454.jpeg?auto=compress&cs=tinysrgb&w=600", isNew: false, inStock: true },
+            { id: 3, name: "Modern Classic", price: 155, color: "Navy", image: "https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?auto=compress&cs=tinysrgb&w=600", isNew: true, inStock: true },
+            { id: 4, name: "Premium Hoodie", price: 165, color: "Black", image: "https://images.pexels.com/photos/7679454/pexels-photo-7679454.jpeg?auto=compress&cs=tinysrgb&w=600", isNew: false, inStock: false },
+            { id: 5, name: "Signature Hoodie", price: 150, color: "Charcoal", image: "https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?auto=compress&cs=tinysrgb&w=600", isNew: false, inStock: true },
+            { id: 6, name: "Classic Hoodie", price: 140, color: "Grey", image: "https://images.pexels.com/photos/7679454/pexels-photo-7679454.jpeg?auto=compress&cs=tinysrgb&w=600", isNew: false, inStock: true },
+            { id: 7, name: "Urban Hoodie", price: 145, color: "Black", image: "https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?auto=compress&cs=tinysrgb&w=600", isNew: true, inStock: true },
+            { id: 8, name: "Elite Hoodie", price: 170, color: "Navy", image: "https://images.pexels.com/photos/7679454/pexels-photo-7679454.jpeg?auto=compress&cs=tinysrgb&w=600", isNew: false, inStock: true },
+            { id: 9, name: "Street Hoodie", price: 138, color: "Charcoal", image: "https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?auto=compress&cs=tinysrgb&w=600", isNew: false, inStock: true },
+            { id: 10, name: "Pro Hoodie", price: 160, color: "Black", image: "https://images.pexels.com/photos/7679454/pexels-photo-7679454.jpeg?auto=compress&cs=tinysrgb&w=600", isNew: true, inStock: true },
+            { id: 11, name: "Core Hoodie", price: 142, color: "Grey", image: "https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?auto=compress&cs=tinysrgb&w=600", isNew: false, inStock: true },
+            { id: 12, name: "Deluxe Hoodie", price: 175, color: "Navy", image: "https://images.pexels.com/photos/7679454/pexels-photo-7679454.jpeg?auto=compress&cs=tinysrgb&w=600", isNew: false, inStock: true }
+        ];
+
+        let filteredProducts = [...products];
+
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = '';
+
+            filteredProducts.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.onclick = () => window.location.href = '02-product-detail.html';
+                
+                card.innerHTML = `
+                    <div class="product-image">
+                        <img src="${product.image}" alt="${product.name}">
+                        ${product.isNew ? '<span class="badge">NEW</span>' : ''}
+                        ${!product.inStock ? '<span class="badge sold-out-badge">SOLD OUT</span>' : ''}
+                    </div>
+                    <div class="product-info">
+                        <h3>${product.name}</h3>
+                        <p class="colors">${product.color}</p>
+                        <p class="price">$${product.price}</p>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+
+            document.getElementById('productCount').textContent = filteredProducts.length;
+        }
+
+        function applyFilters() {
+            // In a real app, this would filter the products array
+            renderProducts();
+        }
+
+        function toggleColorFilter(element, color) {
+            element.classList.toggle('active');
+            applyFilters();
+        }
+
+        function toggleSizeFilter(element, size) {
+            element.classList.toggle('active');
+            applyFilters();
+        }
+
+        function updatePriceRange(input) {
+            document.getElementById('maxPrice').textContent = '$' + input.value;
+            applyFilters();
+        }
+
+        function sortProducts(sortBy) {
+            switch(sortBy) {
+                case 'price-asc':
+                    filteredProducts.sort((a, b) => a.price - b.price);
+                    break;
+                case 'price-desc':
+                    filteredProducts.sort((a, b) => b.price - a.price);
+                    break;
+                case 'newest':
+                    filteredProducts.sort((a, b) => b.isNew - a.isNew);
+                    break;
+            }
+            renderProducts();
+        }
+
+        function clearAllFilters() {
+            document.querySelectorAll('.color-filter').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.size-filter').forEach(el => el.classList.remove('active'));
+            document.getElementById('cat-all').checked = true;
+            filteredProducts = [...products];
+            renderProducts();
+        }
+
+        function changePage(direction) {
+            // Pagination logic would go here
+            console.log('Change page:', direction);
+        }
+
+        // Initial render
+        renderProducts();
+    </script>
+</body>
+</html>

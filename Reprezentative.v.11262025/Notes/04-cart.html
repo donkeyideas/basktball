@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - REPREZENTATIVE</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #000;
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        .page-header {
+            padding: 3rem 2rem;
+            border-bottom: 1px solid #27272a;
+        }
+
+        .page-header-content {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .page-header h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            letter-spacing: -0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: #9ca3af;
+        }
+
+        .cart-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 3rem;
+        }
+
+        .cart-item {
+            background: #18181b;
+            padding: 1.5rem;
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .item-image {
+            width: 8rem;
+            height: 8rem;
+            background: #27272a;
+            flex-shrink: 0;
+        }
+
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-details h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .item-meta {
+            color: #9ca3af;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .qty-btn {
+            width: 2rem;
+            height: 2rem;
+            background: transparent;
+            border: 1px solid #3f3f46;
+            color: #fff;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .qty-btn:hover {
+            border-color: #fff;
+        }
+
+        .remove-btn {
+            color: #9ca3af;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            transition: color 0.3s;
+        }
+
+        .remove-btn:hover {
+            color: #ef4444;
+        }
+
+        .order-summary {
+            background: #18181b;
+            padding: 1.5rem;
+            position: sticky;
+            top: 2rem;
+            height: fit-content;
+        }
+
+        .order-summary h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .coupon-input {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .coupon-input input {
+            flex: 1;
+            padding: 0.75rem;
+            background: #27272a;
+            border: 1px solid #3f3f46;
+            color: #fff;
+        }
+
+        .coupon-input button {
+            padding: 0.75rem 1rem;
+            background: #fff;
+            color: #000;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .coupon-input button:hover {
+            background: #e5e7eb;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.75rem;
+        }
+
+        .summary-row.total {
+            border-top: 1px solid #3f3f46;
+            padding-top: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 1rem;
+            background: #fff;
+            color: #000;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 1rem;
+        }
+
+        .checkout-btn:hover {
+            background: #e5e7eb;
+        }
+
+        .continue-shopping {
+            display: block;
+            text-align: center;
+            color: #9ca3af;
+            text-decoration: none;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+            .cart-container {
+                grid-template-columns: 1fr;
+            }
+
+            .cart-item {
+                flex-direction: column;
+            }
+
+            .item-image {
+                width: 100%;
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-header">
+        <div class="page-header-content">
+            <h1>Shopping Cart</h1>
+            <p>2 items in your cart</p>
+        </div>
+    </div>
+
+    <div class="cart-container">
+        <div class="cart-items">
+            <div class="cart-item">
+                <div class="item-image">
+                    <img src="https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?auto=compress&cs=tinysrgb&w=400" alt="Heritage Hoodie">
+                </div>
+                <div class="item-details">
+                    <div>
+                        <h3>Heritage Hoodie</h3>
+                        <p class="item-meta">Charcoal Black • Size L</p>
+                        <p style="font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem;">$145</p>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="quantity-controls">
+                            <button class="qty-btn">−</button>
+                            <span style="min-width: 2rem; text-align: center;">1</span>
+                            <button class="qty-btn">+</button>
+                        </div>
+                        <button class="remove-btn">Remove</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cart-item">
+                <div class="item-image">
+                    <img src="https://images.pexels.com/photos/7679454/pexels-photo-7679454.jpeg?auto=compress&cs=tinysrgb&w=400" alt="Essential Hoodie">
+                </div>
+                <div class="item-details">
+                    <div>
+                        <h3>Essential Hoodie</h3>
+                        <p class="item-meta">Stone Grey • Size M</p>
+                        <p style="font-size: 1.25rem; font-weight: bold; margin-bottom: 1rem;">$135</p>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="quantity-controls">
+                            <button class="qty-btn">−</button>
+                            <span style="min-width: 2rem; text-align: center;">1</span>
+                            <button class="qty-btn">+</button>
+                        </div>
+                        <button class="remove-btn">Remove</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="order-summary">
+            <h2>Order Summary</h2>
+            
+            <div class="coupon-input">
+                <input type="text" placeholder="Discount code">
+                <button>Apply</button>
+            </div>
+
+            <div class="summary-row">
+                <span style="color: #9ca3af;">Subtotal</span>
+                <span style="font-weight: 600;">$280.00</span>
+            </div>
+            <div class="summary-row">
+                <span style="color: #9ca3af;">Shipping</span>
+                <span style="font-weight: 600;">FREE</span>
+            </div>
+            <div class="summary-row">
+                <span style="color: #9ca3af;">Tax</span>
+                <span style="font-weight: 600;">$23.80</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total</span>
+                <span>$303.80</span>
+            </div>
+
+            <button class="checkout-btn">Proceed to Checkout →</button>
+            <a href="01-homepage.html" class="continue-shopping">Continue Shopping</a>
+
+            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #3f3f46;">
+                <p style="font-size: 0.75rem; color: #9ca3af;">
+                    • Secure checkout<br>
+                    • Free returns within 30 days<br>
+                    • 2-year warranty included
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - REPREZENTATIVE</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, sans-serif; background: #000; color: #fff; }
+        
+        .header { background: #18181b; padding: 2rem; border-bottom: 1px solid #27272a; }
+        .header-content { max-width: 1280px; margin: 0 auto; display: flex; justify-content: space-between; }
+        .logo { font-size: 1.5rem; font-weight: bold; letter-spacing: 0.1em; }
+        
+        .dashboard-container { max-width: 1280px; margin: 0 auto; padding: 2rem; display: grid; grid-template-columns: 250px 1fr; gap: 2rem; }
+        
+        .sidebar { background: #18181b; padding: 1.5rem; height: fit-content; border: 1px solid #27272a; }
+        .user-info { text-align: center; padding-bottom: 1.5rem; border-bottom: 1px solid #27272a; margin-bottom: 1.5rem; }
+        .user-avatar { width: 5rem; height: 5rem; background: #27272a; border-radius: 50%; margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 600; color: #9ca3af; }
+        
+        .nav-item { padding: 0.75rem 1rem; margin-bottom: 0.25rem; cursor: pointer; transition: all 0.3s; font-size: 0.875rem; border-radius: 0.25rem; }
+        .nav-item:hover { background: #27272a; }
+        .nav-item.active { background: #fff; color: #000; }
+        .nav-item.logout { color: #ef4444; margin-top: 1rem; border-top: 1px solid #27272a; padding-top: 1rem; }
+        
+        .main-content h2 { font-size: 1.75rem; margin-bottom: 1.5rem; font-weight: 600; }
+        
+        .order-card { background: #18181b; padding: 1.5rem; margin-bottom: 1rem; border: 1px solid #27272a; border-radius: 0.5rem; }
+        .order-header { display: flex; justify-content: space-between; padding-bottom: 1rem; border-bottom: 1px solid #27272a; margin-bottom: 1rem; }
+        .status-badge { padding: 0.25rem 0.75rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 600; }
+        .status-delivered { background: #065f46; color: #6ee7b7; }
+        .status-shipped { background: #1e3a8a; color: #93c5fd; }
+        .status-processing { background: #92400e; color: #fbbf24; }
+        
+        .product-item { display: flex; gap: 1rem; margin-bottom: 0.75rem; }
+        .product-thumb { width: 5rem; height: 5rem; background: #27272a; }
+        .product-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .order-footer { display: flex; justify-content: space-between; padding-top: 1rem; border-top: 1px solid #27272a; align-items: center; }
+        .action-buttons { display: flex; gap: 0.75rem; margin-top: 1rem; }
+        .btn { padding: 0.75rem 1.5rem; border: 1px solid #3f3f46; background: transparent; color: #fff; cursor: pointer; transition: all 0.3s; font-size: 0.875rem; }
+        .btn:hover { border-color: #fff; }
+        .btn-primary { background: #fff; color: #000; border: none; }
+        .btn-primary:hover { background: #e5e7eb; }
+        
+        @media (max-width: 768px) {
+            .dashboard-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">REPREZENTATIVE</div>
+            <a href="01-homepage.html" style="color: #9ca3af; text-decoration: none; font-size: 0.875rem;">Continue Shopping →</a>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="user-info">
+                <div class="user-avatar">JA</div>
+                <h3 style="margin-bottom: 0.25rem;">John Anderson</h3>
+                <p style="font-size: 0.875rem; color: #9ca3af;">john@email.com</p>
+            </div>
+            <nav>
+                <div class="nav-item active" onclick="showSection('orders')">Orders</div>
+                <div class="nav-item" onclick="showSection('wishlist')">Wishlist</div>
+                <div class="nav-item" onclick="showSection('profile')">Profile</div>
+                <div class="nav-item" onclick="showSection('addresses')">Addresses</div>
+                <div class="nav-item" onclick="showSection('payment')">Payment Methods</div>
+                <div class="nav-item" onclick="showSection('settings')">Settings</div>
+                <div class="nav-item logout" onclick="logout()">Sign Out</div>
+            </nav>
+        </aside>
+
+        <main class="main-content" id="mainContent">
+            <h2>My Orders</h2>
+
+            <div class="order-card">
+                <div class="order-header">
+                    <div>
+                        <h3 style="margin-bottom: 0.25rem;">Order #ORD-2024-1234</h3>
+                        <p style="font-size: 0.875rem; color: #9ca3af;">November 20, 2024</p>
+                    </div>
+                    <span class="status-badge status-delivered">Delivered</span>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-thumb">
+                        <img src="https://images.pexels.com/photos/8532616/pexels-photo-8532616.jpeg?auto=compress&cs=tinysrgb&w=200" alt="Heritage Hoodie">
+                    </div>
+                    <div style="flex: 1;">
+                        <h4 style="margin-bottom: 0.25rem;">Heritage Hoodie</h4>
+                        <p style="font-size: 0.875rem; color: #9ca3af;">Charcoal Black • Size L • Qty 1</p>
+                    </div>
+                </div>
+
+                <div class="order-footer">
+                    <div>
+                        <span style="color: #9ca3af; font-size: 0.875rem;">Total:</span>
+                        <span style="font-weight: bold; margin-left: 0.5rem;">$145.00</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn">View Details</button>
+                    <button class="btn-primary btn">Track Order</button>
+                </div>
+            </div>
+
+            <div class="order-card">
+                <div class="order-header">
+                    <div>
+                        <h3 style="margin-bottom: 0.25rem;">Order #ORD-2024-1189</h3>
+                        <p style="font-size: 0.875rem; color: #9ca3af;">November 10, 2024</p>
+                    </div>
+                    <span class="status-badge status-shipped">Shipped</span>
+                </div>
+
+                <div class="product-item">
+                    <div class="product-thumb">
+                        <img src="https://images.pexels.com/photos/7679454/pexels-photo-7679454.jpeg?auto=compress&cs=tinysrgb&w=200" alt="Essential Hoodie">
+                    </div>
+                    <div style="flex: 1;">
+                        <h4 style="margin-bottom: 0.25rem;">Essential Hoodie</h4>
+                        <p style="font-size: 0.875rem; color: #9ca3af;">Stone Grey • Size M • Qty 2</p>
+                    </div>
+                </div>
+
+                <div class="order-footer">
+                    <div>
+                        <span style="color: #9ca3af; font-size: 0.875rem;">Total:</span>
+                        <span style="font-weight: bold; margin-left: 0.5rem;">$270.00</span>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn">View Details</button>
+                    <button class="btn-primary btn">Track Order</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function showSection(section) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const content = document.getElementById('mainContent');
+            const titles = {
+                'orders': 'My Orders',
+                'wishlist': 'Wishlist',
+                'profile': 'Profile',
+                'addresses': 'Addresses',
+                'payment': 'Payment Methods',
+                'settings': 'Settings'
+            };
+            
+            content.innerHTML = '<h2>' + titles[section] + '</h2><p style="color: #9ca3af; margin-top: 1rem;">This section shows ' + section + ' functionality. In production, this would load data from the database.</p>';
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to sign out?')) {
+                alert('Signed out successfully');
+                window.location.href = '01-homepage.html';
+            }
+        }
+    </script>
+</body>
+</html>

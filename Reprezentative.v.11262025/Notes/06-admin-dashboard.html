@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - REPREZENTATIVE</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #000; color: #fff; display: flex; min-height: 100vh; }
+        
+        /* SIDEBAR */
+        .sidebar { width: 260px; background: #18181b; border-right: 1px solid #27272a; display: flex; flex-direction: column; position: fixed; height: 100vh; overflow-y: auto; }
+        .sidebar-header { padding: 1.5rem; border-bottom: 1px solid #27272a; }
+        .sidebar-header h1 { font-size: 1.25rem; margin-bottom: 0.25rem; letter-spacing: 0.05em; }
+        .sidebar-header p { font-size: 0.75rem; color: #9ca3af; }
+        
+        .sidebar-nav { flex: 1; padding: 1rem; overflow-y: auto; }
+        
+        /* HUB SECTIONS */
+        .nav-hub { margin-bottom: 2rem; }
+        .nav-hub-title { 
+            font-size: 0.625rem; 
+            text-transform: uppercase; 
+            color: #6b7280; 
+            margin-bottom: 0.75rem; 
+            font-weight: 700; 
+            letter-spacing: 0.1em;
+            padding: 0 0.75rem;
+        }
+        
+        .nav-item { 
+            padding: 0.625rem 0.75rem; 
+            margin-bottom: 0.125rem; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            font-size: 0.875rem; 
+            border-radius: 0.375rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .nav-item:hover { background: #27272a; }
+        .nav-item.active { background: #fff; color: #000; font-weight: 500; }
+        
+        .nav-badge { 
+            background: #ef4444; 
+            color: #fff; 
+            padding: 0.125rem 0.5rem; 
+            border-radius: 0.25rem; 
+            font-size: 0.625rem; 
+            font-weight: 700;
+        }
+        .nav-badge.blue { background: #3b82f6; }
+        .nav-badge.green { background: #10b981; }
+        
+        .sidebar-footer { padding: 1rem; border-top: 1px solid #27272a; }
+        .admin-user { display: flex; align-items: center; gap: 0.75rem; font-size: 0.875rem; }
+        .admin-avatar { 
+            width: 2rem; 
+            height: 2rem; 
+            background: #27272a; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 0.75rem; 
+            font-weight: 600; 
+        }
+        
+        /* MAIN CONTENT */
+        .main-content { flex: 1; margin-left: 260px; overflow-y: auto; }
+        .content-header { 
+            padding: 2rem; 
+            border-bottom: 1px solid #27272a; 
+            background: #18181b;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .content-header h2 { font-size: 2rem; margin-bottom: 0.5rem; font-weight: 600; }
+        .content-header p { color: #9ca3af; font-size: 0.875rem; }
+        
+        .content-body { padding: 2rem; }
+        
+        /* STATS GRID */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { 
+            background: linear-gradient(135deg, #10b981, #059669); 
+            padding: 1.5rem; 
+            border-radius: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            transform: translate(30%, -30%);
+        }
+        .stat-card.blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .stat-card.purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .stat-card.amber { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .stat-card.red { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .stat-card.indigo { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+        
+        .stat-label { font-size: 0.875rem; opacity: 0.9; margin-bottom: 0.5rem; position: relative; z-index: 1; }
+        .stat-value { font-size: 2rem; font-weight: bold; margin-bottom: 0.5rem; position: relative; z-index: 1; }
+        .stat-change { font-size: 0.875rem; opacity: 0.9; position: relative; z-index: 1; }
+        
+        /* CHARTS GRID */
+        .charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
+        .chart-card { background: #18181b; padding: 1.5rem; border-radius: 0.5rem; border: 1px solid #27272a; }
+        .chart-card h3 { margin-bottom: 1rem; font-size: 1.125rem; font-weight: 600; }
+        
+        .chart-bars { display: flex; align-items: flex-end; height: 200px; gap: 0.5rem; }
+        .bar { flex: 1; background: #fff; border-radius: 0.25rem 0.25rem 0 0; transition: all 0.3s; position: relative; }
+        .bar:hover { background: #d1d5db; }
+        .bar::after {
+            content: attr(data-value);
+            position: absolute;
+            top: -1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: #9ca3af;
+            white-space: nowrap;
+        }
+        
+        .chart-labels { display: flex; justify-content: space-between; margin-top: 1rem; font-size: 0.75rem; color: #9ca3af; }
+        
+        .product-row { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #27272a; }
+        .product-row:last-child { border-bottom: none; }
+        .product-info h4 { font-weight: 600; margin-bottom: 0.125rem; font-size: 0.875rem; }
+        .product-info p { font-size: 0.75rem; color: #9ca3af; }
+        .product-stats { text-align: right; }
+        .product-stats .revenue { font-weight: bold; font-size: 0.875rem; }
+        .product-stats .units { font-size: 0.75rem; color: #9ca3af; }
+        
+        /* INSIGHTS SECTION */
+        .insights-section { margin-bottom: 2rem; }
+        .insights-section h3 { font-size: 1.5rem; margin-bottom: 1.5rem; font-weight: 600; }
+        .insights-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+        .insight-card { 
+            background: #18181b; 
+            padding: 1rem; 
+            border-left: 4px solid; 
+            border-radius: 0.25rem;
+            border-right: 1px solid #27272a;
+            border-top: 1px solid #27272a;
+            border-bottom: 1px solid #27272a;
+        }
+        .insight-card.urgent { border-left-color: #ef4444; }
+        .insight-card.warning { border-left-color: #f59e0b; }
+        .insight-card.opportunity { border-left-color: #10b981; }
+        .insight-card.info { border-left-color: #3b82f6; }
+        .insight-type { 
+            font-size: 0.625rem; 
+            text-transform: uppercase; 
+            font-weight: 700; 
+            letter-spacing: 0.05em; 
+            margin-bottom: 0.5rem;
+            opacity: 0.8;
+        }
+        .insight-title { font-weight: 600; margin-bottom: 0.5rem; font-size: 0.875rem; }
+        .insight-text { font-size: 0.75rem; color: #9ca3af; line-height: 1.5; }
+        
+        /* RESPONSIVE */
+        @media (max-width: 1280px) {
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+            .insights-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 1024px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .charts-grid { grid-template-columns: 1fr; }
+            .insights-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .sidebar { width: 100%; position: relative; height: auto; }
+            .main-content { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1>REPREZENTATIVE</h1>
+            <p>Admin Dashboard</p>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <!-- DASHBOARD -->
+            <div class="nav-hub">
+                <div class="nav-item active" onclick="showSection('dashboard')">
+                    Dashboard
+                </div>
+            </div>
+
+            <!-- PRODUCTS HUB -->
+            <div class="nav-hub">
+                <div class="nav-hub-title">Products Hub</div>
+                <div class="nav-item" onclick="showSection('content-manager')">Content Manager</div>
+                <div class="nav-item" onclick="showSection('products')">Products</div>
+                <div class="nav-item" onclick="showSection('inventory')">Inventory Manager</div>
+            </div>
+
+            <!-- SALES HUB -->
+            <div class="nav-hub">
+                <div class="nav-hub-title">Sales Hub</div>
+                <div class="nav-item" onclick="showSection('orders')">
+                    Orders
+                    <span class="nav-badge">12</span>
+                </div>
+                <div class="nav-item" onclick="showSection('customers')">Customers</div>
+                <div class="nav-item" onclick="showSection('analytics')">Analytics</div>
+                <div class="nav-item" onclick="showSection('marketing')">Marketing</div>
+            </div>
+
+            <!-- FINANCE HUB -->
+            <div class="nav-hub">
+                <div class="nav-hub-title">Finance Hub</div>
+                <div class="nav-item" onclick="showSection('cogs')">COGS Manager</div>
+                <div class="nav-item" onclick="showSection('pricing-engine')">
+                    AI Pricing Engine
+                    <span class="nav-badge blue">AI</span>
+                </div>
+                <div class="nav-item" onclick="showSection('expenses')">Expense Tracking</div>
+                <div class="nav-item" onclick="showSection('profit-analysis')">Profit Analysis</div>
+            </div>
+
+            <!-- OPERATIONS HUB -->
+            <div class="nav-hub">
+                <div class="nav-hub-title">Operations Hub</div>
+                <div class="nav-item" onclick="showSection('suppliers')">Suppliers</div>
+                <div class="nav-item" onclick="showSection('purchase-orders')">Purchase Orders</div>
+                <div class="nav-item" onclick="showSection('logistics')">Logistics</div>
+            </div>
+
+            <!-- AI INTELLIGENCE HUB -->
+            <div class="nav-hub">
+                <div class="nav-hub-title">AI Intelligence Hub</div>
+                <div class="nav-item" onclick="showSection('ai-assistant')">
+                    AI Assistant
+                    <span class="nav-badge green">BETA</span>
+                </div>
+            </div>
+
+            <!-- SETTINGS -->
+            <div class="nav-hub">
+                <div class="nav-hub-title">Settings</div>
+                <div class="nav-item" onclick="showSection('api-keys')">API Keys</div>
+                <div class="nav-item" onclick="showSection('seo-tools')">SEO Tools</div>
+                <div class="nav-item" onclick="showSection('settings')">System Settings</div>
+            </div>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="admin-user">
+                <div class="admin-avatar">AD</div>
+                <div>
+                    <p style="font-weight: 600; margin-bottom: 0.125rem; font-size: 0.875rem;">Admin User</p>
+                    <p style="font-size: 0.75rem; color: #9ca3af;"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="95f4f1f8fcfbd5e7f0e5e7f0eff0fbe1f4e1fce3f0bbf6faf8">[email&#160;protected]</a></p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="content-header">
+            <h2>Dashboard Overview</h2>
+            <p>Real-time business intelligence and performance metrics</p>
+        </div>
+
+        <div class="content-body">
+            <!-- STATS GRID -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Revenue</div>
+                    <div class="stat-value">$24,580</div>
+                    <div class="stat-change">+12.5% from last month</div>
+                </div>
+
+                <div class="stat-card blue">
+                    <div class="stat-label">Gross Profit</div>
+                    <div class="stat-value">$15,977</div>
+                    <div class="stat-change">65% margin • +8.2% growth</div>
+                </div>
+
+                <div class="stat-card purple">
+                    <div class="stat-label">Total Orders</div>
+                    <div class="stat-value">156</div>
+                    <div class="stat-change">$157.56 AOV • +15.3%</div>
+                </div>
+
+                <div class="stat-card amber">
+                    <div class="stat-label">Active Customers</div>
+                    <div class="stat-value">1,243</div>
+                    <div class="stat-change">$456 LTV • 3.2% conversion</div>
+                </div>
+
+                <div class="stat-card red">
+                    <div class="stat-label">Total COGS</div>
+                    <div class="stat-value">$8,603</div>
+                    <div class="stat-change">35% of revenue • -2.1%</div>
+                </div>
+
+                <div class="stat-card indigo">
+                    <div class="stat-label">Operating Expenses</div>
+                    <div class="stat-value">$4,250</div>
+                    <div class="stat-change">17.3% of revenue</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Net Profit</div>
+                    <div class="stat-value">$11,727</div>
+                    <div class="stat-change">47.7% net margin • Excellent</div>
+                </div>
+
+                <div class="stat-card blue">
+                    <div class="stat-label">Inventory Value</div>
+                    <div class="stat-value">$18,450</div>
+                    <div class="stat-change">342 units • 2.1 turnover</div>
+                </div>
+            </div>
+
+            <!-- CHARTS GRID -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>Revenue & Profit Trend (7 Days)</h3>
+                    <div class="chart-bars">
+                        <div class="bar" style="height: 65%;" data-value="$2.1k"></div>
+                        <div class="bar" style="height: 85%;" data-value="$2.8k"></div>
+                        <div class="bar" style="height: 75%;" data-value="$2.5k"></div>
+                        <div class="bar" style="height: 90%;" data-value="$3.0k"></div>
+                        <div class="bar" style="height: 80%;" data-value="$2.7k"></div>
+                        <div class="bar" style="height: 95%;" data-value="$3.2k"></div>
+                        <div class="bar" style="height: 88%;" data-value="$2.9k"></div>
+                    </div>
+                    <div class="chart-labels">
+                        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Top Products by Profitability</h3>
+                    <div class="product-row">
+                        <div class="product-info">
+                            <h4>Heritage Hoodie</h4>
+                            <p>89 sold • 68% margin</p>
+                        </div>
+                        <div class="product-stats">
+                            <div class="revenue">$8,775</div>
+                            <div class="units">Profit</div>
+                        </div>
+                    </div>
+                    <div class="product-row">
+                        <div class="product-info">
+                            <h4>Essential Hoodie</h4>
+                            <p>67 sold • 62% margin</p>
+                        </div>
+                        <div class="product-stats">
+                            <div class="revenue">$5,608</div>
+                            <div class="units">Profit</div>
+                        </div>
+                    </div>
+                    <div class="product-row">
+                        <div class="product-info">
+                            <h4>Premium Hoodie</h4>
+                            <p>54 sold • 71% margin</p>
+                        </div>
+                        <div class="product-stats">
+                            <div class="revenue">$6,327</div>
+                            <div class="units">Profit</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI INSIGHTS -->
+            <div class="insights-section">
+                <h3>AI-Powered Business Intelligence</h3>
+                <div class="insights-grid">
+                    <div class="insight-card urgent">
+                        <div class="insight-type">Urgent • Inventory</div>
+                        <div class="insight-title">Low Stock Alert</div>
+                        <div class="insight-text">Heritage Hoodie (Charcoal, L) will sell out in 3 days. Reorder 50 units immediately. Lead time: 14 days.</div>
+                    </div>
+                    
+                    <div class="insight-card warning">
+                        <div class="insight-type">Warning • Pricing</div>
+                        <div class="insight-title">Margin Compression Detected</div>
+                        <div class="insight-text">Fabric costs increased 8% this month. Consider price adjustment of $7-10 to maintain target margin.</div>
+                    </div>
+                    
+                    <div class="insight-card opportunity">
+                        <div class="insight-type">Opportunity • Revenue</div>
+                        <div class="insight-title">Bundle Opportunity</div>
+                        <div class="insight-text">65% of customers who buy Heritage also view Essential. Create bundle for 15% increase in AOV.</div>
+                    </div>
+
+                    <div class="insight-card info">
+                        <div class="insight-type">Info • Expenses</div>
+                        <div class="insight-title">Marketing ROI Improved</div>
+                        <div class="insight-text">Meta ads performing at 4.2x ROAS. Consider increasing budget by $500/mo for projected $2,100 additional profit.</div>
+                    </div>
+
+                    <div class="insight-card opportunity">
+                        <div class="insight-type">Opportunity • Pricing</div>
+                        <div class="insight-title">Dynamic Pricing Recommendation</div>
+                        <div class="insight-text">Premium Hoodie demand high, stock moderate. Test $10 price increase. AI predicts 5% volume drop, 12% profit increase.</div>
+                    </div>
+
+                    <div class="insight-card warning">
+                        <div class="insight-type">Warning • Operations</div>
+                        <div class="insight-title">Supplier Performance Issue</div>
+                        <div class="insight-text">Supplier A late on 3 of last 5 orders. Consider splitting orders with Supplier B for 20% of volume.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+        function showSection(section) {
+            // Remove active class from all items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Add active class to clicked item
+            event.target.classList.add('active');
+            
+            const sectionTitles = {
+                'dashboard': 'Dashboard Overview',
+                'content-manager': 'Content Manager',
+                'products': 'Product Management',
+                'inventory': 'Smart Inventory Manager',
+                'orders': 'Order Management',
+                'customers': 'Customer Management',
+                'analytics': 'Analytics Dashboard',
+                'marketing': 'Marketing Hub',
+                'cogs': 'COGS Manager',
+                'pricing-engine': 'AI Pricing Engine',
+                'expenses': 'Expense Tracking',
+                'profit-analysis': 'Profit Analysis',
+                'suppliers': 'Supplier Management',
+                'purchase-orders': 'Purchase Orders',
+                'logistics': 'Logistics Management',
+                'ai-assistant': 'AI Assistant',
+                'api-keys': 'API Key Management',
+                'seo-tools': 'SEO Tools',
+                'settings': 'System Settings'
+            };
+            
+            const sectionDescriptions = {
+                'dashboard': 'Real-time business intelligence and performance metrics',
+                'content-manager': 'Visual editor for website content with live preview',
+                'products': 'Add, edit, and manage product catalog',
+                'inventory': 'AI-powered inventory tracking with forecasting',
+                'orders': 'Process and fulfill customer orders',
+                'customers': 'Customer profiles and lifetime value analysis',
+                'analytics': 'Business intelligence and performance reports',
+                'marketing': 'Email campaigns, discounts, and promotions',
+                'cogs': 'Track all product costs and calculate true margins',
+                'pricing-engine': 'AI-powered dynamic pricing optimization',
+                'expenses': 'Track operating expenses and calculate net profit',
+                'profit-analysis': 'Detailed profitability reports by product, channel, period',
+                'suppliers': 'Manage suppliers, MOQs, lead times, and costs',
+                'purchase-orders': 'Create and track purchase orders',
+                'logistics': 'Freight, customs, warehousing, and fulfillment',
+                'ai-assistant': 'Chat with AI about your business data',
+                'api-keys': 'Manage all API keys and integrations',
+                'seo-tools': 'SEO optimization and Google Search Console',
+                'settings': 'System configuration and preferences'
+ 
