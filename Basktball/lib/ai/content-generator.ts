@@ -346,7 +346,7 @@ export async function saveGeneratedContent(
       tokenUsage: options.tokenUsage,
       approved: shouldApprove,
       published: shouldApprove,
-      metadata: options.metadata as Record<string, unknown> | undefined,
+      metadata: options.metadata ? JSON.parse(JSON.stringify(options.metadata)) : undefined,
     },
   });
 
