@@ -1,106 +1,55 @@
 import type { Metadata } from "next";
 import { Anton, Barlow_Condensed, Roboto_Mono } from "next/font/google";
-import { Analytics } from "@/components/Analytics";
+import { SessionProvider } from "next-auth/react";
+import { auth } from "@/lib/auth";
 import "./globals.css";
 
 const anton = Anton({
   weight: "400",
-  variable: "--font-anton",
   subsets: ["latin"],
+  variable: "--font-anton",
   display: "swap",
 });
 
 const barlowCondensed = Barlow_Condensed({
-  weight: ["400", "600", "700", "900"],
-  variable: "--font-barlow",
+  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
+  variable: "--font-barlow",
   display: "swap",
 });
 
 const robotoMono = Roboto_Mono({
-  weight: ["500", "700"],
-  variable: "--font-roboto-mono",
+  weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
+  variable: "--font-roboto-mono",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: {
-    default: "Basktball - Basketball Analytics & Advanced Stats",
-    template: "%s | Basktball",
-  },
-  icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
-    apple: "/logo-icon.png",
-  },
-  description:
-    "Advanced basketball analytics across NBA, WNBA, NCAA, EuroLeague & International Basketball. Live scores, player stats, AI-powered insights, and powerful analytics tools.",
-  keywords: [
-    "basketball",
-    "NBA",
-    "WNBA",
-    "NCAA",
-    "basketball stats",
-    "analytics",
-    "live scores",
-    "player comparison",
-    "fantasy basketball",
-  ],
-  authors: [{ name: "Basktball" }],
-  creator: "Basktball",
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: "https://basktball.com",
-    siteName: "Basktball",
-    title: "Basktball - Basketball Analytics & Advanced Stats",
-    description:
-      "Advanced basketball analytics across NBA, WNBA, NCAA, EuroLeague & International Basketball.",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Basktball - Dominate the Data",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Basktball - Basketball Analytics & Advanced Stats",
-    description:
-      "Advanced basketball analytics across NBA, WNBA, NCAA, EuroLeague & International Basketball.",
-    images: ["/og-image.png"],
-  },
-  robots: {
-    index: true,
-    follow: true,
-  },
+  title: "BASKTBALL - Dominate The Data",
+  description: "Real-time basketball stats, analytics, and insights for NBA, WNBA, NCAA, and international leagues.",
+  keywords: ["basketball", "NBA", "WNBA", "NCAA", "stats", "analytics", "live scores"],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  const session = await auth();
+
   return (
-    <html lang="en">
-      <body
-        className={`${anton.variable} ${barlowCondensed.variable} ${robotoMono.variable} antialiased`}
-      >
-        {/* Google Analytics */}
-        <Analytics />
-
-        {/* Court Background Pattern */}
-        <div className="court-bg" aria-hidden="true" />
-
-        {/* Decorative Court Accent Circles */}
-        <div className="court-accent" aria-hidden="true" />
-        <div className="court-accent" aria-hidden="true" />
-
-        {/* Main Content */}
-        <div className="relative z-10">{children}</div>
+    <html lang="en" className={`${anton.variable} ${barlowCondensed.variable} ${robotoMono.variable}`}>
+      <body>
+        <SessionProvider session={session}>
+          {/* Court Background Pattern */}
+          <div className="court-bg">
+            <div className="court-accent"></div>
+            <div className="court-accent"></div>
+            <div className="court-accent"></div>
+          </div>
+          {children}
+        </SessionProvider>
       </body>
     </html>
   );

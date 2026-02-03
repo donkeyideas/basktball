@@ -1,173 +1,238 @@
 "use client";
 
-import { useState } from "react";
-import useSWR from "swr";
-import { Header, Footer } from "@/components/layout";
-import { Card } from "@/components/ui/Card";
-import { cn } from "@/lib/utils";
+import { useState, useEffect, useCallback } from "react";
+import { Header, Footer } from "@/components";
 
 interface Player {
   id: string;
   name: string;
-  team: string;
-  position: string;
-  jerseyNum: number | null;
-  headshotUrl: string | null;
-  ppg: number;
-  rpg: number;
-  apg: number;
+  team?: {
+    id: string;
+    name: string;
+    abbreviation: string;
+  };
+  position?: string;
+  height?: string;
+  weight?: string;
+  jerseyNumber?: string;
 }
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function PlayersPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [positionFilter, setPositionFilter] = useState("ALL");
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hasSearched, setHasSearched] = useState(false);
 
-  const { data, isLoading } = useSWR<{ success: boolean; players: Player[] }>(
-    "/api/players",
-    fetcher
-  );
+  const searchPlayers = useCallback(async (query: string) => {
+    if (!query.trim()) {
+      setPlayers([]);
+      setHasSearched(false);
+      return;
+    }
 
-  const positions = ["ALL", "PG", "SG", "SF", "PF", "C"];
-  const players = data?.players || [];
+    setIsLoading(true);
+    setError(null);
+    setHasSearched(true);
 
-  const filteredPlayers = players.filter((player) => {
-    const matchesSearch =
-      player.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      player.team.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesPosition =
-      positionFilter === "ALL" || player.position === positionFilter;
-    return matchesSearch && matchesPosition;
-  });
+    try {
+      const res = await fetch(`/api/players?q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      if (data.success) {
+        setPlayers(data.players || []);
+      } else {
+        setError(data.error || "Failed to search players");
+      }
+    } catch {
+      setError("Failed to connect to server");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Debounced search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchQuery.length >= 2) {
+        searchPlayers(searchQuery);
+      } else if (searchQuery.length === 0) {
+        setPlayers([]);
+        setHasSearched(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, searchPlayers]);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
       <Header />
+      <main style={{ minHeight: "100vh", padding: "40px 20px" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          {/* Page Header */}
+          <h1 style={{
+            fontFamily: "var(--font-anton), Anton, sans-serif",
+            fontSize: "48px",
+            marginBottom: "40px",
+            textAlign: "center"
+          }}>
+            PLAYER SEARCH
+            <span style={{
+              display: "block",
+              width: "100px",
+              height: "4px",
+              background: "var(--orange)",
+              margin: "15px auto 0"
+            }}></span>
+          </h1>
 
-      <main className="flex-1 bg-[var(--black)] flex flex-col">
-        {/* Page Header */}
-        <section className="bg-[var(--dark-gray)] py-6 md:py-8 border-b border-[var(--orange)]/30 mb-6 md:mb-8">
-          <div className="container-main">
-            <h1 className="font-[family-name:var(--font-anton)] text-3xl md:text-4xl tracking-wider text-white mb-2">
-              PLAYERS
-            </h1>
-            <p className="text-white/70">
-              Browse player profiles and statistics
-            </p>
-          </div>
-        </section>
-
-        {/* Filters */}
-        <section className="py-4 md:py-6 border-b border-[var(--border)] mb-8 md:mb-12">
-          <div className="container-main">
-            <div className="flex flex-wrap items-center gap-4">
+          {/* Search Input */}
+          <div style={{
+            maxWidth: "600px",
+            margin: "0 auto 40px"
+          }}>
+            <div style={{ position: "relative" }}>
               <input
                 type="text"
-                placeholder="Search players..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-[var(--dark-gray)] border-2 border-[var(--border)] text-white px-4 py-2 focus:border-[var(--orange)] outline-none flex-1 min-w-[200px]"
+                placeholder="Search for a player..."
+                style={{
+                  width: "100%",
+                  padding: "15px 20px 15px 50px",
+                  background: "var(--dark-gray)",
+                  border: "2px solid rgba(255,255,255,0.1)",
+                  color: "var(--white)",
+                  fontSize: "18px",
+                  fontFamily: "var(--font-barlow), sans-serif"
+                }}
               />
-              <div className="flex gap-1">
-                {positions.map((pos) => (
-                  <button
-                    key={pos}
-                    onClick={() => setPositionFilter(pos)}
-                    className={cn(
-                      "px-3 py-2 text-sm font-semibold transition-colors",
-                      positionFilter === pos
-                        ? "bg-[var(--orange)] text-white"
-                        : "bg-[var(--dark-gray)] text-white/60 hover:text-white"
-                    )}
-                  >
-                    {pos}
-                  </button>
-                ))}
-              </div>
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="rgba(255,255,255,0.5)"
+                strokeWidth="2"
+                style={{
+                  position: "absolute",
+                  left: "15px",
+                  top: "50%",
+                  transform: "translateY(-50%)"
+                }}
+              >
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
             </div>
+            <p style={{
+              textAlign: "center",
+              color: "rgba(255,255,255,0.4)",
+              marginTop: "10px",
+              fontSize: "14px"
+            }}>
+              Enter at least 2 characters to search
+            </p>
           </div>
-        </section>
 
-        {/* Players Grid */}
-        <section className="flex-1 py-8 md:py-12">
-          <div className="container-main">
+          {/* Results */}
+          <div className="section">
+            <div className="section-title">
+              {hasSearched ? `Search Results (${players.length})` : "Search for Players"}
+            </div>
+
             {isLoading ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
-                {Array.from({ length: 12 }).map((_, i) => (
-                  <Card key={i} variant="default" className="p-4 md:p-5 animate-pulse">
-                    <div className="w-20 h-20 md:w-24 md:h-24 mx-auto mb-3 bg-white/10 rounded-full" />
-                    <div className="h-4 bg-white/10 rounded mb-2" />
-                    <div className="h-3 bg-white/10 rounded w-2/3 mx-auto" />
-                  </Card>
-                ))}
+              <div style={{ textAlign: "center", padding: "40px" }}>
+                <p style={{ color: "rgba(255,255,255,0.5)" }}>Searching...</p>
               </div>
-            ) : filteredPlayers.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-white/50 text-lg">No players found</p>
-                <p className="text-white/30 text-sm mt-2">
-                  Try adjusting your search or filters
+            ) : error ? (
+              <div style={{ textAlign: "center", padding: "40px" }}>
+                <p style={{ color: "var(--red)" }}>{error}</p>
+              </div>
+            ) : !hasSearched ? (
+              <div style={{ textAlign: "center", padding: "60px" }}>
+                <svg
+                  width="80"
+                  height="80"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="rgba(255,255,255,0.2)"
+                  strokeWidth="1"
+                  style={{ margin: "0 auto 20px" }}
+                >
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "16px" }}>
+                  Start typing to search for players
+                </p>
+              </div>
+            ) : players.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "40px" }}>
+                <p style={{ color: "rgba(255,255,255,0.5)" }}>
+                  No players found for &quot;{searchQuery}&quot;
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
-                {filteredPlayers.map((player) => (
-                  <Card
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+                gap: "20px"
+              }}>
+                {players.map(player => (
+                  <div
                     key={player.id}
-                    variant="default"
-                    hover
-                    className="p-4 md:p-5 text-center"
+                    className="player-card"
+                    style={{
+                      padding: "25px",
+                      textAlign: "left",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "20px"
+                    }}
                   >
-                    <div
-                      className="w-20 h-20 md:w-24 md:h-24 mx-auto mb-3 bg-cover bg-top rounded-full border-2 border-[var(--orange)] bg-[var(--dark-gray)]"
-                      style={{
-                        backgroundImage: player.headshotUrl
-                          ? `url('${player.headshotUrl}')`
-                          : undefined,
-                      }}
-                    >
-                      {!player.headshotUrl && (
-                        <div className="w-full h-full flex items-center justify-center text-white/30 text-2xl">
-                          {player.name.charAt(0)}
-                        </div>
-                      )}
+                    <div style={{
+                      width: "60px",
+                      height: "60px",
+                      borderRadius: "50%",
+                      background: "var(--orange)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontFamily: "var(--font-anton), Anton, sans-serif",
+                      fontSize: "24px",
+                      flexShrink: 0
+                    }}>
+                      {player.jerseyNumber || player.name.split(" ").map(n => n[0]).join("")}
                     </div>
-                    <h3 className="font-semibold text-white text-sm mb-1 truncate">
-                      {player.name}
-                    </h3>
-                    <p className="text-white/50 text-xs mb-2">
-                      {player.team} • #{player.jerseyNum || "-"} •{" "}
-                      {player.position || "-"}
-                    </p>
-                    <div className="flex justify-center gap-3 text-xs">
-                      <div>
-                        <p className="text-[var(--orange)] font-bold">
-                          {player.ppg?.toFixed(1) || "0.0"}
-                        </p>
-                        <p className="text-white/40">PPG</p>
-                      </div>
-                      <div>
-                        <p className="text-white font-bold">
-                          {player.rpg?.toFixed(1) || "0.0"}
-                        </p>
-                        <p className="text-white/40">RPG</p>
-                      </div>
-                      <div>
-                        <p className="text-white font-bold">
-                          {player.apg?.toFixed(1) || "0.0"}
-                        </p>
-                        <p className="text-white/40">APG</p>
-                      </div>
+                    <div style={{ flex: 1 }}>
+                      <h3 style={{
+                        fontFamily: "var(--font-anton), Anton, sans-serif",
+                        fontSize: "20px",
+                        marginBottom: "5px"
+                      }}>
+                        {player.name}
+                      </h3>
+                      <p style={{ color: "var(--orange)", marginBottom: "5px" }}>
+                        {player.team?.name || "Free Agent"}
+                      </p>
+                      <p style={{
+                        color: "rgba(255,255,255,0.5)",
+                        fontSize: "14px"
+                      }}>
+                        {[player.position, player.height, player.weight].filter(Boolean).join(" | ")}
+                      </p>
                     </div>
-                  </Card>
+                  </div>
                 ))}
               </div>
             )}
           </div>
-        </section>
+        </div>
       </main>
-
       <Footer />
-    </div>
+    </>
   );
 }

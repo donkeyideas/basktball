@@ -1,320 +1,339 @@
 "use client";
 
-import { useState } from "react";
-import { Header, Footer } from "@/components/layout";
-import { RadarChart } from "@/components/tools/RadarChart";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { cn } from "@/lib/utils";
+import { useState, useEffect, useCallback } from "react";
+import { Header, Footer } from "@/components";
 
-interface PlayerStats {
+interface Player {
   id: string;
   name: string;
-  team: string;
-  position: string;
-  imageUrl: string;
-  stats: {
-    ppg: number;
-    rpg: number;
-    apg: number;
-    spg: number;
-    bpg: number;
-    fgPct: number;
-    threePct: number;
-    ftPct: number;
-    per: number;
-    ts: number;
-  };
+  team?: { name: string; abbreviation: string };
+  position?: string;
 }
 
-// Mock player data
-const mockPlayers: PlayerStats[] = [
-  {
-    id: "1",
-    name: "LeBron James",
-    team: "Los Angeles Lakers",
-    position: "SF",
-    imageUrl: "https://cdn.nba.com/headshots/nba/latest/1040x760/2544.png",
-    stats: { ppg: 25.7, rpg: 7.3, apg: 8.3, spg: 1.3, bpg: 0.5, fgPct: 54.0, threePct: 41.0, ftPct: 75.0, per: 26.1, ts: 62.3 },
-  },
-  {
-    id: "2",
-    name: "Stephen Curry",
-    team: "Golden State Warriors",
-    position: "PG",
-    imageUrl: "https://cdn.nba.com/headshots/nba/latest/1040x760/201939.png",
-    stats: { ppg: 26.4, rpg: 4.5, apg: 6.1, spg: 0.9, bpg: 0.4, fgPct: 45.0, threePct: 40.8, ftPct: 92.3, per: 24.3, ts: 62.5 },
-  },
-  {
-    id: "3",
-    name: "Kevin Durant",
-    team: "Phoenix Suns",
-    position: "SF",
-    imageUrl: "https://cdn.nba.com/headshots/nba/latest/1040x760/201142.png",
-    stats: { ppg: 29.1, rpg: 6.6, apg: 5.0, spg: 0.9, bpg: 1.4, fgPct: 52.3, threePct: 40.4, ftPct: 85.6, per: 27.2, ts: 64.7 },
-  },
-  {
-    id: "4",
-    name: "Giannis Antetokounmpo",
-    team: "Milwaukee Bucks",
-    position: "PF",
-    imageUrl: "https://cdn.nba.com/headshots/nba/latest/1040x760/203507.png",
-    stats: { ppg: 30.4, rpg: 11.5, apg: 5.7, spg: 1.1, bpg: 1.0, fgPct: 61.1, threePct: 27.5, ftPct: 64.5, per: 31.1, ts: 60.5 },
-  },
-  {
-    id: "5",
-    name: "Luka Doncic",
-    team: "Dallas Mavericks",
-    position: "PG",
-    imageUrl: "https://cdn.nba.com/headshots/nba/latest/1040x760/1629029.png",
-    stats: { ppg: 32.4, rpg: 8.6, apg: 8.0, spg: 1.4, bpg: 0.5, fgPct: 48.7, threePct: 38.2, ftPct: 78.6, per: 28.7, ts: 59.0 },
-  },
-  {
-    id: "6",
-    name: "Nikola Jokic",
-    team: "Denver Nuggets",
-    position: "C",
-    imageUrl: "https://cdn.nba.com/headshots/nba/latest/1040x760/203999.png",
-    stats: { ppg: 26.4, rpg: 12.4, apg: 9.0, spg: 1.4, bpg: 0.7, fgPct: 58.3, threePct: 35.9, ftPct: 81.7, per: 32.0, ts: 66.1 },
-  },
-];
+interface PlayerStats {
+  ppg: number;
+  rpg: number;
+  apg: number;
+  spg: number;
+  bpg: number;
+  fgPct: number;
+  threePct: number;
+  ftPct: number;
+  mpg: number;
+  tov: number;
+}
 
-// Normalize stats for radar chart (0-100 scale)
-function normalizeStats(stats: PlayerStats["stats"]) {
-  return [
-    { label: "PPG", value: Math.min((stats.ppg / 35) * 100, 100) },
-    { label: "RPG", value: Math.min((stats.rpg / 15) * 100, 100) },
-    { label: "APG", value: Math.min((stats.apg / 12) * 100, 100) },
-    { label: "STL", value: Math.min((stats.spg / 2.5) * 100, 100) },
-    { label: "BLK", value: Math.min((stats.bpg / 3) * 100, 100) },
-    { label: "TS%", value: stats.ts },
-  ];
+// Sample stats for demonstration
+const sampleStats: Record<string, PlayerStats> = {
+  default: { ppg: 25.4, rpg: 7.2, apg: 6.8, spg: 1.2, bpg: 0.8, fgPct: 48.5, threePct: 38.2, ftPct: 85.6, mpg: 34.2, tov: 3.1 },
+};
+
+function StatBar({ label, value1, value2, max }: { label: string; value1: number; value2: number; max: number }) {
+  const pct1 = (value1 / max) * 100;
+  const pct2 = (value2 / max) * 100;
+  const winner = value1 > value2 ? 1 : value2 > value1 ? 2 : 0;
+
+  return (
+    <div style={{ marginBottom: "20px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+        <span style={{
+          fontFamily: "var(--font-roboto-mono), monospace",
+          fontSize: "18px",
+          fontWeight: "bold",
+          color: winner === 1 ? "var(--green)" : "inherit"
+        }}>
+          {value1.toFixed(1)}
+        </span>
+        <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "14px" }}>{label}</span>
+        <span style={{
+          fontFamily: "var(--font-roboto-mono), monospace",
+          fontSize: "18px",
+          fontWeight: "bold",
+          color: winner === 2 ? "var(--green)" : "inherit"
+        }}>
+          {value2.toFixed(1)}
+        </span>
+      </div>
+      <div style={{ display: "flex", gap: "4px", height: "8px" }}>
+        <div style={{ flex: 1, background: "rgba(255,255,255,0.1)", borderRadius: "4px", overflow: "hidden", display: "flex", justifyContent: "flex-end" }}>
+          <div style={{ width: `${pct1}%`, background: winner === 1 ? "var(--green)" : "var(--orange)", borderRadius: "4px", transition: "width 0.5s ease" }} />
+        </div>
+        <div style={{ flex: 1, background: "rgba(255,255,255,0.1)", borderRadius: "4px", overflow: "hidden" }}>
+          <div style={{ width: `${pct2}%`, background: winner === 2 ? "var(--green)" : "var(--blue)", borderRadius: "4px", transition: "width 0.5s ease" }} />
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default function ComparePage() {
-  const [player1, setPlayer1] = useState<PlayerStats | null>(mockPlayers[0]);
-  const [player2, setPlayer2] = useState<PlayerStats | null>(mockPlayers[3]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [search1, setSearch1] = useState("");
+  const [search2, setSearch2] = useState("");
+  const [players1, setPlayers1] = useState<Player[]>([]);
+  const [players2, setPlayers2] = useState<Player[]>([]);
+  const [selected1, setSelected1] = useState<Player | null>(null);
+  const [selected2, setSelected2] = useState<Player | null>(null);
+  const [stats1, setStats1] = useState<PlayerStats>(sampleStats.default);
+  const [stats2, setStats2] = useState<PlayerStats>({ ...sampleStats.default, ppg: 22.1, rpg: 5.8, apg: 8.2, spg: 1.5, bpg: 0.3, fgPct: 45.2, threePct: 41.5, ftPct: 88.2, mpg: 35.8, tov: 2.8 });
+  const [isSearching1, setIsSearching1] = useState(false);
+  const [isSearching2, setIsSearching2] = useState(false);
 
-  const filteredPlayers = mockPlayers.filter((p) =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const searchPlayers = useCallback(async (query: string, setPlayers: (p: Player[]) => void, setSearching: (b: boolean) => void) => {
+    if (query.length < 2) {
+      setPlayers([]);
+      return;
+    }
+    setSearching(true);
+    try {
+      const res = await fetch(`/api/players?q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      if (data.success) {
+        setPlayers(data.players || []);
+      }
+    } catch {
+      setPlayers([]);
+    } finally {
+      setSearching(false);
+    }
+  }, []);
 
-  const statCategories = [
-    { key: "ppg", label: "Points", format: (v: number) => v.toFixed(1) },
-    { key: "rpg", label: "Rebounds", format: (v: number) => v.toFixed(1) },
-    { key: "apg", label: "Assists", format: (v: number) => v.toFixed(1) },
-    { key: "spg", label: "Steals", format: (v: number) => v.toFixed(1) },
-    { key: "bpg", label: "Blocks", format: (v: number) => v.toFixed(1) },
-    { key: "fgPct", label: "FG%", format: (v: number) => `${v.toFixed(1)}%` },
-    { key: "threePct", label: "3P%", format: (v: number) => `${v.toFixed(1)}%` },
-    { key: "ftPct", label: "FT%", format: (v: number) => `${v.toFixed(1)}%` },
-    { key: "per", label: "PER", format: (v: number) => v.toFixed(1) },
-    { key: "ts", label: "TS%", format: (v: number) => `${v.toFixed(1)}%` },
-  ];
+  useEffect(() => {
+    const timer = setTimeout(() => searchPlayers(search1, setPlayers1, setIsSearching1), 300);
+    return () => clearTimeout(timer);
+  }, [search1, searchPlayers]);
 
-  const getWinner = (key: string) => {
-    if (!player1 || !player2) return null;
-    const v1 = player1.stats[key as keyof typeof player1.stats];
-    const v2 = player2.stats[key as keyof typeof player2.stats];
-    if (v1 > v2) return 1;
-    if (v2 > v1) return 2;
-    return null;
+  useEffect(() => {
+    const timer = setTimeout(() => searchPlayers(search2, setPlayers2, setIsSearching2), 300);
+    return () => clearTimeout(timer);
+  }, [search2, searchPlayers]);
+
+  const selectPlayer = (player: Player, side: 1 | 2) => {
+    if (side === 1) {
+      setSelected1(player);
+      setSearch1("");
+      setPlayers1([]);
+      // Generate random-ish stats based on player name for demo
+      const seed = player.name.length;
+      setStats1({
+        ppg: 20 + (seed % 15),
+        rpg: 4 + (seed % 8),
+        apg: 3 + (seed % 9),
+        spg: 0.8 + (seed % 15) / 10,
+        bpg: 0.3 + (seed % 12) / 10,
+        fgPct: 42 + (seed % 12),
+        threePct: 32 + (seed % 15),
+        ftPct: 75 + (seed % 20),
+        mpg: 28 + (seed % 10),
+        tov: 1.5 + (seed % 20) / 10,
+      });
+    } else {
+      setSelected2(player);
+      setSearch2("");
+      setPlayers2([]);
+      const seed = player.name.length + 5;
+      setStats2({
+        ppg: 20 + (seed % 15),
+        rpg: 4 + (seed % 8),
+        apg: 3 + (seed % 9),
+        spg: 0.8 + (seed % 15) / 10,
+        bpg: 0.3 + (seed % 12) / 10,
+        fgPct: 42 + (seed % 12),
+        threePct: 32 + (seed % 15),
+        ftPct: 75 + (seed % 20),
+        mpg: 28 + (seed % 10),
+        tov: 1.5 + (seed % 20) / 10,
+      });
+    }
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
       <Header />
+      <main style={{ minHeight: "100vh", padding: "40px 20px" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <h1 style={{
+            fontFamily: "var(--font-anton), Anton, sans-serif",
+            fontSize: "48px",
+            marginBottom: "20px",
+            textAlign: "center"
+          }}>
+            PLAYER COMPARISON
+            <span style={{
+              display: "block",
+              width: "100px",
+              height: "4px",
+              background: "var(--orange)",
+              margin: "15px auto 0"
+            }}></span>
+          </h1>
 
-      <main className="flex-1 bg-[var(--black)]">
-        {/* Hero */}
-        <section className="bg-gradient-to-br from-[var(--dark-gray)] to-[var(--black)] py-8 md:py-12 border-b-4 border-[var(--orange)]">
-          <div className="container-main">
-            <h1 className="font-[family-name:var(--font-anton)] text-3xl md:text-4xl tracking-wider text-white mb-2">
-              PLAYER COMPARISON
-            </h1>
-            <p className="text-white/70">
-              Compare any players with side-by-side stats and visual breakdowns
-            </p>
-          </div>
-        </section>
-
-        {/* Main Content */}
-        <section className="py-8 md:py-12">
-          <div className="container-main">
-            {/* Player Selection */}
-            <Card variant="default" className="p-4 md:p-6 mb-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Player 1 Selector */}
-                <div>
-                  <label className="block text-sm text-white/60 mb-2">PLAYER 1</label>
-                  <select
-                    value={player1?.id || ""}
-                    onChange={(e) => setPlayer1(mockPlayers.find((p) => p.id === e.target.value) || null)}
-                    className="w-full bg-[var(--black)] border-2 border-[var(--orange)] text-white px-4 py-3 focus:outline-none"
-                  >
-                    <option value="">Select Player</option>
-                    {mockPlayers.map((player) => (
-                      <option key={player.id} value={player.id}>
-                        {player.name} ({player.team})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Player 2 Selector */}
-                <div>
-                  <label className="block text-sm text-white/60 mb-2">PLAYER 2</label>
-                  <select
-                    value={player2?.id || ""}
-                    onChange={(e) => setPlayer2(mockPlayers.find((p) => p.id === e.target.value) || null)}
-                    className="w-full bg-[var(--black)] border-2 border-[var(--blue)] text-white px-4 py-3 focus:outline-none"
-                    style={{ borderColor: "#3B82F6" }}
-                  >
-                    <option value="">Select Player</option>
-                    {mockPlayers.map((player) => (
-                      <option key={player.id} value={player.id}>
-                        {player.name} ({player.team})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </Card>
-
-            {player1 && player2 && (
-              <>
-                {/* Player Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                  {/* Player 1 Card */}
-                  <Card variant="bordered" className="p-5 border-[var(--orange)]">
-                    <div className="flex items-center gap-4">
+          {/* Player Selection */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 100px 1fr", gap: "20px", marginTop: "40px", marginBottom: "40px" }}>
+            {/* Player 1 */}
+            <div className="section">
+              <div className="section-title" style={{ color: "var(--orange)" }}>Player 1</div>
+              <div style={{ position: "relative" }}>
+                <input
+                  type="text"
+                  value={search1}
+                  onChange={(e) => setSearch1(e.target.value)}
+                  placeholder="Search player..."
+                  style={{
+                    width: "100%",
+                    padding: "12px 15px",
+                    background: "rgba(0,0,0,0.3)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    color: "var(--white)",
+                    fontSize: "16px"
+                  }}
+                />
+                {isSearching1 && <span style={{ position: "absolute", right: "15px", top: "12px", color: "rgba(255,255,255,0.5)" }}>...</span>}
+                {players1.length > 0 && (
+                  <div style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    right: 0,
+                    background: "var(--dark-gray)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    maxHeight: "200px",
+                    overflowY: "auto",
+                    zIndex: 10
+                  }}>
+                    {players1.map(player => (
                       <div
-                        className="w-20 h-20 bg-cover bg-top rounded"
-                        style={{ backgroundImage: `url('${player1.imageUrl}')` }}
-                      />
-                      <div>
-                        <h3 className="font-[family-name:var(--font-anton)] text-xl tracking-wider">
-                          {player1.name}
-                        </h3>
-                        <p className="text-white/60 text-sm">{player1.team}</p>
-                        <span className="text-xs bg-[var(--orange)] px-2 py-0.5 mt-1 inline-block">
-                          {player1.position}
-                        </span>
+                        key={player.id}
+                        onClick={() => selectPlayer(player, 1)}
+                        style={{
+                          padding: "12px 15px",
+                          cursor: "pointer",
+                          borderBottom: "1px solid rgba(255,255,255,0.05)"
+                        }}
+                      >
+                        {player.name} {player.team && `(${player.team.abbreviation})`}
                       </div>
-                    </div>
-                  </Card>
-
-                  {/* Player 2 Card */}
-                  <Card variant="bordered" className="p-5" style={{ borderColor: "#3B82F6" }}>
-                    <div className="flex items-center gap-4">
-                      <div
-                        className="w-20 h-20 bg-cover bg-top rounded"
-                        style={{ backgroundImage: `url('${player2.imageUrl}')` }}
-                      />
-                      <div>
-                        <h3 className="font-[family-name:var(--font-anton)] text-xl tracking-wider">
-                          {player2.name}
-                        </h3>
-                        <p className="text-white/60 text-sm">{player2.team}</p>
-                        <span className="text-xs px-2 py-0.5 mt-1 inline-block" style={{ backgroundColor: "#3B82F6" }}>
-                          {player2.position}
-                        </span>
-                      </div>
-                    </div>
-                  </Card>
-                </div>
-
-                {/* Radar Chart */}
-                <Card variant="default" className="p-6 mb-8">
-                  <h3 className="font-[family-name:var(--font-anton)] text-xl tracking-wider mb-6 text-center">
-                    STATISTICAL COMPARISON
-                  </h3>
-                  <div className="flex justify-center">
-                    <RadarChart
-                      data={normalizeStats(player1.stats)}
-                      compareData={normalizeStats(player2.stats)}
-                      size={350}
-                      primaryColor="#F47B20"
-                      secondaryColor="#3B82F6"
-                    />
+                    ))}
                   </div>
-                  <div className="flex justify-center gap-8 mt-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 bg-[var(--orange)]" />
-                      <span className="text-sm text-white/70">{player1.name}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4" style={{ backgroundColor: "#3B82F6" }} />
-                      <span className="text-sm text-white/70">{player2.name}</span>
-                    </div>
-                  </div>
-                </Card>
-
-                {/* Stats Table */}
-                <Card variant="default" className="overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="bg-[var(--dark-gray)]">
-                          <th className="px-4 py-3 text-left text-sm font-semibold text-white/60">STAT</th>
-                          <th className="px-4 py-3 text-center text-sm font-semibold" style={{ color: "#F47B20" }}>
-                            {player1.name.split(" ")[1]}
-                          </th>
-                          <th className="px-4 py-3 text-center text-sm font-semibold" style={{ color: "#3B82F6" }}>
-                            {player2.name.split(" ")[1]}
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {statCategories.map((cat, i) => {
-                          const winner = getWinner(cat.key);
-                          return (
-                            <tr
-                              key={cat.key}
-                              className={cn(
-                                "border-t border-white/10",
-                                i % 2 === 0 ? "bg-[var(--black)]" : "bg-[var(--dark-gray)]"
-                              )}
-                            >
-                              <td className="px-4 py-3 text-white/70">{cat.label}</td>
-                              <td
-                                className={cn(
-                                  "px-4 py-3 text-center font-[family-name:var(--font-roboto-mono)]",
-                                  winner === 1 ? "text-[var(--orange)] font-bold" : "text-white"
-                                )}
-                              >
-                                {cat.format(player1.stats[cat.key as keyof typeof player1.stats])}
-                              </td>
-                              <td
-                                className={cn(
-                                  "px-4 py-3 text-center font-[family-name:var(--font-roboto-mono)]",
-                                  winner === 2 ? "font-bold" : "text-white"
-                                )}
-                                style={{ color: winner === 2 ? "#3B82F6" : undefined }}
-                              >
-                                {cat.format(player2.stats[cat.key as keyof typeof player2.stats])}
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                </Card>
-              </>
-            )}
-
-            {(!player1 || !player2) && (
-              <div className="text-center py-16 text-white/50">
-                <p className="text-xl">Select two players to compare</p>
+                )}
               </div>
-            )}
+              {selected1 && (
+                <div style={{ marginTop: "20px", textAlign: "center" }}>
+                  <div style={{
+                    width: "80px",
+                    height: "80px",
+                    borderRadius: "50%",
+                    background: "var(--orange)",
+                    margin: "0 auto 15px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "28px",
+                    fontWeight: "bold"
+                  }}>
+                    {selected1.name.split(" ").map(n => n[0]).join("")}
+                  </div>
+                  <h3 style={{ fontFamily: "var(--font-anton), Anton, sans-serif", fontSize: "24px" }}>{selected1.name}</h3>
+                  <p style={{ color: "rgba(255,255,255,0.5)" }}>{selected1.team?.name || "Free Agent"}</p>
+                </div>
+              )}
+            </div>
+
+            {/* VS */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{
+                fontFamily: "var(--font-anton), Anton, sans-serif",
+                fontSize: "36px",
+                color: "rgba(255,255,255,0.3)"
+              }}>VS</span>
+            </div>
+
+            {/* Player 2 */}
+            <div className="section">
+              <div className="section-title" style={{ color: "var(--blue)" }}>Player 2</div>
+              <div style={{ position: "relative" }}>
+                <input
+                  type="text"
+                  value={search2}
+                  onChange={(e) => setSearch2(e.target.value)}
+                  placeholder="Search player..."
+                  style={{
+                    width: "100%",
+                    padding: "12px 15px",
+                    background: "rgba(0,0,0,0.3)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    color: "var(--white)",
+                    fontSize: "16px"
+                  }}
+                />
+                {isSearching2 && <span style={{ position: "absolute", right: "15px", top: "12px", color: "rgba(255,255,255,0.5)" }}>...</span>}
+                {players2.length > 0 && (
+                  <div style={{
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    right: 0,
+                    background: "var(--dark-gray)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    maxHeight: "200px",
+                    overflowY: "auto",
+                    zIndex: 10
+                  }}>
+                    {players2.map(player => (
+                      <div
+                        key={player.id}
+                        onClick={() => selectPlayer(player, 2)}
+                        style={{
+                          padding: "12px 15px",
+                          cursor: "pointer",
+                          borderBottom: "1px solid rgba(255,255,255,0.05)"
+                        }}
+                      >
+                        {player.name} {player.team && `(${player.team.abbreviation})`}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {selected2 && (
+                <div style={{ marginTop: "20px", textAlign: "center" }}>
+                  <div style={{
+                    width: "80px",
+                    height: "80px",
+                    borderRadius: "50%",
+                    background: "var(--blue)",
+                    margin: "0 auto 15px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "28px",
+                    fontWeight: "bold"
+                  }}>
+                    {selected2.name.split(" ").map(n => n[0]).join("")}
+                  </div>
+                  <h3 style={{ fontFamily: "var(--font-anton), Anton, sans-serif", fontSize: "24px" }}>{selected2.name}</h3>
+                  <p style={{ color: "rgba(255,255,255,0.5)" }}>{selected2.team?.name || "Free Agent"}</p>
+                </div>
+              )}
+            </div>
           </div>
-        </section>
+
+          {/* Stats Comparison */}
+          <div className="section">
+            <div className="section-title">Statistical Comparison</div>
+            <StatBar label="PPG" value1={stats1.ppg} value2={stats2.ppg} max={40} />
+            <StatBar label="RPG" value1={stats1.rpg} value2={stats2.rpg} max={15} />
+            <StatBar label="APG" value1={stats1.apg} value2={stats2.apg} max={12} />
+            <StatBar label="SPG" value1={stats1.spg} value2={stats2.spg} max={3} />
+            <StatBar label="BPG" value1={stats1.bpg} value2={stats2.bpg} max={3} />
+            <StatBar label="FG%" value1={stats1.fgPct} value2={stats2.fgPct} max={60} />
+            <StatBar label="3P%" value1={stats1.threePct} value2={stats2.threePct} max={50} />
+            <StatBar label="FT%" value1={stats1.ftPct} value2={stats2.ftPct} max={100} />
+            <StatBar label="MPG" value1={stats1.mpg} value2={stats2.mpg} max={42} />
+            <StatBar label="TOV" value1={stats1.tov} value2={stats2.tov} max={5} />
+          </div>
+        </div>
       </main>
-
       <Footer />
-    </div>
+    </>
   );
 }

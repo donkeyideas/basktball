@@ -1,414 +1,223 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import useSWR, { mutate } from "swr";
-import { cn } from "@/lib/utils";
 
 interface Settings {
-  general: {
-    siteName: string;
-    siteDescription: string;
-    maintenanceMode: boolean;
-  };
-  api: {
-    deepSeekApiKey: string;
-    nbaStatsUserAgent: string;
-    cacheDuration: number;
-  };
-  content: {
-    autoGenerateGameRecaps: boolean;
-    autoGeneratePlayerAnalysis: boolean;
-    autoGenerateBettingInsights: boolean;
-    requireManualApproval: boolean;
-  };
-  features: {
-    liveScoresEnabled: boolean;
-    aiInsightsEnabled: boolean;
-    bettingInsightsEnabled: boolean;
-    fantasyToolsEnabled: boolean;
-  };
+  deepseekApiKey?: string;
+  nbaApiUserAgent?: string;
+  cacheDuration?: number;
+  autoGenerateInsights?: boolean;
+  autoGenerateRecaps?: boolean;
+  autoGenerateSpotlights?: boolean;
+  requireManualApproval?: boolean;
+  maintenanceMode?: boolean;
 }
 
-interface SettingsData {
-  success: boolean;
-  settings: Settings;
-}
-
-const defaultSettings: Settings = {
-  general: {
-    siteName: "Basktball",
-    siteDescription: "Advanced Basketball Analytics Platform",
-    maintenanceMode: false,
-  },
-  api: {
-    deepSeekApiKey: "",
-    nbaStatsUserAgent: "",
-    cacheDuration: 300,
-  },
-  content: {
-    autoGenerateGameRecaps: true,
-    autoGeneratePlayerAnalysis: true,
-    autoGenerateBettingInsights: false,
-    requireManualApproval: true,
-  },
-  features: {
-    liveScoresEnabled: true,
-    aiInsightsEnabled: true,
-    bettingInsightsEnabled: true,
-    fantasyToolsEnabled: true,
-  },
-};
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
-export default function SettingsPage() {
-  const { data, isLoading } = useSWR<SettingsData>("/api/admin/settings", fetcher);
-  const [settings, setSettings] = useState<Settings>(defaultSettings);
+export default function AdminSettingsPage() {
+  const [settings, setSettings] = useState<Settings>({});
+  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [savedMessage, setSavedMessage] = useState("");
-  const [isClearing, setIsClearing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (data?.settings) {
-      setSettings(data.settings);
-    }
-  }, [data]);
-
-  const updateSetting = <K extends keyof Settings>(
-    category: K,
-    key: keyof Settings[K],
-    value: Settings[K][keyof Settings[K]]
-  ) => {
-    setSettings((prev) => ({
-      ...prev,
-      [category]: {
-        ...prev[category],
-        [key]: value,
-      },
-    }));
-  };
-
-  const handleSave = async () => {
-    setIsSaving(true);
+  async function fetchSettings() {
     try {
-      const response = await fetch("/api/admin/settings", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ settings }),
-      });
-      const result = await response.json();
-      if (result.success) {
-        setSavedMessage("Settings saved successfully!");
-        mutate("/api/admin/settings");
+      const res = await fetch("/api/admin/settings");
+      const data = await res.json();
+      if (data.success) {
+        setSettings(data.settings || {});
+        setError(null);
       } else {
-        setSavedMessage("Failed to save settings");
+        setError(data.error || "Failed to load settings");
       }
     } catch {
-      setSavedMessage("Error saving settings");
+      setError("Failed to connect to server");
+    } finally {
+      setIsLoading(false);
     }
-    setIsSaving(false);
-    setTimeout(() => setSavedMessage(""), 3000);
-  };
+  }
 
-  const handleClearCache = async () => {
-    if (!confirm("Are you sure you want to clear all cache? This action cannot be undone.")) return;
-    setIsClearing(true);
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  async function saveSettings(e: React.FormEvent) {
+    e.preventDefault();
+    setIsSaving(true);
+    setSuccess(null);
+    setError(null);
+
     try {
-      await fetch("/api/admin/cache", { method: "DELETE" });
-      setSavedMessage("Cache cleared successfully!");
+      const res = await fetch("/api/admin/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSuccess("Settings saved successfully!");
+        setTimeout(() => setSuccess(null), 3000);
+      } else {
+        setError(data.error || "Failed to save settings");
+      }
     } catch {
-      setSavedMessage("Error clearing cache");
+      setError("Failed to connect to server");
+    } finally {
+      setIsSaving(false);
     }
-    setIsClearing(false);
-    setTimeout(() => setSavedMessage(""), 3000);
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex-1 p-6 overflow-auto">
-        {/* Header Skeleton */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="h-8 w-32 bg-white/10 rounded animate-pulse" />
-          <div className="h-10 w-32 bg-white/10 rounded animate-pulse" />
-        </div>
-
-        {/* Settings Grid Skeleton */}
-        <div className="grid grid-cols-2 gap-6">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="section">
-              <div className="section-header">
-                <div className="h-6 w-32 bg-white/10 rounded animate-pulse" />
-              </div>
-              <div className="p-4 space-y-4">
-                {Array.from({ length: 3 }).map((_, j) => (
-                  <div key={j} className="h-12 bg-white/10 rounded animate-pulse" />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
   }
 
   return (
-    <div className="flex-1 p-6 overflow-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="font-[family-name:var(--font-anton)] text-3xl tracking-wider text-white">
-          SETTINGS
-        </h1>
-        <div className="flex items-center gap-4">
-          {savedMessage && (
-            <span className={cn(
-              "text-sm",
-              savedMessage.includes("success") ? "text-[var(--green)]" : "text-[var(--red)]"
-            )}>
-              {savedMessage}
-            </span>
-          )}
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="btn btn-primary"
-          >
-            {isSaving ? (
-              <>
-                <svg className="w-4 h-4 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                Saving...
-              </>
-            ) : (
-              <>
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                Save Settings
-              </>
+    <>
+      <div className="admin-header">
+        <h1>SETTINGS</h1>
+      </div>
+
+      <div className="admin-content">
+        {isLoading ? (
+          <div style={{ textAlign: "center", padding: "60px" }}>
+            <p style={{ color: "rgba(255,255,255,0.5)" }}>Loading settings...</p>
+          </div>
+        ) : (
+          <form onSubmit={saveSettings} className="settings-form">
+            {error && (
+              <div style={{
+                background: "rgba(239, 68, 68, 0.1)",
+                border: "1px solid var(--red)",
+                color: "var(--red)",
+                padding: "15px",
+                marginBottom: "20px"
+              }}>
+                {error}
+              </div>
             )}
-          </button>
-        </div>
-      </div>
 
-      {/* Settings Grid */}
-      <div className="grid grid-cols-2 gap-6 mb-8">
-        {/* API Configuration */}
-        <div className="section">
-          <div className="section-header">
-            <h2 className="section-title">API Configuration</h2>
-          </div>
-          <div className="p-4 space-y-4">
-            <div>
-              <label className="block text-white/60 text-sm mb-2">DeepSeek API Key</label>
-              <input
-                type="password"
-                value={settings.api.deepSeekApiKey}
-                onChange={(e) => updateSetting("api", "deepSeekApiKey", e.target.value)}
-                placeholder="sk-..."
-                className="w-full bg-[var(--darker-gray)] border border-white/10 text-white text-sm px-4 py-3 rounded focus:border-[var(--orange)] outline-none"
-              />
-              <p className="text-white/30 text-xs mt-1">Required for AI content generation</p>
-            </div>
-            <div>
-              <label className="block text-white/60 text-sm mb-2">NBA Stats API User Agent</label>
-              <input
-                type="text"
-                value={settings.api.nbaStatsUserAgent}
-                onChange={(e) => updateSetting("api", "nbaStatsUserAgent", e.target.value)}
-                placeholder="Mozilla/5.0..."
-                className="w-full bg-[var(--darker-gray)] border border-white/10 text-white text-sm px-4 py-3 rounded focus:border-[var(--orange)] outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-white/60 text-sm mb-2">Cache Duration (seconds)</label>
-              <input
-                type="number"
-                value={settings.api.cacheDuration}
-                onChange={(e) => updateSetting("api", "cacheDuration", parseInt(e.target.value))}
-                className="w-full bg-[var(--darker-gray)] border border-white/10 text-white text-sm px-4 py-3 rounded focus:border-[var(--orange)] outline-none"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Content Generation Settings */}
-        <div className="section">
-          <div className="section-header">
-            <h2 className="section-title">Content Generation</h2>
-          </div>
-          <div className="p-4 space-y-3">
-            <label className="flex items-center justify-between p-3 bg-[var(--darker-gray)] rounded cursor-pointer hover:bg-white/5 transition-colors">
-              <div>
-                <span className="text-white text-sm">Auto-generate Game Recaps</span>
-                <p className="text-white/40 text-xs">Generate recaps after games complete</p>
+            {success && (
+              <div style={{
+                background: "rgba(16, 185, 129, 0.1)",
+                border: "1px solid var(--green)",
+                color: "var(--green)",
+                padding: "15px",
+                marginBottom: "20px"
+              }}>
+                {success}
               </div>
-              <input
-                type="checkbox"
-                checked={settings.content.autoGenerateGameRecaps}
-                onChange={(e) => updateSetting("content", "autoGenerateGameRecaps", e.target.checked)}
-                className="accent-[var(--orange)] w-5 h-5"
-              />
-            </label>
-            <label className="flex items-center justify-between p-3 bg-[var(--darker-gray)] rounded cursor-pointer hover:bg-white/5 transition-colors">
-              <div>
-                <span className="text-white text-sm">Auto-generate Player Analysis</span>
-                <p className="text-white/40 text-xs">Generate analysis for standout performances</p>
-              </div>
-              <input
-                type="checkbox"
-                checked={settings.content.autoGeneratePlayerAnalysis}
-                onChange={(e) => updateSetting("content", "autoGeneratePlayerAnalysis", e.target.checked)}
-                className="accent-[var(--orange)] w-5 h-5"
-              />
-            </label>
-            <label className="flex items-center justify-between p-3 bg-[var(--darker-gray)] rounded cursor-pointer hover:bg-white/5 transition-colors">
-              <div>
-                <span className="text-white text-sm">Auto-generate Betting Insights</span>
-                <p className="text-white/40 text-xs">Generate betting-related content</p>
-              </div>
-              <input
-                type="checkbox"
-                checked={settings.content.autoGenerateBettingInsights}
-                onChange={(e) => updateSetting("content", "autoGenerateBettingInsights", e.target.checked)}
-                className="accent-[var(--orange)] w-5 h-5"
-              />
-            </label>
-            <label className="flex items-center justify-between p-3 bg-[var(--darker-gray)] rounded cursor-pointer hover:bg-white/5 transition-colors">
-              <div>
-                <span className="text-white text-sm">Require Manual Approval</span>
-                <p className="text-white/40 text-xs">Content requires admin approval before publishing</p>
-              </div>
-              <input
-                type="checkbox"
-                checked={settings.content.requireManualApproval}
-                onChange={(e) => updateSetting("content", "requireManualApproval", e.target.checked)}
-                className="accent-[var(--orange)] w-5 h-5"
-              />
-            </label>
-          </div>
-        </div>
+            )}
 
-        {/* General Settings */}
-        <div className="section">
-          <div className="section-header">
-            <h2 className="section-title">General</h2>
-          </div>
-          <div className="p-4 space-y-4">
-            <div>
-              <label className="block text-white/60 text-sm mb-2">Site Name</label>
-              <input
-                type="text"
-                value={settings.general.siteName}
-                onChange={(e) => updateSetting("general", "siteName", e.target.value)}
-                className="w-full bg-[var(--darker-gray)] border border-white/10 text-white text-sm px-4 py-3 rounded focus:border-[var(--orange)] outline-none"
-              />
+            {/* API Configuration */}
+            <div className="section">
+              <div className="section-title">API Configuration</div>
+
+              <div className="form-group">
+                <label htmlFor="deepseekApiKey">DeepSeek API Key</label>
+                <input
+                  id="deepseekApiKey"
+                  type="password"
+                  value={settings.deepseekApiKey || ""}
+                  onChange={(e) => setSettings({ ...settings, deepseekApiKey: e.target.value })}
+                  placeholder="sk-..."
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="nbaApiUserAgent">NBA Stats API User Agent</label>
+                <input
+                  id="nbaApiUserAgent"
+                  type="text"
+                  value={settings.nbaApiUserAgent || ""}
+                  onChange={(e) => setSettings({ ...settings, nbaApiUserAgent: e.target.value })}
+                  placeholder="MyApp/1.0"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="cacheDuration">Cache Duration (seconds)</label>
+                <input
+                  id="cacheDuration"
+                  type="number"
+                  value={settings.cacheDuration || 300}
+                  onChange={(e) => setSettings({ ...settings, cacheDuration: parseInt(e.target.value) })}
+                  min={60}
+                  max={86400}
+                />
+              </div>
             </div>
-            <div>
-              <label className="block text-white/60 text-sm mb-2">Site Description</label>
-              <textarea
-                value={settings.general.siteDescription}
-                onChange={(e) => updateSetting("general", "siteDescription", e.target.value)}
-                rows={3}
-                className="w-full bg-[var(--darker-gray)] border border-white/10 text-white text-sm px-4 py-3 rounded focus:border-[var(--orange)] outline-none resize-none"
-              />
+
+            {/* Content Generation */}
+            <div className="section">
+              <div className="section-title">Content Generation</div>
+
+              <div className="checkbox-group">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={settings.autoGenerateInsights || false}
+                    onChange={(e) => setSettings({ ...settings, autoGenerateInsights: e.target.checked })}
+                  />
+                  Auto-generate game insights
+                </label>
+
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={settings.autoGenerateRecaps || false}
+                    onChange={(e) => setSettings({ ...settings, autoGenerateRecaps: e.target.checked })}
+                  />
+                  Auto-generate game recaps
+                </label>
+
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={settings.autoGenerateSpotlights || false}
+                    onChange={(e) => setSettings({ ...settings, autoGenerateSpotlights: e.target.checked })}
+                  />
+                  Auto-generate player spotlights
+                </label>
+
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={settings.requireManualApproval || false}
+                    onChange={(e) => setSettings({ ...settings, requireManualApproval: e.target.checked })}
+                  />
+                  Require manual approval for AI content
+                </label>
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Feature Flags */}
-        <div className="section">
-          <div className="section-header">
-            <h2 className="section-title">Feature Flags</h2>
-          </div>
-          <div className="p-4 space-y-3">
-            <label className="flex items-center justify-between p-3 bg-[var(--darker-gray)] rounded cursor-pointer hover:bg-white/5 transition-colors">
-              <span className="text-white text-sm">Live Scores</span>
-              <input
-                type="checkbox"
-                checked={settings.features.liveScoresEnabled}
-                onChange={(e) => updateSetting("features", "liveScoresEnabled", e.target.checked)}
-                className="accent-[var(--orange)] w-5 h-5"
-              />
-            </label>
-            <label className="flex items-center justify-between p-3 bg-[var(--darker-gray)] rounded cursor-pointer hover:bg-white/5 transition-colors">
-              <span className="text-white text-sm">AI Insights</span>
-              <input
-                type="checkbox"
-                checked={settings.features.aiInsightsEnabled}
-                onChange={(e) => updateSetting("features", "aiInsightsEnabled", e.target.checked)}
-                className="accent-[var(--orange)] w-5 h-5"
-              />
-            </label>
-            <label className="flex items-center justify-between p-3 bg-[var(--darker-gray)] rounded cursor-pointer hover:bg-white/5 transition-colors">
-              <span className="text-white text-sm">Betting Insights</span>
-              <input
-                type="checkbox"
-                checked={settings.features.bettingInsightsEnabled}
-                onChange={(e) => updateSetting("features", "bettingInsightsEnabled", e.target.checked)}
-                className="accent-[var(--orange)] w-5 h-5"
-              />
-            </label>
-            <label className="flex items-center justify-between p-3 bg-[var(--darker-gray)] rounded cursor-pointer hover:bg-white/5 transition-colors">
-              <span className="text-white text-sm">Fantasy Tools</span>
-              <input
-                type="checkbox"
-                checked={settings.features.fantasyToolsEnabled}
-                onChange={(e) => updateSetting("features", "fantasyToolsEnabled", e.target.checked)}
-                className="accent-[var(--orange)] w-5 h-5"
-              />
-            </label>
-          </div>
-        </div>
-      </div>
+            {/* Maintenance Mode */}
+            <div className="section">
+              <div className="section-title">Maintenance Mode</div>
 
-      {/* Maintenance Mode Section */}
-      <div className="section mb-8">
-        <div className="section-header">
-          <h2 className="section-title">Maintenance Mode</h2>
-        </div>
-        <div className="p-4">
-          <label className="flex items-center justify-between p-4 bg-[var(--darker-gray)] rounded cursor-pointer hover:bg-white/5 transition-colors">
-            <div>
-              <span className="text-white font-medium">Enable Maintenance Mode</span>
-              <p className="text-white/40 text-sm mt-1">
-                When enabled, the site will display a maintenance page to all visitors except admins.
-                Use this when performing major updates or during scheduled downtime.
+              <div className="toggle-switch">
+                <input
+                  type="checkbox"
+                  id="maintenanceMode"
+                  checked={settings.maintenanceMode || false}
+                  onChange={(e) => setSettings({ ...settings, maintenanceMode: e.target.checked })}
+                />
+                <label htmlFor="maintenanceMode" className="toggle-slider"></label>
+                <span style={{ marginLeft: "10px" }}>
+                  {settings.maintenanceMode ? "Enabled" : "Disabled"}
+                </span>
+              </div>
+              <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px", marginTop: "10px" }}>
+                When enabled, the public site will display a maintenance message.
               </p>
             </div>
-            <input
-              type="checkbox"
-              checked={settings.general.maintenanceMode}
-              onChange={(e) => updateSetting("general", "maintenanceMode", e.target.checked)}
-              className="accent-[var(--orange)] w-6 h-6"
-            />
-          </label>
-        </div>
-      </div>
 
-      {/* Danger Zone */}
-      <div className="section border-[var(--red)]/30">
-        <div className="section-header bg-[var(--red)]/10">
-          <h2 className="section-title text-[var(--red)]">Danger Zone</h2>
-        </div>
-        <div className="p-4">
-          <div className="flex items-center justify-between p-4 bg-[var(--darker-gray)] rounded border border-[var(--red)]/20">
-            <div>
-              <span className="text-white font-medium">Clear All Cache</span>
-              <p className="text-white/40 text-sm mt-1">
-                Remove all cached data. This may temporarily slow down the site.
-              </p>
-            </div>
             <button
-              onClick={handleClearCache}
-              disabled={isClearing}
-              className="btn-delete px-4 py-2"
+              type="submit"
+              className="btn btn-primary"
+              disabled={isSaving}
+              style={{ marginTop: "20px" }}
             >
-              {isClearing ? "Clearing..." : "Clear Cache"}
+              {isSaving ? "SAVING..." : "SAVE SETTINGS"}
             </button>
-          </div>
-        </div>
+          </form>
+        )}
       </div>
-    </div>
+    </>
   );
 }

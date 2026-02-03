@@ -1,274 +1,207 @@
 "use client";
 
-import useSWR from "swr";
-import { cn } from "@/lib/utils";
-
-interface PageView {
-  page: string;
-  views: number;
-  avgTime: string;
-  bounceRate: number;
-  change: number;
-}
-
-interface TrafficSource {
-  source: string;
-  visitors: number;
-  percentage: number;
-}
+import { useState, useEffect } from "react";
 
 interface AnalyticsData {
-  success: boolean;
-  overview: {
+  stats: {
     pageViews30d: number;
-    pageViewsChange: number;
     uniqueVisitors30d: number;
-    visitorsChange: number;
     revenue30d: number;
-    revenueChange: number;
     rpm: number;
-    rpmChange: number;
   };
-  topPages: PageView[];
-  trafficSources: TrafficSource[];
+  topPages: Array<{
+    page: string;
+    views: number;
+    avgTime: string;
+    bounceRate: string;
+  }>;
+  trafficSources: Array<{
+    source: string;
+    percentage: number;
+  }>;
 }
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+export default function AdminAnalyticsPage() {
+  const [data, setData] = useState<AnalyticsData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-export default function AnalyticsPage() {
-  const { data, isLoading } = useSWR<AnalyticsData>(
-    "/api/admin/analytics",
-    fetcher,
-    { refreshInterval: 60000 }
-  );
-
-  const overview = data?.overview || {
-    pageViews30d: 0,
-    pageViewsChange: 0,
-    uniqueVisitors30d: 0,
-    visitorsChange: 0,
-    revenue30d: 0,
-    revenueChange: 0,
-    rpm: 0,
-    rpmChange: 0,
-  };
-  const topPages = data?.topPages || [];
-  const trafficSources = data?.trafficSources || [];
-
-  const formatChange = (change: number) => {
-    const prefix = change >= 0 ? "+" : "";
-    return `${prefix}${change.toFixed(1)}%`;
-  };
-
-  const getChangeClass = (change: number) => {
-    if (change > 0) return "text-[var(--green)]";
-    if (change < 0) return "text-[var(--red)]";
-    return "text-white/40";
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex-1 p-6 overflow-auto">
-        {/* Header Skeleton */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="h-8 w-48 bg-white/10 rounded animate-pulse" />
-        </div>
-
-        {/* Stats Skeleton */}
-        <div className="grid grid-cols-4 gap-4 mb-8">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="stat-card p-6 animate-pulse">
-              <div className="h-6 w-6 bg-white/10 rounded mb-4" />
-              <div className="h-10 w-24 bg-white/10 rounded mb-2" />
-              <div className="h-4 w-32 bg-white/10 rounded" />
-            </div>
-          ))}
-        </div>
-
-        {/* Content Skeleton */}
-        <div className="grid grid-cols-3 gap-6">
-          <div className="col-span-2 section">
-            <div className="section-header">
-              <div className="h-6 w-32 bg-white/10 rounded animate-pulse" />
-            </div>
-            <div className="p-4 space-y-3">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="h-14 bg-white/10 rounded animate-pulse" />
-              ))}
-            </div>
-          </div>
-          <div className="section">
-            <div className="section-header">
-              <div className="h-6 w-32 bg-white/10 rounded animate-pulse" />
-            </div>
-            <div className="p-4">
-              <div className="h-64 bg-white/10 rounded animate-pulse" />
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+  async function fetchAnalytics() {
+    try {
+      const res = await fetch("/api/admin/analytics");
+      const json = await res.json();
+      if (json.success) {
+        setData(json);
+        setError(null);
+      } else {
+        setError(json.error || "Failed to load analytics");
+      }
+    } catch {
+      setError("Failed to connect to server");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
+  useEffect(() => {
+    fetchAnalytics();
+  }, []);
+
+  const stats = [
+    {
+      label: "Page Views (30d)",
+      value: data?.stats.pageViews30d?.toLocaleString() || "0",
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      ),
+    },
+    {
+      label: "Unique Visitors (30d)",
+      value: data?.stats.uniqueVisitors30d?.toLocaleString() || "0",
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+      ),
+    },
+    {
+      label: "Revenue (30d)",
+      value: `$${data?.stats.revenue30d?.toFixed(2) || "0.00"}`,
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <line x1="12" y1="1" x2="12" y2="23" />
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+        </svg>
+      ),
+    },
+    {
+      label: "RPM",
+      value: `$${data?.stats.rpm?.toFixed(2) || "0.00"}`,
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <line x1="18" y1="20" x2="18" y2="10" />
+          <line x1="12" y1="20" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="14" />
+        </svg>
+      ),
+    },
+  ];
+
   return (
-    <div className="flex-1 p-6 overflow-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="font-[family-name:var(--font-anton)] text-3xl tracking-wider text-white">
-          ANALYTICS
-        </h1>
-        <div className="flex items-center gap-2 text-sm text-white/40">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          Last 30 days
-        </div>
+    <>
+      <div className="admin-header">
+        <h1>ANALYTICS</h1>
+        <button className="btn btn-primary" onClick={fetchAnalytics}>
+          Refresh
+        </button>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
-        <div className="stat-card p-6">
-          <div className="text-[var(--orange)] mb-4">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
+      <div className="admin-content">
+        {isLoading ? (
+          <div style={{ textAlign: "center", padding: "60px" }}>
+            <p style={{ color: "rgba(255,255,255,0.5)" }}>Loading analytics...</p>
           </div>
-          <p className="stat-value">{(overview.pageViews30d / 1000).toFixed(1)}K</p>
-          <div className="flex items-center justify-between">
-            <p className="stat-label">Page Views (30d)</p>
-            <span className={cn("stat-change", getChangeClass(overview.pageViewsChange))}>
-              {formatChange(overview.pageViewsChange)}
-            </span>
+        ) : error ? (
+          <div style={{ textAlign: "center", padding: "60px" }}>
+            <p style={{ color: "var(--red)" }}>{error}</p>
           </div>
-        </div>
-
-        <div className="stat-card p-6">
-          <div className="text-[var(--orange)] mb-4">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-          </div>
-          <p className="stat-value">{(overview.uniqueVisitors30d / 1000).toFixed(1)}K</p>
-          <div className="flex items-center justify-between">
-            <p className="stat-label">Unique Visitors (30d)</p>
-            <span className={cn("stat-change", getChangeClass(overview.visitorsChange))}>
-              {formatChange(overview.visitorsChange)}
-            </span>
-          </div>
-        </div>
-
-        <div className="stat-card p-6">
-          <div className="text-[var(--orange)] mb-4">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <p className="stat-value">${overview.revenue30d.toLocaleString()}</p>
-          <div className="flex items-center justify-between">
-            <p className="stat-label">Revenue (30d)</p>
-            <span className={cn("stat-change", getChangeClass(overview.revenueChange))}>
-              {formatChange(overview.revenueChange)}
-            </span>
-          </div>
-        </div>
-
-        <div className="stat-card p-6">
-          <div className="text-[var(--orange)] mb-4">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-          </div>
-          <p className="stat-value">${overview.rpm.toFixed(2)}</p>
-          <div className="flex items-center justify-between">
-            <p className="stat-label">RPM</p>
-            <span className={cn("stat-change", getChangeClass(overview.rpmChange))}>
-              {formatChange(overview.rpmChange)}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Content Grid */}
-      <div className="grid grid-cols-3 gap-6">
-        {/* Top Pages Table */}
-        <div className="col-span-2 section">
-          <div className="section-header">
-            <h2 className="section-title">Top Pages</h2>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Page</th>
-                  <th>Views</th>
-                  <th>Avg Time</th>
-                  <th>Bounce Rate</th>
-                  <th>Change</th>
-                </tr>
-              </thead>
-              <tbody>
-                {topPages.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="text-center py-8 text-white/30">
-                      No page data available
-                    </td>
-                  </tr>
-                ) : (
-                  topPages.map((page) => (
-                    <tr key={page.page}>
-                      <td className="text-white font-[family-name:var(--font-roboto-mono)]">
-                        {page.page}
-                      </td>
-                      <td className="font-[family-name:var(--font-roboto-mono)] text-white">
-                        {page.views.toLocaleString()}
-                      </td>
-                      <td className="text-white/60">
-                        {page.avgTime}
-                      </td>
-                      <td className="text-white/60">
-                        {page.bounceRate.toFixed(1)}%
-                      </td>
-                      <td className={cn("font-[family-name:var(--font-roboto-mono)]", getChangeClass(page.change))}>
-                        {formatChange(page.change)}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Traffic Sources */}
-        <div className="section">
-          <div className="section-header">
-            <h2 className="section-title">Traffic Sources</h2>
-          </div>
-          <div className="p-4 space-y-4">
-            {trafficSources.length === 0 ? (
-              <p className="text-white/30 text-center py-8">No traffic data</p>
-            ) : (
-              trafficSources.map((source) => (
-                <div key={source.source}>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-white text-sm">{source.source}</span>
-                    <span className="text-white/60 text-sm">
-                      {source.visitors.toLocaleString()} ({source.percentage.toFixed(1)}%)
-                    </span>
-                  </div>
-                  <div className="w-full h-2 bg-[var(--darker-gray)] rounded overflow-hidden">
-                    <div
-                      className="h-full bg-[var(--orange)] transition-all"
-                      style={{ width: `${source.percentage}%` }}
-                    />
-                  </div>
+        ) : (
+          <>
+            {/* Stats Grid */}
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(4, 1fr)",
+              gap: "20px",
+              marginBottom: "40px"
+            }}>
+              {stats.map((stat, index) => (
+                <div key={index} className="stat-card">
+                  <div className="stat-icon">{stat.icon}</div>
+                  <div className="value">{stat.value}</div>
+                  <div className="label">{stat.label}</div>
                 </div>
-              ))
-            )}
-          </div>
-        </div>
+              ))}
+            </div>
+
+            {/* Two Column Layout */}
+            <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "30px" }}>
+              {/* Top Pages */}
+              <div className="section">
+                <div className="section-title">Top Pages</div>
+                <table className="jobs-table">
+                  <thead>
+                    <tr>
+                      <th>PAGE</th>
+                      <th>VIEWS</th>
+                      <th>AVG TIME</th>
+                      <th>BOUNCE RATE</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(data?.topPages || []).map((page, index) => (
+                      <tr key={index}>
+                        <td>{page.page}</td>
+                        <td style={{ fontFamily: "var(--font-roboto-mono), monospace" }}>
+                          {page.views.toLocaleString()}
+                        </td>
+                        <td>{page.avgTime}</td>
+                        <td>{page.bounceRate}</td>
+                      </tr>
+                    ))}
+                    {(!data?.topPages || data.topPages.length === 0) && (
+                      <tr>
+                        <td colSpan={4} style={{ textAlign: "center", color: "rgba(255,255,255,0.5)" }}>
+                          No page data available
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Traffic Sources */}
+              <div className="section">
+                <div className="section-title">Traffic Sources</div>
+                {(data?.trafficSources || []).map((source, index) => (
+                  <div key={index} style={{ marginBottom: "20px" }}>
+                    <div style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      marginBottom: "5px"
+                    }}>
+                      <span>{source.source}</span>
+                      <span style={{ fontFamily: "var(--font-roboto-mono), monospace" }}>
+                        {source.percentage}%
+                      </span>
+                    </div>
+                    <div style={{
+                      height: "8px",
+                      background: "rgba(255,255,255,0.1)",
+                      borderRadius: "4px",
+                      overflow: "hidden"
+                    }}>
+                      <div style={{
+                        height: "100%",
+                        width: `${source.percentage}%`,
+                        background: "var(--orange)"
+                      }} />
+                    </div>
+                  </div>
+                ))}
+                {(!data?.trafficSources || data.trafficSources.length === 0) && (
+                  <p style={{ color: "rgba(255,255,255,0.5)" }}>No traffic data available</p>
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </div>
-    </div>
+    </>
   );
 }

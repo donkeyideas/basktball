@@ -1,373 +1,395 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Header, Footer } from "@/components/layout";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { cn } from "@/lib/utils";
+import { useState, useEffect, useCallback } from "react";
+import { Header, Footer } from "@/components";
 
-interface FantasyPlayer {
+interface Player {
   id: string;
   name: string;
-  team: string;
   position: string;
-  opponent: string;
+  team: string;
   salary: number;
-  projection: number;
-  value: number; // projection / salary * 1000
-  ownership: number;
-  isHot: boolean;
-  isValue: boolean;
+  projectedPts: number;
+  value: number;
+  status: "healthy" | "questionable" | "out";
 }
 
-// Mock data
-const mockPlayers: FantasyPlayer[] = [
-  { id: "1", name: "Nikola Jokic", team: "DEN", position: "C", opponent: "PHX", salary: 12000, projection: 62.5, value: 5.21, ownership: 32.1, isHot: true, isValue: false },
-  { id: "2", name: "Luka Doncic", team: "DAL", position: "PG", opponent: "OKC", salary: 11800, projection: 58.2, value: 4.93, ownership: 28.5, isHot: true, isValue: false },
-  { id: "3", name: "Shai Gilgeous-Alexander", team: "OKC", position: "PG", opponent: "DAL", salary: 10600, projection: 54.1, value: 5.10, ownership: 24.3, isHot: true, isValue: false },
-  { id: "4", name: "Giannis Antetokounmpo", team: "MIL", position: "PF", opponent: "BOS", salary: 11400, projection: 56.8, value: 4.98, ownership: 26.7, isHot: false, isValue: false },
-  { id: "5", name: "Anthony Edwards", team: "MIN", position: "SG", opponent: "LAC", salary: 9200, projection: 48.3, value: 5.25, ownership: 18.9, isHot: true, isValue: true },
-  { id: "6", name: "Jayson Tatum", team: "BOS", position: "SF", opponent: "MIL", salary: 10200, projection: 49.5, value: 4.85, ownership: 21.4, isHot: false, isValue: false },
-  { id: "7", name: "Tyrese Maxey", team: "PHI", position: "PG", opponent: "IND", salary: 7800, projection: 42.1, value: 5.40, ownership: 15.2, isHot: true, isValue: true },
-  { id: "8", name: "Domantas Sabonis", team: "SAC", position: "C", opponent: "HOU", salary: 9400, projection: 51.2, value: 5.45, ownership: 19.8, isHot: false, isValue: true },
-  { id: "9", name: "De'Aaron Fox", team: "SAC", position: "PG", opponent: "HOU", salary: 8600, projection: 44.7, value: 5.20, ownership: 16.3, isHot: false, isValue: true },
-  { id: "10", name: "Chet Holmgren", team: "OKC", position: "C", opponent: "DAL", salary: 7200, projection: 38.5, value: 5.35, ownership: 12.8, isHot: false, isValue: true },
-  { id: "11", name: "Franz Wagner", team: "ORL", position: "SF", opponent: "CHA", salary: 7600, projection: 41.2, value: 5.42, ownership: 14.1, isHot: true, isValue: true },
-  { id: "12", name: "Jalen Williams", team: "OKC", position: "SG", opponent: "DAL", salary: 7000, projection: 36.8, value: 5.26, ownership: 11.5, isHot: false, isValue: true },
-  { id: "13", name: "Immanuel Quickley", team: "TOR", position: "PG", opponent: "DET", salary: 5800, projection: 32.4, value: 5.59, ownership: 8.7, isHot: false, isValue: true },
-  { id: "14", name: "Jalen Green", team: "HOU", position: "SG", opponent: "SAC", salary: 6400, projection: 34.1, value: 5.33, ownership: 9.2, isHot: false, isValue: true },
-  { id: "15", name: "Alperen Sengun", team: "HOU", position: "C", opponent: "SAC", salary: 6800, projection: 37.5, value: 5.51, ownership: 10.4, isHot: true, isValue: true },
+// Sample players for demonstration
+const samplePlayers: Player[] = [
+  { id: "1", name: "LeBron James", position: "SF", team: "LAL", salary: 10500, projectedPts: 52.3, value: 4.98, status: "healthy" },
+  { id: "2", name: "Stephen Curry", position: "PG", team: "GSW", salary: 10200, projectedPts: 49.8, value: 4.88, status: "healthy" },
+  { id: "3", name: "Giannis Antetokounmpo", position: "PF", team: "MIL", salary: 11000, projectedPts: 55.2, value: 5.02, status: "healthy" },
+  { id: "4", name: "Kevin Durant", position: "SF", team: "PHX", salary: 10300, projectedPts: 48.5, value: 4.71, status: "questionable" },
+  { id: "5", name: "Nikola Jokic", position: "C", team: "DEN", salary: 11200, projectedPts: 58.1, value: 5.19, status: "healthy" },
+  { id: "6", name: "Jayson Tatum", position: "SF", team: "BOS", salary: 9800, projectedPts: 46.2, value: 4.71, status: "healthy" },
+  { id: "7", name: "Luka Doncic", position: "PG", team: "DAL", salary: 10800, projectedPts: 54.5, value: 5.05, status: "healthy" },
+  { id: "8", name: "Joel Embiid", position: "C", team: "PHI", salary: 10900, projectedPts: 51.8, value: 4.75, status: "out" },
+  { id: "9", name: "Damian Lillard", position: "PG", team: "MIL", salary: 9200, projectedPts: 42.5, value: 4.62, status: "healthy" },
+  { id: "10", name: "Anthony Davis", position: "PF", team: "LAL", salary: 9500, projectedPts: 44.8, value: 4.72, status: "healthy" },
+  { id: "11", name: "Ja Morant", position: "PG", team: "MEM", salary: 8800, projectedPts: 40.2, value: 4.57, status: "healthy" },
+  { id: "12", name: "Devin Booker", position: "SG", team: "PHX", salary: 8600, projectedPts: 38.5, value: 4.48, status: "healthy" },
+  { id: "13", name: "Trae Young", position: "PG", team: "ATL", salary: 8400, projectedPts: 41.2, value: 4.90, status: "healthy" },
+  { id: "14", name: "Donovan Mitchell", position: "SG", team: "CLE", salary: 8200, projectedPts: 37.8, value: 4.61, status: "healthy" },
+  { id: "15", name: "Bam Adebayo", position: "C", team: "MIA", salary: 7800, projectedPts: 35.5, value: 4.55, status: "healthy" },
 ];
 
-type SortKey = "salary" | "projection" | "value" | "ownership";
-
 const SALARY_CAP = 50000;
+const POSITIONS = ["PG", "SG", "SF", "PF", "C"];
 
 export default function FantasyPage() {
-  const [roster, setRoster] = useState<FantasyPlayer[]>([]);
-  const [sortBy, setSortBy] = useState<SortKey>("value");
-  const [positionFilter, setPositionFilter] = useState<string>("ALL");
-  const [showValueOnly, setShowValueOnly] = useState(false);
+  const [players] = useState<Player[]>(samplePlayers);
+  const [lineup, setLineup] = useState<(Player | null)[]>([null, null, null, null, null]);
+  const [positionFilter, setPositionFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"projectedPts" | "salary" | "value">("value");
+  const [showOnlyHealthy, setShowOnlyHealthy] = useState(false);
 
-  const positions = ["ALL", "PG", "SG", "SF", "PF", "C"];
+  const totalSalary = lineup.reduce((sum, p) => sum + (p?.salary || 0), 0);
+  const totalProjected = lineup.reduce((sum, p) => sum + (p?.projectedPts || 0), 0);
+  const remainingSalary = SALARY_CAP - totalSalary;
 
-  const filteredPlayers = useMemo(() => {
-    let data = [...mockPlayers];
+  const filteredPlayers = players
+    .filter(p => {
+      if (positionFilter !== "all" && p.position !== positionFilter) return false;
+      if (showOnlyHealthy && p.status !== "healthy") return false;
+      if (lineup.some(l => l?.id === p.id)) return false;
+      return true;
+    })
+    .sort((a, b) => b[sortBy] - a[sortBy]);
 
-    // Filter by position
-    if (positionFilter !== "ALL") {
-      data = data.filter((p) => p.position === positionFilter);
-    }
+  const addToLineup = (player: Player) => {
+    const posIndex = POSITIONS.indexOf(player.position);
+    if (posIndex === -1) return;
 
-    // Filter value plays only
-    if (showValueOnly) {
-      data = data.filter((p) => p.isValue);
-    }
+    // Check if position is already filled
+    if (lineup[posIndex] !== null) return;
 
-    // Sort
-    data.sort((a, b) => b[sortBy] - a[sortBy]);
+    // Check salary cap
+    if (totalSalary + player.salary > SALARY_CAP) return;
 
-    return data;
-  }, [sortBy, positionFilter, showValueOnly]);
-
-  const rosterSalary = roster.reduce((sum, p) => sum + p.salary, 0);
-  const rosterProjection = roster.reduce((sum, p) => sum + p.projection, 0);
-  const remainingSalary = SALARY_CAP - rosterSalary;
-
-  const addToRoster = (player: FantasyPlayer) => {
-    if (roster.find((p) => p.id === player.id)) return;
-    if (rosterSalary + player.salary > SALARY_CAP) return;
-    if (roster.length >= 8) return;
-
-    setRoster([...roster, player]);
+    const newLineup = [...lineup];
+    newLineup[posIndex] = player;
+    setLineup(newLineup);
   };
 
-  const removeFromRoster = (playerId: string) => {
-    setRoster(roster.filter((p) => p.id !== playerId));
+  const removeFromLineup = (index: number) => {
+    const newLineup = [...lineup];
+    newLineup[index] = null;
+    setLineup(newLineup);
   };
 
-  const clearRoster = () => {
-    setRoster([]);
-  };
+  const optimizeLineup = () => {
+    // Simple greedy optimization by value
+    const newLineup: (Player | null)[] = [null, null, null, null, null];
+    let remainingCap = SALARY_CAP;
 
-  const optimizeRoster = () => {
-    // Simple greedy optimization - pick best value players that fit salary
-    const sorted = [...mockPlayers].sort((a, b) => b.value - a.value);
-    const optimized: FantasyPlayer[] = [];
-    let salary = 0;
+    POSITIONS.forEach((pos, idx) => {
+      const eligible = players
+        .filter(p => p.position === pos && p.status !== "out" && p.salary <= remainingCap)
+        .sort((a, b) => b.value - a.value);
 
-    for (const player of sorted) {
-      if (optimized.length >= 8) break;
-      if (salary + player.salary <= SALARY_CAP) {
-        optimized.push(player);
-        salary += player.salary;
+      if (eligible.length > 0) {
+        newLineup[idx] = eligible[0];
+        remainingCap -= eligible[0].salary;
       }
-    }
+    });
 
-    setRoster(optimized);
+    setLineup(newLineup);
+  };
+
+  const clearLineup = () => {
+    setLineup([null, null, null, null, null]);
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
       <Header />
+      <main style={{ minHeight: "100vh", padding: "40px 20px" }}>
+        <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
+          <h1 style={{
+            fontFamily: "var(--font-anton), Anton, sans-serif",
+            fontSize: "48px",
+            marginBottom: "20px",
+            textAlign: "center"
+          }}>
+            FANTASY OPTIMIZER
+            <span style={{
+              display: "block",
+              width: "100px",
+              height: "4px",
+              background: "var(--orange)",
+              margin: "15px auto 0"
+            }}></span>
+          </h1>
+          <p style={{
+            textAlign: "center",
+            color: "rgba(255,255,255,0.6)",
+            marginBottom: "40px"
+          }}>
+            Maximize your fantasy lineup with smart player recommendations.
+          </p>
 
-      <main className="flex-1 bg-[var(--black)] flex flex-col">
-        {/* Hero */}
-        <section className="bg-gradient-to-br from-[var(--dark-gray)] to-[var(--black)] py-6 md:py-8 border-b-4 border-[var(--orange)]">
-          <div className="container-main">
-            <h1 className="font-[family-name:var(--font-anton)] text-3xl md:text-4xl tracking-wider text-white mb-2">
-              FANTASY OPTIMIZER
-            </h1>
-            <p className="text-white/70">
-              Optimize DFS lineups with projections, value picks, and salary optimization
-            </p>
-          </div>
-        </section>
+          <div style={{ display: "grid", gridTemplateColumns: "350px 1fr", gap: "30px" }}>
+            {/* Lineup Builder */}
+            <div>
+              <div className="section">
+                <div className="section-title">Your Lineup</div>
 
-        {/* Main Content */}
-        <section className="flex-1 py-6 md:py-8 flex min-h-0">
-          <div className="container-main flex-1 flex flex-col min-h-0">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 flex-1 min-h-0">
-              {/* Player Pool */}
-              <div className="lg:col-span-2 flex flex-col min-h-0">
-                <Card variant="default" className="p-4 md:p-6 flex-1 flex flex-col min-h-0">
-                  {/* Filters */}
-                  <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-                    <div className="flex gap-1">
-                      {positions.map((pos) => (
-                        <button
-                          key={pos}
-                          onClick={() => setPositionFilter(pos)}
-                          className={cn(
-                            "px-3 py-1.5 text-xs font-semibold transition-colors",
-                            positionFilter === pos
-                              ? "bg-[var(--orange)] text-white"
-                              : "bg-[var(--dark-gray)] text-white/60 hover:text-white"
-                          )}
-                        >
-                          {pos}
-                        </button>
-                      ))}
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                      <label className="flex items-center gap-2 text-sm text-white/70 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={showValueOnly}
-                          onChange={(e) => setShowValueOnly(e.target.checked)}
-                          className="accent-[var(--orange)]"
-                        />
-                        Value Plays Only
-                      </label>
-
-                      <select
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value as SortKey)}
-                        className="bg-[var(--black)] border border-[var(--border)] text-white text-sm px-3 py-1.5"
-                      >
-                        <option value="value">Sort by Value</option>
-                        <option value="projection">Sort by Projection</option>
-                        <option value="salary">Sort by Salary</option>
-                        <option value="ownership">Sort by Ownership</option>
-                      </select>
-                    </div>
+                {/* Salary Cap Bar */}
+                <div style={{ marginBottom: "20px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                    <span style={{ fontSize: "14px", color: "rgba(255,255,255,0.5)" }}>Salary Used</span>
+                    <span style={{
+                      fontFamily: "var(--font-roboto-mono), monospace",
+                      color: totalSalary > SALARY_CAP ? "var(--red)" : "inherit"
+                    }}>
+                      ${totalSalary.toLocaleString()} / ${SALARY_CAP.toLocaleString()}
+                    </span>
                   </div>
-
-                  {/* Player Table */}
-                  <div className="overflow-x-auto flex-1 overflow-y-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-white/10">
-                          <th className="px-3 py-2 text-left text-xs font-semibold text-white/60">PLAYER</th>
-                          <th className="px-3 py-2 text-center text-xs font-semibold text-white/60">POS</th>
-                          <th className="px-3 py-2 text-center text-xs font-semibold text-white/60">OPP</th>
-                          <th className="px-3 py-2 text-center text-xs font-semibold text-white/60">SALARY</th>
-                          <th className="px-3 py-2 text-center text-xs font-semibold text-white/60">PROJ</th>
-                          <th className="px-3 py-2 text-center text-xs font-semibold text-white/60">VALUE</th>
-                          <th className="px-3 py-2 text-center text-xs font-semibold text-white/60">OWN%</th>
-                          <th className="px-3 py-2 text-center text-xs font-semibold text-white/60"></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredPlayers.map((player) => {
-                          const isInRoster = roster.find((p) => p.id === player.id);
-                          const canAdd = !isInRoster && rosterSalary + player.salary <= SALARY_CAP && roster.length < 8;
-
-                          return (
-                            <tr
-                              key={player.id}
-                              className={cn(
-                                "border-b border-white/5 hover:bg-[var(--gray)] transition-colors",
-                                isInRoster && "bg-[var(--orange)]/10"
-                              )}
-                            >
-                              <td className="px-3 py-3">
-                                <div className="flex items-center gap-2">
-                                  {player.isHot && <span className="text-xs">🔥</span>}
-                                  <span className="font-semibold text-sm">{player.name}</span>
-                                  <span className="text-xs text-white/50">{player.team}</span>
-                                </div>
-                              </td>
-                              <td className="px-3 py-3 text-center">
-                                <span className="text-xs bg-[var(--dark-gray)] px-2 py-0.5">
-                                  {player.position}
-                                </span>
-                              </td>
-                              <td className="px-3 py-3 text-center text-sm text-white/70">
-                                @{player.opponent}
-                              </td>
-                              <td className="px-3 py-3 text-center font-[family-name:var(--font-roboto-mono)] text-sm">
-                                ${player.salary.toLocaleString()}
-                              </td>
-                              <td className="px-3 py-3 text-center font-[family-name:var(--font-roboto-mono)] text-sm text-[var(--orange)]">
-                                {player.projection.toFixed(1)}
-                              </td>
-                              <td className="px-3 py-3 text-center font-[family-name:var(--font-roboto-mono)] text-sm">
-                                <span className={cn(player.value >= 5.3 && "text-green-400")}>
-                                  {player.value.toFixed(2)}x
-                                </span>
-                              </td>
-                              <td className="px-3 py-3 text-center text-sm text-white/60">
-                                {player.ownership}%
-                              </td>
-                              <td className="px-3 py-3 text-center">
-                                {isInRoster ? (
-                                  <button
-                                    onClick={() => removeFromRoster(player.id)}
-                                    className="text-red-400 hover:text-red-300 text-sm"
-                                  >
-                                    Remove
-                                  </button>
-                                ) : (
-                                  <button
-                                    onClick={() => addToRoster(player)}
-                                    disabled={!canAdd}
-                                    className={cn(
-                                      "text-sm",
-                                      canAdd
-                                        ? "text-[var(--orange)] hover:text-[var(--orange-bright)]"
-                                        : "text-white/30 cursor-not-allowed"
-                                    )}
-                                  >
-                                    + Add
-                                  </button>
-                                )}
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+                  <div style={{ height: "8px", background: "rgba(255,255,255,0.1)", borderRadius: "4px", overflow: "hidden" }}>
+                    <div style={{
+                      width: `${Math.min(100, (totalSalary / SALARY_CAP) * 100)}%`,
+                      height: "100%",
+                      background: totalSalary > SALARY_CAP ? "var(--red)" : "var(--green)",
+                      transition: "width 0.3s ease"
+                    }} />
                   </div>
-                </Card>
-              </div>
-
-              {/* Roster Builder */}
-              <div className="lg:col-span-1 flex flex-col min-h-0">
-                <Card variant="bordered" className="p-5 flex-1 flex flex-col">
-                  <h3 className="font-[family-name:var(--font-anton)] text-xl tracking-wider mb-4">
-                    MY LINEUP
-                  </h3>
-
-                  {/* Salary Cap */}
-                  <div className="mb-4">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="text-white/60">Salary Used</span>
-                      <span className="font-[family-name:var(--font-roboto-mono)]">
-                        ${rosterSalary.toLocaleString()} / ${SALARY_CAP.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="h-2 bg-[var(--black)] rounded overflow-hidden">
-                      <div
-                        className={cn(
-                          "h-full transition-all",
-                          rosterSalary / SALARY_CAP > 0.95
-                            ? "bg-green-500"
-                            : rosterSalary / SALARY_CAP > 0.8
-                              ? "bg-yellow-500"
-                              : "bg-[var(--orange)]"
-                        )}
-                        style={{ width: `${(rosterSalary / SALARY_CAP) * 100}%` }}
-                      />
-                    </div>
-                    <p className="text-xs text-white/50 mt-1">
-                      Remaining: ${remainingSalary.toLocaleString()}
-                    </p>
+                  <div style={{ marginTop: "5px", fontSize: "14px", color: "rgba(255,255,255,0.5)" }}>
+                    Remaining: ${remainingSalary.toLocaleString()}
                   </div>
+                </div>
 
-                  {/* Roster List */}
-                  <div className="space-y-2 mb-4 flex-1 overflow-y-auto">
-                    {roster.length === 0 ? (
-                      <div className="text-center py-8 text-white/40 text-sm">
-                        Add players to build your lineup
-                      </div>
-                    ) : (
-                      roster.map((player) => (
-                        <div
-                          key={player.id}
-                          className="flex items-center justify-between bg-[var(--black)] p-3"
-                        >
-                          <div>
-                            <p className="font-semibold text-sm">{player.name}</p>
-                            <p className="text-xs text-white/50">
-                              {player.position} • ${player.salary.toLocaleString()}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm text-[var(--orange)]">{player.projection.toFixed(1)}</p>
-                            <button
-                              onClick={() => removeFromRoster(player.id)}
-                              className="text-xs text-red-400 hover:text-red-300"
-                            >
-                              ✕
-                            </button>
+                {/* Lineup Slots */}
+                {POSITIONS.map((pos, index) => (
+                  <div key={pos} style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "12px",
+                    background: "rgba(0,0,0,0.3)",
+                    marginBottom: "8px",
+                    border: lineup[index] ? "1px solid var(--green)" : "1px solid rgba(255,255,255,0.1)"
+                  }}>
+                    <div style={{
+                      width: "40px",
+                      height: "40px",
+                      background: "var(--orange)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontWeight: "bold",
+                      marginRight: "12px"
+                    }}>
+                      {pos}
+                    </div>
+                    {lineup[index] ? (
+                      <div style={{ flex: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <div>
+                          <div style={{ fontWeight: "bold" }}>{lineup[index]?.name}</div>
+                          <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>
+                            ${lineup[index]?.salary.toLocaleString()} | {lineup[index]?.projectedPts.toFixed(1)} pts
                           </div>
                         </div>
-                      ))
+                        <button
+                          onClick={() => removeFromLineup(index)}
+                          style={{
+                            background: "transparent",
+                            border: "none",
+                            color: "var(--red)",
+                            cursor: "pointer",
+                            fontSize: "20px"
+                          }}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ) : (
+                      <span style={{ color: "rgba(255,255,255,0.3)" }}>Select player...</span>
                     )}
                   </div>
+                ))}
 
-                  {/* Projected Score */}
-                  <div className="bg-[var(--dark-gray)] p-4 mb-4 text-center">
-                    <p className="text-xs text-white/50 mb-1">PROJECTED SCORE</p>
-                    <p className="font-[family-name:var(--font-roboto-mono)] text-3xl font-bold text-[var(--orange)]">
-                      {rosterProjection.toFixed(1)}
-                    </p>
+                {/* Projected Points */}
+                <div style={{
+                  marginTop: "20px",
+                  padding: "15px",
+                  background: "rgba(16, 185, 129, 0.1)",
+                  border: "1px solid var(--green)",
+                  textAlign: "center"
+                }}>
+                  <div style={{ color: "rgba(255,255,255,0.5)", marginBottom: "5px" }}>Projected Points</div>
+                  <div style={{
+                    fontFamily: "var(--font-roboto-mono), monospace",
+                    fontSize: "36px",
+                    fontWeight: "bold",
+                    color: "var(--green)"
+                  }}>
+                    {totalProjected.toFixed(1)}
                   </div>
+                </div>
 
-                  {/* Actions */}
-                  <div className="space-y-2">
-                    <Button
-                      variant="primary"
-                      size="md"
-                      className="w-full"
-                      onClick={optimizeRoster}
-                    >
-                      AUTO-OPTIMIZE
-                    </Button>
-                    <Button
-                      variant="secondary"
-                      size="md"
-                      className="w-full"
-                      onClick={clearRoster}
-                      disabled={roster.length === 0}
-                    >
-                      CLEAR LINEUP
-                    </Button>
-                  </div>
+                {/* Action Buttons */}
+                <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
+                  <button onClick={optimizeLineup} className="btn" style={{ flex: 1, padding: "12px" }}>
+                    AUTO-OPTIMIZE
+                  </button>
+                  <button onClick={clearLineup} style={{
+                    flex: 1,
+                    padding: "12px",
+                    background: "transparent",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    color: "var(--white)",
+                    cursor: "pointer"
+                  }}>
+                    CLEAR
+                  </button>
+                </div>
+              </div>
+            </div>
 
-                  <p className="text-xs text-white/40 text-center mt-4">
-                    {roster.length}/8 players selected
-                  </p>
-                </Card>
+            {/* Player Pool */}
+            <div className="section">
+              <div className="section-title">Player Pool</div>
+
+              {/* Filters */}
+              <div style={{ display: "flex", gap: "15px", marginBottom: "20px", flexWrap: "wrap" }}>
+                <div style={{ display: "flex", gap: "5px" }}>
+                  <button
+                    onClick={() => setPositionFilter("all")}
+                    style={{
+                      padding: "8px 15px",
+                      background: positionFilter === "all" ? "var(--orange)" : "transparent",
+                      border: "1px solid",
+                      borderColor: positionFilter === "all" ? "var(--orange)" : "rgba(255,255,255,0.2)",
+                      color: "var(--white)",
+                      cursor: "pointer"
+                    }}
+                  >
+                    ALL
+                  </button>
+                  {POSITIONS.map(pos => (
+                    <button
+                      key={pos}
+                      onClick={() => setPositionFilter(pos)}
+                      style={{
+                        padding: "8px 15px",
+                        background: positionFilter === pos ? "var(--orange)" : "transparent",
+                        border: "1px solid",
+                        borderColor: positionFilter === pos ? "var(--orange)" : "rgba(255,255,255,0.2)",
+                        color: "var(--white)",
+                        cursor: "pointer"
+                      }}
+                    >
+                      {pos}
+                    </button>
+                  ))}
+                </div>
+
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                  style={{
+                    padding: "8px 15px",
+                    background: "rgba(0,0,0,0.3)",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    color: "var(--white)"
+                  }}
+                >
+                  <option value="value">Sort by Value</option>
+                  <option value="projectedPts">Sort by Projected</option>
+                  <option value="salary">Sort by Salary</option>
+                </select>
+
+                <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+                  <input
+                    type="checkbox"
+                    checked={showOnlyHealthy}
+                    onChange={(e) => setShowOnlyHealthy(e.target.checked)}
+                  />
+                  <span style={{ fontSize: "14px" }}>Healthy only</span>
+                </label>
+              </div>
+
+              {/* Player Table */}
+              <div style={{ overflowX: "auto" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                  <thead>
+                    <tr style={{ borderBottom: "2px solid var(--orange)" }}>
+                      <th style={{ padding: "12px", textAlign: "left" }}>Player</th>
+                      <th style={{ padding: "12px", textAlign: "center" }}>Pos</th>
+                      <th style={{ padding: "12px", textAlign: "center" }}>Team</th>
+                      <th style={{ padding: "12px", textAlign: "right" }}>Salary</th>
+                      <th style={{ padding: "12px", textAlign: "right" }}>Proj</th>
+                      <th style={{ padding: "12px", textAlign: "right" }}>Value</th>
+                      <th style={{ padding: "12px", textAlign: "center" }}>Status</th>
+                      <th style={{ padding: "12px" }}></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredPlayers.map(player => {
+                      const posIndex = POSITIONS.indexOf(player.position);
+                      const canAdd = lineup[posIndex] === null && totalSalary + player.salary <= SALARY_CAP && player.status !== "out";
+
+                      return (
+                        <tr key={player.id} style={{
+                          borderBottom: "1px solid rgba(255,255,255,0.1)",
+                          opacity: player.status === "out" ? 0.5 : 1
+                        }}>
+                          <td style={{ padding: "12px", fontWeight: "bold" }}>{player.name}</td>
+                          <td style={{ padding: "12px", textAlign: "center" }}>{player.position}</td>
+                          <td style={{ padding: "12px", textAlign: "center" }}>{player.team}</td>
+                          <td style={{ padding: "12px", textAlign: "right", fontFamily: "var(--font-roboto-mono), monospace" }}>
+                            ${player.salary.toLocaleString()}
+                          </td>
+                          <td style={{ padding: "12px", textAlign: "right", fontFamily: "var(--font-roboto-mono), monospace" }}>
+                            {player.projectedPts.toFixed(1)}
+                          </td>
+                          <td style={{
+                            padding: "12px",
+                            textAlign: "right",
+                            fontFamily: "var(--font-roboto-mono), monospace",
+                            color: player.value >= 5 ? "var(--green)" : player.value >= 4.5 ? "var(--yellow)" : "inherit"
+                          }}>
+                            {player.value.toFixed(2)}
+                          </td>
+                          <td style={{ padding: "12px", textAlign: "center" }}>
+                            <span style={{
+                              padding: "4px 8px",
+                              fontSize: "12px",
+                              borderRadius: "4px",
+                              background: player.status === "healthy" ? "rgba(16, 185, 129, 0.2)" :
+                                player.status === "questionable" ? "rgba(245, 158, 11, 0.2)" : "rgba(239, 68, 68, 0.2)",
+                              color: player.status === "healthy" ? "var(--green)" :
+                                player.status === "questionable" ? "var(--yellow)" : "var(--red)"
+                            }}>
+                              {player.status.toUpperCase()}
+                            </span>
+                          </td>
+                          <td style={{ padding: "12px" }}>
+                            <button
+                              onClick={() => addToLineup(player)}
+                              disabled={!canAdd}
+                              style={{
+                                padding: "6px 12px",
+                                background: canAdd ? "var(--green)" : "rgba(255,255,255,0.1)",
+                                border: "none",
+                                color: canAdd ? "var(--white)" : "rgba(255,255,255,0.3)",
+                                cursor: canAdd ? "pointer" : "not-allowed",
+                                fontSize: "12px"
+                              }}
+                            >
+                              ADD
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
-        </section>
+        </div>
       </main>
-
       <Footer />
-    </div>
+    </>
   );
 }

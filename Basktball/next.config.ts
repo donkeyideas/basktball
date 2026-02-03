@@ -57,17 +57,6 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // Redirect www to non-www
-  async redirects() {
-    return [
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "www.basktball.com" }],
-        destination: "https://basktball.com/:path*",
-        permanent: true,
-      },
-    ];
-  },
 
   // Enable experimental features for better performance
   experimental: {

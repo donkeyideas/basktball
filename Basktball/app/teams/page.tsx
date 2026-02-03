@@ -1,198 +1,207 @@
 "use client";
 
-import { useState } from "react";
-import useSWR from "swr";
-import { Header, Footer } from "@/components/layout";
-import { Card } from "@/components/ui/Card";
-import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { Header, Footer } from "@/components";
 
 interface Team {
   id: string;
   name: string;
   abbreviation: string;
-  logoUrl: string | null;
-  league: string;
-  wins: number;
-  losses: number;
-  winPct: number;
-  conference: string | null;
-  division: string | null;
+  city: string;
+  conference: string;
+  division: string;
+  logoUrl?: string;
 }
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
-const leagues = ["NBA", "WNBA", "NCAAM", "EURO"];
+type ConferenceFilter = "all" | "east" | "west";
 
 export default function TeamsPage() {
-  const [leagueFilter, setLeagueFilter] = useState("NBA");
-  const [conferenceFilter, setConferenceFilter] = useState("ALL");
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [conferenceFilter, setConferenceFilter] = useState<ConferenceFilter>("all");
 
-  const { data, isLoading } = useSWR<{ success: boolean; teams: Team[] }>(
-    `/api/teams?league=${leagueFilter}`,
-    fetcher
-  );
+  useEffect(() => {
+    async function fetchTeams() {
+      try {
+        const res = await fetch("/api/teams");
+        const data = await res.json();
+        if (data.success) {
+          setTeams(data.teams || []);
+        } else {
+          setError(data.error || "Failed to load teams");
+        }
+      } catch {
+        setError("Failed to connect to server");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchTeams();
+  }, []);
 
-  const teams = data?.teams || [];
+  const filteredTeams = teams.filter(team => {
+    if (conferenceFilter === "all") return true;
+    return team.conference?.toLowerCase().includes(conferenceFilter);
+  });
 
-  const filteredTeams = teams
-    .filter(
-      (team) => conferenceFilter === "ALL" || team.conference === conferenceFilter
-    )
-    .sort((a, b) => b.winPct - a.winPct);
-
-  // Get conference options based on selected league
-  const getConferenceOptions = () => {
-    if (leagueFilter === "NBA") return ["ALL", "East", "West"];
-    if (leagueFilter === "WNBA") return ["ALL", "East", "West"];
-    return ["ALL"];
-  };
+  // Group by division
+  const teamsByDivision = filteredTeams.reduce((acc, team) => {
+    const division = team.division || "Other";
+    if (!acc[division]) acc[division] = [];
+    acc[division].push(team);
+    return acc;
+  }, {} as Record<string, Team[]>);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
       <Header />
+      <main style={{ minHeight: "100vh", padding: "40px 20px" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          {/* Page Header */}
+          <h1 style={{
+            fontFamily: "var(--font-anton), Anton, sans-serif",
+            fontSize: "48px",
+            marginBottom: "40px",
+            textAlign: "center"
+          }}>
+            NBA TEAMS
+            <span style={{
+              display: "block",
+              width: "100px",
+              height: "4px",
+              background: "var(--orange)",
+              margin: "15px auto 0"
+            }}></span>
+          </h1>
 
-      <main className="flex-1 bg-[var(--black)] flex flex-col">
-        {/* Page Header */}
-        <section className="bg-[var(--dark-gray)] py-6 md:py-8 border-b border-[var(--orange)]/30 mb-6 md:mb-8">
-          <div className="container-main">
-            <h1 className="font-[family-name:var(--font-anton)] text-3xl md:text-4xl tracking-wider text-white mb-2">
-              TEAMS
-            </h1>
-            <p className="text-white/70">
-              Team standings across NBA, WNBA, NCAA & EuroLeague
-            </p>
-          </div>
-        </section>
-
-        {/* League & Conference Filters */}
-        <section className="py-4 md:py-6 border-b border-[var(--border)] mb-8 md:mb-12">
-          <div className="container-main">
-            {/* League Filter */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {leagues.map((league) => (
-                <button
-                  key={league}
-                  onClick={() => {
-                    setLeagueFilter(league);
-                    setConferenceFilter("ALL");
-                  }}
-                  className={cn(
-                    "px-6 py-2 font-semibold uppercase tracking-wider transition-colors",
-                    leagueFilter === league
-                      ? "bg-[var(--orange)] text-white"
-                      : "bg-[var(--dark-gray)] text-white/60 hover:text-white"
-                  )}
-                >
-                  {league}
-                </button>
-              ))}
-            </div>
-            {/* Conference Filter (only for NBA/WNBA) */}
-            {(leagueFilter === "NBA" || leagueFilter === "WNBA") && (
-              <div className="flex gap-2">
-                {getConferenceOptions().map((conf) => (
-                  <button
-                    key={conf}
-                    onClick={() => setConferenceFilter(conf)}
-                    className={cn(
-                      "px-4 py-1.5 text-sm font-semibold uppercase tracking-wider transition-colors",
-                      conferenceFilter === conf
-                        ? "bg-white/20 text-white"
-                        : "bg-transparent text-white/50 hover:text-white"
-                    )}
-                  >
-                    {conf === "ALL" ? "All" : `${conf}ern`}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* Teams Grid */}
-        <section className="flex-1 py-8 md:py-12">
-          <div className="container-main h-full">
-            {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <Card key={i} variant="default" className="p-5 md:p-6 animate-pulse">
-                    <div className="flex items-center gap-4">
-                      <div className="w-20 h-20 bg-white/10 rounded" />
-                      <div className="flex-1">
-                        <div className="h-5 bg-white/10 rounded mb-2" />
-                        <div className="h-3 bg-white/10 rounded w-1/2 mb-3" />
-                        <div className="h-6 bg-white/10 rounded w-1/3" />
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            ) : filteredTeams.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-white/50 text-lg">No teams found</p>
-                <p className="text-white/30 text-sm mt-2">
-                  Try selecting a different league
-                </p>
-              </div>
-            ) : (
-              <div
-                className={cn(
-                  "grid gap-4 md:gap-6",
-                  filteredTeams.length <= 12
-                    ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                    : "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
-                )}
+          {/* Conference Filter */}
+          <div style={{
+            display: "flex",
+            gap: "10px",
+            marginBottom: "40px",
+            justifyContent: "center"
+          }}>
+            {[
+              { id: "all" as ConferenceFilter, name: "All Teams" },
+              { id: "east" as ConferenceFilter, name: "Eastern Conference" },
+              { id: "west" as ConferenceFilter, name: "Western Conference" },
+            ].map(filter => (
+              <button
+                key={filter.id}
+                onClick={() => setConferenceFilter(filter.id)}
+                style={{
+                  padding: "12px 24px",
+                  background: conferenceFilter === filter.id ? "var(--orange)" : "var(--dark-gray)",
+                  border: "2px solid",
+                  borderColor: conferenceFilter === filter.id ? "var(--orange)" : "rgba(255,255,255,0.1)",
+                  color: "var(--white)",
+                  fontFamily: "var(--font-barlow), sans-serif",
+                  fontSize: "14px",
+                  fontWeight: "600",
+                  letterSpacing: "1px",
+                  cursor: "pointer",
+                  transition: "all 0.3s ease"
+                }}
               >
-                {filteredTeams.map((team, index) => (
-                  <Card key={team.id} variant="default" hover className="p-5 md:p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="relative flex-shrink-0">
-                        <span className="absolute -top-2 -left-2 w-7 h-7 bg-[var(--orange)] text-white text-xs font-bold flex items-center justify-center">
-                          {index + 1}
-                        </span>
+                {filter.name}
+              </button>
+            ))}
+          </div>
+
+          {isLoading ? (
+            <div style={{ textAlign: "center", padding: "60px" }}>
+              <p style={{ color: "rgba(255,255,255,0.5)" }}>Loading teams...</p>
+            </div>
+          ) : error ? (
+            <div style={{ textAlign: "center", padding: "60px" }}>
+              <p style={{ color: "var(--red)" }}>{error}</p>
+            </div>
+          ) : teams.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "60px" }}>
+              <p style={{ color: "rgba(255,255,255,0.5)" }}>No teams available.</p>
+            </div>
+          ) : (
+            Object.entries(teamsByDivision).map(([division, divisionTeams]) => (
+              <div key={division} className="section" style={{ marginBottom: "30px" }}>
+                <div className="section-title">{division}</div>
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                  gap: "20px"
+                }}>
+                  {divisionTeams.map(team => (
+                    <div
+                      key={team.id}
+                      className="league-card"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "20px",
+                        padding: "20px",
+                        cursor: "pointer"
+                      }}
+                    >
+                      <div style={{
+                        width: "60px",
+                        height: "60px",
+                        borderRadius: "50%",
+                        background: "rgba(255,255,255,0.1)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        overflow: "hidden",
+                        flexShrink: 0
+                      }}>
                         {team.logoUrl ? (
-                          <img
+                          <Image
                             src={team.logoUrl}
                             alt={team.name}
-                            className="w-20 h-20 object-contain"
+                            width={50}
+                            height={50}
+                            style={{ objectFit: "contain" }}
                             onError={(e) => {
-                              (e.target as HTMLImageElement).src = `https://via.placeholder.com/80/1a1a1a/F47B20?text=${team.abbreviation}`;
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = "none";
+                              if (target.parentElement) {
+                                target.parentElement.textContent = team.abbreviation;
+                              }
                             }}
                           />
                         ) : (
-                          <div className="w-20 h-20 bg-[var(--dark-gray)] flex items-center justify-center text-[var(--orange)] font-bold text-xl">
+                          <span style={{
+                            fontFamily: "var(--font-anton), Anton, sans-serif",
+                            fontSize: "18px"
+                          }}>
                             {team.abbreviation}
-                          </div>
+                          </span>
                         )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-white text-base truncate">
-                          {team.name}
+                      <div>
+                        <h3 style={{
+                          fontFamily: "var(--font-anton), Anton, sans-serif",
+                          fontSize: "20px",
+                          marginBottom: "5px"
+                        }}>
+                          {team.city} {team.name}
                         </h3>
-                        <p className="text-white/50 text-xs mt-0.5">
-                          {team.conference && team.division
-                            ? `${team.conference}ern • ${team.division}`
-                            : team.league}
+                        <p style={{
+                          color: "rgba(255,255,255,0.5)",
+                          fontSize: "14px"
+                        }}>
+                          {team.conference} - {team.division}
                         </p>
-                        <div className="flex items-center gap-3 mt-3">
-                          <span className="font-[family-name:var(--font-roboto-mono)] text-xl font-bold text-white">
-                            {team.wins}-{team.losses}
-                          </span>
-                          <span className="text-white/50 text-sm">
-                            ({(team.winPct * 100).toFixed(1)}%)
-                          </span>
-                        </div>
                       </div>
                     </div>
-                  </Card>
-                ))}
+                  ))}
+                </div>
               </div>
-            )}
-          </div>
-        </section>
+            ))
+          )}
+        </div>
       </main>
-
       <Footer />
-    </div>
+    </>
   );
 }

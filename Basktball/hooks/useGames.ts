@@ -1,9 +1,31 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import type { Game } from "@/components/live-scores";
 
-type League = "nba" | "wnba" | "ncaam" | "ncaaw" | "euro" | "intl";
+export type League = "nba" | "wnba" | "ncaam" | "ncaaw" | "euro" | "intl";
+
+export interface GameTeam {
+  id: string;
+  name: string;
+  abbreviation: string;
+  logoUrl: string;
+  score: number;
+}
+
+export interface GameStat {
+  label: string;
+  value: string;
+}
+
+export interface Game {
+  id: string;
+  homeTeam: GameTeam;
+  awayTeam: GameTeam;
+  status: "scheduled" | "live" | "final";
+  quarter?: string;
+  clock?: string;
+  stats: GameStat[];
+}
 
 interface UseGamesOptions {
   league?: League;

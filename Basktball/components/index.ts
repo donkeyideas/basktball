@@ -1,14 +1,7 @@
-// UI Components
-export * from "./ui";
-
-// Layout Components
-export * from "./layout";
-
-// Feature Components
+export { Header } from "./layout/Header";
+export { Footer } from "./layout/Footer";
 export { Hero } from "./Hero";
-export { LeagueSelector, type League } from "./LeagueSelector";
+export { LeagueSelector } from "./LeagueSelector";
+export { LiveScores } from "./LiveScores";
 export { FeaturedPlayers } from "./FeaturedPlayers";
 export { ToolsGrid } from "./ToolsGrid";
-
-// Live Scores
-export * from "./live-scores";

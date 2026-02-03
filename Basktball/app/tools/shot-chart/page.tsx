@@ -1,319 +1,237 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Header, Footer } from "@/components/layout";
-import { BasketballCourt, type Shot } from "@/components/tools/BasketballCourt";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { Header, Footer } from "@/components";
 
-// Mock shot data - will be replaced with API data
-const generateMockShots = (count: number): Shot[] => {
-  const shots: Shot[] = [];
-  for (let i = 0; i < count; i++) {
-    const x = Math.random() * 80 + 10; // Keep within court bounds
-    const y = Math.random() * 70 + 5;
-    const is3pt = y > 35 || x < 15 || x > 85;
-    shots.push({
-      x,
-      y,
-      made: Math.random() > 0.45,
-      value: is3pt ? 3 : 2,
-    });
-  }
-  return shots;
-};
-
-interface ZoneStats {
-  name: string;
-  made: number;
-  attempted: number;
-  percentage: number;
+interface Shot {
+  x: number;
+  y: number;
+  made: boolean;
+  type: string;
 }
 
+// Sample shot data for demonstration (basket at top, y=0 is baseline)
+const sampleShots: Shot[] = [
+  // 3PT shots (beyond the arc)
+  { x: 250, y: 380, made: true, type: "3PT" },
+  { x: 120, y: 320, made: false, type: "3PT" },
+  { x: 380, y: 320, made: true, type: "3PT" },
+  { x: 50, y: 180, made: true, type: "3PT" },
+  { x: 450, y: 180, made: false, type: "3PT" },
+  // Mid-range shots
+  { x: 150, y: 200, made: true, type: "Mid" },
+  { x: 350, y: 200, made: false, type: "Mid" },
+  { x: 200, y: 280, made: true, type: "Mid" },
+  { x: 300, y: 280, made: true, type: "Mid" },
+  // Paint shots
+  { x: 220, y: 150, made: true, type: "Paint" },
+  { x: 280, y: 150, made: false, type: "Paint" },
+  { x: 250, y: 180, made: true, type: "Paint" },
+  { x: 230, y: 120, made: true, type: "Paint" },
+  // Rim shots (close to basket)
+  { x: 250, y: 70, made: true, type: "Rim" },
+  { x: 235, y: 85, made: true, type: "Rim" },
+  { x: 265, y: 85, made: false, type: "Rim" },
+  { x: 250, y: 95, made: true, type: "Rim" },
+];
+
 export default function ShotChartPage() {
-  const [shots, setShots] = useState<Shot[]>([]);
-  const [showHeatmap, setShowHeatmap] = useState(false);
-  const [selectedPlayer, setSelectedPlayer] = useState("LeBron James");
-  const [isLoading, setIsLoading] = useState(true);
+  const [shots] = useState<Shot[]>(sampleShots);
+  const [filter, setFilter] = useState<"all" | "made" | "missed">("all");
+  const [zoneFilter, setZoneFilter] = useState<string>("all");
 
-  // Mock players
-  const players = [
-    "LeBron James",
-    "Stephen Curry",
-    "Kevin Durant",
-    "Giannis Antetokounmpo",
-    "Luka Doncic",
-  ];
+  const filteredShots = shots.filter(shot => {
+    if (filter === "made" && !shot.made) return false;
+    if (filter === "missed" && shot.made) return false;
+    if (zoneFilter !== "all" && shot.type !== zoneFilter) return false;
+    return true;
+  });
 
-  useEffect(() => {
-    // Simulate loading
-    setIsLoading(true);
-    setTimeout(() => {
-      setShots(generateMockShots(100));
-      setIsLoading(false);
-    }, 500);
-  }, [selectedPlayer]);
-
-  // Calculate zone stats
-  const calculateZoneStats = (): ZoneStats[] => {
-    const zones = {
-      paint: { made: 0, attempted: 0 },
-      midRange: { made: 0, attempted: 0 },
-      corner3: { made: 0, attempted: 0 },
-      aboveBreak3: { made: 0, attempted: 0 },
-    };
-
-    shots.forEach((shot) => {
-      let zone: keyof typeof zones;
-
-      if (shot.y < 25 && shot.x > 30 && shot.x < 70) {
-        zone = "paint";
-      } else if (shot.value === 2) {
-        zone = "midRange";
-      } else if (shot.y < 20) {
-        zone = "corner3";
-      } else {
-        zone = "aboveBreak3";
-      }
-
-      zones[zone].attempted++;
-      if (shot.made) zones[zone].made++;
-    });
-
-    return [
-      {
-        name: "Paint",
-        ...zones.paint,
-        percentage: zones.paint.attempted
-          ? (zones.paint.made / zones.paint.attempted) * 100
-          : 0,
-      },
-      {
-        name: "Mid-Range",
-        ...zones.midRange,
-        percentage: zones.midRange.attempted
-          ? (zones.midRange.made / zones.midRange.attempted) * 100
-          : 0,
-      },
-      {
-        name: "Corner 3",
-        ...zones.corner3,
-        percentage: zones.corner3.attempted
-          ? (zones.corner3.made / zones.corner3.attempted) * 100
-          : 0,
-      },
-      {
-        name: "Above Break 3",
-        ...zones.aboveBreak3,
-        percentage: zones.aboveBreak3.attempted
-          ? (zones.aboveBreak3.made / zones.aboveBreak3.attempted) * 100
-          : 0,
-      },
-    ];
+  const stats = {
+    total: shots.length,
+    made: shots.filter(s => s.made).length,
+    missed: shots.filter(s => !s.made).length,
+    percentage: ((shots.filter(s => s.made).length / shots.length) * 100).toFixed(1),
+    threePoint: {
+      made: shots.filter(s => s.type === "3PT" && s.made).length,
+      total: shots.filter(s => s.type === "3PT").length,
+    },
+    midRange: {
+      made: shots.filter(s => s.type === "Mid" && s.made).length,
+      total: shots.filter(s => s.type === "Mid").length,
+    },
+    paint: {
+      made: shots.filter(s => s.type === "Paint" && s.made).length,
+      total: shots.filter(s => s.type === "Paint").length,
+    },
+    rim: {
+      made: shots.filter(s => s.type === "Rim" && s.made).length,
+      total: shots.filter(s => s.type === "Rim").length,
+    },
   };
 
-  const zoneStats = calculateZoneStats();
-
-  // Overall stats
-  const totalMade = shots.filter((s) => s.made).length;
-  const totalAttempted = shots.length;
-  const fgPercentage = totalAttempted ? (totalMade / totalAttempted) * 100 : 0;
-  const threeMade = shots.filter((s) => s.made && s.value === 3).length;
-  const threeAttempted = shots.filter((s) => s.value === 3).length;
-  const threePercentage = threeAttempted ? (threeMade / threeAttempted) * 100 : 0;
-
   return (
-    <div className="min-h-screen flex flex-col">
+    <>
       <Header />
+      <main style={{ minHeight: "100vh", padding: "40px 20px" }}>
+        <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
+          <h1 style={{
+            fontFamily: "var(--font-anton), Anton, sans-serif",
+            fontSize: "48px",
+            marginBottom: "20px",
+            textAlign: "center"
+          }}>
+            SHOT CHART ANALYZER
+            <span style={{
+              display: "block",
+              width: "100px",
+              height: "4px",
+              background: "var(--orange)",
+              margin: "15px auto 0"
+            }}></span>
+          </h1>
 
-      <main className="flex-1 bg-[var(--black)] flex flex-col">
-        {/* Hero */}
-        <section className="bg-gradient-to-br from-[var(--dark-gray)] to-[var(--black)] py-6 md:py-8 border-b-4 border-[var(--orange)]">
-          <div className="container-main">
-            <h1 className="font-[family-name:var(--font-anton)] text-3xl md:text-4xl tracking-wider text-white mb-2">
-              SHOT CHART ANALYZER
-            </h1>
-            <p className="text-white/70">
-              Visualize shooting patterns with heat maps and zone breakdowns
-            </p>
-          </div>
-        </section>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: "40px", marginTop: "40px" }}>
+            {/* Court */}
+            <div className="section">
+              <div className="section-title">Shot Distribution</div>
+              <div style={{ position: "relative", width: "500px", height: "470px", margin: "0 auto", background: "rgba(200, 159, 108, 0.1)", border: "3px solid var(--court-wood)" }}>
+                {/* Court markings - basket at top */}
+                <svg width="500" height="470" style={{ position: "absolute", top: 0, left: 0 }}>
+                  {/* Backboard */}
+                  <rect x="220" y="35" width="60" height="5" fill="var(--court-wood)" />
+                  {/* Basket/Rim */}
+                  <circle cx="250" cy="55" r="15" fill="none" stroke="var(--orange)" strokeWidth="3" />
+                  {/* Restricted area arc */}
+                  <path d="M 210 55 A 40 40 0 0 0 290 55" fill="none" stroke="var(--court-wood)" strokeWidth="2" />
+                  {/* Paint/Key rectangle */}
+                  <rect x="170" y="0" width="160" height="190" fill="none" stroke="var(--court-wood)" strokeWidth="2" />
+                  {/* Free throw circle */}
+                  <circle cx="250" cy="190" r="60" fill="none" stroke="var(--court-wood)" strokeWidth="2" />
+                  {/* Three point line - corners straight, arc in middle */}
+                  <path
+                    d="M 30 0 L 30 140 A 220 220 0 0 0 470 140 L 470 0"
+                    fill="none"
+                    stroke="var(--court-wood)"
+                    strokeWidth="2"
+                  />
+                </svg>
 
-        {/* Main Content */}
-        <section className="flex-1 py-6 md:py-8 flex min-h-0">
-          <div className="container-main flex-1 flex flex-col min-h-0">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 flex-1 min-h-0">
-              {/* Chart Area */}
-              <div className="lg:col-span-2 flex flex-col min-h-0">
-                <Card variant="default" className="p-4 md:p-6 flex-1 flex flex-col">
-                  {/* Controls */}
-                  <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-                    {/* Player Select */}
-                    <select
-                      value={selectedPlayer}
-                      onChange={(e) => setSelectedPlayer(e.target.value)}
-                      className="bg-[var(--black)] border-2 border-[var(--border)] text-white px-4 py-2 focus:border-[var(--orange)] outline-none"
-                    >
-                      {players.map((player) => (
-                        <option key={player} value={player}>
-                          {player}
-                        </option>
-                      ))}
-                    </select>
-
-                    {/* View Toggle */}
-                    <div className="flex gap-2">
-                      <Button
-                        variant={showHeatmap ? "secondary" : "primary"}
-                        size="sm"
-                        onClick={() => setShowHeatmap(false)}
-                      >
-                        SHOTS
-                      </Button>
-                      <Button
-                        variant={showHeatmap ? "primary" : "secondary"}
-                        size="sm"
-                        onClick={() => setShowHeatmap(true)}
-                      >
-                        HEATMAP
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Court */}
-                  <div className="flex justify-center items-center flex-1">
-                    {isLoading ? (
-                      <div className="w-full max-w-[500px] h-[470px] bg-[var(--black)] animate-pulse flex items-center justify-center">
-                        <span className="text-white/50">Loading...</span>
-                      </div>
-                    ) : (
-                      <BasketballCourt
-                        shots={shots}
-                        showHeatmap={showHeatmap}
-                        width={500}
-                        height={470}
-                        className="w-full max-w-[500px]"
-                      />
-                    )}
-                  </div>
-
-                  {/* Legend */}
-                  <div className="flex flex-wrap justify-center gap-6 mt-6 text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full bg-[#22C55E]" />
-                      <span className="text-white/70">Made 3PT</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full bg-[#3B82F6]" />
-                      <span className="text-white/70">Made 2PT</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full border-2 border-[#EF4444]" />
-                      <span className="text-white/70">Missed 3PT</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full border-2 border-[#F59E0B]" />
-                      <span className="text-white/70">Missed 2PT</span>
-                    </div>
-                  </div>
-                </Card>
+                {/* Shots */}
+                {filteredShots.map((shot, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      position: "absolute",
+                      left: shot.x - 8,
+                      top: shot.y - 8,
+                      width: "16px",
+                      height: "16px",
+                      borderRadius: "50%",
+                      background: shot.made ? "var(--green)" : "var(--red)",
+                      border: "2px solid var(--white)",
+                      opacity: 0.8,
+                      transition: "all 0.3s ease"
+                    }}
+                    title={`${shot.type} - ${shot.made ? "Made" : "Missed"}`}
+                  />
+                ))}
               </div>
 
-              {/* Stats Sidebar */}
-              <div className="flex flex-col gap-6 min-h-0">
-                {/* Overall Stats */}
-                <Card variant="bordered" className="p-4 md:p-5 flex-1">
-                  <h3 className="font-[family-name:var(--font-anton)] text-lg tracking-wider mb-4">
-                    OVERALL STATS
-                  </h3>
+              {/* Filters */}
+              <div style={{ display: "flex", gap: "10px", justifyContent: "center", marginTop: "20px" }}>
+                {["all", "made", "missed"].map(f => (
+                  <button
+                    key={f}
+                    onClick={() => setFilter(f as typeof filter)}
+                    style={{
+                      padding: "8px 20px",
+                      background: filter === f ? "var(--orange)" : "transparent",
+                      border: "1px solid",
+                      borderColor: filter === f ? "var(--orange)" : "rgba(255,255,255,0.2)",
+                      color: "var(--white)",
+                      cursor: "pointer",
+                      textTransform: "capitalize"
+                    }}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-white/60">FG%</span>
-                      <span className="font-[family-name:var(--font-roboto-mono)] text-xl font-bold">
-                        {fgPercentage.toFixed(1)}%
-                      </span>
+            {/* Stats */}
+            <div>
+              <div className="section">
+                <div className="section-title">Shot Statistics</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px" }}>
+                  <div style={{ background: "rgba(0,0,0,0.3)", padding: "20px", textAlign: "center" }}>
+                    <div style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "32px", fontWeight: "bold" }}>
+                      {stats.percentage}%
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-white/60">FGM/FGA</span>
-                      <span className="font-[family-name:var(--font-roboto-mono)]">
-                        {totalMade}/{totalAttempted}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-white/60">3P%</span>
-                      <span className="font-[family-name:var(--font-roboto-mono)] text-xl font-bold text-[var(--orange)]">
-                        {threePercentage.toFixed(1)}%
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-white/60">3PM/3PA</span>
-                      <span className="font-[family-name:var(--font-roboto-mono)]">
-                        {threeMade}/{threeAttempted}
-                      </span>
-                    </div>
+                    <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px" }}>FG%</div>
                   </div>
-                </Card>
-
-                {/* Zone Breakdown */}
-                <Card variant="bordered" className="p-4 md:p-5 flex-1">
-                  <h3 className="font-[family-name:var(--font-anton)] text-lg tracking-wider mb-4">
-                    ZONE BREAKDOWN
-                  </h3>
-
-                  <div className="space-y-4">
-                    {zoneStats.map((zone) => (
-                      <div key={zone.name}>
-                        <div className="flex justify-between items-center mb-1">
-                          <span className="text-white/60 text-sm">{zone.name}</span>
-                          <span className="font-[family-name:var(--font-roboto-mono)] text-sm">
-                            {zone.made}/{zone.attempted} ({zone.percentage.toFixed(1)}%)
-                          </span>
-                        </div>
-                        <div className="h-2 bg-[var(--black)] rounded overflow-hidden">
-                          <div
-                            className={cn(
-                              "h-full transition-all",
-                              zone.percentage >= 50
-                                ? "bg-green-500"
-                                : zone.percentage >= 40
-                                  ? "bg-yellow-500"
-                                  : "bg-red-500"
-                            )}
-                            style={{ width: `${zone.percentage}%` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
+                  <div style={{ background: "rgba(0,0,0,0.3)", padding: "20px", textAlign: "center" }}>
+                    <div style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "32px", fontWeight: "bold" }}>
+                      {stats.made}/{stats.total}
+                    </div>
+                    <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px" }}>FGM/FGA</div>
                   </div>
-                </Card>
+                </div>
+              </div>
 
-                {/* Quick Actions */}
-                <Card variant="bordered" className="p-4 md:p-5 flex-1">
-                  <h3 className="font-[family-name:var(--font-anton)] text-lg tracking-wider mb-4">
-                    FILTERS
-                  </h3>
+              <div className="section">
+                <div className="section-title">By Zone</div>
+                {[
+                  { name: "3PT", key: "threePoint" as const },
+                  { name: "Mid-Range", key: "midRange" as const },
+                  { name: "Paint", key: "paint" as const },
+                  { name: "Rim", key: "rim" as const },
+                ].map(zone => {
+                  const zoneStats = stats[zone.key];
+                  const pct = zoneStats.total > 0 ? ((zoneStats.made / zoneStats.total) * 100).toFixed(1) : "0.0";
+                  return (
+                    <div
+                      key={zone.key}
+                      onClick={() => setZoneFilter(zoneFilter === zone.name.replace("-Range", "") ? "all" : zone.name.replace("-Range", ""))}
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "15px",
+                        background: zoneFilter === zone.name.replace("-Range", "") ? "rgba(255, 107, 53, 0.2)" : "rgba(0,0,0,0.3)",
+                        marginBottom: "10px",
+                        cursor: "pointer",
+                        border: zoneFilter === zone.name.replace("-Range", "") ? "1px solid var(--orange)" : "1px solid transparent"
+                      }}
+                    >
+                      <span>{zone.name}</span>
+                      <span style={{ fontFamily: "var(--font-roboto-mono), monospace" }}>
+                        {zoneStats.made}/{zoneStats.total} ({pct}%)
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
 
-                  <div className="space-y-3">
-                    <Button variant="secondary" size="sm" className="w-full">
-                      LAST 5 GAMES
-                    </Button>
-                    <Button variant="secondary" size="sm" className="w-full">
-                      SEASON 2024-25
-                    </Button>
-                    <Button variant="secondary" size="sm" className="w-full">
-                      PLAYOFFS ONLY
-                    </Button>
+              <div className="section">
+                <div className="section-title">Legend</div>
+                <div style={{ display: "flex", gap: "20px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <div style={{ width: "16px", height: "16px", borderRadius: "50%", background: "var(--green)" }} />
+                    <span>Made</span>
                   </div>
-                </Card>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <div style={{ width: "16px", height: "16px", borderRadius: "50%", background: "var(--red)" }} />
+                    <span>Missed</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </section>
+        </div>
       </main>
-
       <Footer />
-    </div>
+    </>
   );
 }

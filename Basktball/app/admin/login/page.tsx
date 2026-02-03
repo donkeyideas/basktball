@@ -3,16 +3,13 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 
-export default function AdminLoginPage() {
-  const router = useRouter();
+export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,80 +37,100 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--black)] flex items-center justify-center p-4">
-      <Card variant="bordered" className="w-full max-w-md p-8">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <Image
-            src="/logo-icon.png"
-            alt="Basktball"
-            width={60}
-            height={60}
-            className="mx-auto mb-4"
-          />
-          <h1 className="font-[family-name:var(--font-anton)] text-2xl tracking-wider text-white">
-            ADMIN LOGIN
+    <div style={{
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "var(--darker-gray)"
+    }}>
+      <div style={{
+        width: "100%",
+        maxWidth: "400px",
+        padding: "40px",
+        background: "var(--dark-gray)",
+        border: "1px solid rgba(255,255,255,0.1)"
+      }}>
+        <div style={{ textAlign: "center", marginBottom: "40px" }}>
+          <h1 style={{
+            fontFamily: "var(--font-anton), Anton, sans-serif",
+            fontSize: "36px",
+            color: "var(--orange)",
+            marginBottom: "10px"
+          }}>
+            BASKTBALL
           </h1>
-          <p className="text-sm text-white/50 mt-2">
-            Sign in to access the admin dashboard
+          <p style={{
+            color: "rgba(255,255,255,0.5)",
+            letterSpacing: "3px",
+            fontSize: "14px"
+          }}>
+            ADMIN LOGIN
           </p>
         </div>
 
-        {/* Error */}
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/30 p-3 mb-6 text-red-400 text-sm text-center">
-            {error}
-          </div>
-        )}
+        <form onSubmit={handleSubmit}>
+          {error && (
+            <div style={{
+              background: "rgba(239, 68, 68, 0.1)",
+              border: "1px solid var(--red)",
+              color: "var(--red)",
+              padding: "12px",
+              marginBottom: "20px",
+              fontSize: "14px",
+              textAlign: "center"
+            }}>
+              {error}
+            </div>
+          )}
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm text-white/60 mb-2">Email</label>
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
             <input
+              id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full bg-[var(--black)] border-2 border-[var(--border)] text-white px-4 py-3 focus:border-[var(--orange)] outline-none"
               placeholder="admin@basktball.com"
             />
           </div>
 
-          <div>
-            <label className="block text-sm text-white/60 mb-2">Password</label>
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
             <input
+              id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full bg-[var(--black)] border-2 border-[var(--border)] text-white px-4 py-3 focus:border-[var(--orange)] outline-none"
-              placeholder="••••••••"
+              placeholder="Enter your password"
             />
           </div>
 
-          <Button
+          <button
             type="submit"
-            variant="primary"
-            size="lg"
-            className="w-full mt-6"
-            isLoading={isLoading}
+            className="btn btn-primary"
             disabled={isLoading}
+            style={{
+              width: "100%",
+              marginTop: "20px",
+              opacity: isLoading ? 0.7 : 1
+            }}
           >
-            SIGN IN
-          </Button>
+            {isLoading ? "SIGNING IN..." : "SIGN IN"}
+          </button>
         </form>
 
-        {/* Demo Credentials */}
-        <div className="mt-8 pt-6 border-t border-white/10 text-center">
-          <p className="text-xs text-white/40 mb-2">Demo Credentials:</p>
-          <p className="text-xs text-white/60">
-            Email: admin@basktball.com
-            <br />
-            Password: admin123
-          </p>
-        </div>
-      </Card>
+        <p style={{
+          marginTop: "30px",
+          textAlign: "center",
+          fontSize: "12px",
+          color: "rgba(255,255,255,0.3)"
+        }}>
+          Protected admin area. Authorized access only.
+        </p>
+      </div>
     </div>
   );
 }

@@ -1,165 +1,175 @@
-"use client";
-
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 
-interface Tool {
-  id: string;
-  number: string;
-  name: string;
-  description: string;
-  href: string;
-  features: string[];
-}
-
-const tools: Tool[] = [
+const tools = [
   {
-    id: "shot",
-    number: "01",
-    name: "SHOT CHART ANALYZER",
-    description:
-      "Visualize player shooting patterns with heat maps, zone breakdowns, and efficiency metrics across all court positions.",
+    id: 1,
+    title: "Shot Chart Analyzer",
+    description: "Visualize shooting patterns and identify hot zones with AI-powered analysis.",
+    tags: ["AI-POWERED", "VISUAL"],
     href: "/tools/shot-chart",
-    features: ["HEAT MAPS", "ZONE DATA", "EFFICIENCY"],
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="12" cy="12" r="10" />
+        <circle cx="12" cy="12" r="6" />
+        <circle cx="12" cy="12" r="2" />
+      </svg>
+    ),
   },
   {
-    id: "compare",
-    number: "02",
-    name: "PLAYER COMPARISON",
-    description:
-      "Compare any players across any era with advanced stats, career trajectories, and head-to-head matchups.",
+    id: 2,
+    title: "Player Comparison",
+    description: "Compare any two players across every statistical category with detailed breakdowns.",
+    tags: ["COMPARE", "STATS"],
     href: "/tools/compare",
-    features: ["MULTI-PLAYER", "CAREER STATS", "ERA ADJUSTED"],
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <rect x="3" y="3" width="7" height="18" />
+        <rect x="14" y="3" width="7" height="18" />
+      </svg>
+    ),
   },
   {
-    id: "metrics",
-    number: "03",
-    name: "ADVANCED METRICS",
-    description:
-      "Deep dive into PER, Win Shares, True Shooting %, VORP, BPM, and 50+ proprietary analytics metrics.",
-    href: "/tools/advanced-metrics",
-    features: ["50+ METRICS", "REAL-TIME", "CUSTOM FORMULAS"],
+    id: 3,
+    title: "Advanced Metrics",
+    description: "Deep dive into PER, TS%, VORP, and other advanced basketball analytics.",
+    tags: ["ADVANCED", "ANALYTICS"],
+    href: "/tools/metrics",
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M3 3v18h18" />
+        <path d="M7 14l4-4 4 4 5-5" />
+      </svg>
+    ),
   },
   {
-    id: "predict",
-    number: "04",
-    name: "GAME PREDICTOR",
-    description:
-      "AI-powered predictions for game outcomes, player performance, and playoff probabilities using machine learning.",
+    id: 4,
+    title: "Game Predictor",
+    description: "AI-powered game predictions using historical data and current form analysis.",
+    tags: ["AI", "PREDICTIONS"],
     href: "/tools/predictor",
-    features: ["ML POWERED", "PREDICTIONS", "PROBABILITY"],
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 6v6l4 2" />
+      </svg>
+    ),
   },
   {
-    id: "fantasy",
-    number: "05",
-    name: "FANTASY OPTIMIZER",
-    description:
-      "Optimize DFS lineups with projected points, value picks, and matchup analysis for all major fantasy platforms.",
+    id: 5,
+    title: "Fantasy Optimizer",
+    description: "Maximize your fantasy lineup with smart player recommendations.",
+    tags: ["FANTASY", "OPTIMIZE"],
     href: "/tools/fantasy",
-    features: ["DFS TOOLS", "VALUE PICKS", "PROJECTIONS"],
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+      </svg>
+    ),
   },
   {
-    id: "team",
-    number: "06",
-    name: "TEAM ANALYTICS",
-    description:
-      "Comprehensive team stats including pace, offensive/defensive ratings, four factors, and lineup combinations.",
+    id: 6,
+    title: "Team Analytics",
+    description: "Comprehensive team performance analysis including pace, efficiency, and trends.",
+    tags: ["TEAM", "TRENDS"],
     href: "/tools/team-analytics",
-    features: ["TEAM STATS", "LINEUPS", "PACE DATA"],
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="4" />
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+      </svg>
+    ),
   },
   {
-    id: "betting",
-    number: "07",
-    name: "BETTING INSIGHTS",
-    description:
-      "Statistical edges, line movement tracking, and data-driven betting recommendations with historical accuracy.",
+    id: 7,
+    title: "Betting Insights",
+    description: "Data-driven insights for spreads, totals, and props with historical accuracy.",
+    tags: ["BETTING", "DATA"],
     href: "/tools/betting",
-    features: ["ODDS DATA", "TRENDS", "EDGES"],
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <line x1="12" y1="1" x2="12" y2="23" />
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+      </svg>
+    ),
   },
   {
-    id: "draft",
-    number: "08",
-    name: "DRAFT ANALYZER",
-    description:
-      "College-to-pro projections, prospect comparisons, and historical draft class analysis with scouting reports.",
+    id: 8,
+    title: "Draft Analyzer",
+    description: "Historical draft data and prospect analysis for upcoming drafts.",
+    tags: ["DRAFT", "PROSPECTS"],
     href: "/tools/draft",
-    features: ["PROSPECTS", "PROJECTIONS", "SCOUTING"],
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <path d="M14 2v6h6" />
+        <line x1="16" y1="13" x2="8" y2="13" />
+        <line x1="16" y1="17" x2="8" y2="17" />
+        <line x1="10" y1="9" x2="8" y2="9" />
+      </svg>
+    ),
   },
   {
-    id: "history",
-    number: "09",
-    name: "HISTORICAL DATABASE",
-    description:
-      "Query decades of basketball data with advanced filters, play-by-play analysis, and downloadable datasets.",
+    id: 9,
+    title: "Historical Database",
+    description: "Access decades of basketball history with searchable stats and records.",
+    tags: ["HISTORY", "DATABASE"],
     href: "/tools/history",
-    features: ["ARCHIVES", "PLAY-BY-PLAY", "EXPORT"],
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <ellipse cx="12" cy="5" rx="9" ry="3" />
+        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
+        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+      </svg>
+    ),
   },
 ];
 
-function ToolCard({ tool, index }: { tool: Tool; index: number }) {
-  return (
-    <Link href={tool.href}>
-      <div
-        className={cn("tool-card group", "animate-slide-up")}
-        style={{ animationDelay: `${index * 0.1}s` }}
-      >
-        {/* Number Badge */}
-        <div className="tool-number">{tool.number}</div>
-
-        {/* Content */}
-        <div className="relative z-10">
-          <h3 className="font-[family-name:var(--font-anton)] text-xl md:text-2xl tracking-wider uppercase mb-3 mt-4">
-            {tool.name}
-          </h3>
-
-          <p className="text-sm md:text-base text-white/80 leading-relaxed mb-4">
-            {tool.description}
-          </p>
-
-          {/* Features */}
-          <div className="flex flex-wrap gap-2">
-            {tool.features.map((feature) => (
-              <span key={feature} className="feature-tag">
-                {feature}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Background Image Overlay */}
-        <div
-          className="absolute top-0 right-0 bottom-0 w-[200px] opacity-[0.08] grayscale transition-opacity group-hover:opacity-[0.15]"
-          style={{
-            backgroundImage:
-              "url('https://cdn.nba.com/manage/2021/10/GettyImages-1340187444.jpg')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        />
-
-        {/* Hover Accent Line */}
-        <div className="absolute top-0 left-0 w-full h-[5px] bg-gradient-to-r from-[var(--orange)] to-[var(--orange-bright)] transform scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100" />
-      </div>
-    </Link>
-  );
-}
-
 export function ToolsGrid() {
   return (
-    <section className="relative z-10 w-full">
-      {/* Section Header */}
-      <div className="section-header mb-12">
-        <h2 className="font-[family-name:var(--font-anton)] text-3xl md:text-4xl lg:text-[3.5rem] tracking-[3px] uppercase text-white">
-          ANALYTICS TOOLS
+    <section className="tools-section">
+      <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
+        <h2 style={{
+          fontFamily: "var(--font-anton), Anton, sans-serif",
+          fontSize: "48px",
+          marginBottom: "50px",
+          textAlign: "center",
+          position: "relative",
+          display: "inline-block",
+          width: "100%"
+        }}>
+          POWERFUL TOOLS
+          <span style={{
+            display: "block",
+            width: "100px",
+            height: "4px",
+            background: "var(--orange)",
+            margin: "10px auto 0"
+          }}></span>
         </h2>
-      </div>
-
-      {/* Tools Grid */}
-      <div className="tools-grid">
-        {tools.map((tool, index) => (
-          <ToolCard key={tool.id} tool={tool} index={index} />
-        ))}
+        <div className="tools-grid">
+          {tools.map((tool) => (
+            <Link key={tool.id} href={tool.href} style={{ textDecoration: "none", color: "inherit" }}>
+              <div className="tool-card">
+                <div className="tool-number">
+                  {String(tool.id).padStart(2, "0")}
+                </div>
+                <div className="tool-icon">{tool.icon}</div>
+                <h3>{tool.title}</h3>
+                <p>{tool.description}</p>
+                <div className="tool-tags">
+                  {tool.tags.map((tag) => (
+                    <span key={tag}>{tag}</span>
+                  ))}
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
     </section>
   );
 }
+
+export default ToolsGrid;

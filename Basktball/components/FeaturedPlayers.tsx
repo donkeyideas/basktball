@@ -1,98 +1,118 @@
 "use client";
 
-interface PlayerStat {
-  value: string;
-  label: string;
-}
+import { useState, useEffect } from "react";
 
-interface FeaturedPlayer {
-  id: string;
+interface Leader {
+  rank: number;
+  playerId: string;
   name: string;
-  imageUrl: string;
-  stats: PlayerStat[];
+  team: string;
+  teamName: string;
+  value: number;
+  gamesPlayed: number;
 }
 
-const defaultPlayers: FeaturedPlayer[] = [
-  {
-    id: "1",
-    name: "LUKA DONČIĆ",
-    imageUrl: "https://cdn.nba.com/headshots/nba/latest/1040x760/1629029.png",
-    stats: [
-      { value: "28.7", label: "PPG" },
-      { value: "8.3", label: "RPG" },
-      { value: "8.1", label: "APG" },
-    ],
-  },
-  {
-    id: "2",
-    name: "GIANNIS",
-    imageUrl: "https://cdn.nba.com/headshots/nba/latest/1040x760/203507.png",
-    stats: [
-      { value: "30.9", label: "PPG" },
-      { value: "11.4", label: "RPG" },
-      { value: "6.2", label: "APG" },
-    ],
-  },
-  {
-    id: "3",
-    name: "LAMELO BALL",
-    imageUrl: "https://cdn.nba.com/headshots/nba/latest/1040x760/1630162.png",
-    stats: [
-      { value: "26.5", label: "PPG" },
-      { value: "5.1", label: "RPG" },
-      { value: "7.8", label: "APG" },
-    ],
-  },
-];
+export function FeaturedPlayers() {
+  const [leaders, setLeaders] = useState<Leader[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-interface FeaturedPlayersProps {
-  players?: FeaturedPlayer[];
-}
+  useEffect(() => {
+    async function fetchLeaders() {
+      try {
+        const res = await fetch("/api/stats/leaders?category=ppg&limit=3");
+        const data = await res.json();
+        if (data.success) {
+          setLeaders(data.leaders);
+        }
+      } catch (error) {
+        console.error("Failed to fetch leaders:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchLeaders();
+  }, []);
 
-function PlayerCard({ player }: { player: FeaturedPlayer }) {
+  if (isLoading) {
+    return (
+      <section className="featured-players">
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          <h2 style={{
+            fontFamily: "var(--font-anton), Anton, sans-serif",
+            fontSize: "48px",
+            marginBottom: "50px",
+            textAlign: "center"
+          }}>
+            TOP PERFORMERS
+          </h2>
+          <div className="players-grid">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="player-card" style={{ opacity: 0.5 }}>
+                <div className="player-image">...</div>
+                <h3>Loading...</h3>
+                <p className="player-team">---</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (leaders.length === 0) {
+    return (
+      <section className="featured-players">
+        <div style={{ maxWidth: "1200px", margin: "0 auto", textAlign: "center" }}>
+          <h2 style={{
+            fontFamily: "var(--font-anton), Anton, sans-serif",
+            fontSize: "48px",
+            marginBottom: "50px"
+          }}>
+            TOP PERFORMERS
+          </h2>
+          <p style={{ color: "rgba(255,255,255,0.5)" }}>
+            No player stats available yet.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <div className="text-center">
-      {/* Player Image */}
-      <div
-        className="player-img"
-        style={{ backgroundImage: `url('${player.imageUrl}')` }}
-      />
-
-      {/* Player Stats */}
-      <div className="player-stat">
-        <div className="player-name">{player.name}</div>
-        <div className="player-stats-row">
-          {player.stats.map((stat, index) => (
-            <div key={index} className="player-stat-item">
-              <div className="player-stat-value">{stat.value}</div>
-              <div className="player-stat-label">{stat.label}</div>
+    <section className="featured-players">
+      <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+        <h2 style={{
+          fontFamily: "var(--font-anton), Anton, sans-serif",
+          fontSize: "48px",
+          marginBottom: "50px",
+          textAlign: "center"
+        }}>
+          TOP PERFORMERS
+        </h2>
+        <div className="players-grid">
+          {leaders.map((player) => (
+            <div key={player.playerId} className="player-card">
+              <div className="player-image">
+                {player.name.split(" ").map(n => n[0]).join("")}
+              </div>
+              <h3>{player.name}</h3>
+              <p className="player-team">{player.teamName}</p>
+              <div className="player-stats">
+                <div className="stat">
+                  <div className="stat-value">{player.value}</div>
+                  <div className="stat-label">PPG</div>
+                </div>
+                <div className="stat">
+                  <div className="stat-value">{player.gamesPlayed}</div>
+                  <div className="stat-label">GP</div>
+                </div>
+              </div>
             </div>
           ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 
-export function FeaturedPlayers({ players = defaultPlayers }: FeaturedPlayersProps) {
-  return (
-    <div className="featured-players">
-      {/* Background Overlay */}
-      <div
-        className="absolute inset-0 opacity-20 bg-cover bg-center mix-blend-overlay"
-        style={{
-          backgroundImage: `url('https://cdn.nba.com/manage/2021/10/GettyImages-1340187444.jpg')`,
-        }}
-      />
-
-      {/* Content */}
-      <div className="featured-content">
-        {players.map((player) => (
-          <div key={player.id} className="player-highlight">
-            <PlayerCard player={player} />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+export default FeaturedPlayers;
