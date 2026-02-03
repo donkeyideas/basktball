@@ -1,47 +1,21 @@
 "use client";
 
 import { useState } from "react";
+import useSWR from "swr";
 import { Header, Footer } from "@/components/layout";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
 
 interface PlayerStat {
   rank: number;
+  playerId: string;
   name: string;
   team: string;
   value: number;
+  gamesPlayed: number;
 }
 
-const mockLeaders: Record<string, PlayerStat[]> = {
-  ppg: [
-    { rank: 1, name: "Luka Doncic", team: "DAL", value: 33.9 },
-    { rank: 2, name: "Giannis Antetokounmpo", team: "MIL", value: 31.1 },
-    { rank: 3, name: "Shai Gilgeous-Alexander", team: "OKC", value: 30.1 },
-    { rank: 4, name: "Joel Embiid", team: "PHI", value: 28.6 },
-    { rank: 5, name: "Kevin Durant", team: "PHX", value: 27.1 },
-  ],
-  rpg: [
-    { rank: 1, name: "Domantas Sabonis", team: "SAC", value: 13.7 },
-    { rank: 2, name: "Rudy Gobert", team: "MIN", value: 12.9 },
-    { rank: 3, name: "Nikola Jokic", team: "DEN", value: 12.4 },
-    { rank: 4, name: "Anthony Davis", team: "LAL", value: 12.1 },
-    { rank: 5, name: "Giannis Antetokounmpo", team: "MIL", value: 11.5 },
-  ],
-  apg: [
-    { rank: 1, name: "Tyrese Haliburton", team: "IND", value: 10.9 },
-    { rank: 2, name: "Luka Doncic", team: "DAL", value: 9.8 },
-    { rank: 3, name: "Trae Young", team: "ATL", value: 9.5 },
-    { rank: 4, name: "Nikola Jokic", team: "DEN", value: 9.0 },
-    { rank: 5, name: "James Harden", team: "LAC", value: 8.5 },
-  ],
-  spg: [
-    { rank: 1, name: "De'Aaron Fox", team: "SAC", value: 2.0 },
-    { rank: 2, name: "OG Anunoby", team: "NYK", value: 1.7 },
-    { rank: 3, name: "Shai Gilgeous-Alexander", team: "OKC", value: 1.6 },
-    { rank: 4, name: "Matisse Thybulle", team: "POR", value: 1.5 },
-    { rank: 5, name: "Alex Caruso", team: "CHI", value: 1.5 },
-  ],
-};
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const statCategories = [
   { key: "ppg", label: "Points", unit: "PPG" },
@@ -52,6 +26,36 @@ const statCategories = [
 
 export default function StatsPage() {
   const [selectedStat, setSelectedStat] = useState("ppg");
+
+  // Fetch all stat categories
+  const { data: ppgData, isLoading: ppgLoading } = useSWR<{
+    success: boolean;
+    leaders: PlayerStat[];
+  }>("/api/stats/leaders?category=ppg&limit=5", fetcher);
+
+  const { data: rpgData, isLoading: rpgLoading } = useSWR<{
+    success: boolean;
+    leaders: PlayerStat[];
+  }>("/api/stats/leaders?category=rpg&limit=5", fetcher);
+
+  const { data: apgData, isLoading: apgLoading } = useSWR<{
+    success: boolean;
+    leaders: PlayerStat[];
+  }>("/api/stats/leaders?category=apg&limit=5", fetcher);
+
+  const { data: spgData, isLoading: spgLoading } = useSWR<{
+    success: boolean;
+    leaders: PlayerStat[];
+  }>("/api/stats/leaders?category=spg&limit=5", fetcher);
+
+  const leaders: Record<string, PlayerStat[]> = {
+    ppg: ppgData?.leaders || [],
+    rpg: rpgData?.leaders || [],
+    apg: apgData?.leaders || [],
+    spg: spgData?.leaders || [],
+  };
+
+  const isLoading = ppgLoading || rpgLoading || apgLoading || spgLoading;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -99,39 +103,62 @@ export default function StatsPage() {
                     {cat.label.toUpperCase()} LEADERS
                   </h3>
                   <div className="space-y-3 flex-1 flex flex-col">
-                    {mockLeaders[cat.key].map((player) => (
-                      <div
-                        key={player.rank}
-                        className={cn(
-                          "flex items-center justify-between p-3",
-                          player.rank === 1
-                            ? "bg-[var(--orange)]/10"
-                            : "bg-[var(--black)]"
-                        )}
-                      >
-                        <div className="flex items-center gap-3">
-                          <span
-                            className={cn(
-                              "w-6 h-6 flex items-center justify-center text-xs font-bold",
-                              player.rank === 1
-                                ? "bg-[var(--orange)] text-white"
-                                : "bg-[var(--gray)] text-white/60"
-                            )}
-                          >
-                            {player.rank}
-                          </span>
-                          <div>
-                            <p className="text-white text-sm font-semibold">
-                              {player.name}
-                            </p>
-                            <p className="text-white/50 text-xs">{player.team}</p>
+                    {isLoading ? (
+                      // Loading skeleton
+                      Array.from({ length: 5 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="flex items-center justify-between p-3 bg-[var(--black)] animate-pulse"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-6 h-6 bg-white/10 rounded" />
+                            <div>
+                              <div className="h-4 w-24 bg-white/10 rounded mb-1" />
+                              <div className="h-3 w-12 bg-white/10 rounded" />
+                            </div>
                           </div>
+                          <div className="h-5 w-10 bg-white/10 rounded" />
                         </div>
-                        <span className="font-[family-name:var(--font-roboto-mono)] text-white font-bold">
-                          {player.value}
-                        </span>
+                      ))
+                    ) : leaders[cat.key].length === 0 ? (
+                      <div className="flex-1 flex items-center justify-center">
+                        <p className="text-white/30 text-sm">No data available</p>
                       </div>
-                    ))}
+                    ) : (
+                      leaders[cat.key].map((player) => (
+                        <div
+                          key={player.playerId || player.rank}
+                          className={cn(
+                            "flex items-center justify-between p-3",
+                            player.rank === 1
+                              ? "bg-[var(--orange)]/10"
+                              : "bg-[var(--black)]"
+                          )}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span
+                              className={cn(
+                                "w-6 h-6 flex items-center justify-center text-xs font-bold",
+                                player.rank === 1
+                                  ? "bg-[var(--orange)] text-white"
+                                  : "bg-[var(--gray)] text-white/60"
+                              )}
+                            >
+                              {player.rank}
+                            </span>
+                            <div>
+                              <p className="text-white text-sm font-semibold">
+                                {player.name}
+                              </p>
+                              <p className="text-white/50 text-xs">{player.team}</p>
+                            </div>
+                          </div>
+                          <span className="font-[family-name:var(--font-roboto-mono)] text-white font-bold">
+                            {player.value}
+                          </span>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </Card>
               ))}

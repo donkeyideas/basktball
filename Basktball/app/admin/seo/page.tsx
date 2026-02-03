@@ -149,14 +149,14 @@ export default function SEOManagementPage() {
   };
 
   return (
-    <div className="p-4">
+    <div className="flex-1 flex flex-col p-6 overflow-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-[family-name:var(--font-anton)] text-2xl tracking-wider text-white">
+          <h1 className="font-[family-name:var(--font-anton)] text-3xl tracking-wider text-white">
             SEO MANAGEMENT
           </h1>
-          <p className="text-white/50 text-xs">
+          <p className="text-white/50 text-sm">
             Monitor and optimize search engine visibility
           </p>
         </div>
@@ -171,7 +171,7 @@ export default function SEOManagementPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-4">
+      <div className="flex gap-2 mb-6">
         {(["overview", "pages", "sitemap"] as const).map((tab) => (
           <button
             key={tab}
@@ -191,7 +191,7 @@ export default function SEOManagementPage() {
       {activeTab === "overview" && (
         <>
           {/* Search Console Overview */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 mb-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
             <Card variant="default" className="p-3">
               <p className="text-white/50 text-xs uppercase mb-1">Impressions</p>
               <p className="font-[family-name:var(--font-roboto-mono)] text-xl text-white">
@@ -237,7 +237,7 @@ export default function SEOManagementPage() {
           </div>
 
           {/* SEO Scores */}
-          <Card variant="default" className="p-3 mb-4">
+          <Card variant="default" className="p-4 mb-6">
             <h2 className="font-semibold text-white text-sm mb-3">SEO Health Scores</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
               {mockSeoScores.map((score) => (
@@ -268,7 +268,7 @@ export default function SEOManagementPage() {
           </Card>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Card variant="bordered" className="p-3 cursor-pointer hover:border-[var(--orange)] transition-colors">
               <div className="w-8 h-8 bg-blue-500/20 flex items-center justify-center mb-2">
                 <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

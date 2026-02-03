@@ -85,19 +85,19 @@ export default function ContentReviewPage() {
   };
 
   return (
-    <div className="p-4">
+    <div className="flex-1 flex flex-col p-6 overflow-auto">
       {/* Header */}
-      <div className="mb-4">
-        <h1 className="font-[family-name:var(--font-anton)] text-2xl tracking-wider text-white">
+      <div className="mb-6">
+        <h1 className="font-[family-name:var(--font-anton)] text-3xl tracking-wider text-white">
           CONTENT REVIEW
         </h1>
-        <p className="text-white/50 text-xs">
+        <p className="text-white/50 text-sm">
           Review and approve AI-generated content before publishing
         </p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-2 mb-4">
+      <div className="grid grid-cols-4 gap-4 mb-6">
         <Card variant="default" className="p-3">
           <p className="text-white/50 text-[10px] uppercase mb-1">Pending</p>
           <p className="font-[family-name:var(--font-roboto-mono)] text-lg text-[var(--orange)]">
@@ -131,7 +131,7 @@ export default function ContentReviewPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1">
         {/* Queue */}
         <div>
           <h2 className="font-semibold text-white text-sm mb-2">Review Queue</h2>

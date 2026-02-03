@@ -29,6 +29,11 @@ export const metadata: Metadata = {
     default: "Basktball - Basketball Analytics & Advanced Stats",
     template: "%s | Basktball",
   },
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/logo-icon.png",
+  },
   description:
     "Advanced basketball analytics across NBA, WNBA, NCAA, EuroLeague & International Basketball. Live scores, player stats, AI-powered insights, and powerful analytics tools.",
   keywords: [
