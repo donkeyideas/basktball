@@ -7,7 +7,7 @@ interface AnalyticsProps {
 }
 
 export function Analytics({ gaId }: AnalyticsProps) {
-  const measurementId = gaId || process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+  const measurementId = gaId || process.env.NEXT_PUBLIC_GA_ID;
 
   if (!measurementId) {
     return null;
