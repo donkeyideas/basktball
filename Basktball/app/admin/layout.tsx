@@ -86,45 +86,43 @@ export default function AdminLayout({
 
   return (
     <div className="h-screen bg-[var(--black)] flex overflow-hidden">
-      {/* Sidebar */}
-      <aside className="w-56 bg-[var(--dark-gray)] border-r border-white/10 flex flex-col shrink-0">
+      {/* Compact Icon-Only Sidebar */}
+      <aside className="w-14 bg-[var(--dark-gray)] border-r border-white/10 flex flex-col shrink-0">
         {/* Logo */}
-        <div className="p-4 border-b border-white/10">
-          <Link href="/admin" className="flex items-center gap-3">
+        <div className="p-2 border-b border-white/10 flex justify-center">
+          <Link href="/admin">
             <Image
               src="/logo-icon.png"
               alt="Basktball"
-              width={40}
-              height={40}
+              width={28}
+              height={28}
               className="rounded"
             />
-            <div>
-              <span className="font-[family-name:var(--font-anton)] text-lg tracking-wider text-white block leading-tight">
-                BASKTBALL
-              </span>
-              <span className="text-xs text-[var(--orange)] font-medium">ADMIN</span>
-            </div>
           </Link>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-3 overflow-y-auto">
-          <ul className="space-y-1">
+        <nav className="flex-1 py-2 overflow-y-auto">
+          <ul className="space-y-1 px-1.5">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               return (
                 <li key={item.href}>
                   <Link
                     href={item.href}
+                    title={item.label}
                     className={cn(
-                      "flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors rounded",
+                      "flex items-center justify-center p-2 rounded transition-colors group relative",
                       isActive
                         ? "bg-[var(--orange)] text-white"
-                        : "text-white/70 hover:bg-white/5 hover:text-white"
+                        : "text-white/60 hover:bg-white/10 hover:text-white"
                     )}
                   >
                     {item.icon}
-                    <span>{item.label}</span>
+                    {/* Tooltip */}
+                    <span className="absolute left-full ml-2 px-2 py-1 bg-[var(--gray)] text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity">
+                      {item.label}
+                    </span>
                   </Link>
                 </li>
               );
@@ -133,24 +131,30 @@ export default function AdminLayout({
         </nav>
 
         {/* Footer */}
-        <div className="p-3 border-t border-white/10 space-y-1">
+        <div className="p-1.5 border-t border-white/10 space-y-1">
           <Link
             href="/"
-            className="flex items-center gap-3 px-4 py-2 text-white/50 hover:text-white text-sm rounded hover:bg-white/5"
+            title="Back to Site"
+            className="flex items-center justify-center p-2 text-white/50 hover:text-white rounded hover:bg-white/10 group relative"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
-            Back to Site
+            <span className="absolute left-full ml-2 px-2 py-1 bg-[var(--gray)] text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity">
+              Back to Site
+            </span>
           </Link>
           <button
             onClick={() => signOut({ callbackUrl: "/admin/login" })}
-            className="flex items-center gap-3 px-4 py-2 text-red-400/70 hover:text-red-400 text-sm w-full rounded hover:bg-red-500/10"
+            title="Sign Out"
+            className="flex items-center justify-center p-2 text-red-400/70 hover:text-red-400 w-full rounded hover:bg-red-500/10 group relative"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
-            Sign Out
+            <span className="absolute left-full ml-2 px-2 py-1 bg-[var(--gray)] text-white text-xs rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 transition-opacity">
+              Sign Out
+            </span>
           </button>
         </div>
       </aside>

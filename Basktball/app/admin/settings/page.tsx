@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from "react";
 import useSWR, { mutate } from "swr";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
 
 interface Settings {
   general: {
@@ -100,36 +99,34 @@ export default function SettingsPage() {
       });
       const result = await response.json();
       if (result.success) {
-        setSavedMessage("Settings saved successfully!");
+        setSavedMessage("Saved!");
         mutate("/api/admin/settings");
       } else {
-        setSavedMessage("Failed to save settings");
+        setSavedMessage("Failed");
       }
     } catch {
-      setSavedMessage("Error saving settings");
+      setSavedMessage("Error");
     }
     setIsSaving(false);
-    setTimeout(() => setSavedMessage(""), 3000);
+    setTimeout(() => setSavedMessage(""), 2000);
   };
 
   if (isLoading) {
     return (
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <div className="h-8 w-32 bg-white/10 rounded animate-pulse mb-2" />
-            <div className="h-4 w-48 bg-white/10 rounded animate-pulse" />
-          </div>
+      <div className="flex-1 flex flex-col p-3 overflow-hidden">
+        <div className="flex items-center justify-between mb-2">
+          <div className="h-6 w-24 bg-white/10 rounded animate-pulse" />
+          <div className="h-6 w-16 bg-white/10 rounded animate-pulse" />
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-1.5 flex-1">
           {Array.from({ length: 4 }).map((_, i) => (
-            <Card key={i} variant="default" className="p-3 animate-pulse">
-              <div className="h-5 w-24 bg-white/10 rounded mb-3" />
-              <div className="space-y-3">
-                <div className="h-10 bg-white/10 rounded" />
-                <div className="h-10 bg-white/10 rounded" />
+            <div key={i} className="bg-[var(--dark-gray)] p-2 rounded animate-pulse">
+              <div className="h-4 w-16 bg-white/10 rounded mb-2" />
+              <div className="space-y-2">
+                <div className="h-7 bg-white/10 rounded" />
+                <div className="h-7 bg-white/10 rounded" />
               </div>
-            </Card>
+            </div>
           ))}
         </div>
       </div>
@@ -137,318 +134,211 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="flex-1 flex flex-col p-6 overflow-auto">
+    <div className="flex-1 flex flex-col p-3 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="font-[family-name:var(--font-anton)] text-3xl tracking-wider text-white">
-            SETTINGS
-          </h1>
-          <p className="text-white/50 text-sm">
-            Configure system settings and feature flags
-          </p>
-        </div>
-        <div className="flex items-center gap-4">
+      <div className="flex items-center justify-between mb-2">
+        <h1 className="font-[family-name:var(--font-anton)] text-xl tracking-wider text-white">
+          SETTINGS
+        </h1>
+        <div className="flex items-center gap-2">
           {savedMessage && (
-            <span
-              className={
-                savedMessage.includes("success")
-                  ? "text-green-400 text-sm"
-                  : "text-red-400 text-sm"
-              }
-            >
+            <span className={cn(
+              "text-xs",
+              savedMessage === "Saved!" ? "text-green-400" : "text-red-400"
+            )}>
               {savedMessage}
             </span>
           )}
-          <Button
-            variant="primary"
-            size="md"
+          <button
             onClick={handleSave}
-            isLoading={isSaving}
+            disabled={isSaving}
+            className="px-3 py-1 bg-[var(--orange)] text-white text-xs font-semibold rounded hover:bg-[var(--orange)]/80 transition-colors disabled:opacity-50"
           >
-            SAVE CHANGES
-          </Button>
+            {isSaving ? "..." : "SAVE"}
+          </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* Settings Grid */}
+      <div className="grid grid-cols-2 gap-1.5 flex-1 min-h-0 overflow-auto">
         {/* General Settings */}
-        <Card variant="default" className="p-3">
-          <h2 className="font-semibold text-white text-sm mb-3">General</h2>
-          <div className="space-y-3">
+        <div className="bg-[var(--dark-gray)] p-2 rounded">
+          <h2 className="font-semibold text-white text-xs mb-2 uppercase tracking-wide">General</h2>
+          <div className="space-y-2">
             <div>
-              <label className="block text-sm text-white/60 mb-2">Site Name</label>
+              <label className="block text-[10px] text-white/50 mb-0.5">Site Name</label>
               <input
                 type="text"
                 value={settings.general.siteName}
-                onChange={(e) =>
-                  updateSetting("general", "siteName", e.target.value)
-                }
-                className="w-full bg-[var(--black)] border border-[var(--border)] text-white px-4 py-2 focus:border-[var(--orange)] outline-none"
+                onChange={(e) => updateSetting("general", "siteName", e.target.value)}
+                className="w-full bg-[var(--black)] border border-white/10 text-white text-xs px-2 py-1.5 rounded focus:border-[var(--orange)] outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm text-white/60 mb-2">
-                Site Description
-              </label>
+              <label className="block text-[10px] text-white/50 mb-0.5">Description</label>
               <input
                 type="text"
                 value={settings.general.siteDescription}
-                onChange={(e) =>
-                  updateSetting("general", "siteDescription", e.target.value)
-                }
-                className="w-full bg-[var(--black)] border border-[var(--border)] text-white px-4 py-2 focus:border-[var(--orange)] outline-none"
+                onChange={(e) => updateSetting("general", "siteDescription", e.target.value)}
+                className="w-full bg-[var(--black)] border border-white/10 text-white text-xs px-2 py-1.5 rounded focus:border-[var(--orange)] outline-none"
               />
             </div>
-            <label className="flex items-center justify-between p-3 bg-[var(--black)] cursor-pointer">
-              <div>
-                <span className="text-white">Maintenance Mode</span>
-                <p className="text-xs text-white/50">
-                  Disable public access temporarily
-                </p>
-              </div>
+            <label className="flex items-center justify-between p-1.5 bg-[var(--black)] rounded cursor-pointer">
+              <span className="text-white text-xs">Maintenance Mode</span>
               <input
                 type="checkbox"
                 checked={settings.general.maintenanceMode}
-                onChange={(e) =>
-                  updateSetting("general", "maintenanceMode", e.target.checked)
-                }
-                className="accent-[var(--orange)] w-5 h-5"
+                onChange={(e) => updateSetting("general", "maintenanceMode", e.target.checked)}
+                className="accent-[var(--orange)] w-4 h-4"
               />
             </label>
           </div>
-        </Card>
+        </div>
 
         {/* API Settings */}
-        <Card variant="default" className="p-3">
-          <h2 className="font-semibold text-white text-sm mb-3">
-            API Configuration
-          </h2>
-          <div className="space-y-2">
-            <label className="flex items-center justify-between p-3 bg-[var(--black)] cursor-pointer">
-              <div>
-                <span className="text-white">BallDontLie API</span>
-                <p className="text-xs text-white/50">Primary NBA data source</p>
-              </div>
+        <div className="bg-[var(--dark-gray)] p-2 rounded">
+          <h2 className="font-semibold text-white text-xs mb-2 uppercase tracking-wide">API Config</h2>
+          <div className="space-y-1.5">
+            <label className="flex items-center justify-between p-1.5 bg-[var(--black)] rounded cursor-pointer">
+              <span className="text-white text-xs">BallDontLie API</span>
               <input
                 type="checkbox"
                 checked={settings.api.ballDontLieEnabled}
-                onChange={(e) =>
-                  updateSetting("api", "ballDontLieEnabled", e.target.checked)
-                }
-                className="accent-[var(--orange)] w-5 h-5"
+                onChange={(e) => updateSetting("api", "ballDontLieEnabled", e.target.checked)}
+                className="accent-[var(--orange)] w-4 h-4"
               />
             </label>
-            <label className="flex items-center justify-between p-3 bg-[var(--black)] cursor-pointer">
-              <div>
-                <span className="text-white">ESPN Fallback</span>
-                <p className="text-xs text-white/50">
-                  Use ESPN when primary fails
-                </p>
-              </div>
+            <label className="flex items-center justify-between p-1.5 bg-[var(--black)] rounded cursor-pointer">
+              <span className="text-white text-xs">ESPN Fallback</span>
               <input
                 type="checkbox"
                 checked={settings.api.espnFallbackEnabled}
-                onChange={(e) =>
-                  updateSetting("api", "espnFallbackEnabled", e.target.checked)
-                }
-                className="accent-[var(--orange)] w-5 h-5"
+                onChange={(e) => updateSetting("api", "espnFallbackEnabled", e.target.checked)}
+                className="accent-[var(--orange)] w-4 h-4"
               />
             </label>
-            <label className="flex items-center justify-between p-3 bg-[var(--black)] cursor-pointer">
-              <div>
-                <span className="text-white">Response Caching</span>
-                <p className="text-xs text-white/50">Cache API responses</p>
-              </div>
+            <label className="flex items-center justify-between p-1.5 bg-[var(--black)] rounded cursor-pointer">
+              <span className="text-white text-xs">Response Cache</span>
               <input
                 type="checkbox"
                 checked={settings.api.cacheEnabled}
-                onChange={(e) =>
-                  updateSetting("api", "cacheEnabled", e.target.checked)
-                }
-                className="accent-[var(--orange)] w-5 h-5"
+                onChange={(e) => updateSetting("api", "cacheEnabled", e.target.checked)}
+                className="accent-[var(--orange)] w-4 h-4"
               />
             </label>
             <div>
-              <label className="block text-sm text-white/60 mb-2">
-                Cache TTL (seconds)
-              </label>
+              <label className="block text-[10px] text-white/50 mb-0.5">Cache TTL (sec)</label>
               <input
                 type="number"
                 value={settings.api.cacheTtl}
-                onChange={(e) =>
-                  updateSetting("api", "cacheTtl", parseInt(e.target.value))
-                }
-                className="w-full bg-[var(--black)] border border-[var(--border)] text-white px-4 py-2 focus:border-[var(--orange)] outline-none"
+                onChange={(e) => updateSetting("api", "cacheTtl", parseInt(e.target.value))}
+                className="w-full bg-[var(--black)] border border-white/10 text-white text-xs px-2 py-1.5 rounded focus:border-[var(--orange)] outline-none"
               />
             </div>
           </div>
-        </Card>
+        </div>
 
         {/* AI Settings */}
-        <Card variant="default" className="p-3">
-          <h2 className="font-semibold text-white text-sm mb-3">
-            AI Configuration
-          </h2>
-          <div className="space-y-2">
-            <label className="flex items-center justify-between p-3 bg-[var(--black)] cursor-pointer">
-              <div>
-                <span className="text-white">DeepSeek AI</span>
-                <p className="text-xs text-white/50">
-                  Enable AI content generation
-                </p>
-              </div>
+        <div className="bg-[var(--dark-gray)] p-2 rounded">
+          <h2 className="font-semibold text-white text-xs mb-2 uppercase tracking-wide">AI Config</h2>
+          <div className="space-y-1.5">
+            <label className="flex items-center justify-between p-1.5 bg-[var(--black)] rounded cursor-pointer">
+              <span className="text-white text-xs">DeepSeek AI</span>
               <input
                 type="checkbox"
                 checked={settings.ai.deepSeekEnabled}
-                onChange={(e) =>
-                  updateSetting("ai", "deepSeekEnabled", e.target.checked)
-                }
-                className="accent-[var(--orange)] w-5 h-5"
+                onChange={(e) => updateSetting("ai", "deepSeekEnabled", e.target.checked)}
+                className="accent-[var(--orange)] w-4 h-4"
               />
             </label>
             <div>
-              <label className="block text-sm text-white/60 mb-2">
-                Auto-Approve Threshold (%)
-              </label>
+              <label className="block text-[10px] text-white/50 mb-0.5">Auto-Approve Threshold (%)</label>
               <input
                 type="number"
                 min="0"
                 max="100"
                 value={settings.ai.autoApproveThreshold}
-                onChange={(e) =>
-                  updateSetting(
-                    "ai",
-                    "autoApproveThreshold",
-                    parseInt(e.target.value)
-                  )
-                }
-                className="w-full bg-[var(--black)] border border-[var(--border)] text-white px-4 py-2 focus:border-[var(--orange)] outline-none"
+                onChange={(e) => updateSetting("ai", "autoApproveThreshold", parseInt(e.target.value))}
+                className="w-full bg-[var(--black)] border border-white/10 text-white text-xs px-2 py-1.5 rounded focus:border-[var(--orange)] outline-none"
               />
-              <p className="text-xs text-white/40 mt-1">
-                Content above this confidence level is auto-approved
-              </p>
             </div>
             <div>
-              <label className="block text-sm text-white/60 mb-2">
-                Max Tokens Per Request
-              </label>
+              <label className="block text-[10px] text-white/50 mb-0.5">Max Tokens/Request</label>
               <input
                 type="number"
                 value={settings.ai.maxTokensPerRequest}
-                onChange={(e) =>
-                  updateSetting(
-                    "ai",
-                    "maxTokensPerRequest",
-                    parseInt(e.target.value)
-                  )
-                }
-                className="w-full bg-[var(--black)] border border-[var(--border)] text-white px-4 py-2 focus:border-[var(--orange)] outline-none"
+                onChange={(e) => updateSetting("ai", "maxTokensPerRequest", parseInt(e.target.value))}
+                className="w-full bg-[var(--black)] border border-white/10 text-white text-xs px-2 py-1.5 rounded focus:border-[var(--orange)] outline-none"
               />
             </div>
             <div>
-              <label className="block text-sm text-white/60 mb-2">
-                Daily Token Limit
-              </label>
+              <label className="block text-[10px] text-white/50 mb-0.5">Daily Token Limit</label>
               <input
                 type="number"
                 value={settings.ai.dailyTokenLimit}
-                onChange={(e) =>
-                  updateSetting("ai", "dailyTokenLimit", parseInt(e.target.value))
-                }
-                className="w-full bg-[var(--black)] border border-[var(--border)] text-white px-4 py-2 focus:border-[var(--orange)] outline-none"
+                onChange={(e) => updateSetting("ai", "dailyTokenLimit", parseInt(e.target.value))}
+                className="w-full bg-[var(--black)] border border-white/10 text-white text-xs px-2 py-1.5 rounded focus:border-[var(--orange)] outline-none"
               />
             </div>
           </div>
-        </Card>
+        </div>
 
         {/* Feature Flags */}
-        <Card variant="default" className="p-3">
-          <h2 className="font-semibold text-white text-sm mb-3">Feature Flags</h2>
-          <div className="space-y-2">
-            <label className="flex items-center justify-between p-3 bg-[var(--black)] cursor-pointer">
-              <div>
-                <span className="text-white">Live Scores</span>
-                <p className="text-xs text-white/50">Real-time game updates</p>
-              </div>
+        <div className="bg-[var(--dark-gray)] p-2 rounded">
+          <h2 className="font-semibold text-white text-xs mb-2 uppercase tracking-wide">Features</h2>
+          <div className="space-y-1.5">
+            <label className="flex items-center justify-between p-1.5 bg-[var(--black)] rounded cursor-pointer">
+              <span className="text-white text-xs">Live Scores</span>
               <input
                 type="checkbox"
                 checked={settings.features.liveScoresEnabled}
-                onChange={(e) =>
-                  updateSetting("features", "liveScoresEnabled", e.target.checked)
-                }
-                className="accent-[var(--orange)] w-5 h-5"
+                onChange={(e) => updateSetting("features", "liveScoresEnabled", e.target.checked)}
+                className="accent-[var(--orange)] w-4 h-4"
               />
             </label>
-            <label className="flex items-center justify-between p-3 bg-[var(--black)] cursor-pointer">
-              <div>
-                <span className="text-white">AI Insights</span>
-                <p className="text-xs text-white/50">AI-generated content</p>
-              </div>
+            <label className="flex items-center justify-between p-1.5 bg-[var(--black)] rounded cursor-pointer">
+              <span className="text-white text-xs">AI Insights</span>
               <input
                 type="checkbox"
                 checked={settings.features.aiInsightsEnabled}
-                onChange={(e) =>
-                  updateSetting("features", "aiInsightsEnabled", e.target.checked)
-                }
-                className="accent-[var(--orange)] w-5 h-5"
+                onChange={(e) => updateSetting("features", "aiInsightsEnabled", e.target.checked)}
+                className="accent-[var(--orange)] w-4 h-4"
               />
             </label>
-            <label className="flex items-center justify-between p-3 bg-[var(--black)] cursor-pointer">
-              <div>
-                <span className="text-white">Betting Insights</span>
-                <p className="text-xs text-white/50">Betting analysis features</p>
-              </div>
+            <label className="flex items-center justify-between p-1.5 bg-[var(--black)] rounded cursor-pointer">
+              <span className="text-white text-xs">Betting Insights</span>
               <input
                 type="checkbox"
                 checked={settings.features.bettingInsightsEnabled}
-                onChange={(e) =>
-                  updateSetting(
-                    "features",
-                    "bettingInsightsEnabled",
-                    e.target.checked
-                  )
-                }
-                className="accent-[var(--orange)] w-5 h-5"
+                onChange={(e) => updateSetting("features", "bettingInsightsEnabled", e.target.checked)}
+                className="accent-[var(--orange)] w-4 h-4"
               />
             </label>
-            <label className="flex items-center justify-between p-3 bg-[var(--black)] cursor-pointer">
-              <div>
-                <span className="text-white">Fantasy Tools</span>
-                <p className="text-xs text-white/50">Fantasy optimizer features</p>
-              </div>
+            <label className="flex items-center justify-between p-1.5 bg-[var(--black)] rounded cursor-pointer">
+              <span className="text-white text-xs">Fantasy Tools</span>
               <input
                 type="checkbox"
                 checked={settings.features.fantasyToolsEnabled}
-                onChange={(e) =>
-                  updateSetting(
-                    "features",
-                    "fantasyToolsEnabled",
-                    e.target.checked
-                  )
-                }
-                className="accent-[var(--orange)] w-5 h-5"
+                onChange={(e) => updateSetting("features", "fantasyToolsEnabled", e.target.checked)}
+                className="accent-[var(--orange)] w-4 h-4"
               />
             </label>
           </div>
-        </Card>
+        </div>
       </div>
 
       {/* Danger Zone */}
-      <Card variant="bordered" className="p-3 mt-4 border-red-500/30">
-        <h2 className="font-semibold text-red-400 text-sm mb-3">Danger Zone</h2>
+      <div className="mt-2 bg-[var(--dark-gray)] border border-red-500/20 p-2 rounded">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-white">Clear All Cache</p>
-            <p className="text-xs text-white/50">
-              Remove all cached data from the system
-            </p>
+            <span className="text-red-400 text-xs font-semibold">Clear All Cache</span>
+            <p className="text-[10px] text-white/40">Remove all cached data</p>
           </div>
-          <Button variant="danger" size="sm">
-            CLEAR CACHE
-          </Button>
+          <button className="px-2 py-1 bg-red-500/20 text-red-400 text-[10px] rounded hover:bg-red-500/30 transition-colors">
+            CLEAR
+          </button>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

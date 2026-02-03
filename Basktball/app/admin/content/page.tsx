@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Card } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
+import useSWR, { mutate } from "swr";
 import { cn } from "@/lib/utils";
 
 interface PendingContent {
@@ -18,41 +17,15 @@ interface PendingContent {
   };
 }
 
-// Mock pending content
-const mockPendingContent: PendingContent[] = [
-  {
-    id: "1",
-    type: "GAME_RECAP",
-    content: "The Los Angeles Lakers secured a thrilling 112-108 victory over the Golden State Warriors in a game that came down to the final seconds. LeBron James led the way with 28 points, 8 rebounds, and 9 assists, showcasing his trademark versatility. Anthony Davis added 24 points and 12 rebounds, dominating the paint on both ends. Stephen Curry kept the Warriors in contention with 32 points, but it wasn't enough as the Lakers' defense clamped down in the fourth quarter.",
-    confidence: 0.72,
-    generatedAt: "2024-01-15T14:30:00Z",
-    metadata: {
-      gameInfo: "LAL vs GSW - Jan 15",
-      issues: ["Low confidence score"],
-    },
-  },
-  {
-    id: "2",
-    type: "PLAYER_ANALYSIS",
-    content: "Luka Doncic continues his MVP-caliber season with another impressive performance. Over his last 5 games, he's averaging 32.4 points, 9.2 rebounds, and 8.8 assists while shooting 48% from the field. His usage rate of 37.2% leads the league, and his true shooting percentage of 59.1% shows he's doing it efficiently. The Mavericks are 4-1 in this stretch with Doncic as the clear engine of their offense.",
-    confidence: 0.65,
-    generatedAt: "2024-01-15T12:00:00Z",
-    metadata: {
-      playerName: "Luka Doncic",
-      issues: ["Contains repetitive phrasing"],
-    },
-  },
-  {
-    id: "3",
-    type: "BETTING",
-    content: "For tonight's matchup between the Celtics and Bucks, Boston comes in as 5-point favorites. The Celtics are 8-2 ATS in their last 10 home games, while Milwaukee has struggled on the road going 4-6 ATS. Key injury: Khris Middleton remains questionable. The total is set at 228.5 - these teams have gone OVER in 7 of their last 10 meetings. Consider the Celtics spread and the over. Remember: betting involves significant risk.",
-    confidence: 0.78,
-    generatedAt: "2024-01-15T10:00:00Z",
-    metadata: {
-      gameInfo: "BOS vs MIL - Tonight",
-    },
-  },
-];
+interface ContentData {
+  success: boolean;
+  pendingContent: PendingContent[];
+  stats: {
+    pending: number;
+    approved: number;
+    rejected: number;
+  };
+}
 
 const typeColors: Record<PendingContent["type"], string> = {
   GAME_RECAP: "bg-blue-500/20 text-blue-400",
@@ -62,21 +35,47 @@ const typeColors: Record<PendingContent["type"], string> = {
   TRENDING: "bg-orange-500/20 text-[var(--orange)]",
 };
 
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 export default function ContentReviewPage() {
-  const [pendingContent, setPendingContent] = useState(mockPendingContent);
+  const { data, isLoading } = useSWR<ContentData>("/api/admin/content", fetcher);
   const [selectedContent, setSelectedContent] = useState<PendingContent | null>(null);
   const [editedContent, setEditedContent] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const pendingContent = data?.pendingContent || [];
+  const stats = data?.stats || { pending: 0, approved: 0, rejected: 0 };
 
   const handleApprove = async (id: string) => {
-    // In production, call API
-    setPendingContent((prev) => prev.filter((c) => c.id !== id));
-    setSelectedContent(null);
+    setIsProcessing(true);
+    try {
+      await fetch("/api/admin/content", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, action: "approve", content: editedContent }),
+      });
+      mutate("/api/admin/content");
+      setSelectedContent(null);
+    } catch (error) {
+      console.error("Approve error:", error);
+    }
+    setIsProcessing(false);
   };
 
   const handleReject = async (id: string) => {
-    // In production, call API
-    setPendingContent((prev) => prev.filter((c) => c.id !== id));
-    setSelectedContent(null);
+    setIsProcessing(true);
+    try {
+      await fetch("/api/admin/content", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, action: "reject" }),
+      });
+      mutate("/api/admin/content");
+      setSelectedContent(null);
+    } catch (error) {
+      console.error("Reject error:", error);
+    }
+    setIsProcessing(false);
   };
 
   const handleSelect = (content: PendingContent) => {
@@ -84,163 +83,166 @@ export default function ContentReviewPage() {
     setEditedContent(content.content);
   };
 
+  const avgConfidence = pendingContent.length > 0
+    ? ((pendingContent.reduce((sum, c) => sum + c.confidence, 0) / pendingContent.length) * 100).toFixed(0)
+    : 0;
+
+  if (isLoading) {
+    return (
+      <div className="flex-1 flex flex-col p-3 overflow-hidden">
+        <div className="flex items-center justify-between mb-2">
+          <div className="h-6 w-32 bg-white/10 rounded animate-pulse" />
+          <div className="flex gap-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-4 w-16 bg-white/10 rounded animate-pulse" />
+            ))}
+          </div>
+        </div>
+        <div className="flex-1 grid grid-cols-2 gap-1.5">
+          <div className="bg-[var(--dark-gray)] rounded animate-pulse" />
+          <div className="bg-[var(--dark-gray)] rounded animate-pulse" />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex-1 flex flex-col p-6 overflow-auto">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="font-[family-name:var(--font-anton)] text-3xl tracking-wider text-white">
-          CONTENT REVIEW
-        </h1>
-        <p className="text-white/50 text-sm">
-          Review and approve AI-generated content before publishing
-        </p>
+    <div className="flex-1 flex flex-col p-3 overflow-hidden">
+      {/* Header + Stats */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-4">
+          <h1 className="font-[family-name:var(--font-anton)] text-xl tracking-wider text-white">
+            CONTENT REVIEW
+          </h1>
+          <div className="flex items-center gap-3 text-xs">
+            <div className="flex items-center gap-1.5">
+              <span className="text-white/40">Pending:</span>
+              <span className="font-mono text-[var(--orange)]">{stats.pending}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-white/40">Approved:</span>
+              <span className="font-mono text-green-400">{stats.approved}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-white/40">Rejected:</span>
+              <span className="font-mono text-red-400">{stats.rejected}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-white/40">Avg Conf:</span>
+              <span className="font-mono text-white">{avgConfidence}%</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <Card variant="default" className="p-3">
-          <p className="text-white/50 text-[10px] uppercase mb-1">Pending</p>
-          <p className="font-[family-name:var(--font-roboto-mono)] text-lg text-[var(--orange)]">
-            {pendingContent.length}
-          </p>
-        </Card>
-        <Card variant="default" className="p-3">
-          <p className="text-white/50 text-[10px] uppercase mb-1">Approved Today</p>
-          <p className="font-[family-name:var(--font-roboto-mono)] text-lg text-green-400">
-            24
-          </p>
-        </Card>
-        <Card variant="default" className="p-3">
-          <p className="text-white/50 text-[10px] uppercase mb-1">Rejected Today</p>
-          <p className="font-[family-name:var(--font-roboto-mono)] text-lg text-red-400">
-            3
-          </p>
-        </Card>
-        <Card variant="default" className="p-3">
-          <p className="text-white/50 text-[10px] uppercase mb-1">Avg Confidence</p>
-          <p className="font-[family-name:var(--font-roboto-mono)] text-lg text-white">
-            {pendingContent.length > 0
-              ? (
-                  (pendingContent.reduce((sum, c) => sum + c.confidence, 0) /
-                    pendingContent.length) *
-                  100
-                ).toFixed(0)
-              : 0}
-            %
-          </p>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1">
+      {/* Main Grid */}
+      <div className="flex-1 min-h-0 grid grid-cols-2 gap-1.5">
         {/* Queue */}
-        <div>
-          <h2 className="font-semibold text-white text-sm mb-2">Review Queue</h2>
+        <div className="bg-[var(--dark-gray)] rounded flex flex-col overflow-hidden">
+          <div className="px-2 py-1.5 border-b border-white/10">
+            <h2 className="font-semibold text-white text-xs uppercase tracking-wide">Review Queue</h2>
+          </div>
           {pendingContent.length === 0 ? (
-            <Card variant="default" className="p-4 text-center">
-              <p className="text-white/50 text-sm">No content pending review</p>
-            </Card>
+            <div className="flex-1 flex items-center justify-center">
+              <p className="text-white/30 text-xs">No content pending review</p>
+            </div>
           ) : (
-            <div className="space-y-2">
+            <div className="flex-1 overflow-auto p-1.5 space-y-1">
               {pendingContent.map((content) => (
-                <Card
+                <div
                   key={content.id}
-                  variant={selectedContent?.id === content.id ? "bordered" : "default"}
-                  hover
-                  className={cn(
-                    "p-3 cursor-pointer",
-                    selectedContent?.id === content.id && "border-[var(--orange)]"
-                  )}
                   onClick={() => handleSelect(content)}
+                  className={cn(
+                    "p-2 bg-[var(--black)] cursor-pointer transition-colors rounded border",
+                    selectedContent?.id === content.id
+                      ? "border-[var(--orange)]"
+                      : "border-transparent hover:border-white/20"
+                  )}
                 >
-                  <div className="flex items-start justify-between mb-2">
-                    <span className={cn("text-xs px-2 py-0.5", typeColors[content.type])}>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className={cn("text-[9px] px-1.5 py-0.5 rounded", typeColors[content.type])}>
                       {content.type.replace("_", " ")}
                     </span>
                     <span
                       className={cn(
-                        "text-xs font-semibold",
-                        content.confidence >= 0.8
-                          ? "text-green-400"
-                          : content.confidence >= 0.6
-                            ? "text-yellow-400"
-                            : "text-red-400"
+                        "text-[10px] font-semibold",
+                        content.confidence >= 0.8 ? "text-green-400"
+                          : content.confidence >= 0.6 ? "text-yellow-400"
+                          : "text-red-400"
                       )}
                     >
                       {(content.confidence * 100).toFixed(0)}%
                     </span>
                   </div>
-                  <p className="text-white text-sm line-clamp-2">{content.content}</p>
+                  <p className="text-white text-[10px] line-clamp-2 mb-1">{content.content}</p>
                   {content.metadata?.issues && content.metadata.issues.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-1">
+                    <div className="flex flex-wrap gap-0.5 mb-1">
                       {content.metadata.issues.map((issue, i) => (
-                        <span key={i} className="text-xs bg-red-500/10 text-red-400 px-2 py-0.5">
+                        <span key={i} className="text-[8px] bg-red-500/10 text-red-400 px-1 py-0.5 rounded">
                           {issue}
                         </span>
                       ))}
                     </div>
                   )}
-                  <p className="text-white/40 text-xs mt-2">
+                  <p className="text-white/30 text-[9px]">
                     {new Date(content.generatedAt).toLocaleString()}
                   </p>
-                </Card>
+                </div>
               ))}
             </div>
           )}
         </div>
 
         {/* Editor */}
-        <div>
-          <h2 className="font-semibold text-white text-sm mb-2">Content Editor</h2>
+        <div className="bg-[var(--dark-gray)] rounded flex flex-col overflow-hidden">
           {selectedContent ? (
-            <Card variant="bordered" className="p-3">
-              <div className="flex items-center justify-between mb-4">
-                <span className={cn("text-xs px-2 py-0.5", typeColors[selectedContent.type])}>
-                  {selectedContent.type.replace("_", " ")}
-                </span>
-                {selectedContent.metadata?.gameInfo && (
-                  <span className="text-xs text-white/50">
-                    {selectedContent.metadata.gameInfo}
+            <>
+              <div className="px-2 py-1.5 border-b border-white/10 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className={cn("text-[9px] px-1.5 py-0.5 rounded", typeColors[selectedContent.type])}>
+                    {selectedContent.type.replace("_", " ")}
                   </span>
-                )}
-                {selectedContent.metadata?.playerName && (
-                  <span className="text-xs text-white/50">
-                    {selectedContent.metadata.playerName}
-                  </span>
-                )}
+                  {selectedContent.metadata?.gameInfo && (
+                    <span className="text-[10px] text-white/40">{selectedContent.metadata.gameInfo}</span>
+                  )}
+                  {selectedContent.metadata?.playerName && (
+                    <span className="text-[10px] text-white/40">{selectedContent.metadata.playerName}</span>
+                  )}
+                </div>
+                <button onClick={() => setSelectedContent(null)} className="text-white/40 hover:text-white text-xs">x</button>
               </div>
 
-              <textarea
-                value={editedContent}
-                onChange={(e) => setEditedContent(e.target.value)}
-                className="w-full h-48 bg-[var(--black)] border border-[var(--border)] text-white p-3 text-xs leading-relaxed focus:border-[var(--orange)] outline-none resize-none"
-              />
-
-              <div className="flex items-center justify-between mt-3">
-                <div className="text-xs text-white/50">
-                  {editedContent.length} characters
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => handleReject(selectedContent.id)}
-                  >
-                    REJECT
-                  </Button>
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={() => handleApprove(selectedContent.id)}
-                  >
-                    APPROVE
-                  </Button>
+              <div className="flex-1 p-2 flex flex-col">
+                <textarea
+                  value={editedContent}
+                  onChange={(e) => setEditedContent(e.target.value)}
+                  className="flex-1 w-full bg-[var(--black)] border border-white/10 text-white p-2 text-[10px] leading-relaxed focus:border-[var(--orange)] outline-none resize-none rounded"
+                />
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-[10px] text-white/40">{editedContent.length} chars</span>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => handleReject(selectedContent.id)}
+                      disabled={isProcessing}
+                      className="px-3 py-1.5 bg-red-500/20 text-red-400 text-[10px] font-semibold rounded hover:bg-red-500/30 transition-colors disabled:opacity-50"
+                    >
+                      REJECT
+                    </button>
+                    <button
+                      onClick={() => handleApprove(selectedContent.id)}
+                      disabled={isProcessing}
+                      className="px-3 py-1.5 bg-[var(--orange)] text-white text-[10px] font-semibold rounded hover:bg-[var(--orange)]/80 transition-colors disabled:opacity-50"
+                    >
+                      APPROVE
+                    </button>
+                  </div>
                 </div>
               </div>
-            </Card>
+            </>
           ) : (
-            <Card variant="default" className="p-4 text-center">
-              <p className="text-white/50 text-sm">Select content to review</p>
-            </Card>
+            <div className="flex-1 flex items-center justify-center">
+              <p className="text-white/30 text-xs">Select content to review</p>
+            </div>
           )}
         </div>
       </div>
