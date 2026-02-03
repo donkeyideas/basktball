@@ -58,7 +58,7 @@ export async function GET() {
         }
         const usage = apiUsageMap.get(log.endpoint)!;
         usage.calls++;
-        usage.totalLatency += log.duration || 0;
+        usage.totalLatency += log.responseTime || 0;
       });
 
     const apiUsage = Array.from(apiUsageMap.entries())
