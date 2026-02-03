@@ -129,25 +129,25 @@ export default function JobsPage() {
   };
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="font-[family-name:var(--font-anton)] text-3xl tracking-wider text-white">
+      <div className="mb-4">
+        <h1 className="font-[family-name:var(--font-anton)] text-2xl tracking-wider text-white">
           BACKGROUND JOBS
         </h1>
-        <p className="text-white/50 text-sm mt-1">
+        <p className="text-white/50 text-xs">
           Manage scheduled tasks and background processes
         </p>
       </div>
 
       {/* Jobs List */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-4">
         {jobs.map((job) => (
-          <Card key={job.id} variant="default" className="p-5">
-            <div className="flex items-start justify-between mb-3">
+          <Card key={job.id} variant="default" className="p-3">
+            <div className="flex items-start justify-between mb-2">
               <div>
-                <h3 className="font-semibold text-white">{job.name}</h3>
-                <p className="text-white/50 text-sm">{job.description}</p>
+                <h3 className="font-semibold text-white text-sm">{job.name}</h3>
+                <p className="text-white/50 text-xs">{job.description}</p>
               </div>
               <div className="flex items-center gap-2">
                 <div className={cn("w-2 h-2 rounded-full", getStatusColor(job.status))} />
@@ -155,26 +155,26 @@ export default function JobsPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
+            <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
               <div>
-                <p className="text-white/40 text-xs">Schedule</p>
+                <p className="text-white/40 text-[10px]">Schedule</p>
                 <p className="text-white font-mono">{job.schedule}</p>
               </div>
               <div>
-                <p className="text-white/40 text-xs">Last Duration</p>
+                <p className="text-white/40 text-[10px]">Last Duration</p>
                 <p className="text-white">{formatDuration(job.duration)}</p>
               </div>
               <div>
-                <p className="text-white/40 text-xs">Last Run</p>
+                <p className="text-white/40 text-[10px]">Last Run</p>
                 <p className="text-white">{new Date(job.lastRun).toLocaleString()}</p>
               </div>
               <div>
-                <p className="text-white/40 text-xs">Next Run</p>
+                <p className="text-white/40 text-[10px]">Next Run</p>
                 <p className="text-white">{new Date(job.nextRun).toLocaleString()}</p>
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-3 border-t border-white/10">
+            <div className="flex items-center justify-between pt-2 border-t border-white/10">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -200,8 +200,8 @@ export default function JobsPage() {
 
       {/* Job History */}
       <Card variant="default" className="overflow-hidden">
-        <div className="p-5 border-b border-white/10">
-          <h2 className="font-bold text-white">Recent Job History</h2>
+        <div className="p-3 border-b border-white/10">
+          <h2 className="font-semibold text-white text-sm">Recent Job History</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">

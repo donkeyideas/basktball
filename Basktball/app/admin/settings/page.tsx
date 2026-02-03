@@ -86,14 +86,14 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="font-[family-name:var(--font-anton)] text-3xl tracking-wider text-white">
+          <h1 className="font-[family-name:var(--font-anton)] text-2xl tracking-wider text-white">
             SETTINGS
           </h1>
-          <p className="text-white/50 text-sm mt-1">
+          <p className="text-white/50 text-xs">
             Configure system settings and feature flags
           </p>
         </div>
@@ -112,11 +112,11 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* General Settings */}
-        <Card variant="default" className="p-5">
-          <h2 className="font-bold text-white mb-4">General</h2>
-          <div className="space-y-4">
+        <Card variant="default" className="p-3">
+          <h2 className="font-semibold text-white text-sm mb-3">General</h2>
+          <div className="space-y-3">
             <div>
               <label className="block text-sm text-white/60 mb-2">Site Name</label>
               <input
@@ -151,9 +151,9 @@ export default function SettingsPage() {
         </Card>
 
         {/* API Settings */}
-        <Card variant="default" className="p-5">
-          <h2 className="font-bold text-white mb-4">API Configuration</h2>
-          <div className="space-y-3">
+        <Card variant="default" className="p-3">
+          <h2 className="font-semibold text-white text-sm mb-3">API Configuration</h2>
+          <div className="space-y-2">
             <label className="flex items-center justify-between p-3 bg-[var(--black)] cursor-pointer">
               <div>
                 <span className="text-white">BallDontLie API</span>
@@ -203,9 +203,9 @@ export default function SettingsPage() {
         </Card>
 
         {/* AI Settings */}
-        <Card variant="default" className="p-5">
-          <h2 className="font-bold text-white mb-4">AI Configuration</h2>
-          <div className="space-y-3">
+        <Card variant="default" className="p-3">
+          <h2 className="font-semibold text-white text-sm mb-3">AI Configuration</h2>
+          <div className="space-y-2">
             <label className="flex items-center justify-between p-3 bg-[var(--black)] cursor-pointer">
               <div>
                 <span className="text-white">DeepSeek AI</span>
@@ -256,9 +256,9 @@ export default function SettingsPage() {
         </Card>
 
         {/* Feature Flags */}
-        <Card variant="default" className="p-5">
-          <h2 className="font-bold text-white mb-4">Feature Flags</h2>
-          <div className="space-y-3">
+        <Card variant="default" className="p-3">
+          <h2 className="font-semibold text-white text-sm mb-3">Feature Flags</h2>
+          <div className="space-y-2">
             <label className="flex items-center justify-between p-3 bg-[var(--black)] cursor-pointer">
               <div>
                 <span className="text-white">Live Scores</span>
@@ -312,8 +312,8 @@ export default function SettingsPage() {
       </div>
 
       {/* Danger Zone */}
-      <Card variant="bordered" className="p-5 mt-6 border-red-500/30">
-        <h2 className="font-bold text-red-400 mb-4">Danger Zone</h2>
+      <Card variant="bordered" className="p-3 mt-4 border-red-500/30">
+        <h2 className="font-semibold text-red-400 text-sm mb-3">Danger Zone</h2>
         <div className="flex items-center justify-between">
           <div>
             <p className="text-white">Clear All Cache</p>

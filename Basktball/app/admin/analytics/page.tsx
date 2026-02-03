@@ -34,54 +34,54 @@ export default function AnalyticsPage() {
   const maxPageViews = Math.max(...weeklyStats.map((d) => d.pageViews));
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="font-[family-name:var(--font-anton)] text-3xl tracking-wider text-white">
+      <div className="mb-4">
+        <h1 className="font-[family-name:var(--font-anton)] text-2xl tracking-wider text-white">
           ANALYTICS
         </h1>
-        <p className="text-white/50 text-sm mt-1">
+        <p className="text-white/50 text-xs">
           Traffic and performance metrics
         </p>
       </div>
 
       {/* Overview Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <Card variant="default" className="p-4">
-          <p className="text-white/50 text-xs uppercase mb-1">Total Visitors (7d)</p>
-          <p className="font-[family-name:var(--font-roboto-mono)] text-2xl text-white">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+        <Card variant="default" className="p-3">
+          <p className="text-white/50 text-[10px] uppercase mb-1">Total Visitors (7d)</p>
+          <p className="font-[family-name:var(--font-roboto-mono)] text-lg text-white">
             12.3K
           </p>
-          <p className="text-green-400 text-xs mt-1">+15.2% vs last week</p>
+          <p className="text-green-400 text-[10px] mt-1">+15.2% vs last week</p>
         </Card>
-        <Card variant="default" className="p-4">
-          <p className="text-white/50 text-xs uppercase mb-1">Page Views (7d)</p>
-          <p className="font-[family-name:var(--font-roboto-mono)] text-2xl text-white">
+        <Card variant="default" className="p-3">
+          <p className="text-white/50 text-[10px] uppercase mb-1">Page Views (7d)</p>
+          <p className="font-[family-name:var(--font-roboto-mono)] text-lg text-white">
             47.2K
           </p>
-          <p className="text-green-400 text-xs mt-1">+8.7% vs last week</p>
+          <p className="text-green-400 text-[10px] mt-1">+8.7% vs last week</p>
         </Card>
-        <Card variant="default" className="p-4">
-          <p className="text-white/50 text-xs uppercase mb-1">Avg Session</p>
-          <p className="font-[family-name:var(--font-roboto-mono)] text-2xl text-white">
+        <Card variant="default" className="p-3">
+          <p className="text-white/50 text-[10px] uppercase mb-1">Avg Session</p>
+          <p className="font-[family-name:var(--font-roboto-mono)] text-lg text-white">
             4:32
           </p>
-          <p className="text-green-400 text-xs mt-1">+12.4% vs last week</p>
+          <p className="text-green-400 text-[10px] mt-1">+12.4% vs last week</p>
         </Card>
-        <Card variant="default" className="p-4">
-          <p className="text-white/50 text-xs uppercase mb-1">Bounce Rate</p>
-          <p className="font-[family-name:var(--font-roboto-mono)] text-2xl text-white">
+        <Card variant="default" className="p-3">
+          <p className="text-white/50 text-[10px] uppercase mb-1">Bounce Rate</p>
+          <p className="font-[family-name:var(--font-roboto-mono)] text-lg text-white">
             32.1%
           </p>
-          <p className="text-red-400 text-xs mt-1">+2.3% vs last week</p>
+          <p className="text-red-400 text-[10px] mt-1">+2.3% vs last week</p>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-4">
         {/* Weekly Traffic Chart */}
-        <Card variant="default" className="p-5">
-          <h2 className="font-bold text-white mb-4">Weekly Traffic</h2>
-          <div className="flex items-end justify-between h-48 gap-2">
+        <Card variant="default" className="p-3">
+          <h2 className="font-semibold text-white text-sm mb-3">Weekly Traffic</h2>
+          <div className="flex items-end justify-between h-36 gap-2">
             {weeklyStats.map((day) => (
               <div key={day.day} className="flex-1 flex flex-col items-center">
                 <div
@@ -95,9 +95,9 @@ export default function AnalyticsPage() {
         </Card>
 
         {/* Top Pages */}
-        <Card variant="default" className="p-5">
-          <h2 className="font-bold text-white mb-4">Top Pages</h2>
-          <div className="space-y-3">
+        <Card variant="default" className="p-3">
+          <h2 className="font-semibold text-white text-sm mb-3">Top Pages</h2>
+          <div className="space-y-2">
             {pageViews.map((page) => (
               <div
                 key={page.page}
@@ -126,8 +126,8 @@ export default function AnalyticsPage() {
 
       {/* API Usage */}
       <Card variant="default" className="overflow-hidden">
-        <div className="p-5 border-b border-white/10">
-          <h2 className="font-bold text-white">API Usage (24h)</h2>
+        <div className="p-3 border-b border-white/10">
+          <h2 className="font-semibold text-white text-sm">API Usage (24h)</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">

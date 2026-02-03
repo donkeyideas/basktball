@@ -149,14 +149,14 @@ export default function SEOManagementPage() {
   };
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="font-[family-name:var(--font-anton)] text-3xl tracking-wider text-white">
+          <h1 className="font-[family-name:var(--font-anton)] text-2xl tracking-wider text-white">
             SEO MANAGEMENT
           </h1>
-          <p className="text-white/50 text-sm mt-1">
+          <p className="text-white/50 text-xs">
             Monitor and optimize search engine visibility
           </p>
         </div>
@@ -171,13 +171,13 @@ export default function SEOManagementPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-1 mb-4">
         {(["overview", "pages", "sitemap"] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={cn(
-              "px-4 py-2 font-semibold uppercase text-sm tracking-wider transition-colors",
+              "px-3 py-1.5 font-semibold uppercase text-xs tracking-wider transition-colors",
               activeTab === tab
                 ? "bg-[var(--orange)] text-white"
                 : "bg-[var(--dark-gray)] text-white/60 hover:text-white"
@@ -191,44 +191,44 @@ export default function SEOManagementPage() {
       {activeTab === "overview" && (
         <>
           {/* Search Console Overview */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
-            <Card variant="default" className="p-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 mb-4">
+            <Card variant="default" className="p-3">
               <p className="text-white/50 text-xs uppercase mb-1">Impressions</p>
               <p className="font-[family-name:var(--font-roboto-mono)] text-xl text-white">
                 {(mockSearchConsole.totalImpressions / 1000).toFixed(0)}K
               </p>
             </Card>
-            <Card variant="default" className="p-4">
+            <Card variant="default" className="p-3">
               <p className="text-white/50 text-xs uppercase mb-1">Clicks</p>
               <p className="font-[family-name:var(--font-roboto-mono)] text-xl text-white">
                 {(mockSearchConsole.totalClicks / 1000).toFixed(1)}K
               </p>
             </Card>
-            <Card variant="default" className="p-4">
+            <Card variant="default" className="p-3">
               <p className="text-white/50 text-xs uppercase mb-1">Avg CTR</p>
               <p className="font-[family-name:var(--font-roboto-mono)] text-xl text-[var(--orange)]">
                 {mockSearchConsole.averageCTR}%
               </p>
             </Card>
-            <Card variant="default" className="p-4">
+            <Card variant="default" className="p-3">
               <p className="text-white/50 text-xs uppercase mb-1">Avg Position</p>
               <p className="font-[family-name:var(--font-roboto-mono)] text-xl text-white">
                 {mockSearchConsole.averagePosition}
               </p>
             </Card>
-            <Card variant="default" className="p-4">
+            <Card variant="default" className="p-3">
               <p className="text-white/50 text-xs uppercase mb-1">Indexed</p>
               <p className="font-[family-name:var(--font-roboto-mono)] text-xl text-green-500">
                 {mockSearchConsole.indexedPages}
               </p>
             </Card>
-            <Card variant="default" className="p-4">
+            <Card variant="default" className="p-3">
               <p className="text-white/50 text-xs uppercase mb-1">Pending</p>
               <p className="font-[family-name:var(--font-roboto-mono)] text-xl text-yellow-500">
                 {mockSearchConsole.pendingPages}
               </p>
             </Card>
-            <Card variant="default" className="p-4">
+            <Card variant="default" className="p-3">
               <p className="text-white/50 text-xs uppercase mb-1">Errors</p>
               <p className="font-[family-name:var(--font-roboto-mono)] text-xl text-red-500">
                 {mockSearchConsole.errorsPages}
@@ -237,9 +237,9 @@ export default function SEOManagementPage() {
           </div>
 
           {/* SEO Scores */}
-          <Card variant="default" className="p-5 mb-6">
-            <h2 className="font-bold text-white mb-4">SEO Health Scores</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <Card variant="default" className="p-3 mb-4">
+            <h2 className="font-semibold text-white text-sm mb-3">SEO Health Scores</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-2">
               {mockSeoScores.map((score) => (
                 <div key={score.category} className="bg-[var(--black)] p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -268,26 +268,42 @@ export default function SEOManagementPage() {
           </Card>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card variant="bordered" className="p-4 cursor-pointer hover:border-[var(--orange)] transition-colors">
-              <span className="text-2xl block mb-2">🔄</span>
-              <p className="font-semibold text-white text-sm">Regenerate Sitemap</p>
-              <p className="text-white/50 text-xs">Update XML sitemap</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <Card variant="bordered" className="p-3 cursor-pointer hover:border-[var(--orange)] transition-colors">
+              <div className="w-8 h-8 bg-blue-500/20 flex items-center justify-center mb-2">
+                <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </div>
+              <p className="font-semibold text-white text-xs">Regenerate Sitemap</p>
+              <p className="text-white/50 text-[10px]">Update XML sitemap</p>
             </Card>
-            <Card variant="bordered" className="p-4 cursor-pointer hover:border-[var(--orange)] transition-colors">
-              <span className="text-2xl block mb-2">📊</span>
-              <p className="font-semibold text-white text-sm">Fetch GSC Data</p>
-              <p className="text-white/50 text-xs">Sync Search Console</p>
+            <Card variant="bordered" className="p-3 cursor-pointer hover:border-[var(--orange)] transition-colors">
+              <div className="w-8 h-8 bg-green-500/20 flex items-center justify-center mb-2">
+                <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <p className="font-semibold text-white text-xs">Fetch GSC Data</p>
+              <p className="text-white/50 text-[10px]">Sync Search Console</p>
             </Card>
-            <Card variant="bordered" className="p-4 cursor-pointer hover:border-[var(--orange)] transition-colors">
-              <span className="text-2xl block mb-2">🔍</span>
-              <p className="font-semibold text-white text-sm">Run SEO Audit</p>
-              <p className="text-white/50 text-xs">Full site analysis</p>
+            <Card variant="bordered" className="p-3 cursor-pointer hover:border-[var(--orange)] transition-colors">
+              <div className="w-8 h-8 bg-purple-500/20 flex items-center justify-center mb-2">
+                <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <p className="font-semibold text-white text-xs">Run SEO Audit</p>
+              <p className="text-white/50 text-[10px]">Full site analysis</p>
             </Card>
-            <Card variant="bordered" className="p-4 cursor-pointer hover:border-[var(--orange)] transition-colors">
-              <span className="text-2xl block mb-2">📝</span>
-              <p className="font-semibold text-white text-sm">Bulk Edit Meta</p>
-              <p className="text-white/50 text-xs">Update page metadata</p>
+            <Card variant="bordered" className="p-3 cursor-pointer hover:border-[var(--orange)] transition-colors">
+              <div className="w-8 h-8 bg-orange-500/20 flex items-center justify-center mb-2">
+                <svg className="w-4 h-4 text-[var(--orange)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </div>
+              <p className="font-semibold text-white text-xs">Bulk Edit Meta</p>
+              <p className="text-white/50 text-[10px]">Update page metadata</p>
             </Card>
           </div>
         </>

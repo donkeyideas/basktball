@@ -85,40 +85,40 @@ export default function ContentReviewPage() {
   };
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="font-[family-name:var(--font-anton)] text-3xl tracking-wider text-white">
+      <div className="mb-4">
+        <h1 className="font-[family-name:var(--font-anton)] text-2xl tracking-wider text-white">
           CONTENT REVIEW
         </h1>
-        <p className="text-white/50 text-sm mt-1">
+        <p className="text-white/50 text-xs">
           Review and approve AI-generated content before publishing
         </p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <Card variant="default" className="p-4">
-          <p className="text-white/50 text-xs uppercase mb-1">Pending</p>
-          <p className="font-[family-name:var(--font-roboto-mono)] text-2xl text-[var(--orange)]">
+      <div className="grid grid-cols-4 gap-2 mb-4">
+        <Card variant="default" className="p-3">
+          <p className="text-white/50 text-[10px] uppercase mb-1">Pending</p>
+          <p className="font-[family-name:var(--font-roboto-mono)] text-lg text-[var(--orange)]">
             {pendingContent.length}
           </p>
         </Card>
-        <Card variant="default" className="p-4">
-          <p className="text-white/50 text-xs uppercase mb-1">Approved Today</p>
-          <p className="font-[family-name:var(--font-roboto-mono)] text-2xl text-green-400">
+        <Card variant="default" className="p-3">
+          <p className="text-white/50 text-[10px] uppercase mb-1">Approved Today</p>
+          <p className="font-[family-name:var(--font-roboto-mono)] text-lg text-green-400">
             24
           </p>
         </Card>
-        <Card variant="default" className="p-4">
-          <p className="text-white/50 text-xs uppercase mb-1">Rejected Today</p>
-          <p className="font-[family-name:var(--font-roboto-mono)] text-2xl text-red-400">
+        <Card variant="default" className="p-3">
+          <p className="text-white/50 text-[10px] uppercase mb-1">Rejected Today</p>
+          <p className="font-[family-name:var(--font-roboto-mono)] text-lg text-red-400">
             3
           </p>
         </Card>
-        <Card variant="default" className="p-4">
-          <p className="text-white/50 text-xs uppercase mb-1">Avg Confidence</p>
-          <p className="font-[family-name:var(--font-roboto-mono)] text-2xl text-white">
+        <Card variant="default" className="p-3">
+          <p className="text-white/50 text-[10px] uppercase mb-1">Avg Confidence</p>
+          <p className="font-[family-name:var(--font-roboto-mono)] text-lg text-white">
             {pendingContent.length > 0
               ? (
                   (pendingContent.reduce((sum, c) => sum + c.confidence, 0) /
@@ -131,23 +131,23 @@ export default function ContentReviewPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* Queue */}
         <div>
-          <h2 className="font-bold text-white mb-4">Review Queue</h2>
+          <h2 className="font-semibold text-white text-sm mb-2">Review Queue</h2>
           {pendingContent.length === 0 ? (
-            <Card variant="default" className="p-8 text-center">
-              <p className="text-white/50">No content pending review</p>
+            <Card variant="default" className="p-4 text-center">
+              <p className="text-white/50 text-sm">No content pending review</p>
             </Card>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {pendingContent.map((content) => (
                 <Card
                   key={content.id}
                   variant={selectedContent?.id === content.id ? "bordered" : "default"}
                   hover
                   className={cn(
-                    "p-4 cursor-pointer",
+                    "p-3 cursor-pointer",
                     selectedContent?.id === content.id && "border-[var(--orange)]"
                   )}
                   onClick={() => handleSelect(content)}
@@ -190,9 +190,9 @@ export default function ContentReviewPage() {
 
         {/* Editor */}
         <div>
-          <h2 className="font-bold text-white mb-4">Content Editor</h2>
+          <h2 className="font-semibold text-white text-sm mb-2">Content Editor</h2>
           {selectedContent ? (
-            <Card variant="bordered" className="p-5">
+            <Card variant="bordered" className="p-3">
               <div className="flex items-center justify-between mb-4">
                 <span className={cn("text-xs px-2 py-0.5", typeColors[selectedContent.type])}>
                   {selectedContent.type.replace("_", " ")}
@@ -212,10 +212,10 @@ export default function ContentReviewPage() {
               <textarea
                 value={editedContent}
                 onChange={(e) => setEditedContent(e.target.value)}
-                className="w-full h-64 bg-[var(--black)] border border-[var(--border)] text-white p-4 text-sm leading-relaxed focus:border-[var(--orange)] outline-none resize-none"
+                className="w-full h-48 bg-[var(--black)] border border-[var(--border)] text-white p-3 text-xs leading-relaxed focus:border-[var(--orange)] outline-none resize-none"
               />
 
-              <div className="flex items-center justify-between mt-4">
+              <div className="flex items-center justify-between mt-3">
                 <div className="text-xs text-white/50">
                   {editedContent.length} characters
                 </div>
@@ -238,8 +238,8 @@ export default function ContentReviewPage() {
               </div>
             </Card>
           ) : (
-            <Card variant="default" className="p-8 text-center">
-              <p className="text-white/50">Select content to review</p>
+            <Card variant="default" className="p-4 text-center">
+              <p className="text-white/50 text-sm">Select content to review</p>
             </Card>
           )}
         </div>

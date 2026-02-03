@@ -141,14 +141,14 @@ export default function AdsManagementPage() {
   const overallCTR = totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="font-[family-name:var(--font-anton)] text-3xl tracking-wider text-white">
+          <h1 className="font-[family-name:var(--font-anton)] text-2xl tracking-wider text-white">
             AD MANAGEMENT
           </h1>
-          <p className="text-white/50 text-sm mt-1">
+          <p className="text-white/50 text-xs">
             Create and manage ad campaigns across the site
           </p>
         </div>
@@ -161,45 +161,45 @@ export default function AdsManagementPage() {
       </div>
 
       {/* Overview Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <Card variant="default" className="p-4">
-          <p className="text-white/50 text-xs uppercase mb-1">Active Campaigns</p>
-          <p className="font-[family-name:var(--font-roboto-mono)] text-2xl text-white">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+        <Card variant="default" className="p-3">
+          <p className="text-white/50 text-[10px] uppercase mb-1">Active Campaigns</p>
+          <p className="font-[family-name:var(--font-roboto-mono)] text-lg text-white">
             {campaigns.filter((c) => c.status === "ACTIVE").length}
           </p>
         </Card>
-        <Card variant="default" className="p-4">
-          <p className="text-white/50 text-xs uppercase mb-1">Total Impressions</p>
-          <p className="font-[family-name:var(--font-roboto-mono)] text-2xl text-white">
+        <Card variant="default" className="p-3">
+          <p className="text-white/50 text-[10px] uppercase mb-1">Total Impressions</p>
+          <p className="font-[family-name:var(--font-roboto-mono)] text-lg text-white">
             {(totalImpressions / 1000).toFixed(1)}K
           </p>
         </Card>
-        <Card variant="default" className="p-4">
-          <p className="text-white/50 text-xs uppercase mb-1">Total Clicks</p>
-          <p className="font-[family-name:var(--font-roboto-mono)] text-2xl text-white">
+        <Card variant="default" className="p-3">
+          <p className="text-white/50 text-[10px] uppercase mb-1">Total Clicks</p>
+          <p className="font-[family-name:var(--font-roboto-mono)] text-lg text-white">
             {totalClicks.toLocaleString()}
           </p>
         </Card>
-        <Card variant="default" className="p-4">
-          <p className="text-white/50 text-xs uppercase mb-1">Average CTR</p>
-          <p className="font-[family-name:var(--font-roboto-mono)] text-2xl text-[var(--orange)]">
+        <Card variant="default" className="p-3">
+          <p className="text-white/50 text-[10px] uppercase mb-1">Average CTR</p>
+          <p className="font-[family-name:var(--font-roboto-mono)] text-lg text-[var(--orange)]">
             {overallCTR.toFixed(2)}%
           </p>
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         {/* Campaigns List */}
         <div className="lg:col-span-2">
-          <Card variant="default" className="p-5">
-            <h2 className="font-bold text-white mb-4">Campaigns</h2>
-            <div className="space-y-3">
+          <Card variant="default" className="p-3">
+            <h2 className="font-semibold text-white text-sm mb-3">Campaigns</h2>
+            <div className="space-y-2">
               {campaigns.map((campaign) => (
                 <div
                   key={campaign.id}
                   onClick={() => setSelectedCampaign(campaign)}
                   className={cn(
-                    "p-4 bg-[var(--black)] cursor-pointer transition-colors border-2",
+                    "p-3 bg-[var(--black)] cursor-pointer transition-colors border-2",
                     selectedCampaign?.id === campaign.id
                       ? "border-[var(--orange)]"
                       : "border-transparent hover:border-white/20"
@@ -251,9 +251,9 @@ export default function AdsManagementPage() {
         {/* Campaign Details / Create Form */}
         <div>
           {selectedCampaign ? (
-            <Card variant="bordered" className="p-5 border-[var(--orange)]">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="font-bold text-white">Campaign Details</h2>
+            <Card variant="bordered" className="p-3 border-[var(--orange)]">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="font-semibold text-white text-sm">Campaign Details</h2>
                 <button
                   onClick={() => setSelectedCampaign(null)}
                   className="text-white/50 hover:text-white"
@@ -318,12 +318,12 @@ export default function AdsManagementPage() {
               </div>
             </Card>
           ) : (
-            <Card variant="default" className="p-5">
-              <h2 className="font-bold text-white mb-4">Ad Slots</h2>
-              <p className="text-white/50 text-sm mb-4">
+            <Card variant="default" className="p-3">
+              <h2 className="font-semibold text-white text-sm mb-2">Ad Slots</h2>
+              <p className="text-white/50 text-xs mb-2">
                 Available placement locations across the site:
               </p>
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {Object.entries(slotLabels).map(([slot, label]) => (
                   <div
                     key={slot}
@@ -342,12 +342,12 @@ export default function AdsManagementPage() {
       {/* Create Campaign Modal */}
       {isCreating && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <Card variant="bordered" className="p-6 w-full max-w-lg border-[var(--orange)]">
-            <h2 className="font-[family-name:var(--font-anton)] text-xl tracking-wider text-white mb-6">
+          <Card variant="bordered" className="p-4 w-full max-w-lg border-[var(--orange)]">
+            <h2 className="font-[family-name:var(--font-anton)] text-lg tracking-wider text-white mb-4">
               CREATE CAMPAIGN
             </h2>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
                 <label className="text-white/70 text-sm block mb-1">Campaign Name</label>
                 <input
