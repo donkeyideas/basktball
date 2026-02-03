@@ -46,7 +46,7 @@ async function logJobRun(
         duration,
         itemsProcessed: result?.itemsProcessed || 0,
         error: result?.error || null,
-        metadata: result?.metadata || null,
+        metadata: result?.metadata ? JSON.parse(JSON.stringify(result.metadata)) : undefined,
       },
     });
   } catch (error) {
