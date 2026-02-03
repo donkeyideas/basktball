@@ -1,9 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface NavLink {
@@ -12,11 +10,11 @@ interface NavLink {
 }
 
 const navLinks: NavLink[] = [
-  { href: "/live", label: "Live" },
-  { href: "/stats", label: "Stats" },
-  { href: "/tools", label: "Tools" },
-  { href: "/players", label: "Players" },
-  { href: "/teams", label: "Teams" },
+  { href: "/live", label: "LIVE" },
+  { href: "/stats", label: "STATS" },
+  { href: "/tools", label: "TOOLS" },
+  { href: "/players", label: "PLAYERS" },
+  { href: "/teams", label: "TEAMS" },
 ];
 
 interface HeaderProps {
@@ -29,51 +27,43 @@ export function Header({ liveGamesCount = 0 }: HeaderProps) {
   return (
     <header className="relative z-50 bg-gradient-to-b from-[var(--black)] to-[var(--dark-gray)] border-b-4 border-[var(--orange)]">
       {/* Top Bar */}
-      <div className="bg-[var(--orange)] py-2 text-sm font-bold tracking-wider uppercase">
-        <div className="container-main flex justify-between items-center">
+      <div className="bg-[var(--orange)] py-2 px-4 md:px-8 text-sm font-bold tracking-wider uppercase">
+        <div className="max-w-[1600px] mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2">
-            {liveGamesCount > 0 && (
+            {liveGamesCount > 0 ? (
               <>
-                <span className="w-2 h-2 bg-white rounded-full animate-pulse-live" />
+                <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
                 <span>{liveGamesCount} GAMES LIVE NOW</span>
               </>
+            ) : (
+              <span>NO LIVE GAMES</span>
             )}
-            {liveGamesCount === 0 && <span>NO LIVE GAMES</span>}
           </div>
           <div className="hidden md:block">UPDATED EVERY 30 SECONDS</div>
         </div>
       </div>
 
       {/* Main Navigation */}
-      <nav className="container-main py-4 flex justify-between items-center">
+      <nav className="max-w-[1600px] mx-auto px-4 md:px-8 py-6 flex justify-between items-center">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3">
-          <Image
-            src="/logo-icon.png"
-            alt="Basktball"
-            width={50}
-            height={50}
-            className="w-10 h-10 md:w-12 md:h-12"
-          />
-          <div className="flex flex-col">
-            <span className="font-[family-name:var(--font-anton)] text-2xl md:text-4xl tracking-wider text-white text-shadow-[3px_3px_0_var(--orange)]">
-              BASKTBALL
-            </span>
-            <span className="hidden sm:block text-[10px] md:text-xs font-bold tracking-[0.2em] text-[var(--orange)] uppercase">
-              Dominate The Data
-            </span>
-          </div>
+        <Link href="/" className="relative">
+          <span className="font-[family-name:var(--font-anton)] text-3xl md:text-5xl tracking-[3px] text-white text-shadow-[3px_3px_0_var(--orange)]">
+            BASKTBALL
+          </span>
+          <span className="absolute -bottom-2 left-0 text-[0.8rem] tracking-[8px] text-[var(--orange)] font-semibold">
+            STATS
+          </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <ul className="hidden md:flex gap-8 items-center">
+        <ul className="hidden md:flex gap-10 items-center">
           {navLinks.map((link) => (
             <li key={link.href}>
               <Link
                 href={link.href}
                 className={cn(
-                  "text-white font-bold text-lg tracking-wider uppercase",
-                  "py-2 border-b-3 border-transparent",
+                  "text-white font-bold text-lg tracking-wider",
+                  "py-2 border-b-[3px] border-transparent",
                   "transition-all duration-200",
                   "hover:text-[var(--orange)] hover:border-[var(--orange)]"
                 )}
@@ -90,13 +80,21 @@ export function Header({ liveGamesCount = 0 }: HeaderProps) {
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           aria-label="Toggle menu"
         >
-          {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          {isMobileMenuOpen ? (
+            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          ) : (
+            <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          )}
         </button>
       </nav>
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-[var(--dark-gray)] border-t border-[var(--border)]">
+        <div className="md:hidden bg-[var(--dark-gray)] border-t border-white/10">
           <ul className="flex flex-col py-4">
             {navLinks.map((link) => (
               <li key={link.href}>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Header, Footer } from "@/components/layout";
+import { Hero } from "@/components/Hero";
 import { LeagueSelector, type League } from "@/components/LeagueSelector";
 import { LiveScores } from "@/components/live-scores";
 import { FeaturedPlayers } from "@/components/FeaturedPlayers";
@@ -30,34 +31,29 @@ export default function HomePage() {
 
       {/* Main Content */}
       <main className="flex-1">
+        {/* Hero Section */}
+        <Hero />
+
         {/* League Selector */}
-        <div className="mb-8 md:mb-12">
-          <LeagueSelector
-            selectedLeague={selectedLeague}
-            onLeagueChange={setSelectedLeague}
-          />
-        </div>
+        <LeagueSelector
+          selectedLeague={selectedLeague}
+          onLeagueChange={setSelectedLeague}
+        />
 
         {/* Live Scores Section */}
-        <section className="bg-[var(--black)] py-12 md:py-16 mb-8 md:mb-12">
-          <div className="container-main">
-            <LiveScores games={games} isLoading={isLoading} />
-          </div>
+        <section className="stats-section">
+          <LiveScores games={games} isLoading={isLoading} />
         </section>
 
         {/* In-Content Ad */}
         <InContentAd />
 
         {/* Featured Players - Full Width */}
-        <div className="mb-8 md:mb-12">
-          <FeaturedPlayers />
-        </div>
+        <FeaturedPlayers />
 
         {/* Analytics Tools */}
-        <section className="bg-[var(--black)] py-12 md:py-16 mb-8 md:mb-12">
-          <div className="container-main">
-            <ToolsGrid />
-          </div>
+        <section className="stats-section">
+          <ToolsGrid />
         </section>
       </main>
 

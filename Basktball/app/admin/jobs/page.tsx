@@ -11,7 +11,7 @@ interface Job {
   schedule: string;
   lastRun: string | null;
   nextRun: string | null;
-  status: string;
+  status: "running" | "success" | "failed" | "paused" | "idle";
   duration: number | null;
   enabled: boolean;
   error: string | null;
@@ -36,6 +36,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function JobsPage() {
   const [runningJobs, setRunningJobs] = useState<Set<string>>(new Set());
+  const [togglingJobs, setTogglingJobs] = useState<Set<string>>(new Set());
 
   const { data, isLoading } = useSWR<JobsData>("/api/admin/jobs", fetcher, {
     refreshInterval: 10000,
@@ -44,25 +45,48 @@ export default function JobsPage() {
   const jobs = data?.jobs || [];
   const history = data?.history || [];
 
-  const runJob = async (jobName: string) => {
-    setRunningJobs((prev) => new Set(prev).add(jobName));
-    setTimeout(() => {
-      setRunningJobs((prev) => {
-        const next = new Set(prev);
-        next.delete(jobName);
-        return next;
-      });
-      mutate("/api/admin/jobs");
-    }, 2000);
+  const runJob = async (jobId: string, jobName: string) => {
+    setRunningJobs((prev) => new Set(prev).add(jobId));
+    try {
+      await fetch(`/api/admin/jobs/${jobId}/run`, { method: "POST" });
+      await mutate("/api/admin/jobs");
+    } catch (error) {
+      console.error("Run job error:", error);
+    }
+    setRunningJobs((prev) => {
+      const next = new Set(prev);
+      next.delete(jobId);
+      return next;
+    });
   };
 
-  const getStatusColor = (status: string) => {
+  const toggleJob = async (jobId: string, enabled: boolean) => {
+    setTogglingJobs((prev) => new Set(prev).add(jobId));
+    try {
+      await fetch(`/api/admin/jobs/${jobId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabled: !enabled }),
+      });
+      await mutate("/api/admin/jobs");
+    } catch (error) {
+      console.error("Toggle job error:", error);
+    }
+    setTogglingJobs((prev) => {
+      const next = new Set(prev);
+      next.delete(jobId);
+      return next;
+    });
+  };
+
+  const getStatusClass = (status: string, isRunning: boolean) => {
+    if (isRunning) return "job-status running";
     switch (status) {
-      case "running": return "bg-blue-500";
-      case "success": return "bg-green-500";
-      case "failed": return "bg-red-500";
-      case "idle": return "bg-gray-500";
-      default: return "bg-gray-500";
+      case "running": return "job-status running";
+      case "success": return "job-status success";
+      case "failed": return "job-status failed";
+      case "paused": return "job-status paused";
+      default: return "job-status";
     }
   };
 
@@ -73,152 +97,215 @@ export default function JobsPage() {
     return `${(ms / 60000).toFixed(1)}m`;
   };
 
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "-";
+    return new Date(dateString).toLocaleString();
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex-1 p-6 overflow-auto">
+        {/* Header Skeleton */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="h-8 w-48 bg-white/10 rounded animate-pulse" />
+        </div>
+
+        {/* Jobs Table Skeleton */}
+        <div className="section mb-8">
+          <div className="section-header">
+            <div className="h-6 w-32 bg-white/10 rounded animate-pulse" />
+          </div>
+          <div className="p-4">
+            <div className="space-y-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="h-14 bg-white/10 rounded animate-pulse" />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* History Skeleton */}
+        <div className="section">
+          <div className="section-header">
+            <div className="h-6 w-40 bg-white/10 rounded animate-pulse" />
+          </div>
+          <div className="p-4">
+            <div className="h-64 bg-white/10 rounded animate-pulse" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex-1 flex flex-col p-3 overflow-hidden">
+    <div className="flex-1 p-6 overflow-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-2">
-        <h1 className="font-[family-name:var(--font-anton)] text-xl tracking-wider text-white">
-          BACKGROUND JOBS
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="font-[family-name:var(--font-anton)] text-3xl tracking-wider text-white">
+          SCHEDULED JOBS
         </h1>
-        <span className="text-[10px] text-white/40 uppercase">
+        <span className="text-sm text-white/40">
           {jobs.length} jobs configured
         </span>
       </div>
 
-      {/* Jobs Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-1.5 mb-2">
-        {isLoading
-          ? Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="bg-[var(--dark-gray)] p-2 rounded animate-pulse">
-                <div className="h-4 w-20 bg-white/10 rounded mb-1" />
-                <div className="h-3 w-28 bg-white/10 rounded mb-2" />
-                <div className="flex gap-1">
-                  <div className="h-6 flex-1 bg-white/10 rounded" />
-                  <div className="h-6 w-12 bg-white/10 rounded" />
-                </div>
-              </div>
-            ))
-          : jobs.map((job) => {
-              const isRunning = runningJobs.has(job.name);
-              return (
-                <div key={job.id} className="bg-[var(--dark-gray)] p-2 rounded">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3 className="font-semibold text-white text-xs truncate">
-                      {job.name}
-                    </h3>
-                    <div className="flex items-center gap-1">
-                      <div
-                        className={cn(
-                          "w-1.5 h-1.5 rounded-full",
-                          isRunning ? "bg-blue-500 animate-pulse" : getStatusColor(job.status)
-                        )}
-                      />
-                    </div>
-                  </div>
-                  <p className="text-white/40 text-[10px] truncate mb-1">{job.description}</p>
-
-                  <div className="grid grid-cols-2 gap-1 text-[10px] mb-2">
-                    <div>
-                      <span className="text-white/30">Sched:</span>
-                      <span className="text-white/60 ml-1 font-mono">{job.schedule}</span>
-                    </div>
-                    <div>
-                      <span className="text-white/30">Dur:</span>
-                      <span className="text-white/60 ml-1">{formatDuration(job.duration)}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <label className="flex items-center gap-1 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={job.enabled}
-                        onChange={() => {}}
-                        className="accent-[var(--orange)] w-3 h-3"
-                      />
-                      <span className="text-[10px] text-white/50">On</span>
-                    </label>
-                    <button
-                      onClick={() => runJob(job.name)}
-                      disabled={isRunning}
-                      className={cn(
-                        "px-2 py-0.5 text-[10px] rounded transition-colors",
-                        isRunning
-                          ? "bg-blue-500/20 text-blue-400"
-                          : "bg-[var(--orange)]/20 text-[var(--orange)] hover:bg-[var(--orange)]/30"
-                      )}
-                    >
-                      {isRunning ? "..." : "RUN"}
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-      </div>
-
-      {/* Job History Table */}
-      <div className="flex-1 min-h-0 bg-[var(--dark-gray)] rounded overflow-hidden flex flex-col">
-        <div className="px-2 py-1.5 border-b border-white/10 flex items-center justify-between">
-          <h2 className="font-semibold text-white text-xs uppercase tracking-wide">Job History</h2>
-          <span className="text-[10px] text-white/40">{history.length} runs</span>
+      {/* Jobs Table */}
+      <div className="section mb-8">
+        <div className="section-header">
+          <h2 className="section-title">Job Configuration</h2>
         </div>
-        <div className="flex-1 overflow-auto">
-          <table className="w-full text-xs">
-            <thead className="sticky top-0 bg-[var(--dark-gray)]">
+        <div className="overflow-x-auto">
+          <table className="data-table">
+            <thead>
               <tr>
-                <th className="px-2 py-1.5 text-left text-[10px] font-semibold text-white/50 uppercase">Job</th>
-                <th className="px-2 py-1.5 text-left text-[10px] font-semibold text-white/50 uppercase">Status</th>
-                <th className="px-2 py-1.5 text-left text-[10px] font-semibold text-white/50 uppercase">Started</th>
-                <th className="px-2 py-1.5 text-left text-[10px] font-semibold text-white/50 uppercase">Duration</th>
-                <th className="px-2 py-1.5 text-left text-[10px] font-semibold text-white/50 uppercase">Error</th>
+                <th>Job Name</th>
+                <th>Schedule</th>
+                <th>Last Run</th>
+                <th>Next Run</th>
+                <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {isLoading ? (
-                Array.from({ length: 8 }).map((_, i) => (
-                  <tr key={i} className="border-t border-white/5">
-                    <td className="px-2 py-1.5"><div className="h-3 w-20 bg-white/10 rounded animate-pulse" /></td>
-                    <td className="px-2 py-1.5"><div className="h-3 w-12 bg-white/10 rounded animate-pulse" /></td>
-                    <td className="px-2 py-1.5"><div className="h-3 w-24 bg-white/10 rounded animate-pulse" /></td>
-                    <td className="px-2 py-1.5"><div className="h-3 w-10 bg-white/10 rounded animate-pulse" /></td>
-                    <td className="px-2 py-1.5"><div className="h-3 w-6 bg-white/10 rounded animate-pulse" /></td>
-                  </tr>
-                ))
-              ) : history.length === 0 ? (
+              {jobs.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-2 py-4 text-center text-white/30 text-xs">
-                    No job history
+                  <td colSpan={6} className="text-center py-8 text-white/30">
+                    No jobs configured
                   </td>
                 </tr>
               ) : (
-                history.map((run, i) => (
-                  <tr
-                    key={run.id}
-                    className={cn(
-                      "border-t border-white/5",
-                      i % 2 === 0 ? "bg-[var(--black)]/30" : ""
-                    )}
-                  >
-                    <td className="px-2 py-1.5 text-white">{run.jobName}</td>
-                    <td className="px-2 py-1.5">
+                jobs.map((job) => {
+                  const isRunning = runningJobs.has(job.id);
+                  const isToggling = togglingJobs.has(job.id);
+                  return (
+                    <tr key={job.id}>
+                      <td>
+                        <div>
+                          <p className="text-white font-medium">{job.name}</p>
+                          <p className="text-white/40 text-xs">{job.description}</p>
+                        </div>
+                      </td>
+                      <td>
+                        <code className="text-[var(--orange)] bg-[var(--orange)]/10 px-2 py-1 rounded text-xs">
+                          {job.schedule}
+                        </code>
+                      </td>
+                      <td className="text-white/60 text-sm">
+                        {formatDate(job.lastRun)}
+                        {job.duration && (
+                          <span className="text-white/30 ml-2">
+                            ({formatDuration(job.duration)})
+                          </span>
+                        )}
+                      </td>
+                      <td className="text-white/60 text-sm">
+                        {formatDate(job.nextRun)}
+                      </td>
+                      <td>
+                        <span className={getStatusClass(job.status, isRunning)}>
+                          {isRunning ? "Running" : job.status}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => runJob(job.id, job.name)}
+                            disabled={isRunning || !job.enabled}
+                            className="btn-run"
+                          >
+                            {isRunning ? (
+                              <>
+                                <svg className="w-3 h-3 mr-1 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                Running
+                              </>
+                            ) : (
+                              <>
+                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                </svg>
+                                Run Now
+                              </>
+                            )}
+                          </button>
+                          <button
+                            onClick={() => toggleJob(job.id, job.enabled)}
+                            disabled={isToggling}
+                            className={job.enabled ? "btn-pause" : "btn-run"}
+                          >
+                            {job.enabled ? (
+                              <>
+                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Pause
+                              </>
+                            ) : (
+                              <>
+                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                </svg>
+                                Enable
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Job History */}
+      <div className="section">
+        <div className="section-header">
+          <h2 className="section-title">Job Execution History</h2>
+          <span className="text-sm text-white/40">{history.length} executions</span>
+        </div>
+        <div className="overflow-x-auto max-h-[400px]">
+          <table className="data-table">
+            <thead className="sticky top-0 bg-[var(--dark-gray)]">
+              <tr>
+                <th>Job</th>
+                <th>Status</th>
+                <th>Started</th>
+                <th>Duration</th>
+                <th>Error</th>
+              </tr>
+            </thead>
+            <tbody>
+              {history.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-8 text-white/30">
+                    No execution history
+                  </td>
+                </tr>
+              ) : (
+                history.map((run) => (
+                  <tr key={run.id}>
+                    <td className="text-white font-medium">{run.jobName}</td>
+                    <td>
                       <span
                         className={cn(
-                          "text-[10px] px-1.5 py-0.5 rounded",
-                          run.status === "success"
-                            ? "bg-green-500/20 text-green-400"
-                            : "bg-red-500/20 text-red-400"
+                          "job-status",
+                          run.status === "success" ? "success" : "failed"
                         )}
                       >
                         {run.status}
                       </span>
                     </td>
-                    <td className="px-2 py-1.5 text-white/60">
+                    <td className="text-white/60 text-sm">
                       {new Date(run.startedAt).toLocaleString()}
                     </td>
-                    <td className="px-2 py-1.5 text-white/60 font-mono">
+                    <td className="font-[family-name:var(--font-roboto-mono)] text-white/60 text-sm">
                       {formatDuration(run.duration)}
                     </td>
-                    <td className="px-2 py-1.5 text-red-400 truncate max-w-[100px]">
+                    <td className="text-[var(--red)] text-sm max-w-[200px] truncate">
                       {run.error || "-"}
                     </td>
                   </tr>

@@ -1,7 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-
 interface PlayerStat {
   value: string;
   label: string;
@@ -56,31 +54,18 @@ function PlayerCard({ player }: { player: FeaturedPlayer }) {
     <div className="text-center">
       {/* Player Image */}
       <div
-        className={cn(
-          "w-full max-w-[350px] h-[350px] md:h-[400px] mx-auto mb-4",
-          "bg-cover bg-top",
-          "border-4 border-white",
-          "transition-transform duration-300 hover:scale-105",
-          "animate-fade-scale"
-        )}
+        className="player-img"
         style={{ backgroundImage: `url('${player.imageUrl}')` }}
       />
 
       {/* Player Stats */}
-      <div className="bg-black/30 backdrop-blur-sm p-4">
-        <h3 className="font-[family-name:var(--font-anton)] text-xl md:text-2xl tracking-wider text-white mb-3">
-          {player.name}
-        </h3>
-
-        <div className="flex justify-around">
+      <div className="player-stat">
+        <div className="player-name">{player.name}</div>
+        <div className="player-stats-row">
           {player.stats.map((stat, index) => (
-            <div key={index} className="text-center">
-              <div className="font-[family-name:var(--font-roboto-mono)] text-2xl md:text-3xl font-bold text-white">
-                {stat.value}
-              </div>
-              <div className="text-xs uppercase tracking-wider text-white/80">
-                {stat.label}
-              </div>
+            <div key={index} className="player-stat-item">
+              <div className="player-stat-value">{stat.value}</div>
+              <div className="player-stat-label">{stat.label}</div>
             </div>
           ))}
         </div>
@@ -91,7 +76,7 @@ function PlayerCard({ player }: { player: FeaturedPlayer }) {
 
 export function FeaturedPlayers({ players = defaultPlayers }: FeaturedPlayersProps) {
   return (
-    <div className="relative z-10 bg-gradient-to-br from-[var(--orange)] to-[var(--orange-bright)] py-16 md:py-20 overflow-hidden">
+    <div className="featured-players">
       {/* Background Overlay */}
       <div
         className="absolute inset-0 opacity-20 bg-cover bg-center mix-blend-overlay"
@@ -101,18 +86,12 @@ export function FeaturedPlayers({ players = defaultPlayers }: FeaturedPlayersPro
       />
 
       {/* Content */}
-      <div className="relative z-10 container-main">
-        {/* Section Title */}
-        <h2 className="font-[family-name:var(--font-anton)] text-3xl md:text-4xl tracking-wider text-white text-center mb-8 md:mb-12">
-          FEATURED PLAYERS
-        </h2>
-
-        {/* Players Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-          {players.map((player) => (
-            <PlayerCard key={player.id} player={player} />
-          ))}
-        </div>
+      <div className="featured-content">
+        {players.map((player) => (
+          <div key={player.id} className="player-highlight">
+            <PlayerCard player={player} />
+          </div>
+        ))}
       </div>
     </div>
   );

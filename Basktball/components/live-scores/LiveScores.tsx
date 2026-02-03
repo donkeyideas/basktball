@@ -1,6 +1,5 @@
 "use client";
 
-import { Card } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
 // Types
@@ -113,10 +112,10 @@ function GameCard({ game }: { game: Game }) {
   const isLive = game.status === "live";
 
   return (
-    <Card className="p-4 md:p-6" hover>
+    <div className="game-card">
       {/* Live Badge */}
       {isLive && (
-        <div className="absolute top-0 right-0 bg-[var(--orange)] px-3 py-1 text-xs font-bold tracking-wider animate-blink">
+        <div className="absolute -top-px -right-px bg-[var(--orange)] px-4 py-1 text-xs font-bold tracking-widest animate-blink">
           LIVE
         </div>
       )}
@@ -126,15 +125,15 @@ function GameCard({ game }: { game: Game }) {
         {/* Home Team */}
         <div className="text-center flex-1">
           <div
-            className="w-14 h-14 md:w-16 md:h-16 mx-auto mb-2 bg-contain bg-center bg-no-repeat transition-transform hover:scale-110"
+            className="w-14 h-14 md:w-16 md:h-16 mx-auto mb-3 bg-contain bg-center bg-no-repeat transition-transform hover:scale-110"
             style={{ backgroundImage: `url('${game.homeTeam.logoUrl}')` }}
           />
-          <div className="font-bold text-sm md:text-base tracking-wider uppercase mb-1">
-            {game.homeTeam.abbreviation}
+          <div className="font-bold text-base tracking-wider uppercase mb-2">
+            {game.homeTeam.name}
           </div>
           <div
             className={cn(
-              "font-[family-name:var(--font-roboto-mono)] text-3xl md:text-4xl font-bold text-[var(--orange)]",
+              "font-[family-name:var(--font-roboto-mono)] text-4xl font-bold text-[var(--orange)]",
               isLive && "animate-score"
             )}
           >
@@ -143,22 +142,22 @@ function GameCard({ game }: { game: Game }) {
         </div>
 
         {/* VS */}
-        <div className="font-[family-name:var(--font-anton)] text-xl text-white/30 px-2 md:px-4">
+        <div className="font-[family-name:var(--font-anton)] text-2xl text-white/30 px-4">
           VS
         </div>
 
         {/* Away Team */}
         <div className="text-center flex-1">
           <div
-            className="w-14 h-14 md:w-16 md:h-16 mx-auto mb-2 bg-contain bg-center bg-no-repeat transition-transform hover:scale-110"
+            className="w-14 h-14 md:w-16 md:h-16 mx-auto mb-3 bg-contain bg-center bg-no-repeat transition-transform hover:scale-110"
             style={{ backgroundImage: `url('${game.awayTeam.logoUrl}')` }}
           />
-          <div className="font-bold text-sm md:text-base tracking-wider uppercase mb-1">
-            {game.awayTeam.abbreviation}
+          <div className="font-bold text-base tracking-wider uppercase mb-2">
+            {game.awayTeam.name}
           </div>
           <div
             className={cn(
-              "font-[family-name:var(--font-roboto-mono)] text-3xl md:text-4xl font-bold text-[var(--orange)]",
+              "font-[family-name:var(--font-roboto-mono)] text-4xl font-bold text-[var(--orange)]",
               isLive && "animate-score"
             )}
           >
@@ -168,47 +167,47 @@ function GameCard({ game }: { game: Game }) {
       </div>
 
       {/* Game Stats */}
-      <div className="grid grid-cols-3 gap-2 md:gap-4 pt-4 border-t border-white/10">
+      <div className="grid grid-cols-3 gap-4 pt-4 mt-4 border-t border-white/10">
         {game.stats.map((stat, index) => (
           <div key={index} className="text-center">
             <div className="text-xs uppercase tracking-wider text-white/60 mb-1">
               {stat.label}
             </div>
-            <div className="font-[family-name:var(--font-roboto-mono)] text-lg md:text-xl font-bold text-[var(--orange)]">
+            <div className="font-[family-name:var(--font-roboto-mono)] text-xl font-bold text-[var(--orange)]">
               {stat.value}
             </div>
           </div>
         ))}
       </div>
-    </Card>
+    </div>
   );
 }
 
 function LoadingSkeleton() {
   return (
-    <Card className="p-6 animate-pulse">
+    <div className="game-card animate-pulse">
       <div className="flex items-center justify-between mb-4">
         <div className="text-center flex-1">
-          <div className="w-16 h-16 mx-auto mb-2 bg-white/10 rounded-full" />
-          <div className="h-4 w-12 mx-auto bg-white/10 rounded mb-2" />
-          <div className="h-8 w-16 mx-auto bg-white/10 rounded" />
+          <div className="w-16 h-16 mx-auto mb-3 bg-white/10 rounded-full" />
+          <div className="h-4 w-16 mx-auto bg-white/10 rounded mb-2" />
+          <div className="h-10 w-16 mx-auto bg-white/10 rounded" />
         </div>
-        <div className="w-8 h-4 bg-white/10 rounded" />
+        <div className="w-10 h-6 bg-white/10 rounded" />
         <div className="text-center flex-1">
-          <div className="w-16 h-16 mx-auto mb-2 bg-white/10 rounded-full" />
-          <div className="h-4 w-12 mx-auto bg-white/10 rounded mb-2" />
-          <div className="h-8 w-16 mx-auto bg-white/10 rounded" />
+          <div className="w-16 h-16 mx-auto mb-3 bg-white/10 rounded-full" />
+          <div className="h-4 w-16 mx-auto bg-white/10 rounded mb-2" />
+          <div className="h-10 w-16 mx-auto bg-white/10 rounded" />
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/10">
+      <div className="grid grid-cols-3 gap-4 pt-4 mt-4 border-t border-white/10">
         {[1, 2, 3].map((i) => (
           <div key={i} className="text-center">
-            <div className="h-3 w-8 mx-auto bg-white/10 rounded mb-1" />
+            <div className="h-3 w-10 mx-auto bg-white/10 rounded mb-1" />
             <div className="h-6 w-12 mx-auto bg-white/10 rounded" />
           </div>
         ))}
       </div>
-    </Card>
+    </div>
   );
 }
 
@@ -216,11 +215,11 @@ export function LiveScores({ games = mockGames, isLoading = false }: LiveScoresP
   const liveGames = games.filter((g) => g.status === "live");
 
   return (
-    <div className="bg-[var(--dark-gray)] border-2 border-[var(--orange)] p-4 md:p-6">
+    <div className="live-scores">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6 pb-4 border-b-2 border-[var(--border)]">
+      <div className="score-header">
         {liveGames.length > 0 && (
-          <span className="w-3 h-3 bg-[var(--error)] rounded-full animate-pulse-live" />
+          <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
         )}
         <h3 className="font-[family-name:var(--font-anton)] text-2xl tracking-wider uppercase">
           {liveGames.length > 0 ? "LIVE SCORES" : "TODAY'S GAMES"}
@@ -228,7 +227,7 @@ export function LiveScores({ games = mockGames, isLoading = false }: LiveScoresP
       </div>
 
       {/* Games Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+      <div className="games-grid">
         {isLoading ? (
           <>
             <LoadingSkeleton />

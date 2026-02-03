@@ -9,16 +9,15 @@ interface LeagueInfo {
   id: League;
   name: string;
   subtitle: string;
-  logoPlaceholder: string;
 }
 
 const leagues: LeagueInfo[] = [
-  { id: "nba", name: "NBA", subtitle: "Professional", logoPlaceholder: "NBA" },
-  { id: "wnba", name: "WNBA", subtitle: "Professional", logoPlaceholder: "WNBA" },
-  { id: "ncaam", name: "NCAA M", subtitle: "College Men's", logoPlaceholder: "M" },
-  { id: "ncaaw", name: "NCAA W", subtitle: "College Women's", logoPlaceholder: "W" },
-  { id: "euro", name: "EURO", subtitle: "EuroLeague", logoPlaceholder: "EU" },
-  { id: "intl", name: "INTL", subtitle: "International", logoPlaceholder: "INTL" },
+  { id: "nba", name: "NBA", subtitle: "Professional" },
+  { id: "wnba", name: "WNBA", subtitle: "Professional" },
+  { id: "ncaam", name: "NCAA M", subtitle: "College Men's" },
+  { id: "ncaaw", name: "NCAA W", subtitle: "College Women's" },
+  { id: "euro", name: "EURO", subtitle: "EuroLeague" },
+  { id: "intl", name: "INTL", subtitle: "International" },
 ];
 
 interface LeagueSelectorProps {
@@ -41,67 +40,71 @@ export function LeagueSelector({
     }
   };
 
+  const getLeagueLogo = (league: League) => {
+    switch (league) {
+      case "nba":
+        return (
+          <div
+            className="league-logo"
+            style={{ backgroundImage: "url('https://cdn.nba.com/logos/leagues/logo-nba.svg')" }}
+          />
+        );
+      case "wnba":
+        return (
+          <div
+            className="league-logo"
+            style={{ backgroundImage: "url('https://cdn.nba.com/logos/leagues/logo-wnba.svg')" }}
+          />
+        );
+      case "ncaam":
+        return (
+          <div className="league-logo flex items-center justify-center">
+            <span className="text-4xl font-bold text-white">M</span>
+          </div>
+        );
+      case "ncaaw":
+        return (
+          <div className="league-logo flex items-center justify-center">
+            <span className="text-4xl font-bold text-white">W</span>
+          </div>
+        );
+      case "euro":
+        return (
+          <div className="league-logo flex items-center justify-center">
+            <span className="text-3xl font-bold text-white">EU</span>
+          </div>
+        );
+      case "intl":
+        return (
+          <div className="league-logo flex items-center justify-center">
+            <svg className="w-12 h-12" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="40" fill="none" stroke="white" strokeWidth="4" />
+              <circle cx="50" cy="50" r="30" fill="none" stroke="white" strokeWidth="2" />
+            </svg>
+          </div>
+        );
+    }
+  };
+
   return (
-    <div className="relative z-10 bg-[var(--dark-gray)] py-6 md:py-8 border-b border-[var(--orange)]/30">
-      <div className="container-main">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 md:gap-4">
+    <div className="relative z-10 bg-[var(--dark-gray)] py-8 border-b-2 border-[var(--orange)]/30">
+      <div className="max-w-[1600px] mx-auto px-4 md:px-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 md:gap-6">
           {leagues.map((league, index) => (
             <button
               key={league.id}
               onClick={() => handleLeagueSelect(league.id)}
               className={cn(
-                "relative bg-[var(--black)] border-3 p-4 md:p-6 text-center",
-                "transition-all duration-300 overflow-hidden",
-                "animate-slide-up",
-                selectedLeague === league.id
-                  ? "bg-[var(--orange)] border-[var(--orange)]"
-                  : "border-[var(--border)] hover:border-[var(--orange)] hover:translate-y-[-5px] hover:scale-105 hover:shadow-[0_10px_30px_rgba(244,123,32,0.3)]"
+                "league-card animate-slide-up",
+                selectedLeague === league.id && "active"
               )}
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              {/* Background gradient on hover */}
-              <div
-                className={cn(
-                  "absolute inset-0 opacity-0 transition-opacity duration-300",
-                  "bg-gradient-to-br from-transparent to-[rgba(244,123,32,0.1)]",
-                  selectedLeague !== league.id && "group-hover:opacity-100"
-                )}
-              />
-
-              {/* League Logo Placeholder */}
-              <div
-                className={cn(
-                  "w-12 h-12 md:w-16 md:h-16 mx-auto mb-2 md:mb-3",
-                  "flex items-center justify-center",
-                  "text-2xl md:text-3xl font-bold",
-                  "transition-all duration-300",
-                  selectedLeague === league.id
-                    ? "text-white scale-110"
-                    : "text-white/80"
-                )}
-              >
-                {league.logoPlaceholder}
-              </div>
-
-              {/* League Name */}
-              <h3
-                className={cn(
-                  "font-[family-name:var(--font-anton)] text-xl md:text-2xl tracking-wider mb-1",
-                  selectedLeague === league.id ? "text-white" : "text-white"
-                )}
-              >
+              {getLeagueLogo(league.id)}
+              <h3 className="font-[family-name:var(--font-anton)] text-2xl tracking-wider mb-1">
                 {league.name}
               </h3>
-
-              {/* Subtitle */}
-              <p
-                className={cn(
-                  "text-xs font-semibold uppercase tracking-wider",
-                  selectedLeague === league.id
-                    ? "text-white/80"
-                    : "text-white/60"
-                )}
-              >
+              <p className="text-sm font-semibold uppercase tracking-wider opacity-70">
                 {league.subtitle}
               </p>
             </button>

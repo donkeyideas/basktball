@@ -1,6 +1,5 @@
 "use client";
 
-import { Card, Badge } from "@/components/ui";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +15,7 @@ interface Tool {
 const tools: Tool[] = [
   {
     id: "shot",
-    number: "1",
+    number: "01",
     name: "SHOT CHART ANALYZER",
     description:
       "Visualize player shooting patterns with heat maps, zone breakdowns, and efficiency metrics across all court positions.",
@@ -25,7 +24,7 @@ const tools: Tool[] = [
   },
   {
     id: "compare",
-    number: "2",
+    number: "02",
     name: "PLAYER COMPARISON",
     description:
       "Compare any players across any era with advanced stats, career trajectories, and head-to-head matchups.",
@@ -34,7 +33,7 @@ const tools: Tool[] = [
   },
   {
     id: "metrics",
-    number: "3",
+    number: "03",
     name: "ADVANCED METRICS",
     description:
       "Deep dive into PER, Win Shares, True Shooting %, VORP, BPM, and 50+ proprietary analytics metrics.",
@@ -43,7 +42,7 @@ const tools: Tool[] = [
   },
   {
     id: "predict",
-    number: "4",
+    number: "04",
     name: "GAME PREDICTOR",
     description:
       "AI-powered predictions for game outcomes, player performance, and playoff probabilities using machine learning.",
@@ -52,7 +51,7 @@ const tools: Tool[] = [
   },
   {
     id: "fantasy",
-    number: "5",
+    number: "05",
     name: "FANTASY OPTIMIZER",
     description:
       "Optimize DFS lineups with projected points, value picks, and matchup analysis for all major fantasy platforms.",
@@ -60,40 +59,58 @@ const tools: Tool[] = [
     features: ["DFS TOOLS", "VALUE PICKS", "PROJECTIONS"],
   },
   {
+    id: "team",
+    number: "06",
+    name: "TEAM ANALYTICS",
+    description:
+      "Comprehensive team stats including pace, offensive/defensive ratings, four factors, and lineup combinations.",
+    href: "/tools/team-analytics",
+    features: ["TEAM STATS", "LINEUPS", "PACE DATA"],
+  },
+  {
     id: "betting",
-    number: "6",
+    number: "07",
     name: "BETTING INSIGHTS",
     description:
       "Statistical edges, line movement tracking, and data-driven betting recommendations with historical accuracy.",
     href: "/tools/betting",
     features: ["ODDS DATA", "TRENDS", "EDGES"],
   },
+  {
+    id: "draft",
+    number: "08",
+    name: "DRAFT ANALYZER",
+    description:
+      "College-to-pro projections, prospect comparisons, and historical draft class analysis with scouting reports.",
+    href: "/tools/draft",
+    features: ["PROSPECTS", "PROJECTIONS", "SCOUTING"],
+  },
+  {
+    id: "history",
+    number: "09",
+    name: "HISTORICAL DATABASE",
+    description:
+      "Query decades of basketball data with advanced filters, play-by-play analysis, and downloadable datasets.",
+    href: "/tools/history",
+    features: ["ARCHIVES", "PLAY-BY-PLAY", "EXPORT"],
+  },
 ];
 
 function ToolCard({ tool, index }: { tool: Tool; index: number }) {
   return (
     <Link href={tool.href}>
-      <Card
-        variant="bordered"
-        hover
-        className={cn(
-          "p-6 md:p-8 h-full",
-          "group",
-          "animate-slide-up"
-        )}
+      <div
+        className={cn("tool-card group", "animate-slide-up")}
         style={{ animationDelay: `${index * 0.1}s` }}
       >
+        {/* Number Badge */}
+        <div className="tool-number">{tool.number}</div>
+
         {/* Content */}
         <div className="relative z-10">
-          {/* Title with Number */}
-          <div className="flex items-start gap-3 mb-3">
-            <span className="bg-[var(--orange)] text-white font-[family-name:var(--font-roboto-mono)] text-lg font-bold px-3 py-1 flex-shrink-0">
-              {tool.number}
-            </span>
-            <h3 className="font-[family-name:var(--font-anton)] text-xl md:text-2xl tracking-wider uppercase">
-              {tool.name}
-            </h3>
-          </div>
+          <h3 className="font-[family-name:var(--font-anton)] text-xl md:text-2xl tracking-wider uppercase mb-3 mt-4">
+            {tool.name}
+          </h3>
 
           <p className="text-sm md:text-base text-white/80 leading-relaxed mb-4">
             {tool.description}
@@ -102,16 +119,27 @@ function ToolCard({ tool, index }: { tool: Tool; index: number }) {
           {/* Features */}
           <div className="flex flex-wrap gap-2">
             {tool.features.map((feature) => (
-              <Badge key={feature} variant="feature">
+              <span key={feature} className="feature-tag">
                 {feature}
-              </Badge>
+              </span>
             ))}
           </div>
         </div>
 
+        {/* Background Image Overlay */}
+        <div
+          className="absolute top-0 right-0 bottom-0 w-[200px] opacity-[0.08] grayscale transition-opacity group-hover:opacity-[0.15]"
+          style={{
+            backgroundImage:
+              "url('https://cdn.nba.com/manage/2021/10/GettyImages-1340187444.jpg')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
+
         {/* Hover Accent Line */}
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[var(--orange)] to-[var(--orange-bright)] transform scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100" />
-      </Card>
+        <div className="absolute top-0 left-0 w-full h-[5px] bg-gradient-to-r from-[var(--orange)] to-[var(--orange-bright)] transform scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100" />
+      </div>
     </Link>
   );
 }
@@ -120,15 +148,14 @@ export function ToolsGrid() {
   return (
     <section className="relative z-10 w-full">
       {/* Section Header */}
-      <div className="flex items-center gap-4 mb-8 md:mb-12 pb-4 border-b-3 border-[var(--orange)]">
-        <h2 className="font-[family-name:var(--font-anton)] text-3xl md:text-4xl lg:text-5xl tracking-wider uppercase text-white">
+      <div className="section-header mb-12">
+        <h2 className="font-[family-name:var(--font-anton)] text-3xl md:text-4xl lg:text-[3.5rem] tracking-[3px] uppercase text-white">
           ANALYTICS TOOLS
         </h2>
-        <div className="flex-1 h-1 bg-gradient-to-r from-[var(--orange)] to-transparent" />
       </div>
 
       {/* Tools Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+      <div className="tools-grid">
         {tools.map((tool, index) => (
           <ToolCard key={tool.id} tool={tool} index={index} />
         ))}

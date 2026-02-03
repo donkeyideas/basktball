@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { cn } from "@/lib/utils";
 
 interface SEOScore {
@@ -44,6 +44,7 @@ export default function SEOManagementPage() {
   const { data, isLoading } = useSWR<SEOData>("/api/admin/seo", fetcher);
   const [selectedPage, setSelectedPage] = useState<PageSEO | null>(null);
   const [activeTab, setActiveTab] = useState<"overview" | "pages" | "sitemap">("overview");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const searchConsole = data?.searchConsole || {
     totalImpressions: 0,
@@ -58,67 +59,96 @@ export default function SEOManagementPage() {
   const pages = data?.pages || [];
 
   const getScoreColor = (score: number) => {
-    if (score >= 90) return "text-green-500";
-    if (score >= 70) return "text-yellow-500";
-    return "text-red-500";
+    if (score >= 90) return "text-[var(--green)]";
+    if (score >= 70) return "text-[var(--yellow)]";
+    return "text-[var(--red)]";
   };
 
-  const getStatusBadge = (status: "indexed" | "pending" | "blocked") => {
+  const getStatusClass = (status: "indexed" | "pending" | "blocked") => {
     switch (status) {
-      case "indexed": return "bg-green-500/20 text-green-400";
-      case "pending": return "bg-yellow-500/20 text-yellow-400";
-      case "blocked": return "bg-red-500/20 text-red-400";
+      case "indexed": return "job-status success";
+      case "pending": return "job-status paused";
+      case "blocked": return "job-status failed";
     }
+  };
+
+  const handleRegenerateSitemap = async () => {
+    setIsProcessing(true);
+    try {
+      await fetch("/api/admin/seo/sitemap", { method: "POST" });
+      await mutate("/api/admin/seo");
+    } catch (error) {
+      console.error("Regenerate sitemap error:", error);
+    }
+    setIsProcessing(false);
+  };
+
+  const handleRunAudit = async () => {
+    setIsProcessing(true);
+    try {
+      await fetch("/api/admin/seo/audit", { method: "POST" });
+      await mutate("/api/admin/seo");
+    } catch (error) {
+      console.error("Run audit error:", error);
+    }
+    setIsProcessing(false);
   };
 
   if (isLoading) {
     return (
-      <div className="flex-1 flex flex-col p-3 overflow-hidden">
-        <div className="flex items-center justify-between mb-2">
-          <div className="h-6 w-24 bg-white/10 rounded animate-pulse" />
-          <div className="flex gap-1">
+      <div className="flex-1 p-6 overflow-auto">
+        {/* Header Skeleton */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="h-8 w-48 bg-white/10 rounded animate-pulse" />
+          <div className="flex gap-2">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-6 w-16 bg-white/10 rounded animate-pulse" />
+              <div key={i} className="h-10 w-24 bg-white/10 rounded animate-pulse" />
             ))}
           </div>
         </div>
-        <div className="flex-1 grid grid-cols-5 gap-1.5">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="bg-[var(--dark-gray)] p-2 rounded animate-pulse">
-              <div className="h-4 w-16 bg-white/10 rounded mb-1" />
-              <div className="h-6 w-8 bg-white/10 rounded" />
+
+        {/* Stats Skeleton */}
+        <div className="grid grid-cols-4 gap-4 mb-8">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="stat-card p-4 animate-pulse">
+              <div className="h-8 w-20 bg-white/10 rounded mb-2" />
+              <div className="h-4 w-24 bg-white/10 rounded" />
             </div>
           ))}
+        </div>
+
+        {/* Content Skeleton */}
+        <div className="section">
+          <div className="section-header">
+            <div className="h-6 w-32 bg-white/10 rounded animate-pulse" />
+          </div>
+          <div className="p-4 space-y-3">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="h-14 bg-white/10 rounded animate-pulse" />
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 flex flex-col p-3 overflow-hidden">
-      {/* Header + Stats */}
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-4">
-          <h1 className="font-[family-name:var(--font-anton)] text-xl tracking-wider text-white">SEO</h1>
-          <div className="flex items-center gap-3 text-xs">
-            <span className="text-white/40">Impr:</span>
-            <span className="font-mono text-white">{(searchConsole.totalImpressions / 1000).toFixed(0)}K</span>
-            <span className="text-white/40">CTR:</span>
-            <span className="font-mono text-[var(--orange)]">{searchConsole.averageCTR}%</span>
-            <span className="text-white/40">Pos:</span>
-            <span className="font-mono text-white">{searchConsole.averagePosition}</span>
-            <span className="text-white/40">Indexed:</span>
-            <span className="font-mono text-green-400">{searchConsole.indexedPages}</span>
-          </div>
-        </div>
-        <div className="flex gap-1">
+    <div className="flex-1 p-6 overflow-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="font-[family-name:var(--font-anton)] text-3xl tracking-wider text-white">
+          SEO MANAGEMENT
+        </h1>
+        <div className="flex gap-2">
           {(["overview", "pages", "sitemap"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={cn(
-                "px-2 py-1 text-[10px] font-semibold uppercase rounded transition-colors",
-                activeTab === tab ? "bg-[var(--orange)] text-white" : "bg-white/10 text-white/50 hover:text-white"
+                "px-4 py-2 text-sm font-medium rounded transition-colors capitalize",
+                activeTab === tab
+                  ? "bg-[var(--orange)] text-white"
+                  : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
               )}
             >
               {tab}
@@ -127,88 +157,120 @@ export default function SEOManagementPage() {
         </div>
       </div>
 
-      {activeTab === "overview" && (
-        <div className="flex-1 min-h-0 flex flex-col gap-1.5 overflow-auto">
-          {/* SEO Health Scores */}
-          <div className="grid grid-cols-5 gap-1.5">
-            {seoScores.length === 0 ? (
-              <div className="col-span-5 bg-[var(--dark-gray)] p-4 rounded text-center">
-                <p className="text-white/30 text-xs">No SEO scores available</p>
-              </div>
-            ) : (
-              seoScores.map((score) => (
-                <div key={score.category} className="bg-[var(--dark-gray)] p-2 rounded">
-                  <div className="flex items-center justify-between mb-1">
-                    <p className="text-white/60 text-[10px] uppercase">{score.category}</p>
-                    <p className={cn("font-mono text-sm font-bold", getScoreColor(score.score))}>{score.score}</p>
-                  </div>
-                  {score.issues.length > 0 && (
-                    <div className="border-t border-white/10 pt-1 mt-1">
-                      {score.issues.slice(0, 1).map((issue, i) => (
-                        <p key={i} className="text-white/30 text-[9px] truncate">- {issue}</p>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))
-            )}
-          </div>
+      {/* Stats */}
+      <div className="grid grid-cols-4 gap-4 mb-8">
+        <div className="stat-card p-4">
+          <p className="stat-value text-2xl">{(searchConsole.totalImpressions / 1000).toFixed(0)}K</p>
+          <p className="stat-label">Total Impressions</p>
+        </div>
+        <div className="stat-card p-4">
+          <p className="stat-value text-2xl text-[var(--orange)]">{searchConsole.averageCTR.toFixed(2)}%</p>
+          <p className="stat-label">Average CTR</p>
+        </div>
+        <div className="stat-card p-4">
+          <p className="stat-value text-2xl">{searchConsole.averagePosition.toFixed(1)}</p>
+          <p className="stat-label">Average Position</p>
+        </div>
+        <div className="stat-card p-4">
+          <p className="stat-value text-2xl text-[var(--green)]">{searchConsole.indexedPages}</p>
+          <p className="stat-label">Indexed Pages</p>
+        </div>
+      </div>
 
-          {/* Quick Actions */}
-          <div className="grid grid-cols-4 gap-1.5">
-            {[
-              { icon: "M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15", label: "Regenerate Sitemap", color: "blue" },
-              { icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z", label: "Fetch GSC Data", color: "green" },
-              { icon: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z", label: "Run SEO Audit", color: "purple" },
-              { icon: "M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z", label: "Bulk Edit Meta", color: "orange" },
-            ].map((action) => (
-              <button key={action.label} className="bg-[var(--dark-gray)] p-2 rounded hover:bg-white/10 transition-colors flex items-center gap-2">
-                <div className={cn("w-6 h-6 flex items-center justify-center rounded", `bg-${action.color}-500/20`)}>
-                  <svg className={cn("w-3 h-3", action.color === "orange" ? "text-[var(--orange)]" : `text-${action.color}-400`)} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={action.icon} />
-                  </svg>
-                </div>
-                <span className="text-white text-[10px]">{action.label}</span>
+      {activeTab === "overview" && (
+        <>
+          {/* SEO Health Scores */}
+          <div className="section mb-6">
+            <div className="section-header">
+              <h2 className="section-title">SEO Health Scores</h2>
+              <button
+                onClick={handleRunAudit}
+                disabled={isProcessing}
+                className="btn btn-secondary btn-small"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                Run Audit
               </button>
-            ))}
+            </div>
+            <div className="p-4">
+              {seoScores.length === 0 ? (
+                <p className="text-white/30 text-center py-8">No SEO scores available</p>
+              ) : (
+                <div className="grid grid-cols-5 gap-4">
+                  {seoScores.map((score) => (
+                    <div key={score.category} className="bg-[var(--darker-gray)] p-4 rounded">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-white/60 text-sm uppercase">{score.category}</p>
+                        <p className={cn("font-[family-name:var(--font-roboto-mono)] text-2xl font-bold", getScoreColor(score.score))}>
+                          {score.score}
+                        </p>
+                      </div>
+                      {score.issues.length > 0 && (
+                        <div className="border-t border-white/10 pt-2 mt-2">
+                          {score.issues.slice(0, 2).map((issue, i) => (
+                            <p key={i} className="text-white/40 text-xs truncate">
+                              - {issue}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Top Pages Table */}
-          <div className="flex-1 bg-[var(--dark-gray)] rounded overflow-hidden flex flex-col">
-            <div className="px-2 py-1.5 border-b border-white/10">
-              <h2 className="font-semibold text-white text-xs uppercase tracking-wide">Top Pages</h2>
+          <div className="section">
+            <div className="section-header">
+              <h2 className="section-title">Top Pages by Impressions</h2>
             </div>
-            <div className="flex-1 overflow-auto">
-              <table className="w-full text-xs">
-                <thead className="sticky top-0 bg-[var(--dark-gray)]">
+            <div className="overflow-x-auto">
+              <table className="data-table">
+                <thead>
                   <tr>
-                    <th className="px-2 py-1.5 text-left text-[10px] text-white/50 uppercase">Page</th>
-                    <th className="px-2 py-1.5 text-center text-[10px] text-white/50 uppercase">Status</th>
-                    <th className="px-2 py-1.5 text-right text-[10px] text-white/50 uppercase">Impr</th>
-                    <th className="px-2 py-1.5 text-right text-[10px] text-white/50 uppercase">Clicks</th>
-                    <th className="px-2 py-1.5 text-right text-[10px] text-white/50 uppercase">Pos</th>
+                    <th>Page</th>
+                    <th>Status</th>
+                    <th>Impressions</th>
+                    <th>Clicks</th>
+                    <th>CTR</th>
+                    <th>Position</th>
                   </tr>
                 </thead>
                 <tbody>
                   {pages.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-2 py-4 text-center text-white/30 text-xs">
+                      <td colSpan={6} className="text-center py-8 text-white/30">
                         No page data available
                       </td>
                     </tr>
                   ) : (
-                    pages.map((page, i) => (
-                      <tr key={page.path} className={cn("border-t border-white/5", i % 2 === 0 ? "bg-[var(--black)]/30" : "")}>
-                        <td className="px-2 py-1.5">
-                          <p className="text-white font-mono">{page.path}</p>
-                          <p className="text-white/40 text-[10px] truncate max-w-[200px]">{page.title}</p>
+                    pages.map((page) => (
+                      <tr key={page.path}>
+                        <td>
+                          <p className="text-white font-[family-name:var(--font-roboto-mono)]">{page.path}</p>
+                          <p className="text-white/40 text-xs truncate max-w-[300px]">{page.title}</p>
                         </td>
-                        <td className="px-2 py-1.5 text-center">
-                          <span className={cn("px-1.5 py-0.5 text-[9px] rounded", getStatusBadge(page.indexStatus))}>{page.indexStatus}</span>
+                        <td>
+                          <span className={getStatusClass(page.indexStatus)}>
+                            {page.indexStatus}
+                          </span>
                         </td>
-                        <td className="px-2 py-1.5 text-right font-mono text-white/60">{(page.impressions / 1000).toFixed(1)}K</td>
-                        <td className="px-2 py-1.5 text-right font-mono text-white/60">{page.clicks}</td>
-                        <td className="px-2 py-1.5 text-right font-mono text-[var(--orange)]">{page.position.toFixed(1)}</td>
+                        <td className="font-[family-name:var(--font-roboto-mono)] text-white">
+                          {(page.impressions / 1000).toFixed(1)}K
+                        </td>
+                        <td className="font-[family-name:var(--font-roboto-mono)] text-white">
+                          {page.clicks.toLocaleString()}
+                        </td>
+                        <td className="font-[family-name:var(--font-roboto-mono)] text-[var(--orange)]">
+                          {((page.clicks / page.impressions) * 100).toFixed(2)}%
+                        </td>
+                        <td className="font-[family-name:var(--font-roboto-mono)] text-white">
+                          {page.position.toFixed(1)}
+                        </td>
                       </tr>
                     ))
                   )}
@@ -216,52 +278,59 @@ export default function SEOManagementPage() {
               </table>
             </div>
           </div>
-        </div>
+        </>
       )}
 
       {activeTab === "pages" && (
-        <div className="flex-1 min-h-0 grid grid-cols-3 gap-1.5">
+        <div className="grid grid-cols-3 gap-6">
           {/* Pages List */}
-          <div className="col-span-2 bg-[var(--dark-gray)] rounded flex flex-col overflow-hidden">
-            <div className="px-2 py-1.5 border-b border-white/10">
-              <h2 className="font-semibold text-white text-xs uppercase tracking-wide">All Pages</h2>
+          <div className="col-span-2 section">
+            <div className="section-header">
+              <h2 className="section-title">All Pages</h2>
+              <span className="text-sm text-white/40">{pages.length} pages</span>
             </div>
-            <div className="flex-1 overflow-auto">
-              <table className="w-full text-xs">
+            <div className="overflow-x-auto max-h-[600px]">
+              <table className="data-table">
                 <thead className="sticky top-0 bg-[var(--dark-gray)]">
                   <tr>
-                    <th className="px-2 py-1.5 text-left text-[10px] text-white/50 uppercase">Page</th>
-                    <th className="px-2 py-1.5 text-center text-[10px] text-white/50 uppercase">Status</th>
-                    <th className="px-2 py-1.5 text-right text-[10px] text-white/50 uppercase">Impr</th>
-                    <th className="px-2 py-1.5 text-right text-[10px] text-white/50 uppercase">Pos</th>
+                    <th>Page</th>
+                    <th>Status</th>
+                    <th>Impressions</th>
+                    <th>Position</th>
                   </tr>
                 </thead>
                 <tbody>
                   {pages.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="px-2 py-4 text-center text-white/30 text-xs">
+                      <td colSpan={4} className="text-center py-8 text-white/30">
                         No pages found
                       </td>
                     </tr>
                   ) : (
-                    pages.map((page, i) => (
+                    pages.map((page) => (
                       <tr
                         key={page.path}
                         onClick={() => setSelectedPage(page)}
                         className={cn(
-                          "border-t border-white/5 cursor-pointer transition-colors",
-                          selectedPage?.path === page.path ? "bg-[var(--orange)]/10" : i % 2 === 0 ? "bg-[var(--black)]/30 hover:bg-white/5" : "hover:bg-white/5"
+                          "cursor-pointer",
+                          selectedPage?.path === page.path && "bg-[var(--orange)]/5"
                         )}
                       >
-                        <td className="px-2 py-1.5">
-                          <p className="text-white font-mono">{page.path}</p>
-                          <p className="text-white/40 text-[10px] truncate max-w-[200px]">{page.title}</p>
+                        <td>
+                          <p className="text-white font-[family-name:var(--font-roboto-mono)]">{page.path}</p>
+                          <p className="text-white/40 text-xs truncate max-w-[250px]">{page.title}</p>
                         </td>
-                        <td className="px-2 py-1.5 text-center">
-                          <span className={cn("px-1.5 py-0.5 text-[9px] rounded", getStatusBadge(page.indexStatus))}>{page.indexStatus}</span>
+                        <td>
+                          <span className={getStatusClass(page.indexStatus)}>
+                            {page.indexStatus}
+                          </span>
                         </td>
-                        <td className="px-2 py-1.5 text-right font-mono text-white/60">{(page.impressions / 1000).toFixed(1)}K</td>
-                        <td className="px-2 py-1.5 text-right font-mono text-[var(--orange)]">{page.position.toFixed(1)}</td>
+                        <td className="font-[family-name:var(--font-roboto-mono)] text-white/60">
+                          {(page.impressions / 1000).toFixed(1)}K
+                        </td>
+                        <td className="font-[family-name:var(--font-roboto-mono)] text-[var(--orange)]">
+                          {page.position.toFixed(1)}
+                        </td>
                       </tr>
                     ))
                   )}
@@ -271,48 +340,72 @@ export default function SEOManagementPage() {
           </div>
 
           {/* Page Details */}
-          <div className="bg-[var(--dark-gray)] rounded flex flex-col overflow-hidden">
+          <div className="section">
             {selectedPage ? (
               <>
-                <div className="px-2 py-1.5 border-b border-white/10 flex items-center justify-between">
-                  <h2 className="font-semibold text-white text-xs uppercase tracking-wide">Details</h2>
-                  <button onClick={() => setSelectedPage(null)} className="text-white/40 hover:text-white text-xs">x</button>
+                <div className="section-header">
+                  <h2 className="section-title">Page Details</h2>
+                  <button
+                    onClick={() => setSelectedPage(null)}
+                    className="text-white/40 hover:text-white transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                 </div>
-                <div className="flex-1 overflow-auto p-2 space-y-2">
+                <div className="p-4 space-y-4">
                   <div>
-                    <label className="text-[10px] text-white/40 uppercase">Title</label>
-                    <input type="text" defaultValue={selectedPage.title} className="w-full bg-[var(--black)] border border-white/10 text-white text-[10px] px-2 py-1.5 rounded" />
-                    <p className="text-white/30 text-[9px] mt-0.5">{selectedPage.title.length}/60</p>
+                    <label className="block text-white/60 text-sm mb-2">Title Tag</label>
+                    <input
+                      type="text"
+                      defaultValue={selectedPage.title}
+                      className="w-full bg-[var(--darker-gray)] border border-white/10 text-white text-sm px-3 py-2 rounded focus:border-[var(--orange)] outline-none"
+                    />
+                    <p className="text-white/30 text-xs mt-1">{selectedPage.title.length}/60 characters</p>
                   </div>
                   <div>
-                    <label className="text-[10px] text-white/40 uppercase">Meta Description</label>
-                    <textarea defaultValue={selectedPage.metaDescription} rows={2} className="w-full bg-[var(--black)] border border-white/10 text-white text-[10px] px-2 py-1.5 rounded resize-none" />
-                    <p className="text-white/30 text-[9px] mt-0.5">{selectedPage.metaDescription.length}/160</p>
+                    <label className="block text-white/60 text-sm mb-2">Meta Description</label>
+                    <textarea
+                      defaultValue={selectedPage.metaDescription}
+                      rows={3}
+                      className="w-full bg-[var(--darker-gray)] border border-white/10 text-white text-sm px-3 py-2 rounded focus:border-[var(--orange)] outline-none resize-none"
+                    />
+                    <p className="text-white/30 text-xs mt-1">{selectedPage.metaDescription.length}/160 characters</p>
                   </div>
                   <div>
-                    <label className="text-[10px] text-white/40 uppercase">Keywords</label>
-                    <div className="flex flex-wrap gap-0.5 mt-0.5">
+                    <label className="block text-white/60 text-sm mb-2">Keywords</label>
+                    <div className="flex flex-wrap gap-1">
                       {selectedPage.keywords.map((kw) => (
-                        <span key={kw} className="bg-[var(--orange)]/20 text-[var(--orange)] px-1.5 py-0.5 text-[9px] rounded">{kw}</span>
+                        <span key={kw} className="bg-[var(--orange)]/20 text-[var(--orange)] px-2 py-1 text-xs rounded">
+                          {kw}
+                        </span>
                       ))}
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10">
+                  <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
                     <div>
-                      <p className="text-[9px] text-white/40">Last Crawled</p>
-                      <p className="text-white text-[10px]">{selectedPage.lastCrawled}</p>
+                      <p className="text-white/40 text-xs mb-1">Last Crawled</p>
+                      <p className="text-white text-sm">{selectedPage.lastCrawled}</p>
                     </div>
                     <div>
-                      <p className="text-[9px] text-white/40">CTR</p>
-                      <p className="text-[var(--orange)] text-[10px] font-semibold">{((selectedPage.clicks / selectedPage.impressions) * 100).toFixed(2)}%</p>
+                      <p className="text-white/40 text-xs mb-1">Click-through Rate</p>
+                      <p className="text-[var(--orange)] font-[family-name:var(--font-roboto-mono)] text-lg">
+                        {((selectedPage.clicks / selectedPage.impressions) * 100).toFixed(2)}%
+                      </p>
                     </div>
                   </div>
-                  <button className="w-full px-2 py-1.5 bg-[var(--orange)] text-white text-[10px] font-semibold rounded">Save</button>
+                  <button className="btn btn-primary w-full">
+                    Save Changes
+                  </button>
                 </div>
               </>
             ) : (
-              <div className="flex-1 flex items-center justify-center">
-                <p className="text-white/30 text-xs">Select a page</p>
+              <div className="p-8 text-center text-white/30">
+                <svg className="w-16 h-16 mx-auto mb-4 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <p>Select a page to edit SEO settings</p>
               </div>
             )}
           </div>
@@ -320,22 +413,83 @@ export default function SEOManagementPage() {
       )}
 
       {activeTab === "sitemap" && (
-        <div className="flex-1 bg-[var(--dark-gray)] rounded p-3 space-y-3 overflow-auto">
-          <div className="bg-[var(--black)] p-2 rounded">
-            <p className="text-white font-semibold text-xs mb-1">sitemap.xml</p>
-            <p className="text-white/40 text-[10px] mb-2">Auto-generated sitemap with all indexed pages</p>
-            <div className="flex gap-1">
-              <button className="px-2 py-1 bg-white/10 text-white text-[10px] rounded">View</button>
-              <button className="px-2 py-1 bg-[var(--orange)] text-white text-[10px] rounded">Regenerate</button>
+        <div className="grid grid-cols-2 gap-6">
+          {/* Sitemap */}
+          <div className="section">
+            <div className="section-header">
+              <h2 className="section-title">Sitemap Configuration</h2>
+            </div>
+            <div className="p-4 space-y-4">
+              <div className="bg-[var(--darker-gray)] p-4 rounded">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <p className="text-white font-medium">sitemap.xml</p>
+                    <p className="text-white/40 text-sm">Auto-generated sitemap with all indexed pages</p>
+                  </div>
+                  <span className="job-status success">Active</span>
+                </div>
+                <div className="flex gap-2">
+                  <button className="btn btn-secondary btn-small">
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    View
+                  </button>
+                  <button
+                    onClick={handleRegenerateSitemap}
+                    disabled={isProcessing}
+                    className="btn btn-primary btn-small"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Regenerate
+                  </button>
+                </div>
+              </div>
+              <div>
+                <p className="text-white/60 text-sm mb-2">Sitemap includes:</p>
+                <ul className="space-y-2 text-sm text-white/40">
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-[var(--green)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    {searchConsole.indexedPages} indexed pages
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-[var(--yellow)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {searchConsole.pendingPages} pending pages
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <svg className="w-4 h-4 text-[var(--red)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    {searchConsole.errorsPages} pages with errors
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
-          <div className="bg-[var(--black)] p-2 rounded">
-            <p className="text-white font-semibold text-xs mb-1">robots.txt</p>
-            <textarea
-              className="w-full bg-[var(--dark-gray)] border border-white/10 text-white/70 px-2 py-1.5 font-mono text-[10px] h-24 resize-none rounded"
-              defaultValue={`User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\n\nSitemap: https://basktball.com/sitemap.xml`}
-            />
-            <button className="mt-1 px-2 py-1 bg-[var(--orange)] text-white text-[10px] rounded">Save</button>
+
+          {/* Robots.txt */}
+          <div className="section">
+            <div className="section-header">
+              <h2 className="section-title">robots.txt</h2>
+            </div>
+            <div className="p-4">
+              <textarea
+                className="w-full bg-[var(--darker-gray)] border border-white/10 text-white/70 px-4 py-3 font-[family-name:var(--font-roboto-mono)] text-sm h-64 resize-none rounded focus:border-[var(--orange)] outline-none"
+                defaultValue={`User-agent: *\nAllow: /\nDisallow: /admin/\nDisallow: /api/\n\nSitemap: https://basktball.com/sitemap.xml`}
+              />
+              <div className="flex justify-end mt-4">
+                <button className="btn btn-primary">
+                  Save Changes
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

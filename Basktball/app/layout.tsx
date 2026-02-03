@@ -95,6 +95,10 @@ export default function RootLayout({
         {/* Court Background Pattern */}
         <div className="court-bg" aria-hidden="true" />
 
+        {/* Decorative Court Accent Circles */}
+        <div className="court-accent" aria-hidden="true" />
+        <div className="court-accent" aria-hidden="true" />
+
         {/* Main Content */}
         <div className="relative z-10">{children}</div>
       </body>
