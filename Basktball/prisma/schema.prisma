@@ -1,0 +1,406 @@
+// Basktball Database Schema
+// PostgreSQL with Prisma ORM
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+enum League {
+  NBA
+  WNBA
+  NCAAM
+  NCAAW
+  EURO
+  INTL
+}
+
+enum GameStatus {
+  SCHEDULED
+  LIVE
+  FINAL
+  POSTPONED
+  CANCELLED
+}
+
+enum InsightType {
+  GAME_RECAP
+  PLAYER_ANALYSIS
+  BETTING
+  FANTASY
+  TRENDING
+}
+
+enum JobStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+  SKIPPED
+}
+
+// =============================================================================
+// CORE MODELS
+// =============================================================================
+
+model Team {
+  id           String   @id
+  name         String
+  abbreviation String
+  city         String?
+  logoUrl      String?
+  primaryColor String?
+  league       League
+  conference   String?
+  division     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  players   Player[]
+  homeGames Game[]      @relation("HomeTeam")
+  awayGames Game[]      @relation("AwayTeam")
+  teamStats TeamStat[]
+
+  @@index([league])
+  @@index([abbreviation])
+}
+
+model Player {
+  id          String   @id
+  name        String
+  firstName   String?
+  lastName    String?
+  teamId      String?
+  position    String?
+  jerseyNum   Int?
+  height      String?
+  weight      Int?
+  birthDate   DateTime?
+  college     String?
+  country     String?
+  headshotUrl String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  team     Team?        @relation(fields: [teamId], references: [id])
+  stats    PlayerStat[]
+  insights AiInsight[]
+
+  @@index([teamId])
+  @@index([name])
+}
+
+model Game {
+  id            String     @id
+  homeTeamId    String
+  awayTeamId    String
+  gameDate      DateTime
+  status        GameStatus
+  homeScore     Int?
+  awayScore     Int?
+  quarter       String?
+  clock         String?
+  arena         String?
+  attendance    Int?
+  league        League
+  season        String?
+  isPlayoffs    Boolean    @default(false)
+  broadcastInfo String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  // Relations
+  homeTeam    Team         @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  awayTeam    Team         @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  playerStats PlayerStat[]
+  teamStats   TeamStat[]
+  insights    AiInsight[]
+
+  @@index([gameDate])
+  @@index([status])
+  @@index([league])
+  @@index([homeTeamId])
+  @@index([awayTeamId])
+}
+
+// =============================================================================
+// STATS MODELS
+// =============================================================================
+
+model PlayerStat {
+  id        String   @id @default(cuid())
+  playerId  String
+  gameId    String
+  minutes   Int      @default(0)
+  points    Int      @default(0)
+  rebounds  Int      @default(0)
+  offReb    Int      @default(0)
+  defReb    Int      @default(0)
+  assists   Int      @default(0)
+  steals    Int      @default(0)
+  blocks    Int      @default(0)
+  turnovers Int      @default(0)
+  fouls     Int      @default(0)
+  fgm       Int      @default(0)
+  fga       Int      @default(0)
+  tpm       Int      @default(0)
+  tpa       Int      @default(0)
+  ftm       Int      @default(0)
+  fta       Int      @default(0)
+  plusMinus Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, gameId])
+  @@index([gameId])
+  @@index([playerId])
+}
+
+model TeamStat {
+  id                String   @id @default(cuid())
+  teamId            String
+  gameId            String
+  points            Int      @default(0)
+  rebounds          Int      @default(0)
+  assists           Int      @default(0)
+  steals            Int      @default(0)
+  blocks            Int      @default(0)
+  turnovers         Int      @default(0)
+  fgm               Int      @default(0)
+  fga               Int      @default(0)
+  tpm               Int      @default(0)
+  tpa               Int      @default(0)
+  ftm               Int      @default(0)
+  fta               Int      @default(0)
+  offensiveRating   Float?
+  defensiveRating   Float?
+  pace              Float?
+  fastBreakPoints   Int      @default(0)
+  pointsInPaint     Int      @default(0)
+  secondChancePoints Int     @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  // Relations
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, gameId])
+  @@index([gameId])
+  @@index([teamId])
+}
+
+// =============================================================================
+// AI CONTENT
+// =============================================================================
+
+model AiInsight {
+  id          String      @id @default(cuid())
+  type        InsightType
+  title       String?
+  content     String      @db.Text
+  summary     String?
+  playerId    String?
+  gameId      String?
+  confidence  Float?
+  tokenUsage  Int?
+  approved    Boolean     @default(true)
+  published   Boolean     @default(true)
+  metadata    Json?
+  generatedAt DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  player Player? @relation(fields: [playerId], references: [id], onDelete: SetNull)
+  game   Game?   @relation(fields: [gameId], references: [id], onDelete: SetNull)
+
+  @@index([type])
+  @@index([gameId])
+  @@index([playerId])
+  @@index([generatedAt])
+  @@index([approved])
+}
+
+// =============================================================================
+// ADMIN & JOBS
+// =============================================================================
+
+model JobRun {
+  id           String    @id @default(cuid())
+  jobName      String
+  status       JobStatus
+  startedAt    DateTime  @default(now())
+  endedAt      DateTime?
+  duration     Int?
+  error        String?   @db.Text
+  itemsProcessed Int     @default(0)
+  metadata     Json?
+
+  @@index([jobName])
+  @@index([status])
+  @@index([startedAt])
+}
+
+model ApiLog {
+  id           String   @id @default(cuid())
+  endpoint     String
+  method       String
+  statusCode   Int
+  responseTime Int
+  error        String?
+  timestamp    DateTime @default(now())
+
+  @@index([endpoint])
+  @@index([timestamp])
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String   @db.Text
+  type      String   @default("string")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// =============================================================================
+// CONTENT MANAGEMENT
+// =============================================================================
+
+model Article {
+  id          String          @id @default(cuid())
+  slug        String          @unique
+  title       String
+  content     String          @db.Text
+  excerpt     String?
+  metaTitle   String?
+  metaDesc    String?
+  ogImage     String?
+  keywords    String[]
+  category    ArticleCategory
+  status      ContentStatus   @default(DRAFT)
+  authorName  String?
+  publishedAt DateTime?
+  viewCount   Int             @default(0)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([slug])
+  @@index([status])
+  @@index([category])
+  @@index([publishedAt])
+}
+
+enum ArticleCategory {
+  NEWS
+  ANALYSIS
+  FANTASY
+  BETTING
+  RECAP
+  TRENDING
+}
+
+enum ContentStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+// =============================================================================
+// ADVERTISEMENT SYSTEM
+// =============================================================================
+
+model AdCampaign {
+  id          String       @id @default(cuid())
+  name        String
+  status      AdStatus     @default(DRAFT)
+  startDate   DateTime?
+  endDate     DateTime?
+  budget      Float?
+  totalSpend  Float        @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  placements  AdPlacement[]
+
+  @@index([status])
+  @@index([startDate])
+  @@index([endDate])
+}
+
+model AdPlacement {
+  id          String     @id @default(cuid())
+  campaignId  String
+  campaign    AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  slot        AdSlot
+  imageUrl    String?
+  htmlContent String?    @db.Text
+  linkUrl     String?
+  altText     String?
+  targeting   Json?
+  weight      Int        @default(1)
+  impressions Int        @default(0)
+  clicks      Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([campaignId])
+  @@index([slot])
+}
+
+enum AdStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  ENDED
+}
+
+enum AdSlot {
+  HEADER_BANNER
+  SIDEBAR_TOP
+  SIDEBAR_BOTTOM
+  IN_CONTENT
+  FOOTER_BANNER
+  MOBILE_STICKY
+  INTERSTITIAL
+  LIVE_SCORES_INLINE
+  PLAYER_CARD_INLINE
+  TOOL_SIDEBAR
+}
+
+// =============================================================================
+// FUTURE: USER ACCOUNTS (Phase 2)
+// =============================================================================
+
+// model User {
+//   id            String    @id @default(cuid())
+//   email         String    @unique
+//   name          String?
+//   passwordHash  String?
+//   role          UserRole  @default(USER)
+//   favoriteTeams String[]
+//   favoritePlayers String[]
+//   createdAt     DateTime  @default(now())
+//   updatedAt     DateTime  @updatedAt
+// }
+
+// enum UserRole {
+//   USER
+//   PREMIUM
+//   EDITOR
+//   ADMIN
+// }

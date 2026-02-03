@@ -1,0 +1,31 @@
+# Robots.txt for Basktball.com
+# https://basktball.com/robots.txt
+
+User-agent: *
+Allow: /
+
+# Disallow admin and API routes
+Disallow: /admin/
+Disallow: /api/
+
+# Disallow query parameters that create duplicate content
+Disallow: /*?*sort=
+Disallow: /*?*filter=
+Disallow: /*?*page=
+
+# Allow specific bots full access
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Sitemap location
+Sitemap: https://basktball.com/sitemap.xml
+
+# Crawl-delay for less important bots (optional, not supported by Google)
+User-agent: *
+Crawl-delay: 1

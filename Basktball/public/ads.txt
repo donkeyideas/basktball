@@ -1,0 +1,17 @@
+# ads.txt - Authorized Digital Sellers
+# This file declares the authorized sellers of basktball.com ad inventory
+
+# Google AdSense - Replace PUBLISHER_ID with your actual AdSense publisher ID
+# google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+
+# Instructions:
+# 1. Sign up for Google AdSense at https://www.google.com/adsense
+# 2. Once approved, find your publisher ID in AdSense dashboard
+# 3. Replace pub-XXXXXXXXXXXXXXXX with your actual publisher ID
+# 4. Uncomment the google.com line above
+
+# Format: <domain>, <publisher ID>, <relationship>, <certification authority ID>
+# - domain: The advertising system domain
+# - publisher ID: Your publisher account ID
+# - relationship: DIRECT (you control the account) or RESELLER
+# - certification authority ID: Optional, for TAG certification
