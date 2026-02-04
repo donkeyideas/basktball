@@ -34,11 +34,10 @@ function TeamLogo({ team }: { team: GameTeam }) {
 
 function GameCard({ game }: { game: Game }) {
   const isLive = game.status === "live";
+  const isFinal = game.status === "final";
 
   return (
-    <div className="game-card" style={!isLive ? {
-      "--live-display": "none"
-    } as React.CSSProperties : undefined}>
+    <div className="game-card">
       {isLive && (
         <span style={{
           position: "absolute",
@@ -51,6 +50,18 @@ function GameCard({ game }: { game: Game }) {
           letterSpacing: "1px",
           animation: "blink 1s ease-in-out infinite"
         }}>LIVE</span>
+      )}
+      {isFinal && (
+        <span style={{
+          position: "absolute",
+          top: "15px",
+          right: "15px",
+          background: "rgba(255,255,255,0.2)",
+          padding: "5px 15px",
+          fontSize: "12px",
+          fontWeight: "bold",
+          letterSpacing: "1px"
+        }}>FINAL</span>
       )}
       <div className="teams">
         <div className="team">
@@ -137,9 +148,16 @@ export function LiveScores({ league = "nba" }: LiveScoresProps) {
         </p>
       ) : (
         <div className="games-grid">
-          {games.slice(0, 6).map((game) => (
-            <GameCard key={game.id} game={game} />
-          ))}
+          {/* Sort: live first, then scheduled, then final */}
+          {[...games]
+            .sort((a, b) => {
+              const order = { live: 0, scheduled: 1, final: 2 };
+              return order[a.status] - order[b.status];
+            })
+            .slice(0, 6)
+            .map((game) => (
+              <GameCard key={game.id} game={game} />
+            ))}
         </div>
       )}
     </section>
