@@ -213,18 +213,24 @@ export default function ComparePage() {
               {selected1 && (
                 <div style={{ marginTop: "20px", textAlign: "center" }}>
                   <div style={{
-                    width: "80px",
-                    height: "80px",
+                    width: "100px",
+                    height: "100px",
                     borderRadius: "50%",
-                    background: "var(--orange)",
+                    background: "var(--dark-gray)",
                     margin: "0 auto 15px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "28px",
-                    fontWeight: "bold"
+                    overflow: "hidden",
+                    border: "3px solid var(--orange)"
                   }}>
-                    {selected1.name.split(" ").map(n => n[0]).join("")}
+                    <img
+                      src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${selected1.id}.png`}
+                      alt={selected1.name}
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = "none";
+                        target.parentElement!.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:bold;background:var(--orange)">${selected1.name.split(" ").map(n => n[0]).join("")}</div>`;
+                      }}
+                    />
                   </div>
                   <h3 style={{ fontFamily: "var(--font-anton), Anton, sans-serif", fontSize: "24px" }}>{selected1.name}</h3>
                   <p style={{ color: "rgba(255,255,255,0.5)" }}>{selected1.team?.name || "Free Agent"}</p>
@@ -291,18 +297,24 @@ export default function ComparePage() {
               {selected2 && (
                 <div style={{ marginTop: "20px", textAlign: "center" }}>
                   <div style={{
-                    width: "80px",
-                    height: "80px",
+                    width: "100px",
+                    height: "100px",
                     borderRadius: "50%",
-                    background: "var(--blue)",
+                    background: "var(--dark-gray)",
                     margin: "0 auto 15px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "28px",
-                    fontWeight: "bold"
+                    overflow: "hidden",
+                    border: "3px solid var(--blue)"
                   }}>
-                    {selected2.name.split(" ").map(n => n[0]).join("")}
+                    <img
+                      src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${selected2.id}.png`}
+                      alt={selected2.name}
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = "none";
+                        target.parentElement!.innerHTML = `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:bold;background:var(--blue)">${selected2.name.split(" ").map(n => n[0]).join("")}</div>`;
+                      }}
+                    />
                   </div>
                   <h3 style={{ fontFamily: "var(--font-anton), Anton, sans-serif", fontSize: "24px" }}>{selected2.name}</h3>
                   <p style={{ color: "rgba(255,255,255,0.5)" }}>{selected2.team?.name || "Free Agent"}</p>
