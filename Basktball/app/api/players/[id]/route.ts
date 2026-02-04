@@ -82,15 +82,15 @@ export async function GET(
       });
     }
 
-    // Try to fetch from ESPN - both athlete info and statistics
+    // Try to fetch from ESPN - athlete info and overview (which includes stats)
     try {
-      const [espnRes, statsRes] = await Promise.all([
+      const [espnRes, overviewRes] = await Promise.all([
         fetch(
           `https://site.api.espn.com/apis/common/v3/sports/basketball/nba/athletes/${id}`,
           { headers: { Accept: "application/json" } }
         ),
         fetch(
-          `https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/athletes/${id}/statistics`,
+          `https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/athletes/${id}/overview`,
           { headers: { Accept: "application/json" } }
         ),
       ]);
@@ -99,7 +99,7 @@ export async function GET(
         const espnData = await espnRes.json();
         const athlete = espnData.athlete;
 
-        // Parse statistics if available
+        // Parse statistics from overview endpoint
         let stats = {
           ppg: 0,
           rpg: 0,
@@ -114,55 +114,59 @@ export async function GET(
           gamesPlayed: 0,
         };
 
-        if (statsRes.ok) {
+        if (overviewRes.ok) {
           try {
-            const statsData = await statsRes.json();
-            // ESPN statistics are in categories, look for season stats
-            const seasonStats = statsData.statistics?.splits?.categories;
-            if (seasonStats) {
-              for (const category of seasonStats) {
-                for (const stat of category.stats || []) {
-                  const value = parseFloat(stat.displayValue) || 0;
-                  switch (stat.abbreviation || stat.name) {
-                    case "PTS":
-                      stats.ppg = value;
-                      break;
-                    case "REB":
-                      stats.rpg = value;
-                      break;
-                    case "AST":
-                      stats.apg = value;
-                      break;
-                    case "STL":
-                      stats.spg = value;
-                      break;
-                    case "BLK":
-                      stats.bpg = value;
-                      break;
-                    case "FG%":
-                      stats.fgPct = value;
-                      break;
-                    case "3P%":
-                      stats.threePct = value;
-                      break;
-                    case "FT%":
-                      stats.ftPct = value;
-                      break;
-                    case "MIN":
-                      stats.mpg = value;
-                      break;
-                    case "TO":
-                      stats.tov = value;
-                      break;
-                    case "GP":
-                      stats.gamesPlayed = value;
-                      break;
-                  }
-                }
+            const overviewData = await overviewRes.json();
+            // ESPN overview returns: labels array and splits array with stats arrays
+            // labels: ["GP","MIN","FG%","3P%","FT%","REB","AST","BLK","STL","PF","TO","PTS"]
+            // splits[0].stats: ["41","26.7","41.6","32.1","70.0","5.7","5.3","0.7","0.9","3.2","2.8","8.4"]
+            const labels = overviewData.statistics?.labels || [];
+            const regularSeason = overviewData.statistics?.splits?.find(
+              (s: { displayName: string }) => s.displayName === "Regular Season"
+            );
+            const statValues = regularSeason?.stats || [];
+
+            // Map labels to stats
+            labels.forEach((label: string, index: number) => {
+              const value = parseFloat(statValues[index]) || 0;
+              switch (label) {
+                case "PTS":
+                  stats.ppg = value;
+                  break;
+                case "REB":
+                  stats.rpg = value;
+                  break;
+                case "AST":
+                  stats.apg = value;
+                  break;
+                case "STL":
+                  stats.spg = value;
+                  break;
+                case "BLK":
+                  stats.bpg = value;
+                  break;
+                case "FG%":
+                  stats.fgPct = value;
+                  break;
+                case "3P%":
+                  stats.threePct = value;
+                  break;
+                case "FT%":
+                  stats.ftPct = value;
+                  break;
+                case "MIN":
+                  stats.mpg = value;
+                  break;
+                case "TO":
+                  stats.tov = value;
+                  break;
+                case "GP":
+                  stats.gamesPlayed = value;
+                  break;
               }
-            }
+            });
           } catch {
-            console.error("Failed to parse ESPN stats");
+            console.error("Failed to parse ESPN overview stats");
           }
         }
 
