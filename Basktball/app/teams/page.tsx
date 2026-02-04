@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Header, Footer } from "@/components";
 
@@ -26,6 +27,7 @@ const LEAGUES: { id: League; name: string; fullName: string }[] = [
 ];
 
 export default function TeamsPage() {
+  const router = useRouter();
   const [teamsData, setTeamsData] = useState<Record<string, Team[]>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -293,6 +295,7 @@ export default function TeamsPage() {
                     <div
                       key={team.id}
                       className="league-card"
+                      onClick={() => router.push(`/teams/${selectedLeague}/${team.id}`)}
                       style={{
                         display: "flex",
                         alignItems: "center",

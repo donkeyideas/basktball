@@ -221,7 +221,7 @@ export class NbaApiClient {
     return this.getGamesByDate(today);
   }
 
-  // Get all NBA teams
+  // Get all NBA teams (active only - excludes defunct/historical teams)
   async getTeams(): Promise<NormalizedTeam[]> {
     const cacheKey = "teams:all";
     const cached = getFromCache<NormalizedTeam[]>(cacheKey);
@@ -229,7 +229,11 @@ export class NbaApiClient {
 
     try {
       const response = await fetchApi<PaginatedResponse<ApiTeam>>("/teams");
-      const teams = response.data.map(normalizeTeam);
+      // Filter out defunct teams (those without conference/division)
+      const activeTeams = response.data.filter(
+        (team) => team.conference && team.division
+      );
+      const teams = activeTeams.map(normalizeTeam);
       setCache(cacheKey, teams, 3600000); // Cache for 1 hour
       return teams;
     } catch (error) {

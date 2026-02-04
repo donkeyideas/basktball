@@ -12,6 +12,7 @@ interface EspnTeam {
   displayName: string;
   shortDisplayName: string;
   logo?: string;
+  logos?: Array<{ href: string; width?: number; height?: number }>;
   color?: string;
   alternateColor?: string;
 }
@@ -110,12 +111,14 @@ async function fetchEspn<T>(endpoint: string): Promise<T> {
 
 // Normalize ESPN data
 function normalizeEspnTeam(team: EspnTeam): NormalizedTeam {
+  // ESPN returns logos in array for teams endpoint, single logo for scoreboard
+  const logoUrl = team.logos?.[0]?.href || team.logo || "";
   return {
     id: team.id,
     name: team.shortDisplayName || team.name,
     abbreviation: team.abbreviation,
     city: team.displayName.replace(` ${team.name}`, ""),
-    logoUrl: team.logo || "",
+    logoUrl,
   };
 }
 
