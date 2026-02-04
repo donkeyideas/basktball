@@ -180,20 +180,16 @@ export async function generateAiInsights(): Promise<JobResult> {
   try {
     let insightsGenerated = 0;
 
-    // Get yesterday's completed games that don't have recaps
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    yesterday.setHours(0, 0, 0, 0);
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    // Get recent completed games (last 7 days) that don't have recaps
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
 
     const gamesWithoutRecaps = await prisma.game.findMany({
       where: {
         status: "FINAL",
         gameDate: {
-          gte: yesterday,
-          lt: today,
+          gte: sevenDaysAgo,
         },
         insights: {
           none: {
@@ -205,6 +201,7 @@ export async function generateAiInsights(): Promise<JobResult> {
         homeTeam: true,
         awayTeam: true,
       },
+      orderBy: { gameDate: "desc" },
       take: 10, // Limit to 10 per run to manage API costs
     });
 
