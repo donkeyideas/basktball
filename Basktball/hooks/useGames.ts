@@ -61,17 +61,26 @@ function transformGame(apiGame: {
   status: "scheduled" | "live" | "final";
   quarter?: string;
   clock?: string;
+  gameDate?: string;
 }): Game {
   const stats = [];
 
-  if (apiGame.status === "live" && apiGame.quarter) {
-    stats.push({ label: apiGame.quarter, value: apiGame.clock || "" });
-    const leader = apiGame.homeScore > apiGame.awayScore
-      ? apiGame.homeTeam.abbreviation
-      : apiGame.awayScore > apiGame.homeScore
-        ? apiGame.awayTeam.abbreviation
-        : "TIE";
-    stats.push({ label: "Lead", value: leader });
+  if (apiGame.status === "live") {
+    // Live game - show quarter/clock if available
+    if (apiGame.quarter) {
+      stats.push({ label: apiGame.quarter, value: apiGame.clock || "" });
+    } else {
+      stats.push({ label: "In Progress", value: "" });
+    }
+    // Only show leader if there are actual scores
+    if (apiGame.homeScore > 0 || apiGame.awayScore > 0) {
+      const leader = apiGame.homeScore > apiGame.awayScore
+        ? apiGame.homeTeam.abbreviation
+        : apiGame.awayScore > apiGame.homeScore
+          ? apiGame.awayTeam.abbreviation
+          : "TIE";
+      stats.push({ label: "Lead", value: leader });
+    }
   } else if (apiGame.status === "final") {
     stats.push({ label: "Final", value: "" });
     const winner = apiGame.homeScore > apiGame.awayScore
@@ -79,7 +88,18 @@ function transformGame(apiGame: {
       : apiGame.awayTeam.abbreviation;
     stats.push({ label: "Winner", value: winner });
   } else {
-    stats.push({ label: "Scheduled", value: "" });
+    // Scheduled game - show game time
+    if (apiGame.gameDate) {
+      const gameTime = new Date(apiGame.gameDate);
+      const timeStr = gameTime.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+      stats.push({ label: "Tip-off", value: timeStr });
+    } else {
+      stats.push({ label: "Scheduled", value: "TBD" });
+    }
   }
 
   return {
