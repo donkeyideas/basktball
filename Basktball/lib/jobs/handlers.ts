@@ -43,6 +43,42 @@ export async function fetchLiveScores(): Promise<JobResult> {
 
       // Upsert games to database
       for (const game of games) {
+        // First, ensure both teams exist in the database
+        await prisma.team.upsert({
+          where: { id: game.homeTeam.id },
+          create: {
+            id: game.homeTeam.id,
+            name: game.homeTeam.name,
+            abbreviation: game.homeTeam.abbreviation,
+            city: game.homeTeam.city || "",
+            logoUrl: game.homeTeam.logoUrl,
+            league: league.toUpperCase() as "NBA" | "WNBA" | "NCAAM" | "NCAAW",
+          },
+          update: {
+            name: game.homeTeam.name,
+            abbreviation: game.homeTeam.abbreviation,
+            logoUrl: game.homeTeam.logoUrl,
+          },
+        });
+
+        await prisma.team.upsert({
+          where: { id: game.awayTeam.id },
+          create: {
+            id: game.awayTeam.id,
+            name: game.awayTeam.name,
+            abbreviation: game.awayTeam.abbreviation,
+            city: game.awayTeam.city || "",
+            logoUrl: game.awayTeam.logoUrl,
+            league: league.toUpperCase() as "NBA" | "WNBA" | "NCAAM" | "NCAAW",
+          },
+          update: {
+            name: game.awayTeam.name,
+            abbreviation: game.awayTeam.abbreviation,
+            logoUrl: game.awayTeam.logoUrl,
+          },
+        });
+
+        // Now upsert the game
         await prisma.game.upsert({
           where: { id: game.id },
           create: {
