@@ -318,7 +318,7 @@ export default function AdminHistoryPage() {
                 <input
                   type="text"
                   value={seasonForm.year}
-                  placeholder="e.g., 2023-24"
+                  placeholder="e.g., 2025-26"
                   onChange={e => setSeasonForm(prev => ({ ...prev, year: e.target.value }))}
                   style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
                 />

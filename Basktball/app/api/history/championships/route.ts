@@ -68,5 +68,6 @@ function getFallbackChampionships(): ChampionshipCount[] {
     { team: "Miami Heat", count: 3, lastWon: "2013" },
     { team: "Detroit Pistons", count: 3, lastWon: "2004" },
     { team: "Philadelphia 76ers", count: 3, lastWon: "1983" },
+    { team: "Oklahoma City Thunder", count: 1, lastWon: "2025" },
   ];
 }
