@@ -119,6 +119,12 @@ export async function GET(
     const homeTeamData = competition.competitors.find(c => c.homeAway === "home");
     const awayTeamData = competition.competitors.find(c => c.homeAway === "away");
 
+    // ESPN CDN fallback for team logos
+    const getTeamLogo = (abbr: string, providedLogo?: string) => {
+      if (providedLogo) return providedLogo;
+      return `https://a.espncdn.com/i/teamlogos/nba/500/${abbr.toLowerCase()}.png`;
+    };
+
     const gameInfo = {
       id,
       date: competition.date,
@@ -138,7 +144,7 @@ export async function GET(
         id: homeTeamData?.team.id,
         name: homeTeamData?.team.displayName,
         abbreviation: homeTeamData?.team.abbreviation,
-        logo: homeTeamData?.team.logo,
+        logo: getTeamLogo(homeTeamData?.team.abbreviation || "", homeTeamData?.team.logo),
         score: parseInt(homeTeamData?.score || "0"),
         winner: homeTeamData?.winner,
       },
@@ -146,7 +152,7 @@ export async function GET(
         id: awayTeamData?.team.id,
         name: awayTeamData?.team.displayName,
         abbreviation: awayTeamData?.team.abbreviation,
-        logo: awayTeamData?.team.logo,
+        logo: getTeamLogo(awayTeamData?.team.abbreviation || "", awayTeamData?.team.logo),
         score: parseInt(awayTeamData?.score || "0"),
         winner: awayTeamData?.winner,
       },
