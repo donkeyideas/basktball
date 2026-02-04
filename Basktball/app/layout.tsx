@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { Anton, Barlow_Condensed, Roboto_Mono } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
+import Script from "next/script";
 import { auth } from "@/lib/auth";
 import "./globals.css";
+
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
 const anton = Anton({
   weight: "400",
@@ -40,6 +43,24 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${anton.variable} ${barlowCondensed.variable} ${robotoMono.variable}`}>
+      <head>
+        {GA_MEASUREMENT_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA_MEASUREMENT_ID}');
+              `}
+            </Script>
+          </>
+        )}
+      </head>
       <body>
         <SessionProvider session={session}>
           {/* Court Background Pattern */}
