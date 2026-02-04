@@ -12,6 +12,12 @@ const jobDefinitions = [
     enabled: true,
   },
   {
+    name: "sync-players",
+    description: "Fetch all NBA players and store in database",
+    schedule: "Weekly (Manual)",
+    enabled: true,
+  },
+  {
     name: "daily-sync",
     description: "Full daily data synchronization",
     schedule: "Daily at 5:00 AM",

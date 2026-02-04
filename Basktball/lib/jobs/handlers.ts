@@ -155,14 +155,78 @@ export async function dailyDataSync(): Promise<JobResult> {
       teamsProcessed++;
     }
 
-    // Note: Player sync would be done here if we had full player data
-    // For now, players are synced on-demand when viewing player pages
-
     return {
       success: true,
       itemsProcessed: teamsProcessed + playersProcessed,
       message: `Synced ${teamsProcessed} teams, ${playersProcessed} players`,
       metadata: { teamsProcessed, playersProcessed },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+// =============================================================================
+// SYNC PLAYERS
+// Fetches all NBA players from BallDontLie API and stores in database
+// =============================================================================
+export async function syncPlayers(): Promise<JobResult> {
+  try {
+    const { nbaApi } = await import("@/lib/api/nba");
+    let playersProcessed = 0;
+    let cursor: number | null = 0;
+    let totalFetched = 0;
+
+    // Fetch all players using cursor-based pagination
+    while (cursor !== null) {
+      const { players, nextCursor } = await nbaApi.getAllPlayers({ cursor, perPage: 100 });
+      totalFetched += players.length;
+
+      for (const player of players) {
+        // Skip players without a team (free agents)
+        if (!player.team) continue;
+
+        await prisma.player.upsert({
+          where: { id: player.id },
+          create: {
+            id: player.id,
+            name: player.name,
+            firstName: player.firstName,
+            lastName: player.lastName,
+            position: player.position,
+            jerseyNumber: player.jerseyNumber,
+            imageUrl: player.headshotUrl,
+            teamId: player.team.id,
+          },
+          update: {
+            name: player.name,
+            firstName: player.firstName,
+            lastName: player.lastName,
+            position: player.position,
+            jerseyNumber: player.jerseyNumber,
+            imageUrl: player.headshotUrl,
+            teamId: player.team.id,
+          },
+        });
+        playersProcessed++;
+      }
+
+      cursor = nextCursor;
+
+      // Safety limit to prevent infinite loops
+      if (totalFetched > 5000) {
+        break;
+      }
+    }
+
+    return {
+      success: true,
+      itemsProcessed: playersProcessed,
+      message: `Synced ${playersProcessed} players from ${totalFetched} fetched`,
+      metadata: { playersProcessed, totalFetched },
     };
   } catch (error) {
     return {

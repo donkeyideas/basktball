@@ -30,6 +30,10 @@ const jobHandlers: Record<string, () => Promise<{ success: boolean; message?: st
     const { cleanupCache } = await import("@/lib/jobs/handlers");
     return cleanupCache();
   },
+  "sync-players": async () => {
+    const { syncPlayers } = await import("@/lib/jobs/handlers");
+    return syncPlayers();
+  },
 };
 
 export async function POST(request: NextRequest) {

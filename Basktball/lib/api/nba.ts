@@ -468,6 +468,30 @@ export class NbaApiClient {
     }
   }
 
+  // Get all active players (for database sync)
+  async getAllPlayers(options?: { cursor?: number; perPage?: number }): Promise<{
+    players: NormalizedPlayer[];
+    nextCursor: number | null;
+  }> {
+    const perPage = options?.perPage || 100;
+    const cursor = options?.cursor || 0;
+
+    try {
+      const response = await fetchApi<PaginatedResponse<ApiPlayer>>("/players", {
+        cursor: String(cursor),
+        per_page: String(perPage),
+      });
+
+      const players = response.data.map(normalizePlayer);
+      const nextCursor = response.meta?.next_cursor || null;
+
+      return { players, nextCursor };
+    } catch (error) {
+      console.error("Failed to fetch all players:", error);
+      return { players: [], nextCursor: null };
+    }
+  }
+
   // Get team stats (aggregated from recent games)
   async getTeamStats(teamId: string, season?: number): Promise<{
     wins: number;
