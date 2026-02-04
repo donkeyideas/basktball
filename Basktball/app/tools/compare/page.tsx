@@ -57,11 +57,19 @@ function StatBar({ label, value1, value2, max }: { label: string; value1: number
         </span>
       </div>
       <div style={{ display: "flex", gap: "4px", height: "8px" }}>
-        <div style={{ flex: 1, background: "rgba(255,255,255,0.1)", borderRadius: "4px", overflow: "hidden", display: "flex", justifyContent: "flex-end" }}>
-          <div style={{ width: `${pct1}%`, background: winner === 1 ? "var(--green)" : "var(--orange)", borderRadius: "4px", transition: "width 0.5s ease" }} />
+        <div style={{ flex: 1, background: "rgba(255,255,255,0.1)", borderRadius: "4px", overflow: "hidden", position: "relative" }}>
+          <div style={{
+            width: `${pct1}%`,
+            height: "100%",
+            background: winner === 1 ? "var(--green)" : "var(--orange)",
+            borderRadius: "4px",
+            transition: "width 0.5s ease",
+            position: "absolute",
+            right: 0
+          }} />
         </div>
         <div style={{ flex: 1, background: "rgba(255,255,255,0.1)", borderRadius: "4px", overflow: "hidden" }}>
-          <div style={{ width: `${pct2}%`, background: winner === 2 ? "var(--green)" : "var(--blue)", borderRadius: "4px", transition: "width 0.5s ease" }} />
+          <div style={{ width: `${pct2}%`, height: "100%", background: winner === 2 ? "var(--green)" : "var(--blue)", borderRadius: "4px", transition: "width 0.5s ease" }} />
         </div>
       </div>
     </div>
