@@ -1,6 +1,6 @@
 // Unified Basketball API with fallback strategy
-// Primary: balldontlie.io (NBA only)
-// Fallback: ESPN (all leagues)
+// Primary for games: ESPN (real-time scores, no rate limit)
+// Primary for players/teams: balldontlie.io (detailed data)
 
 import { nbaApi } from "./nba";
 import { espnApi } from "./espn";
@@ -8,19 +8,26 @@ import { League, NormalizedGame, NormalizedPlayer, NormalizedTeam } from "./type
 
 export class BasketballApi {
   // Get games for a specific league and date
+  // Uses ESPN as primary source for games (real-time scores, no rate limits)
   async getGames(league: League, date?: string): Promise<NormalizedGame[]> {
     const dateStr = date || new Date().toISOString().split("T")[0];
 
     switch (league) {
       case "nba":
-        // Try balldontlie first, fallback to ESPN
+        // ESPN is primary for live games (real-time scores, no rate limit)
         try {
-          const games = await nbaApi.getGamesByDate(dateStr);
+          const games = await espnApi.getNbaGames(dateStr);
           if (games.length > 0) return games;
         } catch (error) {
-          console.warn("balldontlie failed, falling back to ESPN:", error);
+          console.warn("ESPN failed, trying balldontlie:", error);
         }
-        return espnApi.getNbaGames(dateStr);
+        // Fallback to balldontlie if ESPN fails
+        try {
+          return await nbaApi.getGamesByDate(dateStr);
+        } catch (error) {
+          console.error("Both APIs failed for games:", error);
+          return [];
+        }
 
       case "wnba":
         return espnApi.getWnbaGames(dateStr);
