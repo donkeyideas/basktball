@@ -390,18 +390,7 @@ body {
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
 }
 
-.game-card::before {
-  content: 'LIVE';
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background: var(--red);
-  padding: 5px 15px;
-  font-size: 12px;
-  font-weight: bold;
-  letter-spacing: 1px;
-  animation: blink 1s ease-in-out infinite;
-}
+/* Badge is now rendered conditionally via React - see LiveScores.tsx and live/page.tsx */
 
 .teams {
   display: flex;
