@@ -356,13 +356,35 @@ export default function GamePage({ params }: { params: Promise<{ id: string }> }
             }}>
               {/* Away Team */}
               <div style={{ textAlign: "center" }}>
-                <Image
-                  src={game.awayTeam.logo}
-                  alt={game.awayTeam.name}
-                  width={100}
-                  height={100}
-                  style={{ objectFit: "contain", marginBottom: "15px" }}
-                />
+                {game.awayTeam.logo ? (
+                  <Image
+                    src={game.awayTeam.logo}
+                    alt={game.awayTeam.name}
+                    width={100}
+                    height={100}
+                    style={{ objectFit: "contain", marginBottom: "15px" }}
+                    unoptimized
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <div style={{
+                    width: "100px",
+                    height: "100px",
+                    background: "var(--orange)",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "32px",
+                    fontWeight: "bold",
+                    marginBottom: "15px",
+                  }}>
+                    {game.awayTeam.abbreviation}
+                  </div>
+                )}
                 <h2 style={{
                   fontFamily: "var(--font-anton), Anton, sans-serif",
                   fontSize: "24px",
@@ -400,13 +422,35 @@ export default function GamePage({ params }: { params: Promise<{ id: string }> }
 
               {/* Home Team */}
               <div style={{ textAlign: "center" }}>
-                <Image
-                  src={game.homeTeam.logo}
-                  alt={game.homeTeam.name}
-                  width={100}
-                  height={100}
-                  style={{ objectFit: "contain", marginBottom: "15px" }}
-                />
+                {game.homeTeam.logo ? (
+                  <Image
+                    src={game.homeTeam.logo}
+                    alt={game.homeTeam.name}
+                    width={100}
+                    height={100}
+                    style={{ objectFit: "contain", marginBottom: "15px" }}
+                    unoptimized
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <div style={{
+                    width: "100px",
+                    height: "100px",
+                    background: "var(--orange)",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "32px",
+                    fontWeight: "bold",
+                    marginBottom: "15px",
+                  }}>
+                    {game.homeTeam.abbreviation}
+                  </div>
+                )}
                 <h2 style={{
                   fontFamily: "var(--font-anton), Anton, sans-serif",
                   fontSize: "24px",

@@ -152,23 +152,67 @@ export default function PlayerPage({ params }: { params: Promise<{ id: string }>
   useEffect(() => {
     async function fetchPlayer() {
       try {
-        // Fetch from both endpoints
-        const [apiRes, dbRes] = await Promise.all([
-          fetch(`/api/players?id=${id}`),
-          fetch(`/api/players/${id}/stats`),
-        ]);
+        // First try the new endpoint that handles NBA.com IDs with fallback data
+        const playerRes = await fetch(`/api/players/${id}`);
+        const playerData = await playerRes.json();
 
-        const apiData = await apiRes.json();
-        const dbData = await dbRes.json();
+        if (playerData.success) {
+          // Map the new API response to our expected format
+          const mappedData: PlayerDetailsResponse = {
+            success: true,
+            player: {
+              id: playerData.player.id,
+              name: playerData.player.name,
+              firstName: playerData.player.name.split(" ")[0],
+              lastName: playerData.player.name.split(" ").slice(1).join(" "),
+              position: playerData.player.position,
+              team: {
+                id: playerData.player.teamAbbr,
+                name: playerData.player.team,
+                abbreviation: playerData.player.teamAbbr,
+              },
+              headshotUrl: playerData.player.headshotUrl,
+              height: playerData.player.height,
+              weight: playerData.player.weight,
+            },
+          };
+          setData(mappedData);
 
-        if (apiData.success) {
-          setData(apiData);
+          // Use stats from the new endpoint
+          if (playerData.stats) {
+            setDbStats({
+              ppg: playerData.stats.ppg || 0,
+              rpg: playerData.stats.rpg || 0,
+              apg: playerData.stats.apg || 0,
+              spg: playerData.stats.spg || 0,
+              bpg: playerData.stats.bpg || 0,
+              fgPct: playerData.stats.fgPct || 0,
+              threePct: playerData.stats.threePct || 0,
+              ftPct: playerData.stats.ftPct || 0,
+              mpg: playerData.stats.mpg || 0,
+              tov: playerData.stats.tov || 0,
+              gamesPlayed: playerData.stats.gamesPlayed || 0,
+            });
+          }
         } else {
-          setError(apiData.error || "Failed to load player");
-        }
+          // Fall back to the old endpoints (for BallDontLie IDs)
+          const [apiRes, dbRes] = await Promise.all([
+            fetch(`/api/players?id=${id}`),
+            fetch(`/api/players/${id}/stats`),
+          ]);
 
-        if (dbData.success && dbData.stats) {
-          setDbStats(dbData.stats);
+          const apiData = await apiRes.json();
+          const dbData = await dbRes.json();
+
+          if (apiData.success) {
+            setData(apiData);
+          } else {
+            setError(apiData.error || "Player not found");
+          }
+
+          if (dbData.success && dbData.stats) {
+            setDbStats(dbData.stats);
+          }
         }
       } catch {
         setError("Failed to connect to server");
@@ -275,6 +319,7 @@ export default function PlayerPage({ params }: { params: Promise<{ id: string }>
                 width={200}
                 height={200}
                 style={{ objectFit: "cover", objectPosition: "top" }}
+                unoptimized
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   target.style.display = "none";
