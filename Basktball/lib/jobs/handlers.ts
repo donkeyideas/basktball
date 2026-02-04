@@ -180,6 +180,22 @@ export async function generateAiInsights(): Promise<JobResult> {
   try {
     let insightsGenerated = 0;
 
+    // First, count all games by status for diagnostics
+    const totalGames = await prisma.game.count();
+    const finalGames = await prisma.game.count({ where: { status: "FINAL" } });
+    const liveGames = await prisma.game.count({ where: { status: "LIVE" } });
+    const scheduledGames = await prisma.game.count({ where: { status: "SCHEDULED" } });
+
+    // If no completed games, return early with helpful message
+    if (finalGames === 0) {
+      return {
+        success: true,
+        itemsProcessed: 0,
+        message: `No completed games found. Total games in DB: ${totalGames} (Scheduled: ${scheduledGames}, Live: ${liveGames}, Final: ${finalGames})`,
+        metadata: { totalGames, finalGames, liveGames, scheduledGames },
+      };
+    }
+
     // Get recent completed games (last 7 days) that don't have recaps
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
@@ -204,6 +220,15 @@ export async function generateAiInsights(): Promise<JobResult> {
       orderBy: { gameDate: "desc" },
       take: 10, // Limit to 10 per run to manage API costs
     });
+
+    if (gamesWithoutRecaps.length === 0) {
+      return {
+        success: true,
+        itemsProcessed: 0,
+        message: `All ${finalGames} completed games already have recaps`,
+        metadata: { totalGames, finalGames, gamesNeedingRecaps: 0 },
+      };
+    }
 
     for (const game of gamesWithoutRecaps) {
       try {
@@ -246,8 +271,8 @@ export async function generateAiInsights(): Promise<JobResult> {
     return {
       success: true,
       itemsProcessed: insightsGenerated,
-      message: `Generated ${insightsGenerated} AI insights`,
-      metadata: { insightsGenerated, gamesProcessed: gamesWithoutRecaps.length },
+      message: `Generated ${insightsGenerated} AI insights from ${gamesWithoutRecaps.length} games`,
+      metadata: { insightsGenerated, gamesProcessed: gamesWithoutRecaps.length, totalGames, finalGames },
     };
   } catch (error) {
     return {
