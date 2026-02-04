@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useGames, type Game, type GameTeam } from "@/hooks/useGames";
 
 interface LiveScoresProps {
@@ -37,7 +38,7 @@ function GameCard({ game }: { game: Game }) {
   const isFinal = game.status === "final";
 
   return (
-    <div className="game-card">
+    <Link href={`/game/${game.id}`} className="game-card" style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}>
       {isLive && (
         <span style={{
           position: "absolute",
@@ -86,7 +87,7 @@ function GameCard({ game }: { game: Game }) {
           </span>
         ))}
       </div>
-    </div>
+    </Link>
   );
 }
 

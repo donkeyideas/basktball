@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 interface Leader {
   rank: number;
@@ -93,7 +94,7 @@ export function FeaturedPlayers() {
         </h2>
         <div className="players-grid">
           {leaders.map((player) => (
-            <div key={player.playerId} className="player-card">
+            <Link key={player.playerId} href={`/player/${player.playerId}`} className="player-card" style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}>
               <div className="player-image" style={{ overflow: "hidden", position: "relative" }}>
                 {player.imageUrl ? (
                   <Image
@@ -128,7 +129,7 @@ export function FeaturedPlayers() {
                   <div className="stat-label">GP</div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

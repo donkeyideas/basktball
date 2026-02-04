@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { Header, Footer } from "@/components";
 
 interface Player {
@@ -182,15 +183,19 @@ export default function PlayersPage() {
                 gap: "20px"
               }}>
                 {players.map(player => (
-                  <div
+                  <Link
                     key={player.id}
+                    href={`/player/${player.id}`}
                     className="player-card"
                     style={{
                       padding: "25px",
                       textAlign: "left",
                       display: "flex",
                       alignItems: "center",
-                      gap: "20px"
+                      gap: "20px",
+                      textDecoration: "none",
+                      color: "inherit",
+                      cursor: "pointer",
                     }}
                   >
                     <div style={{
@@ -225,7 +230,7 @@ export default function PlayersPage() {
                         {[player.position, player.height, player.weight].filter(Boolean).join(" | ")}
                       </p>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}
