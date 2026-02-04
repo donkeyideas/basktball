@@ -249,8 +249,9 @@ export class NbaApiClient {
     if (cached) return cached;
 
     try {
-      const response = await fetchApi<ApiTeam>(`/teams/${teamId}`);
-      const team = normalizeTeam(response);
+      // BallDontLie API returns { data: team } for single team fetch
+      const response = await fetchApi<{ data: ApiTeam }>(`/teams/${teamId}`);
+      const team = normalizeTeam(response.data);
       setCache(cacheKey, team, 3600000); // Cache for 1 hour
       return team;
     } catch (error) {
