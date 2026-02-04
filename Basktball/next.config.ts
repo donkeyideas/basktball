@@ -14,6 +14,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "cdn.nba.com",
+        pathname: "/headshots/**",
+      },
+      {
+        protocol: "https",
         hostname: "cdn.wnba.com",
         pathname: "/logos/**",
       },

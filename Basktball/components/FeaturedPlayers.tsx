@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 interface Leader {
   rank: number;
@@ -10,6 +11,7 @@ interface Leader {
   teamName: string;
   value: number;
   gamesPlayed: number;
+  imageUrl?: string;
 }
 
 export function FeaturedPlayers() {
@@ -92,8 +94,27 @@ export function FeaturedPlayers() {
         <div className="players-grid">
           {leaders.map((player) => (
             <div key={player.playerId} className="player-card">
-              <div className="player-image">
-                {player.name.split(" ").map(n => n[0]).join("")}
+              <div className="player-image" style={{ overflow: "hidden", position: "relative" }}>
+                {player.imageUrl ? (
+                  <Image
+                    src={player.imageUrl}
+                    alt={player.name}
+                    fill
+                    style={{ objectFit: "cover", objectPosition: "top" }}
+                    onError={(e) => {
+                      // Fallback to initials if image fails
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = "none";
+                      if (target.parentElement) {
+                        target.parentElement.innerHTML = `<span style="font-size: 40px; font-family: var(--font-anton)">${player.name.split(" ").map(n => n[0]).join("")}</span>`;
+                      }
+                    }}
+                  />
+                ) : (
+                  <span style={{ fontSize: "40px", fontFamily: "var(--font-anton)" }}>
+                    {player.name.split(" ").map(n => n[0]).join("")}
+                  </span>
+                )}
               </div>
               <h3>{player.name}</h3>
               <p className="player-team">{player.teamName}</p>

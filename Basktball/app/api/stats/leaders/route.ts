@@ -5,62 +5,66 @@ export const dynamic = "force-dynamic";
 
 type StatCategory = "ppg" | "rpg" | "apg" | "spg" | "bpg" | "fg_pct" | "three_pct";
 
-// Current NBA season leaders (2024-25 season) - fallback data
+// NBA.com headshot URL helper
+const getNbaHeadshot = (nbaId: string) =>
+  `https://cdn.nba.com/headshots/nba/latest/1040x760/${nbaId}.png`;
+
+// Current NBA season leaders (2024-25 season) - fallback data with real NBA player IDs
 // These are updated periodically and serve as display data when database is empty
 const CURRENT_LEADERS = {
   ppg: [
-    { playerId: "666786", name: "Luka Doncic", team: "DAL", teamName: "Dallas Mavericks", value: 33.9, gamesPlayed: 45 },
-    { playerId: "666969", name: "Shai Gilgeous-Alexander", team: "OKC", teamName: "Oklahoma City Thunder", value: 31.4, gamesPlayed: 48 },
-    { playerId: "203507", name: "Giannis Antetokounmpo", team: "MIL", teamName: "Milwaukee Bucks", value: 31.2, gamesPlayed: 42 },
-    { playerId: "203954", name: "Joel Embiid", team: "PHI", teamName: "Philadelphia 76ers", value: 27.9, gamesPlayed: 25 },
-    { playerId: "1628369", name: "Jayson Tatum", team: "BOS", teamName: "Boston Celtics", value: 27.5, gamesPlayed: 47 },
-    { playerId: "203999", name: "Nikola Jokic", team: "DEN", teamName: "Denver Nuggets", value: 26.8, gamesPlayed: 48 },
-    { playerId: "1629029", name: "Trae Young", team: "ATL", teamName: "Atlanta Hawks", value: 26.1, gamesPlayed: 44 },
-    { playerId: "201142", name: "Kevin Durant", team: "PHX", teamName: "Phoenix Suns", value: 27.2, gamesPlayed: 40 },
-    { playerId: "1628983", name: "Devin Booker", team: "PHX", teamName: "Phoenix Suns", value: 25.8, gamesPlayed: 45 },
-    { playerId: "203944", name: "Anthony Davis", team: "LAL", teamName: "Los Angeles Lakers", value: 25.4, gamesPlayed: 42 },
+    { playerId: "1629029", name: "Luka Doncic", team: "DAL", teamName: "Dallas Mavericks", value: 33.9, gamesPlayed: 45, imageUrl: getNbaHeadshot("1629029") },
+    { playerId: "1628983", name: "Shai Gilgeous-Alexander", team: "OKC", teamName: "Oklahoma City Thunder", value: 31.4, gamesPlayed: 48, imageUrl: getNbaHeadshot("1628983") },
+    { playerId: "203507", name: "Giannis Antetokounmpo", team: "MIL", teamName: "Milwaukee Bucks", value: 31.2, gamesPlayed: 42, imageUrl: getNbaHeadshot("203507") },
+    { playerId: "203954", name: "Joel Embiid", team: "PHI", teamName: "Philadelphia 76ers", value: 27.9, gamesPlayed: 25, imageUrl: getNbaHeadshot("203954") },
+    { playerId: "1628369", name: "Jayson Tatum", team: "BOS", teamName: "Boston Celtics", value: 27.5, gamesPlayed: 47, imageUrl: getNbaHeadshot("1628369") },
+    { playerId: "203999", name: "Nikola Jokic", team: "DEN", teamName: "Denver Nuggets", value: 26.8, gamesPlayed: 48, imageUrl: getNbaHeadshot("203999") },
+    { playerId: "1629027", name: "Trae Young", team: "ATL", teamName: "Atlanta Hawks", value: 26.1, gamesPlayed: 44, imageUrl: getNbaHeadshot("1629027") },
+    { playerId: "201142", name: "Kevin Durant", team: "PHX", teamName: "Phoenix Suns", value: 27.2, gamesPlayed: 40, imageUrl: getNbaHeadshot("201142") },
+    { playerId: "1626164", name: "Devin Booker", team: "PHX", teamName: "Phoenix Suns", value: 25.8, gamesPlayed: 45, imageUrl: getNbaHeadshot("1626164") },
+    { playerId: "203076", name: "Anthony Davis", team: "LAL", teamName: "Los Angeles Lakers", value: 25.4, gamesPlayed: 42, imageUrl: getNbaHeadshot("203076") },
   ],
   rpg: [
-    { playerId: "666817", name: "Domantas Sabonis", team: "SAC", teamName: "Sacramento Kings", value: 14.2, gamesPlayed: 48 },
-    { playerId: "203999", name: "Nikola Jokic", team: "DEN", teamName: "Denver Nuggets", value: 13.1, gamesPlayed: 48 },
-    { playerId: "203507", name: "Giannis Antetokounmpo", team: "MIL", teamName: "Milwaukee Bucks", value: 11.8, gamesPlayed: 42 },
-    { playerId: "203944", name: "Anthony Davis", team: "LAL", teamName: "Los Angeles Lakers", value: 11.7, gamesPlayed: 42 },
-    { playerId: "1629627", name: "Rudy Gobert", team: "MIN", teamName: "Minnesota Timberwolves", value: 10.8, gamesPlayed: 46 },
+    { playerId: "203506", name: "Domantas Sabonis", team: "SAC", teamName: "Sacramento Kings", value: 14.2, gamesPlayed: 48, imageUrl: getNbaHeadshot("203506") },
+    { playerId: "203999", name: "Nikola Jokic", team: "DEN", teamName: "Denver Nuggets", value: 13.1, gamesPlayed: 48, imageUrl: getNbaHeadshot("203999") },
+    { playerId: "203507", name: "Giannis Antetokounmpo", team: "MIL", teamName: "Milwaukee Bucks", value: 11.8, gamesPlayed: 42, imageUrl: getNbaHeadshot("203507") },
+    { playerId: "203076", name: "Anthony Davis", team: "LAL", teamName: "Los Angeles Lakers", value: 11.7, gamesPlayed: 42, imageUrl: getNbaHeadshot("203076") },
+    { playerId: "203497", name: "Rudy Gobert", team: "MIN", teamName: "Minnesota Timberwolves", value: 10.8, gamesPlayed: 46, imageUrl: getNbaHeadshot("203497") },
   ],
   apg: [
-    { playerId: "1629029", name: "Trae Young", team: "ATL", teamName: "Atlanta Hawks", value: 11.4, gamesPlayed: 44 },
-    { playerId: "203999", name: "Nikola Jokic", team: "DEN", teamName: "Denver Nuggets", value: 10.2, gamesPlayed: 48 },
-    { playerId: "666786", name: "Luka Doncic", team: "DAL", teamName: "Dallas Mavericks", value: 9.8, gamesPlayed: 45 },
-    { playerId: "1628378", name: "Tyrese Haliburton", team: "IND", teamName: "Indiana Pacers", value: 9.5, gamesPlayed: 40 },
-    { playerId: "201566", name: "LaMelo Ball", team: "CHA", teamName: "Charlotte Hornets", value: 8.2, gamesPlayed: 35 },
+    { playerId: "1629027", name: "Trae Young", team: "ATL", teamName: "Atlanta Hawks", value: 11.4, gamesPlayed: 44, imageUrl: getNbaHeadshot("1629027") },
+    { playerId: "203999", name: "Nikola Jokic", team: "DEN", teamName: "Denver Nuggets", value: 10.2, gamesPlayed: 48, imageUrl: getNbaHeadshot("203999") },
+    { playerId: "1629029", name: "Luka Doncic", team: "DAL", teamName: "Dallas Mavericks", value: 9.8, gamesPlayed: 45, imageUrl: getNbaHeadshot("1629029") },
+    { playerId: "1629639", name: "Tyrese Haliburton", team: "IND", teamName: "Indiana Pacers", value: 9.5, gamesPlayed: 40, imageUrl: getNbaHeadshot("1629639") },
+    { playerId: "1630163", name: "LaMelo Ball", team: "CHA", teamName: "Charlotte Hornets", value: 8.2, gamesPlayed: 35, imageUrl: getNbaHeadshot("1630163") },
   ],
   spg: [
-    { playerId: "201566", name: "De'Aaron Fox", team: "SAC", teamName: "Sacramento Kings", value: 2.1, gamesPlayed: 48 },
-    { playerId: "1628983", name: "Devin Booker", team: "PHX", teamName: "Phoenix Suns", value: 1.8, gamesPlayed: 45 },
-    { playerId: "203507", name: "Giannis Antetokounmpo", team: "MIL", teamName: "Milwaukee Bucks", value: 1.2, gamesPlayed: 42 },
-    { playerId: "1629029", name: "Trae Young", team: "ATL", teamName: "Atlanta Hawks", value: 1.3, gamesPlayed: 44 },
-    { playerId: "203999", name: "Nikola Jokic", team: "DEN", teamName: "Denver Nuggets", value: 1.4, gamesPlayed: 48 },
+    { playerId: "1628368", name: "De'Aaron Fox", team: "SAC", teamName: "Sacramento Kings", value: 2.1, gamesPlayed: 48, imageUrl: getNbaHeadshot("1628368") },
+    { playerId: "1626164", name: "Devin Booker", team: "PHX", teamName: "Phoenix Suns", value: 1.8, gamesPlayed: 45, imageUrl: getNbaHeadshot("1626164") },
+    { playerId: "203507", name: "Giannis Antetokounmpo", team: "MIL", teamName: "Milwaukee Bucks", value: 1.2, gamesPlayed: 42, imageUrl: getNbaHeadshot("203507") },
+    { playerId: "1629027", name: "Trae Young", team: "ATL", teamName: "Atlanta Hawks", value: 1.3, gamesPlayed: 44, imageUrl: getNbaHeadshot("1629027") },
+    { playerId: "203999", name: "Nikola Jokic", team: "DEN", teamName: "Denver Nuggets", value: 1.4, gamesPlayed: 48, imageUrl: getNbaHeadshot("203999") },
   ],
   bpg: [
-    { playerId: "1641705", name: "Victor Wembanyama", team: "SAS", teamName: "San Antonio Spurs", value: 3.8, gamesPlayed: 47 },
-    { playerId: "203944", name: "Anthony Davis", team: "LAL", teamName: "Los Angeles Lakers", value: 2.3, gamesPlayed: 42 },
-    { playerId: "1629627", name: "Rudy Gobert", team: "MIN", teamName: "Minnesota Timberwolves", value: 2.1, gamesPlayed: 46 },
-    { playerId: "203507", name: "Giannis Antetokounmpo", team: "MIL", teamName: "Milwaukee Bucks", value: 1.5, gamesPlayed: 42 },
-    { playerId: "1628991", name: "Jaren Jackson Jr.", team: "MEM", teamName: "Memphis Grizzlies", value: 1.8, gamesPlayed: 40 },
+    { playerId: "1641705", name: "Victor Wembanyama", team: "SAS", teamName: "San Antonio Spurs", value: 3.8, gamesPlayed: 47, imageUrl: getNbaHeadshot("1641705") },
+    { playerId: "203076", name: "Anthony Davis", team: "LAL", teamName: "Los Angeles Lakers", value: 2.3, gamesPlayed: 42, imageUrl: getNbaHeadshot("203076") },
+    { playerId: "203497", name: "Rudy Gobert", team: "MIN", teamName: "Minnesota Timberwolves", value: 2.1, gamesPlayed: 46, imageUrl: getNbaHeadshot("203497") },
+    { playerId: "203507", name: "Giannis Antetokounmpo", team: "MIL", teamName: "Milwaukee Bucks", value: 1.5, gamesPlayed: 42, imageUrl: getNbaHeadshot("203507") },
+    { playerId: "1628991", name: "Jaren Jackson Jr.", team: "MEM", teamName: "Memphis Grizzlies", value: 1.8, gamesPlayed: 40, imageUrl: getNbaHeadshot("1628991") },
   ],
   fg_pct: [
-    { playerId: "1629627", name: "Rudy Gobert", team: "MIN", teamName: "Minnesota Timberwolves", value: 66.8, gamesPlayed: 46 },
-    { playerId: "203999", name: "Nikola Jokic", team: "DEN", teamName: "Denver Nuggets", value: 58.2, gamesPlayed: 48 },
-    { playerId: "203507", name: "Giannis Antetokounmpo", team: "MIL", teamName: "Milwaukee Bucks", value: 60.5, gamesPlayed: 42 },
-    { playerId: "203944", name: "Anthony Davis", team: "LAL", teamName: "Los Angeles Lakers", value: 55.6, gamesPlayed: 42 },
-    { playerId: "666817", name: "Domantas Sabonis", team: "SAC", teamName: "Sacramento Kings", value: 59.4, gamesPlayed: 48 },
+    { playerId: "203497", name: "Rudy Gobert", team: "MIN", teamName: "Minnesota Timberwolves", value: 66.8, gamesPlayed: 46, imageUrl: getNbaHeadshot("203497") },
+    { playerId: "203999", name: "Nikola Jokic", team: "DEN", teamName: "Denver Nuggets", value: 58.2, gamesPlayed: 48, imageUrl: getNbaHeadshot("203999") },
+    { playerId: "203507", name: "Giannis Antetokounmpo", team: "MIL", teamName: "Milwaukee Bucks", value: 60.5, gamesPlayed: 42, imageUrl: getNbaHeadshot("203507") },
+    { playerId: "203076", name: "Anthony Davis", team: "LAL", teamName: "Los Angeles Lakers", value: 55.6, gamesPlayed: 42, imageUrl: getNbaHeadshot("203076") },
+    { playerId: "203506", name: "Domantas Sabonis", team: "SAC", teamName: "Sacramento Kings", value: 59.4, gamesPlayed: 48, imageUrl: getNbaHeadshot("203506") },
   ],
   three_pct: [
-    { playerId: "201142", name: "Kevin Durant", team: "PHX", teamName: "Phoenix Suns", value: 42.1, gamesPlayed: 40 },
-    { playerId: "1628983", name: "Devin Booker", team: "PHX", teamName: "Phoenix Suns", value: 38.9, gamesPlayed: 45 },
-    { playerId: "1628369", name: "Jayson Tatum", team: "BOS", teamName: "Boston Celtics", value: 37.6, gamesPlayed: 47 },
-    { playerId: "203081", name: "Damian Lillard", team: "MIL", teamName: "Milwaukee Bucks", value: 36.2, gamesPlayed: 44 },
-    { playerId: "203552", name: "Klay Thompson", team: "DAL", teamName: "Dallas Mavericks", value: 38.5, gamesPlayed: 46 },
+    { playerId: "201142", name: "Kevin Durant", team: "PHX", teamName: "Phoenix Suns", value: 42.1, gamesPlayed: 40, imageUrl: getNbaHeadshot("201142") },
+    { playerId: "1626164", name: "Devin Booker", team: "PHX", teamName: "Phoenix Suns", value: 38.9, gamesPlayed: 45, imageUrl: getNbaHeadshot("1626164") },
+    { playerId: "1628369", name: "Jayson Tatum", team: "BOS", teamName: "Boston Celtics", value: 37.6, gamesPlayed: 47, imageUrl: getNbaHeadshot("1628369") },
+    { playerId: "203081", name: "Damian Lillard", team: "MIL", teamName: "Milwaukee Bucks", value: 36.2, gamesPlayed: 44, imageUrl: getNbaHeadshot("203081") },
+    { playerId: "202691", name: "Klay Thompson", team: "DAL", teamName: "Dallas Mavericks", value: 38.5, gamesPlayed: 46, imageUrl: getNbaHeadshot("202691") },
   ],
 };
 
@@ -166,6 +170,7 @@ export async function GET(request: Request) {
           teamName: player?.team?.name || "Free Agent",
           value: Math.round(value * 10) / 10,
           gamesPlayed: stat._count.id,
+          imageUrl: player?.imageUrl || getNbaHeadshot(stat.playerId),
         };
       });
 
