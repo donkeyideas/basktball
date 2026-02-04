@@ -186,7 +186,8 @@ export default function TeamsPage() {
               fontSize: "14px",
             }}
           >
-            {leagueInfo?.fullName} • {teamCount} team{teamCount !== 1 ? "s" : ""}
+            {leagueInfo?.fullName}
+            {!isLoading && ` • ${teamCount} team${teamCount !== 1 ? "s" : ""}`}
           </p>
 
           {/* Filters Row */}
@@ -257,8 +258,63 @@ export default function TeamsPage() {
           </div>
 
           {isLoading ? (
-            <div style={{ textAlign: "center", padding: "60px" }}>
-              <p style={{ color: "rgba(255,255,255,0.5)" }}>Loading teams...</p>
+            <div>
+              {/* Skeleton loading cards */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                  gap: "20px",
+                }}
+              >
+                {[...Array(12)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="league-card"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "20px",
+                      padding: "20px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "60px",
+                        height: "60px",
+                        borderRadius: "50%",
+                        background: "rgba(255,255,255,0.1)",
+                        animation: "pulse 1.5s ease-in-out infinite",
+                      }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <div
+                        style={{
+                          width: "70%",
+                          height: "18px",
+                          background: "rgba(255,255,255,0.1)",
+                          marginBottom: "8px",
+                          animation: "pulse 1.5s ease-in-out infinite",
+                        }}
+                      />
+                      <div
+                        style={{
+                          width: "50%",
+                          height: "13px",
+                          background: "rgba(255,255,255,0.05)",
+                          animation: "pulse 1.5s ease-in-out infinite",
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <style>{`
+                @keyframes pulse {
+                  0%, 100% { opacity: 1; }
+                  50% { opacity: 0.5; }
+                }
+              `}</style>
             </div>
           ) : error ? (
             <div style={{ textAlign: "center", padding: "60px" }}>
@@ -269,11 +325,7 @@ export default function TeamsPage() {
               <p style={{ color: "rgba(255,255,255,0.5)" }}>
                 {searchQuery
                   ? `No teams found matching "${searchQuery}"`
-                  : `No ${leagueInfo?.name} teams available. ${
-                      selectedLeague === "nba"
-                        ? "Make sure BALLDONTLIE_API_KEY is configured."
-                        : "Data may be loading or unavailable."
-                    }`}
+                  : `No ${leagueInfo?.name} teams available at this time.`}
               </p>
             </div>
           ) : (
