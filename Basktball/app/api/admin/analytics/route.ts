@@ -104,17 +104,12 @@ export async function GET() {
     const topPages = pageViews.map((p) => ({
       page: p.page,
       views: p.views,
-      avgTime: "2:45", // Would need session tracking
-      bounceRate: "32%", // Would need session tracking
+      avgTime: "-", // Requires session tracking
+      bounceRate: "-", // Requires session tracking
     }));
 
-    // Traffic sources (estimated from API endpoints)
-    const trafficSources = [
-      { source: "Direct", percentage: 45 },
-      { source: "Search", percentage: 30 },
-      { source: "Social", percentage: 15 },
-      { source: "Referral", percentage: 10 },
-    ];
+    // Traffic sources - no tracking implemented yet
+    const trafficSources: Array<{ source: string; percentage: number }> = [];
 
     return NextResponse.json({
       success: true,
@@ -131,8 +126,8 @@ export async function GET() {
       overview: {
         totalVisitors7d,
         totalPageViews7d,
-        avgSessionDuration: "4:32",
-        bounceRate: 32.1,
+        avgSessionDuration: null, // Requires session tracking
+        bounceRate: null, // Requires session tracking
       },
       pageViews: pageViews.length > 0 ? pageViews : [
         { page: "/", views: 0, change: 0 },

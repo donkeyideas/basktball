@@ -2,16 +2,39 @@
 
 import { useState, useEffect } from "react";
 
-interface SeoData {
-  sitemapUrls: number;
+interface SearchConsole {
+  totalImpressions: number;
+  totalClicks: number;
+  averageCTR: number;
+  averagePosition: number;
   indexedPages: number;
-  lastSitemapUpdate: string | null;
-  metaTags: Array<{
-    page: string;
-    title: string;
-    description: string;
-    keywords: string;
-  }>;
+  pendingPages: number;
+  errorPages: number;
+}
+
+interface SeoScore {
+  category: string;
+  score: number;
+  status: "good" | "warning" | "error";
+  issues: string[];
+}
+
+interface PageData {
+  path: string;
+  title: string;
+  metaDescription: string;
+  keywords: string[];
+  lastCrawled: string;
+  indexStatus: string;
+  impressions: number;
+  clicks: number;
+  position: number;
+}
+
+interface SeoData {
+  searchConsole: SearchConsole;
+  seoScores: SeoScore[];
+  pages: PageData[];
 }
 
 export default function AdminSeoPage() {
@@ -24,7 +47,11 @@ export default function AdminSeoPage() {
       const res = await fetch("/api/admin/seo");
       const json = await res.json();
       if (json.success) {
-        setData(json);
+        setData({
+          searchConsole: json.searchConsole,
+          seoScores: json.seoScores,
+          pages: json.pages,
+        });
         setError(null);
       } else {
         setError(json.error || "Failed to load SEO data");
@@ -40,27 +67,13 @@ export default function AdminSeoPage() {
     fetchSeo();
   }, []);
 
-  async function regenerateSitemap() {
-    try {
-      await fetch("/api/admin/seo/sitemap", { method: "POST" });
-      await fetchSeo();
-    } catch {
-      // Silent fail
-    }
-  }
-
   return (
     <>
       <div className="admin-header">
         <h1>SEO MANAGEMENT</h1>
-        <div style={{ display: "flex", gap: "15px" }}>
-          <button className="btn btn-secondary" onClick={regenerateSitemap}>
-            Regenerate Sitemap
-          </button>
-          <button className="btn btn-primary" onClick={fetchSeo}>
-            Refresh
-          </button>
-        </div>
+        <button className="btn btn-primary" onClick={fetchSeo}>
+          Refresh
+        </button>
       </div>
 
       <div className="admin-content">
@@ -74,22 +87,44 @@ export default function AdminSeoPage() {
           </div>
         ) : (
           <>
-            {/* Stats */}
+            {/* Search Console Stats */}
             <div style={{
               display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
+              gridTemplateColumns: "repeat(4, 1fr)",
               gap: "20px",
               marginBottom: "40px"
             }}>
               <div className="stat-card">
                 <div className="stat-icon">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14 2 14 8 20 8" />
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
                   </svg>
                 </div>
-                <div className="value">{data?.sitemapUrls || 0}</div>
-                <div className="label">Sitemap URLs</div>
+                <div className="value">{data?.searchConsole?.totalImpressions?.toLocaleString() ?? "-"}</div>
+                <div className="label">Total Impressions</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+                    <polyline points="10 17 15 12 10 7" />
+                    <line x1="15" y1="12" x2="3" y2="12" />
+                  </svg>
+                </div>
+                <div className="value">{data?.searchConsole?.totalClicks?.toLocaleString() ?? "-"}</div>
+                <div className="label">Total Clicks</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="18" y1="20" x2="18" y2="10" />
+                    <line x1="12" y1="20" x2="12" y2="4" />
+                    <line x1="6" y1="20" x2="6" y2="14" />
+                  </svg>
+                </div>
+                <div className="value">{data?.searchConsole?.averageCTR ?? "-"}%</div>
+                <div className="label">Average CTR</div>
               </div>
               <div className="stat-card">
                 <div className="stat-icon">
@@ -98,22 +133,57 @@ export default function AdminSeoPage() {
                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
                   </svg>
                 </div>
-                <div className="value">{data?.indexedPages || 0}</div>
+                <div className="value">{data?.searchConsole?.averagePosition ?? "-"}</div>
+                <div className="label">Avg Position</div>
+              </div>
+            </div>
+
+            {/* Index Status */}
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "20px",
+              marginBottom: "40px"
+            }}>
+              <div className="stat-card">
+                <div className="value" style={{ color: "var(--green)" }}>{data?.searchConsole?.indexedPages ?? "-"}</div>
                 <div className="label">Indexed Pages</div>
               </div>
               <div className="stat-card">
-                <div className="stat-icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="10" />
-                    <polyline points="12 6 12 12 16 14" />
-                  </svg>
-                </div>
-                <div className="value">
-                  {data?.lastSitemapUpdate
-                    ? new Date(data.lastSitemapUpdate).toLocaleDateString()
-                    : "Never"}
-                </div>
-                <div className="label">Last Sitemap Update</div>
+                <div className="value" style={{ color: "var(--yellow)" }}>{data?.searchConsole?.pendingPages ?? "-"}</div>
+                <div className="label">Pending Pages</div>
+              </div>
+              <div className="stat-card">
+                <div className="value" style={{ color: "var(--red)" }}>{data?.searchConsole?.errorPages ?? "-"}</div>
+                <div className="label">Error Pages</div>
+              </div>
+            </div>
+
+            {/* SEO Health Scores */}
+            <div className="section">
+              <div className="section-title">SEO Health</div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "15px" }}>
+                {(data?.seoScores || []).map((score, index) => (
+                  <div key={index} style={{
+                    background: "var(--dark-gray)",
+                    padding: "20px",
+                    textAlign: "center"
+                  }}>
+                    <div style={{
+                      fontSize: "28px",
+                      fontWeight: "bold",
+                      color: score.status === "good" ? "var(--green)" : score.status === "warning" ? "var(--yellow)" : "var(--red)"
+                    }}>
+                      {score.score}%
+                    </div>
+                    <div style={{ color: "rgba(255,255,255,0.7)", marginTop: "5px" }}>{score.category}</div>
+                    {score.issues.length > 0 && (
+                      <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", marginTop: "10px" }}>
+                        {score.issues[0]}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
 
@@ -149,31 +219,46 @@ export default function AdminSeoPage() {
               </div>
             </div>
 
-            {/* Meta Tags */}
+            {/* Top Pages */}
             <div className="section">
-              <div className="section-title">Page Meta Tags</div>
+              <div className="section-title">Top Pages</div>
               <table className="jobs-table">
                 <thead>
                   <tr>
                     <th>PAGE</th>
-                    <th>TITLE</th>
-                    <th>DESCRIPTION</th>
+                    <th>IMPRESSIONS</th>
+                    <th>CLICKS</th>
+                    <th>POSITION</th>
+                    <th>STATUS</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {(data?.metaTags || []).map((meta, index) => (
+                  {(data?.pages || []).map((page, index) => (
                     <tr key={index}>
-                      <td style={{ fontWeight: "600" }}>{meta.page}</td>
-                      <td style={{ maxWidth: "300px" }}>{meta.title}</td>
-                      <td style={{ maxWidth: "400px", color: "rgba(255,255,255,0.6)" }}>
-                        {meta.description?.slice(0, 100)}...
+                      <td>
+                        <div style={{ fontWeight: "600" }}>{page.path}</div>
+                        <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>{page.title}</div>
+                      </td>
+                      <td style={{ fontFamily: "var(--font-roboto-mono), monospace" }}>
+                        {page.impressions.toLocaleString()}
+                      </td>
+                      <td style={{ fontFamily: "var(--font-roboto-mono), monospace" }}>
+                        {page.clicks.toLocaleString()}
+                      </td>
+                      <td style={{ fontFamily: "var(--font-roboto-mono), monospace" }}>
+                        {page.position.toFixed(1)}
+                      </td>
+                      <td>
+                        <span className={`job-status ${page.indexStatus === "indexed" ? "success" : "paused"}`}>
+                          {page.indexStatus.toUpperCase()}
+                        </span>
                       </td>
                     </tr>
                   ))}
-                  {(!data?.metaTags || data.metaTags.length === 0) && (
+                  {(!data?.pages || data.pages.length === 0) && (
                     <tr>
-                      <td colSpan={3} style={{ textAlign: "center", color: "rgba(255,255,255,0.5)" }}>
-                        No meta tag data available
+                      <td colSpan={5} style={{ textAlign: "center", color: "rgba(255,255,255,0.5)" }}>
+                        No page data available
                       </td>
                     </tr>
                   )}
