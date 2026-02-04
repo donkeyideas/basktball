@@ -6,6 +6,7 @@ export type { DeepSeekMessage, DeepSeekOptions, DeepSeekResponse } from "./deeps
 
 export {
   generateGameRecap,
+  generateGamePreview,
   generatePlayerAnalysis,
   generateBettingInsights,
   generateFantasyTips,

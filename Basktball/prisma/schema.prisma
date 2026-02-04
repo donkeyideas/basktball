@@ -34,6 +34,7 @@ enum GameStatus {
 
 enum InsightType {
   GAME_RECAP
+  GAME_PREVIEW
   PLAYER_ANALYSIS
   BETTING
   FANTASY

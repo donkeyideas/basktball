@@ -51,6 +51,16 @@ Your tips should:
 - Suggest sleeper picks with reasoning
 Focus on actionable advice for both cash games and tournaments.`,
 
+  // Game preview writer
+  gamePreview: `You are a professional sports journalist writing game previews for Basktball.com.
+Your previews should:
+- Build excitement for the upcoming matchup
+- Highlight key players to watch from both teams
+- Mention recent team form and head-to-head records if relevant
+- Discuss potential storylines and what to watch for
+- Be engaging and informative (2-3 paragraphs max)
+Write with enthusiasm while remaining factual and analytical.`,
+
   // Trending story writer
   trending: `You are a basketball journalist writing trending stories for Basktball.com.
 Your stories should:
@@ -173,6 +183,31 @@ ${topic.context ? `**Context:** ${topic.context}` : ""}
 
 Write a 3-4 paragraph story that covers this topic with analysis and insight.`,
 
+  // Game preview
+  gamePreview: (game: {
+    homeTeam: string;
+    awayTeam: string;
+    gameDate: string;
+    homeRecord?: string;
+    awayRecord?: string;
+    homeKeyPlayers?: string[];
+    awayKeyPlayers?: string[];
+    context?: string;
+  }) => `Write a preview for the following upcoming basketball game:
+
+**Matchup:** ${game.awayTeam} @ ${game.homeTeam}
+**Date:** ${game.gameDate}
+
+${game.homeRecord ? `**${game.homeTeam} Record:** ${game.homeRecord}` : ""}
+${game.awayRecord ? `**${game.awayTeam} Record:** ${game.awayRecord}` : ""}
+
+${game.homeKeyPlayers ? `**${game.homeTeam} Key Players:** ${game.homeKeyPlayers.join(", ")}` : ""}
+${game.awayKeyPlayers ? `**${game.awayTeam} Key Players:** ${game.awayKeyPlayers.join(", ")}` : ""}
+
+${game.context ? `**Context:** ${game.context}` : ""}
+
+Write a 2-3 paragraph preview that builds excitement and highlights what to watch for in this game.`,
+
   // Quick stat summary
   quickStats: (player: {
     name: string;
@@ -219,6 +254,7 @@ Format as JSON: {"winner": "", "score": "", "confidence": "", "keyFactor": ""}`,
 // Token limits by content type
 export const TOKEN_LIMITS = {
   gameRecap: 400,
+  gamePreview: 400,
   playerAnalysis: 350,
   bettingInsights: 300,
   fantasyTips: 400,
@@ -230,6 +266,7 @@ export const TOKEN_LIMITS = {
 // Temperature settings by content type
 export const TEMPERATURE_SETTINGS = {
   gameRecap: 0.7,
+  gamePreview: 0.7,
   playerAnalysis: 0.6,
   bettingInsights: 0.5, // More factual
   fantasyTips: 0.6,

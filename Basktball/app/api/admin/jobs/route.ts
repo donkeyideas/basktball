@@ -19,8 +19,14 @@ const jobDefinitions = [
   },
   {
     name: "generate-insights",
-    description: "Generate AI content for recent games",
+    description: "Generate AI recaps for completed games",
     schedule: "Daily at 6:00 AM",
+    enabled: true,
+  },
+  {
+    name: "generate-previews",
+    description: "Generate AI previews for upcoming games",
+    schedule: "Daily at 8:00 AM",
     enabled: true,
   },
   {

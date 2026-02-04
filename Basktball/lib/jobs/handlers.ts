@@ -5,7 +5,7 @@ import { JobResult } from "./runner";
 import { basketballApi } from "@/lib/api";
 import { gamesCache, CacheTTL, CacheKeys, insightsCache } from "@/lib/cache";
 import { prisma } from "@/lib/db/prisma";
-import { generateGameRecap, generatePlayerAnalysis } from "@/lib/ai";
+import { generateGameRecap, generateGamePreview, generatePlayerAnalysis } from "@/lib/ai";
 
 // =============================================================================
 // FETCH LIVE SCORES
@@ -273,6 +273,113 @@ export async function generateAiInsights(): Promise<JobResult> {
       itemsProcessed: insightsGenerated,
       message: `Generated ${insightsGenerated} AI insights from ${gamesWithoutRecaps.length} games`,
       metadata: { insightsGenerated, gamesProcessed: gamesWithoutRecaps.length, totalGames, finalGames },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+// =============================================================================
+// GENERATE GAME PREVIEWS
+// Runs daily at 8 AM to generate AI preview content for upcoming scheduled games
+// =============================================================================
+export async function generateGamePreviews(): Promise<JobResult> {
+  try {
+    let previewsGenerated = 0;
+
+    // Get upcoming scheduled games (next 3 days) that don't have previews
+    const now = new Date();
+    const threeDaysLater = new Date();
+    threeDaysLater.setDate(threeDaysLater.getDate() + 3);
+
+    // First, count games by status for diagnostics
+    const totalGames = await prisma.game.count();
+    const scheduledGames = await prisma.game.count({ where: { status: "SCHEDULED" } });
+
+    if (scheduledGames === 0) {
+      return {
+        success: true,
+        itemsProcessed: 0,
+        message: `No scheduled games found. Total games in DB: ${totalGames}`,
+        metadata: { totalGames, scheduledGames },
+      };
+    }
+
+    const gamesWithoutPreviews = await prisma.game.findMany({
+      where: {
+        status: "SCHEDULED",
+        gameDate: {
+          gte: now,
+          lte: threeDaysLater,
+        },
+        insights: {
+          none: {
+            type: "GAME_PREVIEW",
+          },
+        },
+      },
+      include: {
+        homeTeam: true,
+        awayTeam: true,
+      },
+      orderBy: { gameDate: "asc" },
+      take: 10, // Limit to 10 per run to manage API costs
+    });
+
+    if (gamesWithoutPreviews.length === 0) {
+      return {
+        success: true,
+        itemsProcessed: 0,
+        message: `All upcoming games already have previews (${scheduledGames} scheduled games total)`,
+        metadata: { totalGames, scheduledGames, gamesNeedingPreviews: 0 },
+      };
+    }
+
+    for (const game of gamesWithoutPreviews) {
+      try {
+        // Generate game preview
+        const preview = await generateGamePreview({
+          homeTeam: game.homeTeam.name,
+          awayTeam: game.awayTeam.name,
+          gameDate: game.gameDate,
+          context: game.isPlayoffs ? "Playoff game" : undefined,
+        });
+
+        // Store in database
+        await prisma.aiInsight.create({
+          data: {
+            type: "GAME_PREVIEW",
+            title: `${game.awayTeam.abbreviation} @ ${game.homeTeam.abbreviation} Preview`,
+            content: preview.content,
+            summary: preview.summary,
+            gameId: game.id,
+            confidence: preview.confidence,
+            tokenUsage: preview.tokensUsed,
+            approved: preview.confidence >= 0.8,
+          },
+        });
+
+        // Cache the insight
+        await insightsCache.set(
+          CacheKeys.insight("game_preview", game.id),
+          preview,
+          CacheTTL.AI_INSIGHTS
+        );
+
+        previewsGenerated++;
+      } catch (error) {
+        console.error(`Failed to generate preview for game ${game.id}:`, error);
+      }
+    }
+
+    return {
+      success: true,
+      itemsProcessed: previewsGenerated,
+      message: `Generated ${previewsGenerated} game previews from ${gamesWithoutPreviews.length} scheduled games`,
+      metadata: { previewsGenerated, gamesProcessed: gamesWithoutPreviews.length, totalGames, scheduledGames },
     };
   } catch (error) {
     return {

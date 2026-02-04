@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { NotificationModal } from "@/components/admin/NotificationModal";
 
 interface Job {
   id: string;
@@ -42,6 +43,12 @@ export default function AdminJobsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [runningJob, setRunningJob] = useState<string | null>(null);
+  const [modal, setModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: "success" | "error" | "info" | "warning";
+  }>({ isOpen: false, title: "", message: "", type: "info" });
 
   async function fetchJobs() {
     try {
@@ -77,15 +84,29 @@ export default function AdminJobsPage() {
       });
       const data = await res.json();
       if (data.success) {
-        // Show result message
         const message = data.result?.message || "Job completed successfully";
-        alert(message);
+        setModal({
+          isOpen: true,
+          title: "Job Completed",
+          message: message,
+          type: "success",
+        });
       } else {
-        alert(`Job failed: ${data.error}`);
+        setModal({
+          isOpen: true,
+          title: "Job Failed",
+          message: data.error || "Unknown error occurred",
+          type: "error",
+        });
       }
       await fetchJobs();
     } catch {
-      alert("Failed to run job");
+      setModal({
+        isOpen: true,
+        title: "Connection Error",
+        message: "Failed to connect to server. Please try again.",
+        type: "error",
+      });
     } finally {
       setRunningJob(null);
     }
@@ -104,6 +125,13 @@ export default function AdminJobsPage() {
 
   return (
     <>
+      <NotificationModal
+        isOpen={modal.isOpen}
+        onClose={() => setModal({ ...modal, isOpen: false })}
+        title={modal.title}
+        message={modal.message}
+        type={modal.type}
+      />
       <div className="admin-header">
         <h1>SCHEDULED JOBS</h1>
         <button className="btn btn-primary" onClick={fetchJobs}>

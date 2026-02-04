@@ -12,6 +12,7 @@ import { prisma } from "@/lib/db/prisma";
 
 export type ContentType =
   | "GAME_RECAP"
+  | "GAME_PREVIEW"
   | "PLAYER_ANALYSIS"
   | "BETTING"
   | "FANTASY"
@@ -38,7 +39,7 @@ function validateContent(content: string, type: ContentType): ContentValidation 
   let confidence = 1.0;
 
   // Check minimum length
-  const minLength = type === "GAME_RECAP" ? 200 : 150;
+  const minLength = type === "GAME_RECAP" || type === "GAME_PREVIEW" ? 200 : 150;
   if (content.length < minLength) {
     issues.push("Content too short");
     confidence -= 0.2;
@@ -133,6 +134,64 @@ export async function generateGameRecap(game: {
       gameId: game.id,
       homeTeam: homeTeamName,
       awayTeam: awayTeamName,
+      validation,
+    },
+  };
+}
+
+// Game Preview Generator
+export async function generateGamePreview(game: {
+  id?: string;
+  homeTeam: string | { name: string; abbreviation: string };
+  awayTeam: string | { name: string; abbreviation: string };
+  gameDate: Date | string;
+  homeRecord?: string;
+  awayRecord?: string;
+  homeKeyPlayers?: string[];
+  awayKeyPlayers?: string[];
+  context?: string;
+}): Promise<GeneratedContent> {
+  const homeTeamName = typeof game.homeTeam === "string" ? game.homeTeam : game.homeTeam.name;
+  const awayTeamName = typeof game.awayTeam === "string" ? game.awayTeam : game.awayTeam.name;
+  const gameDateStr = game.gameDate instanceof Date
+    ? game.gameDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })
+    : game.gameDate;
+
+  const prompt = PROMPT_TEMPLATES.gamePreview({
+    homeTeam: homeTeamName,
+    awayTeam: awayTeamName,
+    gameDate: gameDateStr,
+    homeRecord: game.homeRecord,
+    awayRecord: game.awayRecord,
+    homeKeyPlayers: game.homeKeyPlayers,
+    awayKeyPlayers: game.awayKeyPlayers,
+    context: game.context,
+  });
+
+  const options: DeepSeekOptions = {
+    temperature: TEMPERATURE_SETTINGS.gamePreview,
+    maxTokens: TOKEN_LIMITS.gamePreview,
+  };
+
+  const result = await deepseek.generate(prompt, SYSTEM_PROMPTS.gamePreview, options);
+
+  const validation = validateContent(result.content, "GAME_PREVIEW");
+
+  // Extract a summary (first 2 sentences)
+  const sentences = result.content.split(/[.!?]+/).filter((s) => s.trim().length > 10);
+  const summary = sentences.slice(0, 2).join(". ").trim() + ".";
+
+  return {
+    content: result.content,
+    summary,
+    tokenUsage: result.tokenUsage,
+    tokensUsed: result.tokenUsage,
+    confidence: validation.confidence,
+    metadata: {
+      gameId: game.id,
+      homeTeam: homeTeamName,
+      awayTeam: awayTeamName,
+      gameDate: gameDateStr,
       validation,
     },
   };

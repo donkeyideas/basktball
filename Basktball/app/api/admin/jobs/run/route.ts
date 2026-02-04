@@ -18,6 +18,10 @@ const jobHandlers: Record<string, () => Promise<{ success: boolean; message?: st
     const { generateAiInsights } = await import("@/lib/jobs/handlers");
     return generateAiInsights();
   },
+  "generate-previews": async () => {
+    const { generateGamePreviews } = await import("@/lib/jobs/handlers");
+    return generateGamePreviews();
+  },
   "update-standings": async () => {
     const { updateStandings } = await import("@/lib/jobs/handlers");
     return updateStandings();
