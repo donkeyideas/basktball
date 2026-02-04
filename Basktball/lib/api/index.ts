@@ -4,9 +4,7 @@
 
 import { nbaApi } from "./nba";
 import { espnApi } from "./espn";
-import { NormalizedGame, NormalizedPlayer, NormalizedTeam } from "./types";
-
-export type League = "nba" | "wnba" | "ncaam" | "ncaaw" | "euro" | "intl";
+import { League, NormalizedGame, NormalizedPlayer, NormalizedTeam } from "./types";
 
 export class BasketballApi {
   // Get games for a specific league and date
@@ -74,9 +72,67 @@ export class BasketballApi {
     return liveGames;
   }
 
-  // Get NBA teams
-  async getTeams(): Promise<NormalizedTeam[]> {
-    return nbaApi.getTeams();
+  // Get teams by league
+  async getTeamsByLeague(league: League): Promise<NormalizedTeam[]> {
+    switch (league) {
+      case "nba":
+        return nbaApi.getTeams();
+      case "wnba":
+        return espnApi.getWnbaTeams();
+      case "ncaam":
+        return espnApi.getNcaaMTeams();
+      case "ncaaw":
+        return espnApi.getNcaaWTeams();
+      case "euro":
+      case "intl":
+        // No free API available for these leagues yet
+        return [];
+      default:
+        return [];
+    }
+  }
+
+  // Get all teams across all supported leagues
+  async getTeams(league?: League): Promise<NormalizedTeam[]> {
+    // If specific league requested, return just that league
+    if (league) {
+      return this.getTeamsByLeague(league);
+    }
+
+    // Get teams from all leagues
+    const [nba, wnba, ncaam, ncaaw] = await Promise.all([
+      this.getTeamsByLeague("nba"),
+      this.getTeamsByLeague("wnba"),
+      this.getTeamsByLeague("ncaam"),
+      this.getTeamsByLeague("ncaaw"),
+    ]);
+
+    // Add league identifier to each team
+    const nbaTeams = nba.map((t) => ({ ...t, league: "nba" as League }));
+    const wnbaTeams = wnba.map((t) => ({ ...t, league: "wnba" as League }));
+    const ncaamTeams = ncaam.map((t) => ({ ...t, league: "ncaam" as League }));
+    const ncaawTeams = ncaaw.map((t) => ({ ...t, league: "ncaaw" as League }));
+
+    return [...nbaTeams, ...wnbaTeams, ...ncaamTeams, ...ncaawTeams];
+  }
+
+  // Get teams grouped by league
+  async getTeamsGrouped(): Promise<Record<League, NormalizedTeam[]>> {
+    const [nba, wnba, ncaam, ncaaw] = await Promise.all([
+      this.getTeamsByLeague("nba"),
+      this.getTeamsByLeague("wnba"),
+      this.getTeamsByLeague("ncaam"),
+      this.getTeamsByLeague("ncaaw"),
+    ]);
+
+    return {
+      nba,
+      wnba,
+      ncaam,
+      ncaaw,
+      euro: [],
+      intl: [],
+    };
   }
 
   // Get single team

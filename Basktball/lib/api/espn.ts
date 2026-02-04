@@ -258,6 +258,91 @@ export class EspnApiClient {
         return [];
     }
   }
+
+  // Get WNBA teams
+  async getWnbaTeams(): Promise<NormalizedTeam[]> {
+    const cacheKey = "espn:wnba:teams";
+    const cached = getFromCache<NormalizedTeam[]>(cacheKey);
+    if (cached) return cached;
+
+    try {
+      const data = await fetchEspn<{ sports: Array<{ leagues: Array<{ teams: Array<{ team: EspnTeam }> }> }> }>(
+        "/wnba/teams"
+      );
+      const teams = data.sports?.[0]?.leagues?.[0]?.teams?.map((t) => ({
+        ...normalizeEspnTeam(t.team),
+        league: "wnba" as const,
+      })) || [];
+
+      setCache(cacheKey, teams, 3600000); // 1 hour cache
+      return teams;
+    } catch (error) {
+      console.error("ESPN WNBA teams fetch error:", error);
+      return [];
+    }
+  }
+
+  // Get NCAA Men's Basketball teams (top 25 / ranked)
+  async getNcaaMTeams(): Promise<NormalizedTeam[]> {
+    const cacheKey = "espn:ncaam:teams";
+    const cached = getFromCache<NormalizedTeam[]>(cacheKey);
+    if (cached) return cached;
+
+    try {
+      const data = await fetchEspn<{ sports: Array<{ leagues: Array<{ teams: Array<{ team: EspnTeam }> }> }> }>(
+        "/mens-college-basketball/teams?limit=100"
+      );
+      const teams = data.sports?.[0]?.leagues?.[0]?.teams?.map((t) => ({
+        ...normalizeEspnTeam(t.team),
+        league: "ncaam" as const,
+      })) || [];
+
+      setCache(cacheKey, teams, 3600000); // 1 hour cache
+      return teams;
+    } catch (error) {
+      console.error("ESPN NCAAM teams fetch error:", error);
+      return [];
+    }
+  }
+
+  // Get NCAA Women's Basketball teams
+  async getNcaaWTeams(): Promise<NormalizedTeam[]> {
+    const cacheKey = "espn:ncaaw:teams";
+    const cached = getFromCache<NormalizedTeam[]>(cacheKey);
+    if (cached) return cached;
+
+    try {
+      const data = await fetchEspn<{ sports: Array<{ leagues: Array<{ teams: Array<{ team: EspnTeam }> }> }> }>(
+        "/womens-college-basketball/teams?limit=100"
+      );
+      const teams = data.sports?.[0]?.leagues?.[0]?.teams?.map((t) => ({
+        ...normalizeEspnTeam(t.team),
+        league: "ncaaw" as const,
+      })) || [];
+
+      setCache(cacheKey, teams, 3600000); // 1 hour cache
+      return teams;
+    } catch (error) {
+      console.error("ESPN NCAAW teams fetch error:", error);
+      return [];
+    }
+  }
+
+  // Get teams by league
+  async getTeamsByLeague(
+    league: "wnba" | "ncaam" | "ncaaw"
+  ): Promise<NormalizedTeam[]> {
+    switch (league) {
+      case "wnba":
+        return this.getWnbaTeams();
+      case "ncaam":
+        return this.getNcaaMTeams();
+      case "ncaaw":
+        return this.getNcaaWTeams();
+      default:
+        return [];
+    }
+  }
 }
 
 // Export singleton

@@ -77,6 +77,9 @@ export interface PaginatedResponse<T> {
   };
 }
 
+// League type
+export type League = "nba" | "wnba" | "ncaam" | "ncaaw" | "euro" | "intl";
+
 // Normalized types for our application
 export interface NormalizedTeam {
   id: string;
@@ -86,6 +89,7 @@ export interface NormalizedTeam {
   logoUrl: string;
   conference?: string;
   division?: string;
+  league?: League;
 }
 
 export interface NormalizedGame {
