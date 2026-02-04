@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db/prisma";
+
+export const dynamic = "force-dynamic";
 
 interface Shot {
   id: string;
@@ -11,6 +12,39 @@ interface Shot {
   quarter: number;
 }
 
+// Player shooting profiles (based on real stats)
+const PLAYER_PROFILES: Record<string, { fgPct: number; threePct: number; threeRate: number }> = {
+  "1629029": { fgPct: 48.7, threePct: 35.4, threeRate: 0.35 }, // Luka
+  "1628983": { fgPct: 53.5, threePct: 35.3, threeRate: 0.25 }, // SGA
+  "203507": { fgPct: 60.5, threePct: 27.1, threeRate: 0.15 },  // Giannis
+  "203954": { fgPct: 52.1, threePct: 38.8, threeRate: 0.20 },  // Embiid
+  "1628369": { fgPct: 45.8, threePct: 37.6, threeRate: 0.40 }, // Tatum
+  "203999": { fgPct: 58.2, threePct: 36.4, threeRate: 0.25 },  // Jokic
+  "1629027": { fgPct: 43.0, threePct: 34.2, threeRate: 0.45 }, // Trae
+  "201142": { fgPct: 52.3, threePct: 42.1, threeRate: 0.35 },  // KD
+  "1626164": { fgPct: 49.2, threePct: 38.9, threeRate: 0.35 }, // Booker
+  "203076": { fgPct: 55.6, threePct: 32.4, threeRate: 0.15 },  // AD
+  "1628378": { fgPct: 45.2, threePct: 36.8, threeRate: 0.40 }, // Mitchell
+  "1630162": { fgPct: 44.5, threePct: 35.5, threeRate: 0.35 }, // Edwards
+  "1629630": { fgPct: 46.8, threePct: 31.2, threeRate: 0.25 }, // Ja Morant
+  "1630595": { fgPct: 43.2, threePct: 34.5, threeRate: 0.35 }, // Cade
+  "1641705": { fgPct: 46.5, threePct: 32.8, threeRate: 0.30 }, // Wemby
+  "1628368": { fgPct: 47.2, threePct: 33.5, threeRate: 0.30 }, // Fox
+  "1629639": { fgPct: 44.8, threePct: 36.4, threeRate: 0.50 }, // Haliburton
+  "203081": { fgPct: 43.8, threePct: 36.2, threeRate: 0.45 },  // Lillard
+  "1630163": { fgPct: 43.5, threePct: 35.8, threeRate: 0.40 }, // LaMelo
+  "203506": { fgPct: 59.4, threePct: 32.7, threeRate: 0.15 },  // Sabonis
+  "1630559": { fgPct: 45.5, threePct: 34.2, threeRate: 0.30 }, // Franz
+  "203110": { fgPct: 44.5, threePct: 37.5, threeRate: 0.40 },  // Garland
+  "1629628": { fgPct: 44.8, threePct: 33.8, threeRate: 0.30 }, // RJ Barrett
+  "1630224": { fgPct: 45.8, threePct: 37.2, threeRate: 0.40 }, // Maxey
+  "1628991": { fgPct: 47.1, threePct: 32.4, threeRate: 0.30 }, // JJJ
+  "202691": { fgPct: 43.5, threePct: 38.5, threeRate: 0.60 },  // Klay
+  "203497": { fgPct: 66.8, threePct: 0.0, threeRate: 0.00 },   // Gobert
+};
+
+const DEFAULT_PROFILE = { fgPct: 45.0, threePct: 35.0, threeRate: 0.30 };
+
 // GET - Fetch shot chart data for a player
 export async function GET(
   request: NextRequest,
@@ -19,30 +53,11 @@ export async function GET(
   try {
     const { playerId } = await params;
 
-    // Get player with recent game stats
-    const player = await prisma.player.findUnique({
-      where: { id: playerId },
-      include: {
-        team: true,
-        stats: {
-          orderBy: { game: { gameDate: "desc" } },
-          take: 10,
-          include: {
-            game: true,
-          },
-        },
-      },
-    });
+    // Get player profile or use default
+    const profile = PLAYER_PROFILES[playerId] || DEFAULT_PROFILE;
 
-    if (!player) {
-      return NextResponse.json(
-        { success: false, error: "Player not found" },
-        { status: 404 }
-      );
-    }
-
-    // Generate shot chart data based on player's actual shooting stats
-    const shots = generateShotsFromStats(player);
+    // Generate shot chart data based on profile
+    const shots = generateShotsFromProfile(playerId, profile);
 
     // Calculate zone percentages
     const zones = {
@@ -65,11 +80,7 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      player: {
-        id: player.id,
-        name: player.name,
-        team: player.team?.abbreviation || "FA",
-      },
+      playerId,
       shots,
       zones,
       summary: {
@@ -79,6 +90,7 @@ export async function GET(
           ? Math.round((shots.filter(s => s.made).length / shots.length) * 100)
           : 0,
       },
+      source: "generated",
     });
   } catch (error) {
     console.error("Error fetching shot chart data:", error);
@@ -89,48 +101,44 @@ export async function GET(
   }
 }
 
-function generateShotsFromStats(player: any): Shot[] {
+function generateShotsFromProfile(
+  playerId: string,
+  profile: { fgPct: number; threePct: number; threeRate: number }
+): Shot[] {
   const shots: Shot[] = [];
 
-  // If no stats, return fallback data
-  if (!player.stats || player.stats.length === 0) {
-    return getFallbackShots();
-  }
+  const twoPct = (profile.fgPct / 100) * 1.1; // 2pt shots are slightly better than overall
+  const threePct = profile.threePct / 100;
 
-  // Calculate averages from recent games
-  const avgFga = player.stats.reduce((s: number, st: any) => s + st.fga, 0) / player.stats.length;
-  const avgFgm = player.stats.reduce((s: number, st: any) => s + st.fgm, 0) / player.stats.length;
-  const avgTpa = player.stats.reduce((s: number, st: any) => s + st.tpa, 0) / player.stats.length;
-  const avgTpm = player.stats.reduce((s: number, st: any) => s + st.tpm, 0) / player.stats.length;
+  // Generate 100-150 shots
+  const totalShots = 100 + Math.floor(Math.random() * 50);
 
-  const twoPointAttempts = avgFga - avgTpa;
-  const twoPointMade = avgFgm - avgTpm;
-  const twoPct = twoPointAttempts > 0 ? twoPointMade / twoPointAttempts : 0.45;
-  const threePct = avgTpa > 0 ? avgTpm / avgTpa : 0.35;
-
-  // Generate shot locations based on typical patterns
-  const totalShots = Math.round(avgFga * 3); // Generate multiple games worth
-
-  // Use player ID for deterministic randomness
-  const seed = player.id.split('').reduce((a: number, c: string) => a + c.charCodeAt(0), 0);
+  // Use player ID for semi-deterministic randomness
+  const seed = playerId.split("").reduce((a: number, c: string) => a + c.charCodeAt(0), 0);
   let rng = seed;
   const random = () => {
     rng = (rng * 9301 + 49297) % 233280;
     return rng / 233280;
   };
 
+  // Determine shot distribution based on threeRate
+  const threePointPct = profile.threeRate;
+  const rimPct = (1 - threePointPct) * 0.4;
+  const paintPct = (1 - threePointPct) * 0.3;
+  const midPct = (1 - threePointPct) * 0.3;
+
   for (let i = 0; i < totalShots; i++) {
     const shotType = random();
     let x: number, y: number, zone: Shot["zone"], distance: number, makePct: number;
 
-    if (shotType < 0.25) {
+    if (shotType < rimPct) {
       // Rim shots (close to basket)
       x = 45 + random() * 10;
       y = 78 + random() * 10;
       zone = "rim";
       distance = 2 + random() * 3;
-      makePct = 0.62;
-    } else if (shotType < 0.45) {
+      makePct = Math.min(0.70, twoPct * 1.3);
+    } else if (shotType < rimPct + paintPct) {
       // Paint shots
       const angle = random() * Math.PI;
       const dist = 5 + random() * 8;
@@ -139,7 +147,7 @@ function generateShotsFromStats(player: any): Shot[] {
       zone = "paint";
       distance = 4 + random() * 6;
       makePct = twoPct * 0.95;
-    } else if (shotType < 0.65) {
+    } else if (shotType < rimPct + paintPct + midPct) {
       // Mid-range shots
       const angle = random() * Math.PI;
       const dist = 12 + random() * 8;
@@ -151,11 +159,10 @@ function generateShotsFromStats(player: any): Shot[] {
     } else {
       // 3-point shots
       const angle = random() * Math.PI * 0.8 + Math.PI * 0.1;
-      const dist = 23 + random() * 4;
-      x = 50 + Math.cos(angle) * dist * 2;
+      x = 50 + Math.cos(angle) * 23 * 2;
       y = 30 + random() * 25;
 
-      // Corner threes
+      // Corner threes (30% of threes)
       if (random() < 0.3) {
         x = random() < 0.5 ? 5 + random() * 10 : 85 + random() * 10;
         y = 70 + random() * 15;
@@ -184,19 +191,3 @@ function generateShotsFromStats(player: any): Shot[] {
   return shots;
 }
 
-function getFallbackShots(): Shot[] {
-  return [
-    { id: "1", x: 50, y: 85, made: true, zone: "rim", distance: 2, quarter: 1 },
-    { id: "2", x: 35, y: 70, made: false, zone: "paint", distance: 8, quarter: 1 },
-    { id: "3", x: 65, y: 65, made: true, zone: "mid", distance: 12, quarter: 2 },
-    { id: "4", x: 15, y: 75, made: true, zone: "3pt", distance: 23, quarter: 2 },
-    { id: "5", x: 85, y: 75, made: false, zone: "3pt", distance: 24, quarter: 3 },
-    { id: "6", x: 50, y: 35, made: true, zone: "3pt", distance: 25, quarter: 3 },
-    { id: "7", x: 45, y: 80, made: true, zone: "rim", distance: 3, quarter: 4 },
-    { id: "8", x: 55, y: 55, made: false, zone: "mid", distance: 15, quarter: 4 },
-    { id: "9", x: 30, y: 45, made: true, zone: "3pt", distance: 26, quarter: 1 },
-    { id: "10", x: 70, y: 40, made: false, zone: "3pt", distance: 27, quarter: 2 },
-    { id: "11", x: 48, y: 88, made: true, zone: "rim", distance: 1, quarter: 3 },
-    { id: "12", x: 60, y: 70, made: true, zone: "paint", distance: 7, quarter: 4 },
-  ];
-}
