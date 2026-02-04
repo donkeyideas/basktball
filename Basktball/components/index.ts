@@ -5,3 +5,4 @@ export { LeagueSelector } from "./LeagueSelector";
 export { LiveScores } from "./LiveScores";
 export { FeaturedPlayers } from "./FeaturedPlayers";
 export { ToolsGrid } from "./ToolsGrid";
+export { LatestNews } from "./LatestNews";

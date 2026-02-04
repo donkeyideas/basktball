@@ -69,6 +69,7 @@ export function Header() {
 
         <div className="nav-links">
           <Link href="/live">LIVE</Link>
+          <Link href="/news">NEWS</Link>
           <Link href="/stats">STATS</Link>
           <Link href="/tools">TOOLS</Link>
           <Link href="/players">PLAYERS</Link>

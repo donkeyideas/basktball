@@ -9,6 +9,7 @@ import {
   LiveScores,
   FeaturedPlayers,
   ToolsGrid,
+  LatestNews,
 } from "@/components";
 
 type League = "nba" | "wnba" | "ncaam" | "ncaaw" | "euro" | "intl";
@@ -27,6 +28,7 @@ export default function HomePage() {
         />
         <LiveScores league={selectedLeague} />
         <FeaturedPlayers />
+        <LatestNews />
         <ToolsGrid />
       </main>
       <Footer />
