@@ -74,6 +74,7 @@ export interface PaginatedResponse<T> {
     next_page?: number;
     per_page?: number;
     total_count?: number;
+    next_cursor?: number;
   };
 }
 
