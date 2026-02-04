@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Header, Footer } from "@/components";
 
 type StatCategory = "ppg" | "rpg" | "apg" | "spg" | "bpg" | "fg_pct" | "three_pct";
@@ -138,7 +139,11 @@ export default function StatsPage() {
                 </thead>
                 <tbody>
                   {leaders.map(leader => (
-                    <tr key={leader.playerId}>
+                    <tr
+                      key={leader.playerId}
+                      style={{ cursor: "pointer" }}
+                      onClick={() => window.location.href = `/player/${leader.playerId}`}
+                    >
                       <td style={{
                         fontFamily: "var(--font-roboto-mono), monospace",
                         fontWeight: "bold",
@@ -146,7 +151,19 @@ export default function StatsPage() {
                       }}>
                         {leader.rank}
                       </td>
-                      <td style={{ fontWeight: "600" }}>{leader.name}</td>
+                      <td>
+                        <Link
+                          href={`/player/${leader.playerId}`}
+                          style={{
+                            fontWeight: "600",
+                            color: "inherit",
+                            textDecoration: "none",
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {leader.name}
+                        </Link>
+                      </td>
                       <td style={{ color: "rgba(255,255,255,0.6)" }}>{leader.teamName}</td>
                       <td style={{
                         fontFamily: "var(--font-roboto-mono), monospace",
