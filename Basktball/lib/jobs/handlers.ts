@@ -197,8 +197,8 @@ export async function syncPlayers(): Promise<JobResult> {
             firstName: player.firstName,
             lastName: player.lastName,
             position: player.position,
-            jerseyNumber: player.jerseyNumber,
-            imageUrl: player.headshotUrl,
+            jerseyNum: player.jerseyNumber ? parseInt(player.jerseyNumber) : null,
+            headshotUrl: player.headshotUrl,
             teamId: player.team.id,
           },
           update: {
@@ -206,8 +206,8 @@ export async function syncPlayers(): Promise<JobResult> {
             firstName: player.firstName,
             lastName: player.lastName,
             position: player.position,
-            jerseyNumber: player.jerseyNumber,
-            imageUrl: player.headshotUrl,
+            jerseyNum: player.jerseyNumber ? parseInt(player.jerseyNumber) : null,
+            headshotUrl: player.headshotUrl,
             teamId: player.team.id,
           },
         });

@@ -170,7 +170,7 @@ export async function GET(request: Request) {
           teamName: player?.team?.name || "Free Agent",
           value: Math.round(value * 10) / 10,
           gamesPlayed: stat._count.id,
-          imageUrl: player?.imageUrl || getNbaHeadshot(stat.playerId),
+          imageUrl: player?.headshotUrl || getNbaHeadshot(stat.playerId),
         };
       });
 
