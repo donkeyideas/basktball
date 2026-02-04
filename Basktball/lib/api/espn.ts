@@ -132,22 +132,33 @@ function normalizeEspnGame(event: EspnEvent): NormalizedGame | null {
   if (!homeComp || !awayComp) return null;
 
   const status = competition.status;
+  const homeScore = parseInt(homeComp.score || "0", 10);
+  const awayScore = parseInt(awayComp.score || "0", 10);
+  const period = status.period || 0;
+
   let gameStatus: "scheduled" | "live" | "final" = "scheduled";
 
   if (status.type.state === "post" || status.type.completed) {
     gameStatus = "final";
   } else if (status.type.state === "in") {
-    gameStatus = "live";
+    // Only mark as live if the game has actually started
+    // A game that's truly live should have a period > 0 or some score
+    if (period > 0 || homeScore > 0 || awayScore > 0) {
+      gameStatus = "live";
+    } else {
+      // ESPN says "in" but no scores/period yet - game hasn't actually started
+      gameStatus = "scheduled";
+    }
   }
 
   return {
     id: event.id,
     homeTeam: normalizeEspnTeam(homeComp.team),
     awayTeam: normalizeEspnTeam(awayComp.team),
-    homeScore: parseInt(homeComp.score || "0", 10),
-    awayScore: parseInt(awayComp.score || "0", 10),
+    homeScore,
+    awayScore,
     status: gameStatus,
-    quarter: status.period ? `Q${status.period}` : undefined,
+    quarter: period > 0 ? `Q${period}` : undefined,
     clock: status.displayClock || undefined,
     gameDate: new Date(event.date),
     isPlayoffs: false,
