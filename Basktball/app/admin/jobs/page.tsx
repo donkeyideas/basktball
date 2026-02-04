@@ -76,7 +76,11 @@ export default function AdminJobsPage() {
         body: JSON.stringify({ jobName }),
       });
       const data = await res.json();
-      if (!data.success) {
+      if (data.success) {
+        // Show result message
+        const message = data.result?.message || "Job completed successfully";
+        alert(message);
+      } else {
         alert(`Job failed: ${data.error}`);
       }
       await fetchJobs();
