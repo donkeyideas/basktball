@@ -6,33 +6,33 @@ export const dynamic = "force-dynamic";
 // Job definitions - these define what jobs exist and their schedules
 const jobDefinitions = [
   {
-    name: "fetch-live-scores",
+    name: "live-scores",
     description: "Fetch live game scores from APIs",
-    schedule: "*/2 * * * *",
+    schedule: "Every 2 minutes",
     enabled: true,
   },
   {
     name: "daily-sync",
     description: "Full daily data synchronization",
-    schedule: "0 5 * * *",
+    schedule: "Daily at 5:00 AM",
     enabled: true,
   },
   {
     name: "generate-insights",
     description: "Generate AI content for recent games",
-    schedule: "0 6 * * *",
+    schedule: "Daily at 6:00 AM",
     enabled: true,
   },
   {
     name: "update-standings",
     description: "Update league standings",
-    schedule: "0 */4 * * *",
+    schedule: "Every 4 hours",
     enabled: true,
   },
   {
     name: "cleanup-cache",
     description: "Clean expired cache entries",
-    schedule: "0 */6 * * *",
+    schedule: "Every 6 hours",
     enabled: true,
   },
 ];

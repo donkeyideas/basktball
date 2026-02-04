@@ -41,6 +41,7 @@ export default function AdminJobsPage() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [runningJob, setRunningJob] = useState<string | null>(null);
 
   async function fetchJobs() {
     try {
@@ -67,11 +68,22 @@ export default function AdminJobsPage() {
   }, []);
 
   async function runJob(jobName: string) {
+    setRunningJob(jobName);
     try {
-      await fetch(`/api/cron/${jobName}`, { method: "POST" });
+      const res = await fetch("/api/admin/jobs/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jobName }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        alert(`Job failed: ${data.error}`);
+      }
       await fetchJobs();
     } catch {
-      // Silent fail
+      alert("Failed to run job");
+    } finally {
+      setRunningJob(null);
     }
   }
 
@@ -151,16 +163,17 @@ export default function AdminJobsPage() {
                       <td>
                         <button
                           onClick={() => runJob(job.name)}
+                          disabled={runningJob === job.name}
                           style={{
                             padding: "6px 12px",
-                            background: "var(--orange)",
+                            background: runningJob === job.name ? "rgba(255,107,53,0.5)" : "var(--orange)",
                             border: "none",
                             color: "var(--white)",
                             fontSize: "12px",
-                            cursor: "pointer"
+                            cursor: runningJob === job.name ? "wait" : "pointer"
                           }}
                         >
-                          Run Now
+                          {runningJob === job.name ? "Running..." : "Run Now"}
                         </button>
                       </td>
                     </tr>
