@@ -50,7 +50,29 @@ const TOP_PLAYERS: Record<string, {
   "1630194": { name: "Jalen Duren", team: "DET", teamName: "Detroit Pistons", position: "C", ppg: 14.5, rpg: 11.8, apg: 2.2, spg: 0.8, bpg: 1.2, fgPct: 62.5, threePct: 0.0, ftPct: 65.8, mpg: 30.5, tov: 2.0, gamesPlayed: 46 },
   "1630578": { name: "Alperen Sengun", team: "HOU", teamName: "Houston Rockets", position: "C", ppg: 20.3, rpg: 9.4, apg: 5.2, spg: 1.0, bpg: 0.8, fgPct: 55.2, threePct: 32.5, ftPct: 72.5, mpg: 33.5, tov: 3.2, gamesPlayed: 41 },
   "1628389": { name: "Bam Adebayo", team: "MIA", teamName: "Miami Heat", position: "C", ppg: 18.5, rpg: 8.8, apg: 4.5, spg: 1.2, bpg: 1.0, fgPct: 52.5, threePct: 28.5, ftPct: 78.5, mpg: 34.5, tov: 2.5, gamesPlayed: 41 },
+  // Additional players
+  "203552": { name: "Seth Curry", team: "CHA", teamName: "Charlotte Hornets", position: "G", ppg: 8.5, rpg: 1.8, apg: 2.2, spg: 0.5, bpg: 0.1, fgPct: 44.5, threePct: 40.2, ftPct: 90.5, mpg: 22.5, tov: 1.0, gamesPlayed: 35 },
+  "203507": { name: "Giannis Antetokounmpo", team: "MIL", teamName: "Milwaukee Bucks", position: "F", ppg: 31.2, rpg: 11.5, apg: 6.5, spg: 1.2, bpg: 1.5, fgPct: 60.5, threePct: 27.5, ftPct: 65.8, mpg: 35.5, tov: 3.5, gamesPlayed: 48 },
+  "203999": { name: "Nikola Jokic", team: "DEN", teamName: "Denver Nuggets", position: "C", ppg: 29.8, rpg: 13.2, apg: 9.5, spg: 1.5, bpg: 0.9, fgPct: 56.5, threePct: 38.2, ftPct: 82.5, mpg: 37.2, tov: 3.2, gamesPlayed: 50 },
+  "203954": { name: "Joel Embiid", team: "PHI", teamName: "Philadelphia 76ers", position: "C", ppg: 27.5, rpg: 10.5, apg: 4.2, spg: 1.0, bpg: 1.8, fgPct: 52.8, threePct: 35.5, ftPct: 88.2, mpg: 33.5, tov: 3.5, gamesPlayed: 32 },
+  "1628369": { name: "Jayson Tatum", team: "BOS", teamName: "Boston Celtics", position: "F", ppg: 28.5, rpg: 8.2, apg: 5.5, spg: 1.2, bpg: 0.6, fgPct: 47.2, threePct: 37.8, ftPct: 83.5, mpg: 36.5, tov: 2.8, gamesPlayed: 46 },
+  "202710": { name: "Jimmy Butler", team: "MIA", teamName: "Miami Heat", position: "F", ppg: 19.5, rpg: 5.8, apg: 5.2, spg: 1.5, bpg: 0.4, fgPct: 49.5, threePct: 35.2, ftPct: 85.5, mpg: 33.5, tov: 2.2, gamesPlayed: 38 },
+  "203081": { name: "Damian Lillard", team: "MIL", teamName: "Milwaukee Bucks", position: "G", ppg: 25.5, rpg: 4.5, apg: 7.2, spg: 1.0, bpg: 0.3, fgPct: 43.5, threePct: 35.8, ftPct: 91.5, mpg: 35.5, tov: 2.8, gamesPlayed: 45 },
+  "1629027": { name: "Trae Young", team: "ATL", teamName: "Atlanta Hawks", position: "G", ppg: 24.8, rpg: 3.2, apg: 11.2, spg: 1.2, bpg: 0.1, fgPct: 42.5, threePct: 34.5, ftPct: 88.5, mpg: 35.2, tov: 4.2, gamesPlayed: 47 },
+  "1629630": { name: "Ja Morant", team: "MEM", teamName: "Memphis Grizzlies", position: "G", ppg: 22.5, rpg: 5.2, apg: 8.5, spg: 1.0, bpg: 0.4, fgPct: 45.5, threePct: 32.5, ftPct: 78.5, mpg: 32.5, tov: 3.8, gamesPlayed: 35 },
+  "1628368": { name: "De'Aaron Fox", team: "SAC", teamName: "Sacramento Kings", position: "G", ppg: 26.2, rpg: 4.8, apg: 6.5, spg: 1.5, bpg: 0.5, fgPct: 47.2, threePct: 33.5, ftPct: 75.5, mpg: 36.5, tov: 3.0, gamesPlayed: 48 },
+  "1630169": { name: "Tyrese Haliburton", team: "IND", teamName: "Indiana Pacers", position: "G", ppg: 20.5, rpg: 3.5, apg: 9.5, spg: 1.2, bpg: 0.5, fgPct: 44.5, threePct: 38.5, ftPct: 85.5, mpg: 33.5, tov: 2.5, gamesPlayed: 42 },
+  "1626157": { name: "Karl-Anthony Towns", team: "NYK", teamName: "New York Knicks", position: "C", ppg: 25.5, rpg: 11.2, apg: 3.2, spg: 0.8, bpg: 0.8, fgPct: 54.5, threePct: 42.5, ftPct: 82.5, mpg: 34.5, tov: 2.8, gamesPlayed: 46 },
+  "202331": { name: "Paul George", team: "PHI", teamName: "Philadelphia 76ers", position: "F", ppg: 16.5, rpg: 5.5, apg: 5.2, spg: 1.5, bpg: 0.4, fgPct: 42.5, threePct: 35.5, ftPct: 88.5, mpg: 32.5, tov: 2.5, gamesPlayed: 38 },
+  "1629627": { name: "Zion Williamson", team: "NOP", teamName: "New Orleans Pelicans", position: "F", ppg: 24.8, rpg: 7.2, apg: 5.5, spg: 1.2, bpg: 0.6, fgPct: 58.5, threePct: 32.5, ftPct: 72.5, mpg: 32.5, tov: 3.0, gamesPlayed: 35 },
+  "202681": { name: "Kyrie Irving", team: "DAL", teamName: "Dallas Mavericks", position: "G", ppg: 24.2, rpg: 4.5, apg: 5.8, spg: 1.0, bpg: 0.4, fgPct: 48.5, threePct: 41.5, ftPct: 90.5, mpg: 35.5, tov: 2.5, gamesPlayed: 44 },
 };
+
+// Create a lookup map by player name for fallback searches
+const TOP_PLAYERS_BY_NAME: Record<string, { id: string; data: typeof TOP_PLAYERS[keyof typeof TOP_PLAYERS] }> = {};
+for (const [id, data] of Object.entries(TOP_PLAYERS)) {
+  TOP_PLAYERS_BY_NAME[data.name.toLowerCase()] = { id, data };
+}
 
 interface PlayerSeasonStats {
   ppg: number;
@@ -73,9 +95,22 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    const searchParams = request.nextUrl.searchParams;
+    const playerName = searchParams.get("name");
 
-    // First check if we have fallback data
-    const fallbackPlayer = TOP_PLAYERS[id];
+    // First check if we have fallback data by ID
+    let fallbackPlayer = TOP_PLAYERS[id];
+    let resolvedId = id;
+
+    // If not found by ID and we have a name, try to find by name
+    if (!fallbackPlayer && playerName) {
+      const nameMatch = TOP_PLAYERS_BY_NAME[playerName.toLowerCase()];
+      if (nameMatch) {
+        fallbackPlayer = nameMatch.data;
+        resolvedId = nameMatch.id;
+      }
+    }
+
     if (fallbackPlayer) {
       return NextResponse.json({
         success: true,

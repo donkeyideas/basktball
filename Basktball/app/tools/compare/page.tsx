@@ -5,9 +5,11 @@ import { Header, Footer } from "@/components";
 
 interface Player {
   id: string;
+  nbaId?: string; // Official NBA player ID for headshots/stats
   name: string;
   team?: { name: string; abbreviation: string };
   position?: string;
+  headshotUrl?: string;
 }
 
 interface PlayerStats {
@@ -109,10 +111,13 @@ export default function ComparePage() {
     return () => clearTimeout(timer);
   }, [search2, searchPlayers]);
 
-  const fetchPlayerStats = async (playerId: string, setStats: (s: PlayerStats | null) => void, setLoading: (b: boolean) => void) => {
+  const fetchPlayerStats = async (player: Player, setStats: (s: PlayerStats | null) => void, setLoading: (b: boolean) => void) => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/players/${playerId}/stats`);
+      // Use nbaId if available, otherwise fall back to regular id
+      const playerId = player.nbaId || player.id;
+      // Pass player name as fallback for lookup
+      const res = await fetch(`/api/players/${playerId}/stats?name=${encodeURIComponent(player.name)}`);
       const data = await res.json();
       if (data.success && data.stats) {
         setStats(data.stats);
@@ -131,12 +136,12 @@ export default function ComparePage() {
       setSelected1(player);
       setSearch1("");
       setPlayers1([]);
-      fetchPlayerStats(player.id, setStats1, setLoadingStats1);
+      fetchPlayerStats(player, setStats1, setLoadingStats1);
     } else {
       setSelected2(player);
       setSearch2("");
       setPlayers2([]);
-      fetchPlayerStats(player.id, setStats2, setLoadingStats2);
+      fetchPlayerStats(player, setStats2, setLoadingStats2);
     }
   };
 
@@ -222,7 +227,7 @@ export default function ComparePage() {
                     border: "3px solid var(--orange)"
                   }}>
                     <img
-                      src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${selected1.id}.png`}
+                      src={selected1.headshotUrl || `https://cdn.nba.com/headshots/nba/latest/1040x760/${selected1.nbaId || selected1.id}.png`}
                       alt={selected1.name}
                       style={{ width: "100%", height: "100%", objectFit: "cover" }}
                       onError={(e) => {
@@ -306,7 +311,7 @@ export default function ComparePage() {
                     border: "3px solid var(--blue)"
                   }}>
                     <img
-                      src={`https://cdn.nba.com/headshots/nba/latest/1040x760/${selected2.id}.png`}
+                      src={selected2.headshotUrl || `https://cdn.nba.com/headshots/nba/latest/1040x760/${selected2.nbaId || selected2.id}.png`}
                       alt={selected2.name}
                       style={{ width: "100%", height: "100%", objectFit: "cover" }}
                       onError={(e) => {

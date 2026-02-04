@@ -109,6 +109,7 @@ export interface NormalizedGame {
 
 export interface NormalizedPlayer {
   id: string;
+  nbaId?: string; // Official NBA player ID for headshots/stats
   name: string;
   firstName: string;
   lastName: string;
