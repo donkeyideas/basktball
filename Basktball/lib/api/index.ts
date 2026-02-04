@@ -33,13 +33,13 @@ export class BasketballApi {
         }
 
       case "wnba":
-        return espnApi.getWnbaGames(dateStr);
+        return espnApi.getWnbaGames(date);
 
       case "ncaam":
-        return espnApi.getNcaaMGames(dateStr);
+        return espnApi.getNcaaMGames(date);
 
       case "ncaaw":
-        return espnApi.getNcaaWGames(dateStr);
+        return espnApi.getNcaaWGames(date);
 
       case "euro":
       case "intl":
