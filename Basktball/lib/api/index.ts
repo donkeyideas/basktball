@@ -159,6 +159,32 @@ export class BasketballApi {
   async getGameStats(gameId: string) {
     return nbaApi.getGameStats(gameId);
   }
+
+  // Get team roster (NBA only for now)
+  async getTeamRoster(teamId: string, league: League = "nba") {
+    if (league === "nba") {
+      return nbaApi.getTeamRoster(teamId);
+    }
+    // ESPN doesn't have a simple roster endpoint for other leagues
+    return [];
+  }
+
+  // Get team games/schedule (NBA only for now)
+  async getTeamGames(teamId: string, league: League = "nba", options?: { season?: number }) {
+    if (league === "nba") {
+      return nbaApi.getTeamGames(teamId, options);
+    }
+    // Could add ESPN game fetching for other leagues
+    return [];
+  }
+
+  // Get team stats (NBA only for now)
+  async getTeamStats(teamId: string, league: League = "nba", season?: number) {
+    if (league === "nba") {
+      return nbaApi.getTeamStats(teamId, season);
+    }
+    return null;
+  }
 }
 
 // Export singleton

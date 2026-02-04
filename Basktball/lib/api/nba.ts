@@ -415,6 +415,150 @@ export class NbaApiClient {
       return null;
     }
   }
+
+  // Get team roster (players on a team)
+  async getTeamRoster(teamId: string): Promise<NormalizedPlayer[]> {
+    const cacheKey = `roster:${teamId}`;
+    const cached = getFromCache<NormalizedPlayer[]>(cacheKey);
+    if (cached) return cached;
+
+    try {
+      // BallDontLie API: get all players, filter by team
+      // Note: This fetches active players - may need pagination for full roster
+      const response = await fetchApi<PaginatedResponse<ApiPlayer>>("/players", {
+        team_ids: teamId,
+        per_page: "100",
+      });
+
+      const players = response.data.map(normalizePlayer);
+      setCache(cacheKey, players, 900000); // Cache for 15 minutes
+      return players;
+    } catch (error) {
+      console.error("Failed to fetch team roster:", error);
+      return [];
+    }
+  }
+
+  // Get team's recent games
+  async getTeamGames(
+    teamId: string,
+    options?: { season?: number; perPage?: number }
+  ): Promise<NormalizedGame[]> {
+    const season = options?.season || new Date().getFullYear();
+    const perPage = options?.perPage || 20;
+    const cacheKey = `team:games:${teamId}:${season}:${perPage}`;
+    const cached = getFromCache<NormalizedGame[]>(cacheKey);
+    if (cached) return cached;
+
+    try {
+      const response = await fetchApi<PaginatedResponse<ApiGame>>("/games", {
+        team_ids: teamId,
+        seasons: String(season),
+        per_page: String(perPage),
+      });
+
+      const games = response.data.map(normalizeGame);
+      // Sort by date descending (most recent first)
+      games.sort((a, b) => b.gameDate.getTime() - a.gameDate.getTime());
+      setCache(cacheKey, games, 300000); // Cache for 5 minutes
+      return games;
+    } catch (error) {
+      console.error("Failed to fetch team games:", error);
+      return [];
+    }
+  }
+
+  // Get team stats (aggregated from recent games)
+  async getTeamStats(teamId: string, season?: number): Promise<{
+    wins: number;
+    losses: number;
+    winPct: number;
+    ppg: number;
+    oppPpg: number;
+    recentGames: Array<{ opponent: string; result: string; score: string }>;
+  } | null> {
+    const currentSeason = season || new Date().getFullYear();
+    const cacheKey = `team:stats:${teamId}:${currentSeason}`;
+    const cached = getFromCache<{
+      wins: number;
+      losses: number;
+      winPct: number;
+      ppg: number;
+      oppPpg: number;
+      recentGames: Array<{ opponent: string; result: string; score: string }>;
+    }>(cacheKey);
+    if (cached) return cached;
+
+    try {
+      // Get team's games for this season
+      const response = await fetchApi<PaginatedResponse<ApiGame>>("/games", {
+        team_ids: teamId,
+        seasons: String(currentSeason),
+        per_page: "100",
+      });
+
+      const games = response.data.filter(
+        (g) => g.status === "Final" && (g.home_team_score > 0 || g.visitor_team_score > 0)
+      );
+
+      if (games.length === 0) {
+        return null;
+      }
+
+      let wins = 0;
+      let losses = 0;
+      let totalPoints = 0;
+      let totalOppPoints = 0;
+
+      const recentGames: Array<{ opponent: string; result: string; score: string }> = [];
+
+      for (const game of games) {
+        const isHome = String(game.home_team.id) === teamId;
+        const teamScore = isHome ? game.home_team_score : game.visitor_team_score;
+        const oppScore = isHome ? game.visitor_team_score : game.home_team_score;
+        const opponent = isHome ? game.visitor_team : game.home_team;
+
+        totalPoints += teamScore;
+        totalOppPoints += oppScore;
+
+        if (teamScore > oppScore) {
+          wins++;
+          if (recentGames.length < 5) {
+            recentGames.push({
+              opponent: opponent.abbreviation,
+              result: "W",
+              score: `${teamScore}-${oppScore}`,
+            });
+          }
+        } else {
+          losses++;
+          if (recentGames.length < 5) {
+            recentGames.push({
+              opponent: opponent.abbreviation,
+              result: "L",
+              score: `${teamScore}-${oppScore}`,
+            });
+          }
+        }
+      }
+
+      const totalGames = wins + losses;
+      const result = {
+        wins,
+        losses,
+        winPct: totalGames > 0 ? Math.round((wins / totalGames) * 1000) / 10 : 0,
+        ppg: totalGames > 0 ? Math.round((totalPoints / totalGames) * 10) / 10 : 0,
+        oppPpg: totalGames > 0 ? Math.round((totalOppPoints / totalGames) * 10) / 10 : 0,
+        recentGames,
+      };
+
+      setCache(cacheKey, result, 900000); // Cache for 15 minutes
+      return result;
+    } catch (error) {
+      console.error("Failed to fetch team stats:", error);
+      return null;
+    }
+  }
 }
 
 // Export singleton instance
