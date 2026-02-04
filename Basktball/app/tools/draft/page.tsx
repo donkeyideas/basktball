@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header, Footer } from "@/components";
 
 interface Prospect {
+  id?: string;
   rank: number;
   name: string;
   position: string;
@@ -24,99 +25,53 @@ interface Prospect {
   projectedPick: string;
 }
 
-// Sample prospect data
-const sampleProspects: Prospect[] = [
-  {
-    rank: 1,
-    name: "Cooper Flagg",
-    position: "SF/PF",
-    school: "Duke",
-    height: "6'9\"",
-    weight: 205,
-    age: 18,
-    stats: { ppg: 18.5, rpg: 8.2, apg: 3.8, fgPct: 47.2, threePct: 35.5 },
-    strengths: ["Two-way impact", "Versatility", "Basketball IQ", "Motor"],
-    weaknesses: ["Three-point consistency", "Needs to add strength"],
-    comparison: "Jayson Tatum",
-    projectedPick: "1-2"
-  },
-  {
-    rank: 2,
-    name: "Ace Bailey",
-    position: "SF",
-    school: "Rutgers",
-    height: "6'9\"",
-    weight: 195,
-    age: 19,
-    stats: { ppg: 17.8, rpg: 7.5, apg: 2.2, fgPct: 45.8, threePct: 38.2 },
-    strengths: ["Scoring versatility", "Length", "Shot creation"],
-    weaknesses: ["Playmaking", "Defensive consistency"],
-    comparison: "Brandon Ingram",
-    projectedPick: "1-3"
-  },
-  {
-    rank: 3,
-    name: "Dylan Harper",
-    position: "PG/SG",
-    school: "Rutgers",
-    height: "6'6\"",
-    weight: 210,
-    age: 19,
-    stats: { ppg: 21.2, rpg: 5.8, apg: 5.5, fgPct: 48.5, threePct: 33.8 },
-    strengths: ["Shot creation", "Physicality", "Playmaking", "Finishing"],
-    weaknesses: ["Three-point shooting", "Defensive effort"],
-    comparison: "James Harden",
-    projectedPick: "3-5"
-  },
-  {
-    rank: 4,
-    name: "VJ Edgecombe",
-    position: "SG",
-    school: "Baylor",
-    height: "6'4\"",
-    weight: 185,
-    age: 19,
-    stats: { ppg: 16.5, rpg: 4.2, apg: 3.2, fgPct: 44.5, threePct: 36.8 },
-    strengths: ["Athleticism", "Transition", "Perimeter defense"],
-    weaknesses: ["Shot selection", "Playmaking in half-court"],
-    comparison: "Anthony Edwards",
-    projectedPick: "4-8"
-  },
-  {
-    rank: 5,
-    name: "Kon Knueppel",
-    position: "SG/SF",
-    school: "Duke",
-    height: "6'6\"",
-    weight: 210,
-    age: 20,
-    stats: { ppg: 14.8, rpg: 5.2, apg: 2.8, fgPct: 46.2, threePct: 42.5 },
-    strengths: ["Shooting", "Basketball IQ", "Size for position"],
-    weaknesses: ["Lateral quickness", "Creating own shot"],
-    comparison: "Klay Thompson",
-    projectedPick: "5-10"
-  },
-  {
-    rank: 6,
-    name: "Egor Demin",
-    position: "PG",
-    school: "BYU",
-    height: "6'8\"",
-    weight: 185,
-    age: 18,
-    stats: { ppg: 12.5, rpg: 4.8, apg: 6.2, fgPct: 43.5, threePct: 34.2 },
-    strengths: ["Size", "Passing vision", "Ball handling for size"],
-    weaknesses: ["Finishing at rim", "Defensive intensity"],
-    comparison: "Luka Doncic (lite)",
-    projectedPick: "6-12"
-  },
-];
-
 export default function DraftPage() {
-  const [prospects] = useState<Prospect[]>(sampleProspects);
-  const [selectedProspect, setSelectedProspect] = useState<Prospect>(sampleProspects[0]);
+  const [prospects, setProspects] = useState<Prospect[]>([]);
+  const [selectedProspect, setSelectedProspect] = useState<Prospect | null>(null);
   const [positionFilter, setPositionFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchProspects() {
+      try {
+        const res = await fetch("/api/draft/prospects");
+        const data = await res.json();
+
+        if (data.success && data.prospects?.length > 0) {
+          // Transform API data to match component interface
+          const transformedProspects: Prospect[] = data.prospects.map((p: any) => ({
+            id: p.id,
+            rank: p.rank,
+            name: p.name,
+            position: p.position,
+            school: p.school,
+            height: p.height,
+            weight: p.weight,
+            age: p.age,
+            stats: {
+              ppg: p.ppg,
+              rpg: p.rpg,
+              apg: p.apg,
+              fgPct: p.fgPct,
+              threePct: p.threePct,
+            },
+            strengths: p.strengths || [],
+            weaknesses: p.weaknesses || [],
+            comparison: p.comparison || "N/A",
+            projectedPick: p.projectedPick || "TBD",
+          }));
+          setProspects(transformedProspects);
+          setSelectedProspect(transformedProspects[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching prospects:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchProspects();
+  }, []);
 
   const filteredProspects = prospects.filter(p => {
     if (positionFilter !== "all" && !p.position.includes(positionFilter)) return false;
@@ -152,6 +107,26 @@ export default function DraftPage() {
             2025 NBA Draft prospect analysis and big board rankings.
           </p>
 
+          {isLoading ? (
+            <div style={{ textAlign: "center", padding: "60px 20px" }}>
+              <div style={{
+                width: "40px",
+                height: "40px",
+                border: "3px solid rgba(255,255,255,0.1)",
+                borderTopColor: "var(--orange)",
+                borderRadius: "50%",
+                margin: "0 auto 20px",
+                animation: "spin 1s linear infinite"
+              }} />
+              <p style={{ color: "rgba(255,255,255,0.6)" }}>Loading draft prospects...</p>
+              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            </div>
+          ) : prospects.length === 0 ? (
+            <div className="section" style={{ textAlign: "center", padding: "60px 20px" }}>
+              <p style={{ color: "rgba(255,255,255,0.6)", marginBottom: "10px" }}>No draft prospects available.</p>
+              <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "14px" }}>Draft data can be managed from the admin panel.</p>
+            </div>
+          ) : (
           <div style={{ display: "grid", gridTemplateColumns: "400px 1fr", gap: "30px" }}>
             {/* Big Board */}
             <div className="section">
@@ -204,8 +179,8 @@ export default function DraftPage() {
                       display: "flex",
                       alignItems: "center",
                       padding: "12px",
-                      background: selectedProspect.rank === prospect.rank ? "rgba(255, 107, 53, 0.2)" : "rgba(0,0,0,0.3)",
-                      border: selectedProspect.rank === prospect.rank ? "1px solid var(--orange)" : "1px solid transparent",
+                      background: selectedProspect?.rank === prospect.rank ? "rgba(255, 107, 53, 0.2)" : "rgba(0,0,0,0.3)",
+                      border: selectedProspect?.rank === prospect.rank ? "1px solid var(--orange)" : "1px solid transparent",
                       marginBottom: "8px",
                       cursor: "pointer"
                     }}
@@ -241,6 +216,7 @@ export default function DraftPage() {
             </div>
 
             {/* Prospect Profile */}
+            {selectedProspect && (
             <div>
               <div className="section">
                 <div style={{ display: "flex", gap: "30px", marginBottom: "30px" }}>
@@ -369,7 +345,9 @@ export default function DraftPage() {
                 </div>
               </div>
             </div>
+            )}
           </div>
+          )}
         </div>
       </main>
       <Footer />

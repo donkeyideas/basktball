@@ -14,30 +14,29 @@ interface Player {
   status: "healthy" | "questionable" | "out";
 }
 
-// Sample players for demonstration
-const samplePlayers: Player[] = [
-  { id: "1", name: "LeBron James", position: "SF", team: "LAL", salary: 10500, projectedPts: 52.3, value: 4.98, status: "healthy" },
-  { id: "2", name: "Stephen Curry", position: "PG", team: "GSW", salary: 10200, projectedPts: 49.8, value: 4.88, status: "healthy" },
-  { id: "3", name: "Giannis Antetokounmpo", position: "PF", team: "MIL", salary: 11000, projectedPts: 55.2, value: 5.02, status: "healthy" },
-  { id: "4", name: "Kevin Durant", position: "SF", team: "PHX", salary: 10300, projectedPts: 48.5, value: 4.71, status: "questionable" },
-  { id: "5", name: "Nikola Jokic", position: "C", team: "DEN", salary: 11200, projectedPts: 58.1, value: 5.19, status: "healthy" },
-  { id: "6", name: "Jayson Tatum", position: "SF", team: "BOS", salary: 9800, projectedPts: 46.2, value: 4.71, status: "healthy" },
-  { id: "7", name: "Luka Doncic", position: "PG", team: "DAL", salary: 10800, projectedPts: 54.5, value: 5.05, status: "healthy" },
-  { id: "8", name: "Joel Embiid", position: "C", team: "PHI", salary: 10900, projectedPts: 51.8, value: 4.75, status: "out" },
-  { id: "9", name: "Damian Lillard", position: "PG", team: "MIL", salary: 9200, projectedPts: 42.5, value: 4.62, status: "healthy" },
-  { id: "10", name: "Anthony Davis", position: "PF", team: "LAL", salary: 9500, projectedPts: 44.8, value: 4.72, status: "healthy" },
-  { id: "11", name: "Ja Morant", position: "PG", team: "MEM", salary: 8800, projectedPts: 40.2, value: 4.57, status: "healthy" },
-  { id: "12", name: "Devin Booker", position: "SG", team: "PHX", salary: 8600, projectedPts: 38.5, value: 4.48, status: "healthy" },
-  { id: "13", name: "Trae Young", position: "PG", team: "ATL", salary: 8400, projectedPts: 41.2, value: 4.90, status: "healthy" },
-  { id: "14", name: "Donovan Mitchell", position: "SG", team: "CLE", salary: 8200, projectedPts: 37.8, value: 4.61, status: "healthy" },
-  { id: "15", name: "Bam Adebayo", position: "C", team: "MIA", salary: 7800, projectedPts: 35.5, value: 4.55, status: "healthy" },
-];
-
 const SALARY_CAP = 50000;
 const POSITIONS = ["PG", "SG", "SF", "PF", "C"];
 
 export default function FantasyPage() {
-  const [players] = useState<Player[]>(samplePlayers);
+  const [players, setPlayers] = useState<Player[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchPlayers() {
+      try {
+        const res = await fetch("/api/fantasy/players");
+        const data = await res.json();
+        if (data.success && data.players) {
+          setPlayers(data.players);
+        }
+      } catch (error) {
+        console.error("Error fetching players:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchPlayers();
+  }, []);
   const [lineup, setLineup] = useState<(Player | null)[]>([null, null, null, null, null]);
   const [positionFilter, setPositionFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"projectedPts" | "salary" | "value">("value");

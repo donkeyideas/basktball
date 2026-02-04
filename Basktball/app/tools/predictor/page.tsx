@@ -20,57 +20,14 @@ interface Prediction {
   factors: { name: string; impact: number; description: string }[];
 }
 
-// Sample teams for demonstration
-const sampleTeams: Team[] = [
-  { id: "1", name: "Los Angeles Lakers", abbreviation: "LAL" },
-  { id: "2", name: "Boston Celtics", abbreviation: "BOS" },
-  { id: "3", name: "Golden State Warriors", abbreviation: "GSW" },
-  { id: "4", name: "Miami Heat", abbreviation: "MIA" },
-  { id: "5", name: "Milwaukee Bucks", abbreviation: "MIL" },
-  { id: "6", name: "Phoenix Suns", abbreviation: "PHX" },
-  { id: "7", name: "Denver Nuggets", abbreviation: "DEN" },
-  { id: "8", name: "Philadelphia 76ers", abbreviation: "PHI" },
-];
-
-function generatePrediction(homeTeam: Team, awayTeam: Team): Prediction {
-  // Generate deterministic but varied predictions based on team names
-  const homeSeed = homeTeam.name.length + homeTeam.abbreviation.charCodeAt(0);
-  const awaySeed = awayTeam.name.length + awayTeam.abbreviation.charCodeAt(0);
-
-  const homeAdvantage = 3.5;
-  const homeBase = 105 + (homeSeed % 15);
-  const awayBase = 102 + (awaySeed % 15);
-
-  const predictedHomeScore = Math.round(homeBase + (Math.random() * 10 - 5));
-  const predictedAwayScore = Math.round(awayBase + (Math.random() * 10 - 5));
-
-  const scoreDiff = predictedHomeScore - predictedAwayScore;
-  const homeWinProb = Math.min(85, Math.max(15, 50 + scoreDiff * 3 + homeAdvantage));
-
-  return {
-    homeWinProb: Math.round(homeWinProb),
-    awayWinProb: Math.round(100 - homeWinProb),
-    predictedHomeScore,
-    predictedAwayScore,
-    spread: -(predictedHomeScore - predictedAwayScore),
-    total: predictedHomeScore + predictedAwayScore,
-    confidence: Math.round(60 + Math.random() * 25),
-    factors: [
-      { name: "Home Court Advantage", impact: homeAdvantage, description: "Historical home win rate and crowd factor" },
-      { name: "Recent Form", impact: 2.1 + (homeSeed % 3), description: "Performance in last 10 games" },
-      { name: "Head-to-Head", impact: 1.5 + (awaySeed % 4) * 0.5, description: "Season series and historical matchups" },
-      { name: "Rest Days", impact: 0.8 + Math.random() * 2, description: "Days since last game for both teams" },
-      { name: "Injuries", impact: -1.2 - Math.random() * 2, description: "Key player availability impact" },
-    ],
-  };
-}
-
 export default function PredictorPage() {
-  const [teams, setTeams] = useState<Team[]>(sampleTeams);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [homeTeam, setHomeTeam] = useState<Team | null>(null);
   const [awayTeam, setAwayTeam] = useState<Team | null>(null);
   const [prediction, setPrediction] = useState<Prediction | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [teamsLoading, setTeamsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchTeams = useCallback(async () => {
     try {
@@ -79,8 +36,10 @@ export default function PredictorPage() {
       if (data.success && data.teams?.length > 0) {
         setTeams(data.teams);
       }
-    } catch {
-      // Use sample teams on error
+    } catch (err) {
+      console.error("Error fetching teams:", err);
+    } finally {
+      setTeamsLoading(false);
     }
   }, []);
 
@@ -88,15 +47,33 @@ export default function PredictorPage() {
     fetchTeams();
   }, [fetchTeams]);
 
-  const handlePredict = () => {
+  const handlePredict = async () => {
     if (!homeTeam || !awayTeam) return;
     setIsLoading(true);
+    setError(null);
 
-    // Simulate AI processing
-    setTimeout(() => {
-      setPrediction(generatePrediction(homeTeam, awayTeam));
+    try {
+      const res = await fetch("/api/predictions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          homeTeamId: homeTeam.id,
+          awayTeamId: awayTeam.id,
+        }),
+      });
+      const data = await res.json();
+
+      if (data.success && data.prediction) {
+        setPrediction(data.prediction);
+      } else {
+        setError(data.error || "Failed to generate prediction");
+      }
+    } catch (err) {
+      console.error("Error generating prediction:", err);
+      setError("Failed to generate prediction. Please try again.");
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -128,6 +105,26 @@ export default function PredictorPage() {
           </p>
 
           {/* Team Selection */}
+          {teamsLoading ? (
+            <div style={{ textAlign: "center", padding: "60px 20px" }}>
+              <div style={{
+                width: "40px",
+                height: "40px",
+                border: "3px solid rgba(255,255,255,0.1)",
+                borderTopColor: "var(--orange)",
+                borderRadius: "50%",
+                margin: "0 auto 20px",
+                animation: "spin 1s linear infinite"
+              }} />
+              <p style={{ color: "rgba(255,255,255,0.6)" }}>Loading teams...</p>
+              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            </div>
+          ) : teams.length === 0 ? (
+            <div className="section" style={{ textAlign: "center", padding: "60px 20px" }}>
+              <p style={{ color: "rgba(255,255,255,0.6)", marginBottom: "10px" }}>No teams available.</p>
+              <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "14px" }}>Check back later for updated team data.</p>
+            </div>
+          ) : (
           <div style={{ display: "grid", gridTemplateColumns: "1fr 100px 1fr", gap: "20px", marginBottom: "40px" }}>
             <div className="section">
               <div className="section-title">Home Team</div>
@@ -225,8 +222,10 @@ export default function PredictorPage() {
               )}
             </div>
           </div>
+          )}
 
           {/* Predict Button */}
+          {teams.length > 0 && (
           <div style={{ textAlign: "center", marginBottom: "40px" }}>
             <button
               onClick={handlePredict}
@@ -240,7 +239,11 @@ export default function PredictorPage() {
             >
               {isLoading ? "ANALYZING..." : "GENERATE PREDICTION"}
             </button>
+            {error && (
+              <p style={{ color: "var(--red)", marginTop: "15px" }}>{error}</p>
+            )}
           </div>
+          )}
 
           {/* Prediction Results */}
           {prediction && (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header, Footer } from "@/components";
 
 interface BettingLine {
@@ -22,84 +22,10 @@ interface BettingLine {
   };
 }
 
-// Sample betting data
-const sampleLines: BettingLine[] = [
-  {
-    id: "1",
-    homeTeam: "Boston Celtics",
-    awayTeam: "Miami Heat",
-    spread: -7.5,
-    spreadOdds: { home: -110, away: -110 },
-    total: 218.5,
-    totalOdds: { over: -110, under: -110 },
-    moneyline: { home: -320, away: +260 },
-    gameTime: "7:30 PM ET",
-    modelPrediction: {
-      homeWinProb: 72,
-      predictedSpread: -9.2,
-      predictedTotal: 221.5,
-      spreadEdge: 1.7,
-      totalEdge: 3.0
-    }
-  },
-  {
-    id: "2",
-    homeTeam: "Denver Nuggets",
-    awayTeam: "Los Angeles Lakers",
-    spread: -5.5,
-    spreadOdds: { home: -108, away: -112 },
-    total: 225.0,
-    totalOdds: { over: -105, under: -115 },
-    moneyline: { home: -225, away: +185 },
-    gameTime: "10:00 PM ET",
-    modelPrediction: {
-      homeWinProb: 65,
-      predictedSpread: -4.8,
-      predictedTotal: 223.2,
-      spreadEdge: -0.7,
-      totalEdge: -1.8
-    }
-  },
-  {
-    id: "3",
-    homeTeam: "Milwaukee Bucks",
-    awayTeam: "Cleveland Cavaliers",
-    spread: -3.0,
-    spreadOdds: { home: -110, away: -110 },
-    total: 230.5,
-    totalOdds: { over: -110, under: -110 },
-    moneyline: { home: -150, away: +130 },
-    gameTime: "8:00 PM ET",
-    modelPrediction: {
-      homeWinProb: 58,
-      predictedSpread: -2.5,
-      predictedTotal: 228.8,
-      spreadEdge: -0.5,
-      totalEdge: -1.7
-    }
-  },
-  {
-    id: "4",
-    homeTeam: "Phoenix Suns",
-    awayTeam: "Golden State Warriors",
-    spread: -2.5,
-    spreadOdds: { home: -105, away: -115 },
-    total: 232.0,
-    totalOdds: { over: -108, under: -112 },
-    moneyline: { home: -135, away: +115 },
-    gameTime: "10:30 PM ET",
-    modelPrediction: {
-      homeWinProb: 54,
-      predictedSpread: -1.2,
-      predictedTotal: 235.5,
-      spreadEdge: -1.3,
-      totalEdge: 3.5
-    }
-  },
-];
-
 interface PropBet {
+  id: string;
   player: string;
+  team?: string;
   stat: string;
   line: number;
   odds: { over: number; under: number };
@@ -107,23 +33,37 @@ interface PropBet {
   edge: number;
 }
 
-const sampleProps: PropBet[] = [
-  { player: "Jayson Tatum", stat: "Points", line: 28.5, odds: { over: -115, under: -105 }, projection: 31.2, edge: 2.7 },
-  { player: "Nikola Jokic", stat: "Assists", line: 8.5, odds: { over: -110, under: -110 }, projection: 9.8, edge: 1.3 },
-  { player: "Giannis Antetokounmpo", stat: "Rebounds", line: 11.5, odds: { over: -105, under: -115 }, projection: 12.8, edge: 1.3 },
-  { player: "Stephen Curry", stat: "3-Pointers Made", line: 4.5, odds: { over: -120, under: +100 }, projection: 5.2, edge: 0.7 },
-  { player: "LeBron James", stat: "Pts+Reb+Ast", line: 45.5, odds: { over: -110, under: -110 }, projection: 48.5, edge: 3.0 },
-];
-
 function formatOdds(odds: number): string {
   return odds > 0 ? `+${odds}` : `${odds}`;
 }
 
 export default function BettingPage() {
-  const [lines] = useState<BettingLine[]>(sampleLines);
-  const [props] = useState<PropBet[]>(sampleProps);
+  const [lines, setLines] = useState<BettingLine[]>([]);
+  const [props, setProps] = useState<PropBet[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"games" | "props">("games");
   const [showEdgeOnly, setShowEdgeOnly] = useState(false);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [linesRes, propsRes] = await Promise.all([
+          fetch("/api/betting/lines"),
+          fetch("/api/betting/props"),
+        ]);
+        const linesData = await linesRes.json();
+        const propsData = await propsRes.json();
+
+        if (linesData.success) setLines(linesData.lines || []);
+        if (propsData.success) setProps(propsData.props || []);
+      } catch (error) {
+        console.error("Error fetching betting data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
 
   const filteredProps = showEdgeOnly ? props.filter(p => p.edge > 1) : props;
 

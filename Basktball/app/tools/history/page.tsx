@@ -1,45 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Header, Footer } from "@/components";
 
 interface HistoricalRecord {
+  id?: string;
   category: string;
   record: string;
   holder: string;
   date: string;
-  details: string;
+  details?: string;
 }
 
 interface Season {
+  id?: string;
   year: string;
   champion: string;
   mvp: string;
   finalsScore: string;
-  topScorer: { name: string; ppg: number };
+  topScorer: string;
+  topScorerPpg: number;
 }
-
-// Sample historical data
-const allTimeRecords: HistoricalRecord[] = [
-  { category: "Career Points", record: "38,387", holder: "LeBron James", date: "Active", details: "Passed Kareem Abdul-Jabbar on Feb 7, 2023" },
-  { category: "Career Assists", record: "15,806", holder: "John Stockton", date: "1984-2003", details: "3,715 more than second place" },
-  { category: "Career Rebounds", record: "23,924", holder: "Wilt Chamberlain", date: "1959-1973", details: "Also holds single-game record (55)" },
-  { category: "Career Steals", record: "3,265", holder: "John Stockton", date: "1984-2003", details: "581 more than second place" },
-  { category: "Career Blocks", record: "3,830", holder: "Hakeem Olajuwon", date: "1984-2002", details: "Also a dominant scorer" },
-  { category: "Single Game Points", record: "100", holder: "Wilt Chamberlain", date: "Mar 2, 1962", details: "vs. New York Knicks" },
-  { category: "Single Season PPG", record: "50.4", holder: "Wilt Chamberlain", date: "1961-62", details: "Also averaged 25.7 RPG" },
-  { category: "Career 3-Pointers", record: "3,747", holder: "Stephen Curry", date: "Active", details: "Changed the game" },
-  { category: "Single Season 3PM", record: "402", holder: "Stephen Curry", date: "2015-16", details: "On 45.4% shooting" },
-  { category: "Triple-Doubles (Career)", record: "194", holder: "Russell Westbrook", date: "Active", details: "Passed Oscar Robertson in 2021" },
-];
-
-const recentSeasons: Season[] = [
-  { year: "2023-24", champion: "Boston Celtics", mvp: "Nikola Jokic", finalsScore: "4-1 vs Dallas", topScorer: { name: "Luka Doncic", ppg: 33.9 } },
-  { year: "2022-23", champion: "Denver Nuggets", mvp: "Joel Embiid", finalsScore: "4-1 vs Miami", topScorer: { name: "Joel Embiid", ppg: 33.1 } },
-  { year: "2021-22", champion: "Golden State Warriors", mvp: "Nikola Jokic", finalsScore: "4-2 vs Boston", topScorer: { name: "Joel Embiid", ppg: 30.6 } },
-  { year: "2020-21", champion: "Milwaukee Bucks", mvp: "Nikola Jokic", finalsScore: "4-2 vs Phoenix", topScorer: { name: "Stephen Curry", ppg: 32.0 } },
-  { year: "2019-20", champion: "Los Angeles Lakers", mvp: "Giannis Antetokounmpo", finalsScore: "4-2 vs Miami", topScorer: { name: "James Harden", ppg: 34.3 } },
-];
 
 interface ChampionshipCount {
   team: string;
@@ -47,22 +28,41 @@ interface ChampionshipCount {
   lastWon: string;
 }
 
-const championshipCounts: ChampionshipCount[] = [
-  { team: "Boston Celtics", count: 18, lastWon: "2024" },
-  { team: "Los Angeles Lakers", count: 17, lastWon: "2020" },
-  { team: "Golden State Warriors", count: 7, lastWon: "2022" },
-  { team: "Chicago Bulls", count: 6, lastWon: "1998" },
-  { team: "San Antonio Spurs", count: 5, lastWon: "2014" },
-  { team: "Miami Heat", count: 3, lastWon: "2013" },
-  { team: "Detroit Pistons", count: 3, lastWon: "2004" },
-  { team: "Philadelphia 76ers", count: 3, lastWon: "1983" },
-];
-
 export default function HistoryPage() {
   const [activeTab, setActiveTab] = useState<"records" | "seasons" | "championships">("records");
   const [searchQuery, setSearchQuery] = useState("");
+  const [records, setRecords] = useState<HistoricalRecord[]>([]);
+  const [seasons, setSeasons] = useState<Season[]>([]);
+  const [championships, setChampionships] = useState<ChampionshipCount[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const filteredRecords = allTimeRecords.filter(r =>
+  useEffect(() => {
+    async function fetchData() {
+      setIsLoading(true);
+      try {
+        const [recordsRes, seasonsRes, championshipsRes] = await Promise.all([
+          fetch("/api/history/records"),
+          fetch("/api/history/seasons"),
+          fetch("/api/history/championships"),
+        ]);
+
+        const recordsData = await recordsRes.json();
+        const seasonsData = await seasonsRes.json();
+        const championshipsData = await championshipsRes.json();
+
+        if (recordsData.success) setRecords(recordsData.records || []);
+        if (seasonsData.success) setSeasons(seasonsData.seasons || []);
+        if (championshipsData.success) setChampionships(championshipsData.championships || []);
+      } catch (error) {
+        console.error("Error fetching history data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  const filteredRecords = records.filter(r =>
     r.holder.toLowerCase().includes(searchQuery.toLowerCase()) ||
     r.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -144,6 +144,22 @@ export default function HistoryPage() {
             </button>
           </div>
 
+          {isLoading ? (
+            <div style={{ textAlign: "center", padding: "60px 20px" }}>
+              <div style={{
+                width: "40px",
+                height: "40px",
+                border: "3px solid rgba(255,255,255,0.1)",
+                borderTopColor: "var(--orange)",
+                borderRadius: "50%",
+                margin: "0 auto 20px",
+                animation: "spin 1s linear infinite"
+              }} />
+              <p style={{ color: "rgba(255,255,255,0.6)" }}>Loading historical data...</p>
+              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            </div>
+          ) : (
+          <>
           {activeTab === "records" && (
             <div className="section">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
@@ -163,6 +179,11 @@ export default function HistoryPage() {
                 />
               </div>
 
+              {filteredRecords.length === 0 ? (
+                <p style={{ textAlign: "center", color: "rgba(255,255,255,0.5)", padding: "40px 0" }}>
+                  No records found. Historical records can be managed from the admin panel.
+                </p>
+              ) : (
               <div style={{ display: "grid", gap: "15px" }}>
                 {filteredRecords.map((record, index) => (
                   <div key={index} style={{
@@ -198,12 +219,18 @@ export default function HistoryPage() {
                   </div>
                 ))}
               </div>
+              )}
             </div>
           )}
 
           {activeTab === "seasons" && (
             <div className="section">
               <div className="section-title">Recent NBA Seasons</div>
+              {seasons.length === 0 ? (
+                <p style={{ textAlign: "center", color: "rgba(255,255,255,0.5)", padding: "40px 0" }}>
+                  No season history found. Season data can be managed from the admin panel.
+                </p>
+              ) : (
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr style={{ borderBottom: "2px solid var(--orange)" }}>
@@ -215,7 +242,7 @@ export default function HistoryPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {recentSeasons.map((season, index) => (
+                  {seasons.map((season, index) => (
                     <tr key={index} style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
                       <td style={{
                         padding: "15px",
@@ -234,27 +261,33 @@ export default function HistoryPage() {
                       <td style={{ padding: "15px", textAlign: "center" }}>{season.finalsScore}</td>
                       <td style={{ padding: "15px" }}>{season.mvp}</td>
                       <td style={{ padding: "15px" }}>
-                        {season.topScorer.name}
+                        {season.topScorer}
                         <span style={{
                           marginLeft: "10px",
                           fontFamily: "var(--font-roboto-mono), monospace",
                           color: "var(--green)"
                         }}>
-                          {season.topScorer.ppg} PPG
+                          {season.topScorerPpg} PPG
                         </span>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+              )}
             </div>
           )}
 
           {activeTab === "championships" && (
             <div className="section">
               <div className="section-title">All-Time Championship Leaders</div>
+              {championships.length === 0 ? (
+                <p style={{ textAlign: "center", color: "rgba(255,255,255,0.5)", padding: "40px 0" }}>
+                  No championship data found.
+                </p>
+              ) : (
               <div style={{ display: "grid", gap: "15px" }}>
-                {championshipCounts.map((team, index) => (
+                {championships.map((team, index) => (
                   <div key={team.team} style={{
                     display: "flex",
                     alignItems: "center",
@@ -303,7 +336,10 @@ export default function HistoryPage() {
                   </div>
                 ))}
               </div>
+              )}
             </div>
+          )}
+          </>
           )}
         </div>
       </main>

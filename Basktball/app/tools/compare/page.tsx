@@ -23,9 +23,9 @@ interface PlayerStats {
   tov: number;
 }
 
-// Sample stats for demonstration
-const sampleStats: Record<string, PlayerStats> = {
-  default: { ppg: 25.4, rpg: 7.2, apg: 6.8, spg: 1.2, bpg: 0.8, fgPct: 48.5, threePct: 38.2, ftPct: 85.6, mpg: 34.2, tov: 3.1 },
+const emptyStats: PlayerStats = {
+  ppg: 0, rpg: 0, apg: 0, spg: 0, bpg: 0,
+  fgPct: 0, threePct: 0, ftPct: 0, mpg: 0, tov: 0
 };
 
 function StatBar({ label, value1, value2, max }: { label: string; value1: number; value2: number; max: number }) {
@@ -73,10 +73,12 @@ export default function ComparePage() {
   const [players2, setPlayers2] = useState<Player[]>([]);
   const [selected1, setSelected1] = useState<Player | null>(null);
   const [selected2, setSelected2] = useState<Player | null>(null);
-  const [stats1, setStats1] = useState<PlayerStats>(sampleStats.default);
-  const [stats2, setStats2] = useState<PlayerStats>({ ...sampleStats.default, ppg: 22.1, rpg: 5.8, apg: 8.2, spg: 1.5, bpg: 0.3, fgPct: 45.2, threePct: 41.5, ftPct: 88.2, mpg: 35.8, tov: 2.8 });
+  const [stats1, setStats1] = useState<PlayerStats | null>(null);
+  const [stats2, setStats2] = useState<PlayerStats | null>(null);
   const [isSearching1, setIsSearching1] = useState(false);
   const [isSearching2, setIsSearching2] = useState(false);
+  const [loadingStats1, setLoadingStats1] = useState(false);
+  const [loadingStats2, setLoadingStats2] = useState(false);
 
   const searchPlayers = useCallback(async (query: string, setPlayers: (p: Player[]) => void, setSearching: (b: boolean) => void) => {
     if (query.length < 2) {
@@ -107,42 +109,34 @@ export default function ComparePage() {
     return () => clearTimeout(timer);
   }, [search2, searchPlayers]);
 
+  const fetchPlayerStats = async (playerId: string, setStats: (s: PlayerStats | null) => void, setLoading: (b: boolean) => void) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/players/${playerId}/stats`);
+      const data = await res.json();
+      if (data.success && data.stats) {
+        setStats(data.stats);
+      } else {
+        setStats(emptyStats);
+      }
+    } catch {
+      setStats(emptyStats);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const selectPlayer = (player: Player, side: 1 | 2) => {
     if (side === 1) {
       setSelected1(player);
       setSearch1("");
       setPlayers1([]);
-      // Generate random-ish stats based on player name for demo
-      const seed = player.name.length;
-      setStats1({
-        ppg: 20 + (seed % 15),
-        rpg: 4 + (seed % 8),
-        apg: 3 + (seed % 9),
-        spg: 0.8 + (seed % 15) / 10,
-        bpg: 0.3 + (seed % 12) / 10,
-        fgPct: 42 + (seed % 12),
-        threePct: 32 + (seed % 15),
-        ftPct: 75 + (seed % 20),
-        mpg: 28 + (seed % 10),
-        tov: 1.5 + (seed % 20) / 10,
-      });
+      fetchPlayerStats(player.id, setStats1, setLoadingStats1);
     } else {
       setSelected2(player);
       setSearch2("");
       setPlayers2([]);
-      const seed = player.name.length + 5;
-      setStats2({
-        ppg: 20 + (seed % 15),
-        rpg: 4 + (seed % 8),
-        apg: 3 + (seed % 9),
-        spg: 0.8 + (seed % 15) / 10,
-        bpg: 0.3 + (seed % 12) / 10,
-        fgPct: 42 + (seed % 12),
-        threePct: 32 + (seed % 15),
-        ftPct: 75 + (seed % 20),
-        mpg: 28 + (seed % 10),
-        tov: 1.5 + (seed % 20) / 10,
-      });
+      fetchPlayerStats(player.id, setStats2, setLoadingStats2);
     }
   };
 
@@ -320,16 +314,38 @@ export default function ComparePage() {
           {/* Stats Comparison */}
           <div className="section">
             <div className="section-title">Statistical Comparison</div>
-            <StatBar label="PPG" value1={stats1.ppg} value2={stats2.ppg} max={40} />
-            <StatBar label="RPG" value1={stats1.rpg} value2={stats2.rpg} max={15} />
-            <StatBar label="APG" value1={stats1.apg} value2={stats2.apg} max={12} />
-            <StatBar label="SPG" value1={stats1.spg} value2={stats2.spg} max={3} />
-            <StatBar label="BPG" value1={stats1.bpg} value2={stats2.bpg} max={3} />
-            <StatBar label="FG%" value1={stats1.fgPct} value2={stats2.fgPct} max={60} />
-            <StatBar label="3P%" value1={stats1.threePct} value2={stats2.threePct} max={50} />
-            <StatBar label="FT%" value1={stats1.ftPct} value2={stats2.ftPct} max={100} />
-            <StatBar label="MPG" value1={stats1.mpg} value2={stats2.mpg} max={42} />
-            <StatBar label="TOV" value1={stats1.tov} value2={stats2.tov} max={5} />
+            {!selected1 && !selected2 ? (
+              <p style={{ textAlign: "center", color: "rgba(255,255,255,0.5)", padding: "40px 0" }}>
+                Select two players to compare their statistics
+              </p>
+            ) : loadingStats1 || loadingStats2 ? (
+              <div style={{ textAlign: "center", padding: "40px 0" }}>
+                <div style={{
+                  width: "30px",
+                  height: "30px",
+                  border: "3px solid rgba(255,255,255,0.1)",
+                  borderTopColor: "var(--orange)",
+                  borderRadius: "50%",
+                  margin: "0 auto 15px",
+                  animation: "spin 1s linear infinite"
+                }} />
+                <p style={{ color: "rgba(255,255,255,0.6)" }}>Loading stats...</p>
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+              </div>
+            ) : (
+              <>
+                <StatBar label="PPG" value1={stats1?.ppg || 0} value2={stats2?.ppg || 0} max={40} />
+                <StatBar label="RPG" value1={stats1?.rpg || 0} value2={stats2?.rpg || 0} max={15} />
+                <StatBar label="APG" value1={stats1?.apg || 0} value2={stats2?.apg || 0} max={12} />
+                <StatBar label="SPG" value1={stats1?.spg || 0} value2={stats2?.spg || 0} max={3} />
+                <StatBar label="BPG" value1={stats1?.bpg || 0} value2={stats2?.bpg || 0} max={3} />
+                <StatBar label="FG%" value1={stats1?.fgPct || 0} value2={stats2?.fgPct || 0} max={60} />
+                <StatBar label="3P%" value1={stats1?.threePct || 0} value2={stats2?.threePct || 0} max={50} />
+                <StatBar label="FT%" value1={stats1?.ftPct || 0} value2={stats2?.ftPct || 0} max={100} />
+                <StatBar label="MPG" value1={stats1?.mpg || 0} value2={stats2?.mpg || 0} max={42} />
+                <StatBar label="TOV" value1={stats1?.tov || 0} value2={stats2?.tov || 0} max={5} />
+              </>
+            )}
           </div>
         </div>
       </main>

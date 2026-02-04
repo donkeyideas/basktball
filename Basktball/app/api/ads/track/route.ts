@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,27 +13,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // In production, update database:
-    // if (type === 'click') {
-    //   await prisma.adPlacement.update({
-    //     where: { id: adId },
-    //     data: { clicks: { increment: 1 } }
-    //   });
-    // } else if (type === 'impression') {
-    //   await prisma.adPlacement.update({
-    //     where: { id: adId },
-    //     data: { impressions: { increment: 1 } }
-    //   });
-    // }
+    // Skip tracking for fallback ads
+    if (adId.startsWith("fallback-")) {
+      console.log(`Fallback ad ${type} tracked:`, adId);
+      return NextResponse.json({ success: true, source: "fallback" });
+    }
 
-    console.log(`Ad ${type} tracked:`, adId);
+    // Update database based on interaction type
+    if (type === "click") {
+      await prisma.adPlacement.update({
+        where: { id: adId },
+        data: { clicks: { increment: 1 } },
+      });
+    } else if (type === "impression") {
+      await prisma.adPlacement.update({
+        where: { id: adId },
+        data: { impressions: { increment: 1 } },
+      });
+    }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, source: "database" });
   } catch (error) {
     console.error("Error tracking ad:", error);
-    return NextResponse.json(
-      { error: "Failed to track ad interaction" },
-      { status: 500 }
-    );
+    // Don't fail the request - tracking is non-critical
+    return NextResponse.json({ success: true, source: "failed" });
   }
 }

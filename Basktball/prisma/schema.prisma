@@ -385,6 +385,64 @@ enum AdSlot {
 }
 
 // =============================================================================
+// DRAFT & HISTORY SYSTEM
+// =============================================================================
+
+model DraftProspect {
+  id            String   @id @default(cuid())
+  rank          Int
+  name          String
+  position      String
+  school        String
+  height        String
+  weight        Int
+  age           Int
+  ppg           Float
+  rpg           Float
+  apg           Float
+  fgPct         Float
+  threePct      Float
+  strengths     String[]
+  weaknesses    String[]
+  comparison    String?
+  projectedPick String?
+  draftYear     Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([draftYear])
+  @@index([rank])
+}
+
+model HistoricalRecord {
+  id        String   @id @default(cuid())
+  category  String
+  record    String
+  holder    String
+  date      String
+  details   String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category])
+}
+
+model SeasonHistory {
+  id           String   @id @default(cuid())
+  year         String   @unique
+  champion     String
+  mvp          String
+  finalsScore  String
+  topScorer    String
+  topScorerPpg Float
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([year])
+}
+
+// =============================================================================
 // FUTURE: USER ACCOUNTS (Phase 2)
 // =============================================================================
 

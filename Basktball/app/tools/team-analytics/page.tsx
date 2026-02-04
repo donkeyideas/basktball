@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Header, Footer } from "@/components";
 
 interface TeamStats {
@@ -20,18 +20,6 @@ interface TeamStats {
   orbPct: number;
   ftRate: number;
 }
-
-// Sample team data
-const sampleTeams: TeamStats[] = [
-  { id: "1", name: "Boston Celtics", abbreviation: "BOS", wins: 42, losses: 12, ppg: 120.5, oppPpg: 109.2, pace: 100.8, offRtg: 119.5, defRtg: 108.2, netRtg: 11.3, efgPct: 58.2, tovPct: 12.1, orbPct: 24.5, ftRate: 0.232 },
-  { id: "2", name: "Denver Nuggets", abbreviation: "DEN", wins: 38, losses: 16, ppg: 115.8, oppPpg: 110.5, pace: 98.2, offRtg: 117.8, defRtg: 112.3, netRtg: 5.5, efgPct: 56.8, tovPct: 13.2, orbPct: 26.8, ftRate: 0.215 },
-  { id: "3", name: "Milwaukee Bucks", abbreviation: "MIL", wins: 36, losses: 18, ppg: 118.2, oppPpg: 113.8, pace: 101.5, offRtg: 116.4, defRtg: 112.0, netRtg: 4.4, efgPct: 55.5, tovPct: 11.8, orbPct: 25.2, ftRate: 0.248 },
-  { id: "4", name: "Oklahoma City Thunder", abbreviation: "OKC", wins: 40, losses: 14, ppg: 119.8, oppPpg: 108.5, pace: 99.8, offRtg: 120.0, defRtg: 108.6, netRtg: 11.4, efgPct: 57.2, tovPct: 12.5, orbPct: 28.2, ftRate: 0.228 },
-  { id: "5", name: "Cleveland Cavaliers", abbreviation: "CLE", wins: 37, losses: 17, ppg: 114.2, oppPpg: 107.8, pace: 97.5, offRtg: 117.0, defRtg: 110.5, netRtg: 6.5, efgPct: 56.2, tovPct: 11.5, orbPct: 27.5, ftRate: 0.205 },
-  { id: "6", name: "Phoenix Suns", abbreviation: "PHX", wins: 32, losses: 22, ppg: 116.5, oppPpg: 114.2, pace: 100.2, offRtg: 116.2, defRtg: 113.8, netRtg: 2.4, efgPct: 55.8, tovPct: 13.8, orbPct: 23.8, ftRate: 0.218 },
-  { id: "7", name: "Los Angeles Lakers", abbreviation: "LAL", wins: 30, losses: 24, ppg: 115.2, oppPpg: 113.5, pace: 99.5, offRtg: 115.8, defRtg: 114.0, netRtg: 1.8, efgPct: 54.8, tovPct: 14.2, orbPct: 26.2, ftRate: 0.235 },
-  { id: "8", name: "Miami Heat", abbreviation: "MIA", wins: 28, losses: 26, ppg: 110.8, oppPpg: 110.2, pace: 96.8, offRtg: 114.4, defRtg: 113.8, netRtg: 0.6, efgPct: 53.5, tovPct: 12.8, orbPct: 24.2, ftRate: 0.198 },
-];
 
 function StatRank({ value, rank, total, inverse = false }: { value: string; rank: number; total: number; inverse?: boolean }) {
   const percentile = inverse ? (total - rank + 1) / total : rank / total;
@@ -54,11 +42,30 @@ function StatRank({ value, rank, total, inverse = false }: { value: string; rank
 }
 
 export default function TeamAnalyticsPage() {
-  const [teams] = useState<TeamStats[]>(sampleTeams);
-  const [selectedTeam, setSelectedTeam] = useState<TeamStats>(sampleTeams[0]);
-  const [compareTeam, setCompareTeam] = useState<TeamStats | null>(null);
+  const [teams, setTeams] = useState<TeamStats[]>([]);
+  const [selectedTeam, setSelectedTeam] = useState<TeamStats | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [sortBy, setSortBy] = useState<keyof TeamStats>("netRtg");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+
+  useEffect(() => {
+    async function fetchTeams() {
+      try {
+        const res = await fetch("/api/teams/analytics");
+        const data = await res.json();
+
+        if (data.success && data.teams?.length > 0) {
+          setTeams(data.teams);
+          setSelectedTeam(data.teams[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching team analytics:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchTeams();
+  }, []);
 
   const sortedTeams = [...teams].sort((a, b) => {
     const aVal = a[sortBy];
@@ -115,13 +122,33 @@ export default function TeamAnalyticsPage() {
             Comprehensive team performance analysis including pace, efficiency, and trends.
           </p>
 
+          {isLoading ? (
+            <div style={{ textAlign: "center", padding: "60px 20px" }}>
+              <div style={{
+                width: "40px",
+                height: "40px",
+                border: "3px solid rgba(255,255,255,0.1)",
+                borderTopColor: "var(--orange)",
+                borderRadius: "50%",
+                margin: "0 auto 20px",
+                animation: "spin 1s linear infinite"
+              }} />
+              <p style={{ color: "rgba(255,255,255,0.6)" }}>Loading team analytics...</p>
+              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            </div>
+          ) : teams.length === 0 ? (
+            <div className="section" style={{ textAlign: "center", padding: "60px 20px" }}>
+              <p style={{ color: "rgba(255,255,255,0.6)", marginBottom: "10px" }}>No team analytics data available.</p>
+              <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "14px" }}>Check back later for updated team statistics.</p>
+            </div>
+          ) : (
           <div style={{ display: "grid", gridTemplateColumns: "350px 1fr", gap: "30px" }}>
             {/* Team Selector */}
             <div>
               <div className="section">
                 <div className="section-title">Select Team</div>
                 <select
-                  value={selectedTeam.id}
+                  value={selectedTeam?.id || ""}
                   onChange={(e) => {
                     const team = teams.find(t => t.id === e.target.value);
                     if (team) setSelectedTeam(team);
@@ -155,21 +182,22 @@ export default function TeamAnalyticsPage() {
                     fontSize: "32px",
                     fontWeight: "bold"
                   }}>
-                    {selectedTeam.abbreviation}
+                    {selectedTeam?.abbreviation}
                   </div>
                   <h3 style={{ fontFamily: "var(--font-anton), Anton, sans-serif", fontSize: "24px" }}>
-                    {selectedTeam.name}
+                    {selectedTeam?.name}
                   </h3>
                   <p style={{
                     fontFamily: "var(--font-roboto-mono), monospace",
                     fontSize: "20px",
                     marginTop: "5px"
                   }}>
-                    {selectedTeam.wins}-{selectedTeam.losses}
+                    {selectedTeam?.wins}-{selectedTeam?.losses}
                   </p>
                 </div>
 
                 {/* Quick Stats */}
+                {selectedTeam && (
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                   <div style={{ background: "rgba(0,0,0,0.3)", padding: "15px", textAlign: "center" }}>
                     <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", marginBottom: "5px" }}>PPG</div>
@@ -188,9 +216,11 @@ export default function TeamAnalyticsPage() {
                     <StatRank value={selectedTeam.defRtg.toFixed(1)} rank={getRank(selectedTeam, "defRtg", true)} total={teams.length} inverse />
                   </div>
                 </div>
+                )}
               </div>
 
               {/* Four Factors */}
+              {selectedTeam && (
               <div className="section">
                 <div className="section-title">Four Factors</div>
                 {[
@@ -217,6 +247,7 @@ export default function TeamAnalyticsPage() {
                   </div>
                 ))}
               </div>
+              )}
             </div>
 
             {/* Team Rankings Table */}
@@ -272,7 +303,7 @@ export default function TeamAnalyticsPage() {
                         onClick={() => setSelectedTeam(team)}
                         style={{
                           borderBottom: "1px solid rgba(255,255,255,0.1)",
-                          background: selectedTeam.id === team.id ? "rgba(255, 107, 53, 0.15)" : "transparent",
+                          background: selectedTeam?.id === team.id ? "rgba(255, 107, 53, 0.15)" : "transparent",
                           cursor: "pointer"
                         }}
                       >
@@ -320,6 +351,7 @@ export default function TeamAnalyticsPage() {
               </div>
             </div>
           </div>
+          )}
         </div>
       </main>
       <Footer />
