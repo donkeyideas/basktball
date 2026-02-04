@@ -5,6 +5,41 @@ import Image from "next/image";
 import Link from "next/link";
 import { Header, Footer } from "@/components";
 
+function TeamLogo({ logo, name, abbreviation }: { logo?: string; name: string; abbreviation: string }) {
+  const [imageError, setImageError] = useState(false);
+
+  if (!logo || imageError) {
+    return (
+      <div style={{
+        width: "100px",
+        height: "100px",
+        background: "var(--orange)",
+        borderRadius: "50%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontSize: "32px",
+        fontWeight: "bold",
+        marginBottom: "15px",
+      }}>
+        {abbreviation}
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={logo}
+      alt={name}
+      width={100}
+      height={100}
+      style={{ objectFit: "contain", marginBottom: "15px" }}
+      unoptimized
+      onError={() => setImageError(true)}
+    />
+  );
+}
+
 interface Team {
   id: string;
   name: string;
@@ -356,35 +391,11 @@ export default function GamePage({ params }: { params: Promise<{ id: string }> }
             }}>
               {/* Away Team */}
               <div style={{ textAlign: "center" }}>
-                {game.awayTeam.logo ? (
-                  <Image
-                    src={game.awayTeam.logo}
-                    alt={game.awayTeam.name}
-                    width={100}
-                    height={100}
-                    style={{ objectFit: "contain", marginBottom: "15px" }}
-                    unoptimized
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = "none";
-                    }}
-                  />
-                ) : (
-                  <div style={{
-                    width: "100px",
-                    height: "100px",
-                    background: "var(--orange)",
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "32px",
-                    fontWeight: "bold",
-                    marginBottom: "15px",
-                  }}>
-                    {game.awayTeam.abbreviation}
-                  </div>
-                )}
+                <TeamLogo
+                  logo={game.awayTeam.logo}
+                  name={game.awayTeam.name}
+                  abbreviation={game.awayTeam.abbreviation}
+                />
                 <h2 style={{
                   fontFamily: "var(--font-anton), Anton, sans-serif",
                   fontSize: "24px",
@@ -422,35 +433,11 @@ export default function GamePage({ params }: { params: Promise<{ id: string }> }
 
               {/* Home Team */}
               <div style={{ textAlign: "center" }}>
-                {game.homeTeam.logo ? (
-                  <Image
-                    src={game.homeTeam.logo}
-                    alt={game.homeTeam.name}
-                    width={100}
-                    height={100}
-                    style={{ objectFit: "contain", marginBottom: "15px" }}
-                    unoptimized
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = "none";
-                    }}
-                  />
-                ) : (
-                  <div style={{
-                    width: "100px",
-                    height: "100px",
-                    background: "var(--orange)",
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "32px",
-                    fontWeight: "bold",
-                    marginBottom: "15px",
-                  }}>
-                    {game.homeTeam.abbreviation}
-                  </div>
-                )}
+                <TeamLogo
+                  logo={game.homeTeam.logo}
+                  name={game.homeTeam.name}
+                  abbreviation={game.homeTeam.abbreviation}
+                />
                 <h2 style={{
                   fontFamily: "var(--font-anton), Anton, sans-serif",
                   fontSize: "24px",
