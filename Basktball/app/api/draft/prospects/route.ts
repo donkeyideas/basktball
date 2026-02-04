@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import prisma from "@/lib/db/prisma";
 
 // GET - Fetch draft prospects for public display
 export async function GET(request: NextRequest) {
