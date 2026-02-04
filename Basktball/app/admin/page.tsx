@@ -16,6 +16,7 @@ interface DashboardStats {
   pendingReviews: number;
   apiCalls24h: number;
   aiTokensUsed: number;
+  cacheHitRate: number | null;
 }
 
 interface ActivityItem {
@@ -35,9 +36,12 @@ export default function AdminDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isClearingCache, setIsClearingCache] = useState(false);
 
   const fetchDashboard = useCallback(async () => {
     try {
+      setIsRefreshing(true);
       const res = await fetch("/api/admin/dashboard");
       const json = await res.json();
       if (json.success) {
@@ -50,6 +54,7 @@ export default function AdminDashboard() {
       setError("Failed to connect to server");
     } finally {
       setIsLoading(false);
+      setIsRefreshing(false);
     }
   }, []);
 
@@ -61,10 +66,16 @@ export default function AdminDashboard() {
 
   const handleClearCache = async () => {
     try {
-      await fetch("/api/admin/cache/clear", { method: "POST" });
-      await fetchDashboard();
+      setIsClearingCache(true);
+      const res = await fetch("/api/admin/cache/clear", { method: "POST" });
+      const json = await res.json();
+      if (json.success) {
+        await fetchDashboard();
+      }
     } catch {
-      // Silent fail for cache clear
+      // Cache clear failed silently
+    } finally {
+      setIsClearingCache(false);
     }
   };
 
@@ -82,9 +93,7 @@ export default function AdminDashboard() {
   const stats = [
     {
       label: "Games Today",
-      value: data?.stats.totalGames || 0,
-      change: "+12%",
-      positive: true,
+      value: data?.stats.totalGames ?? "-",
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="12" cy="12" r="10" />
@@ -95,9 +104,7 @@ export default function AdminDashboard() {
     },
     {
       label: "AI Insights Generated",
-      value: data?.stats.totalInsights || 0,
-      change: "+8%",
-      positive: true,
+      value: data?.stats.totalInsights ?? "-",
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2z" />
@@ -108,9 +115,7 @@ export default function AdminDashboard() {
     },
     {
       label: "API Calls (24h)",
-      value: data?.stats.apiCalls24h || 0,
-      change: "-3%",
-      positive: false,
+      value: data?.stats.apiCalls24h ?? "-",
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
@@ -119,9 +124,7 @@ export default function AdminDashboard() {
     },
     {
       label: "Cache Hit Rate",
-      value: "94%",
-      change: "+2%",
-      positive: true,
+      value: data?.stats.cacheHitRate != null ? `${data.stats.cacheHitRate}%` : "-",
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M18 20V10" />
@@ -131,10 +134,8 @@ export default function AdminDashboard() {
       ),
     },
     {
-      label: "Active Users",
-      value: data?.stats.totalPlayers || 0,
-      change: "+15%",
-      positive: true,
+      label: "Total Players",
+      value: data?.stats.totalPlayers ?? "-",
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -146,9 +147,7 @@ export default function AdminDashboard() {
     },
     {
       label: "AI Tokens Used",
-      value: data?.stats.aiTokensUsed?.toLocaleString() || 0,
-      change: "+5%",
-      positive: true,
+      value: data?.stats.aiTokensUsed?.toLocaleString() ?? "-",
       icon: (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <line x1="12" y1="1" x2="12" y2="23" />
@@ -160,10 +159,10 @@ export default function AdminDashboard() {
 
   const healthItems = data?.status
     ? [
-        { name: "Main API", status: data.status.api, uptime: "99.9%" },
-        { name: "PostgreSQL", status: data.status.database, uptime: "99.8%" },
-        { name: "DeepSeek AI", status: data.status.aiService, uptime: "99.5%" },
-        { name: "Redis Cache", status: data.status.cache, uptime: "99.7%" },
+        { name: "Main API", status: data.status.api },
+        { name: "PostgreSQL", status: data.status.database },
+        { name: "DeepSeek AI", status: data.status.aiService },
+        { name: "Redis Cache", status: data.status.cache },
       ]
     : [];
 
@@ -173,17 +172,33 @@ export default function AdminDashboard() {
       <div className="admin-header">
         <h1>
           SYSTEM DASHBOARD
-          <span className="status-indicator">
-            <span className="pulse-dot"></span>
-            All Systems Operational
-          </span>
+          {data?.status && (
+            <span className="status-indicator">
+              <span className="pulse-dot" style={{
+                background: Object.values(data.status).every(s => s === "healthy")
+                  ? "var(--green)"
+                  : "var(--yellow)"
+              }}></span>
+              {Object.values(data.status).every(s => s === "healthy")
+                ? "All Systems Operational"
+                : "Some Issues Detected"}
+            </span>
+          )}
         </h1>
         <div style={{ display: "flex", gap: "15px" }}>
-          <button className="btn btn-primary" onClick={fetchDashboard}>
-            Refresh Data
+          <button
+            className="btn btn-primary"
+            onClick={fetchDashboard}
+            disabled={isRefreshing}
+          >
+            {isRefreshing ? "Refreshing..." : "Refresh Data"}
           </button>
-          <button className="btn btn-secondary" onClick={handleClearCache}>
-            Clear Cache
+          <button
+            className="btn btn-secondary"
+            onClick={handleClearCache}
+            disabled={isClearingCache}
+          >
+            {isClearingCache ? "Clearing..." : "Clear Cache"}
           </button>
         </div>
       </div>
@@ -210,20 +225,6 @@ export default function AdminDashboard() {
                   <div className="stat-icon">{stat.icon}</div>
                   <div className="value">{stat.value}</div>
                   <div className="label">{stat.label}</div>
-                  <div className={`change ${stat.positive ? "positive" : "negative"}`}>
-                    {stat.positive ? (
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-                        <polyline points="17 6 23 6 23 12" />
-                      </svg>
-                    ) : (
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
-                        <polyline points="17 18 23 18 23 12" />
-                      </svg>
-                    )}
-                    {stat.change}
-                  </div>
                 </div>
               ))}
             </div>
@@ -239,7 +240,7 @@ export default function AdminDashboard() {
                       <div key={item.id} className="activity-item">
                         <span className="activity-time">{item.time}</span>
                         <div className="activity-content">
-                          <span dangerouslySetInnerHTML={{ __html: item.message.replace(/(\w+):/g, "<strong>$1:</strong>") }} />
+                          <span>{item.message}</span>
                           <div className="activity-user">
                             {item.type === "job" ? "System" : "AI Bot"}
                           </div>
@@ -258,29 +259,26 @@ export default function AdminDashboard() {
               <div className="section">
                 <div className="section-title">API Health</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-                  {healthItems.map((item) => (
-                    <div key={item.name} className="health-item">
-                      <div>
-                        <h4>{item.name}</h4>
-                        <span>Uptime: {item.uptime}</span>
+                  {healthItems.length > 0 ? (
+                    healthItems.map((item) => (
+                      <div key={item.name} className="health-item">
+                        <div>
+                          <h4>{item.name}</h4>
+                        </div>
+                        <span
+                          className={`health-badge ${item.status}`}
+                          style={{ color: getStatusColor(item.status) }}
+                        >
+                          {item.status.toUpperCase()}
+                        </span>
                       </div>
-                      <span
-                        className={`health-badge ${item.status}`}
-                        style={{ color: getStatusColor(item.status) }}
-                      >
-                        {item.status.toUpperCase()}
-                      </span>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <p style={{ color: "rgba(255,255,255,0.5)", padding: "20px" }}>
+                      Unable to check health status
+                    </p>
+                  )}
                 </div>
-              </div>
-            </div>
-
-            {/* Traffic Chart Placeholder */}
-            <div className="section" style={{ marginTop: "30px" }}>
-              <div className="section-title">Traffic Overview (24h)</div>
-              <div className="chart-placeholder">
-                Chart will be integrated here
               </div>
             </div>
           </>

@@ -51,7 +51,11 @@ export default function AdminContentPage() {
 
   async function approveContent(id: string) {
     try {
-      await fetch(`/api/admin/content/${id}/approve`, { method: "POST" });
+      await fetch("/api/admin/content", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, action: "approve" }),
+      });
       await fetchContent();
     } catch {
       // Silent fail
@@ -61,7 +65,7 @@ export default function AdminContentPage() {
   async function deleteContent(id: string) {
     if (!confirm("Are you sure you want to delete this content?")) return;
     try {
-      await fetch(`/api/admin/content/${id}`, { method: "DELETE" });
+      await fetch(`/api/admin/content?id=${id}`, { method: "DELETE" });
       await fetchContent();
     } catch {
       // Silent fail

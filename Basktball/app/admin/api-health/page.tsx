@@ -9,6 +9,12 @@ interface HealthStatus {
   cache: "healthy" | "degraded" | "down";
 }
 
+interface ExternalApiStatus {
+  name: string;
+  status: "healthy" | "degraded" | "down" | "checking";
+  description: string;
+}
+
 const healthItems = [
   { key: "api", name: "Main API", description: "Core application endpoints" },
   { key: "database", name: "PostgreSQL", description: "Primary database" },
@@ -16,16 +22,17 @@ const healthItems = [
   { key: "cache", name: "Redis Cache", description: "Caching layer" },
 ];
 
-const externalApis = [
-  { name: "NBA Stats API", status: "healthy", uptime: "99.9%" },
-  { name: "WNBA API", status: "healthy", uptime: "99.8%" },
-  { name: "NCAA Stats API", status: "healthy", uptime: "99.5%" },
-  { name: "EuroLeague API", status: "degraded", uptime: "98.2%" },
-  { name: "BallDontLie API", status: "healthy", uptime: "99.7%" },
+const externalApiConfigs = [
+  { name: "ESPN NBA API", endpoint: "/api/games?league=nba", description: "NBA game data" },
+  { name: "ESPN WNBA API", endpoint: "/api/games?league=wnba", description: "WNBA game data" },
+  { name: "ESPN NCAA API", endpoint: "/api/games?league=ncaam", description: "NCAA game data" },
 ];
 
 export default function AdminApiHealthPage() {
   const [status, setStatus] = useState<HealthStatus | null>(null);
+  const [externalApis, setExternalApis] = useState<ExternalApiStatus[]>(
+    externalApiConfigs.map(c => ({ name: c.name, status: "checking", description: c.description }))
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
@@ -48,16 +55,53 @@ export default function AdminApiHealthPage() {
     }
   }, []);
 
+  const checkExternalApis = useCallback(async () => {
+    const results: ExternalApiStatus[] = [];
+
+    for (const config of externalApiConfigs) {
+      try {
+        const start = Date.now();
+        const res = await fetch(config.endpoint);
+        const elapsed = Date.now() - start;
+        const data = await res.json();
+
+        let status: "healthy" | "degraded" | "down" = "down";
+        if (data.success) {
+          status = elapsed > 3000 ? "degraded" : "healthy";
+        }
+
+        results.push({
+          name: config.name,
+          status,
+          description: config.description,
+        });
+      } catch {
+        results.push({
+          name: config.name,
+          status: "down",
+          description: config.description,
+        });
+      }
+    }
+
+    setExternalApis(results);
+  }, []);
+
   useEffect(() => {
     fetchHealth();
-    const interval = setInterval(fetchHealth, 30000);
+    checkExternalApis();
+    const interval = setInterval(() => {
+      fetchHealth();
+      checkExternalApis();
+    }, 60000);
     return () => clearInterval(interval);
-  }, [fetchHealth]);
+  }, [fetchHealth, checkExternalApis]);
 
   const getStatusColor = (s: string) => {
     switch (s) {
       case "healthy": return "var(--green)";
       case "degraded": return "var(--yellow)";
+      case "checking": return "rgba(255,255,255,0.5)";
       default: return "var(--red)";
     }
   };
@@ -66,6 +110,7 @@ export default function AdminApiHealthPage() {
     switch (s) {
       case "healthy": return "healthy";
       case "degraded": return "degraded";
+      case "checking": return "paused";
       default: return "error";
     }
   };
@@ -77,14 +122,16 @@ export default function AdminApiHealthPage() {
       <div className="admin-header">
         <h1>
           API HEALTH
-          <span className="status-indicator" style={{
-            color: allHealthy ? "var(--green)" : "var(--yellow)"
-          }}>
-            <span className="pulse-dot" style={{
-              background: allHealthy ? "var(--green)" : "var(--yellow)"
-            }}></span>
-            {allHealthy ? "All Systems Operational" : "Some Issues Detected"}
-          </span>
+          {status && (
+            <span className="status-indicator" style={{
+              color: allHealthy ? "var(--green)" : "var(--yellow)"
+            }}>
+              <span className="pulse-dot" style={{
+                background: allHealthy ? "var(--green)" : "var(--yellow)"
+              }}></span>
+              {allHealthy ? "All Systems Operational" : "Some Issues Detected"}
+            </span>
+          )}
         </h1>
         <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
           {lastChecked && (
@@ -92,7 +139,7 @@ export default function AdminApiHealthPage() {
               Last checked: {lastChecked.toLocaleTimeString()}
             </span>
           )}
-          <button className="btn btn-primary" onClick={fetchHealth}>
+          <button className="btn btn-primary" onClick={() => { fetchHealth(); checkExternalApis(); }}>
             Check Now
           </button>
         </div>
@@ -132,13 +179,13 @@ export default function AdminApiHealthPage() {
 
             {/* External APIs */}
             <div className="section">
-              <div className="section-title">External APIs</div>
+              <div className="section-title">External Data Sources</div>
               <div className="health-grid">
                 {externalApis.map(api => (
                   <div key={api.name} className="health-item">
                     <div>
                       <h4>{api.name}</h4>
-                      <span>Uptime: {api.uptime}</span>
+                      <span>{api.description}</span>
                     </div>
                     <span
                       className={`health-badge ${getStatusBadgeClass(api.status)}`}
@@ -148,14 +195,6 @@ export default function AdminApiHealthPage() {
                     </span>
                   </div>
                 ))}
-              </div>
-            </div>
-
-            {/* Response Times Chart */}
-            <div className="section">
-              <div className="section-title">Response Times (24h)</div>
-              <div className="chart-placeholder">
-                Response time chart will be integrated here
               </div>
             </div>
           </>

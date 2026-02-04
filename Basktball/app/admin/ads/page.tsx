@@ -2,19 +2,35 @@
 
 import { useState, useEffect } from "react";
 
-interface AdSlot {
+interface Campaign {
   id: string;
   name: string;
-  location: string;
-  enabled: boolean;
+  status: string;
+  startDate: string | null;
+  endDate: string | null;
   impressions: number;
   clicks: number;
-  ctr: string;
-  revenue: number;
+  ctr: number;
+  placements: Array<{
+    id: string;
+    slot: string;
+    imageUrl: string | null;
+    linkUrl: string | null;
+    impressions: number;
+    clicks: number;
+  }>;
+}
+
+interface AdsStats {
+  activeCampaigns: number;
+  totalImpressions: number;
+  totalClicks: number;
+  overallCTR: number;
 }
 
 export default function AdminAdsPage() {
-  const [slots, setSlots] = useState<AdSlot[]>([]);
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [stats, setStats] = useState<AdsStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,10 +39,11 @@ export default function AdminAdsPage() {
       const res = await fetch("/api/admin/ads");
       const data = await res.json();
       if (data.success) {
-        setSlots(data.slots || []);
+        setCampaigns(data.campaigns || []);
+        setStats(data.stats || null);
         setError(null);
       } else {
-        setError(data.error || "Failed to load ad slots");
+        setError(data.error || "Failed to load ads");
       }
     } catch {
       setError("Failed to connect to server");
@@ -38,23 +55,6 @@ export default function AdminAdsPage() {
   useEffect(() => {
     fetchAds();
   }, []);
-
-  async function toggleSlot(slotId: string, enabled: boolean) {
-    try {
-      await fetch(`/api/admin/ads/${slotId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ enabled }),
-      });
-      await fetchAds();
-    } catch {
-      // Silent fail
-    }
-  }
-
-  const totalRevenue = slots.reduce((sum, slot) => sum + slot.revenue, 0);
-  const totalImpressions = slots.reduce((sum, slot) => sum + slot.impressions, 0);
-  const totalClicks = slots.reduce((sum, slot) => sum + slot.clicks, 0);
 
   return (
     <>
@@ -76,12 +76,13 @@ export default function AdminAdsPage() {
           <div className="stat-card">
             <div className="stat-icon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="12" y1="1" x2="12" y2="23" />
-                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <line x1="3" y1="9" x2="21" y2="9" />
+                <line x1="9" y1="21" x2="9" y2="9" />
               </svg>
             </div>
-            <div className="value">${totalRevenue.toFixed(2)}</div>
-            <div className="label">Total Revenue (30d)</div>
+            <div className="value">{stats?.activeCampaigns ?? "-"}</div>
+            <div className="label">Active Campaigns</div>
           </div>
           <div className="stat-card">
             <div className="stat-icon">
@@ -90,7 +91,7 @@ export default function AdminAdsPage() {
                 <circle cx="12" cy="12" r="3" />
               </svg>
             </div>
-            <div className="value">{totalImpressions.toLocaleString()}</div>
+            <div className="value">{stats?.totalImpressions?.toLocaleString() ?? "-"}</div>
             <div className="label">Total Impressions</div>
           </div>
           <div className="stat-card">
@@ -101,7 +102,7 @@ export default function AdminAdsPage() {
                 <line x1="15" y1="12" x2="3" y2="12" />
               </svg>
             </div>
-            <div className="value">{totalClicks.toLocaleString()}</div>
+            <div className="value">{stats?.totalClicks?.toLocaleString() ?? "-"}</div>
             <div className="label">Total Clicks</div>
           </div>
           <div className="stat-card">
@@ -112,16 +113,14 @@ export default function AdminAdsPage() {
                 <line x1="6" y1="20" x2="6" y2="14" />
               </svg>
             </div>
-            <div className="value">
-              {totalImpressions > 0 ? ((totalClicks / totalImpressions) * 100).toFixed(2) : "0.00"}%
-            </div>
+            <div className="value">{stats?.overallCTR?.toFixed(2) ?? "-"}%</div>
             <div className="label">Average CTR</div>
           </div>
         </div>
 
         {isLoading ? (
           <div style={{ textAlign: "center", padding: "60px" }}>
-            <p style={{ color: "rgba(255,255,255,0.5)" }}>Loading ad slots...</p>
+            <p style={{ color: "rgba(255,255,255,0.5)" }}>Loading campaigns...</p>
           </div>
         ) : error ? (
           <div style={{ textAlign: "center", padding: "60px" }}>
@@ -129,51 +128,50 @@ export default function AdminAdsPage() {
           </div>
         ) : (
           <div className="section">
-            <div className="section-title">Ad Slots</div>
+            <div className="section-title">Campaigns</div>
             <table className="jobs-table">
               <thead>
                 <tr>
-                  <th>SLOT NAME</th>
-                  <th>LOCATION</th>
+                  <th>CAMPAIGN</th>
+                  <th>STATUS</th>
+                  <th>DATE RANGE</th>
                   <th>IMPRESSIONS</th>
                   <th>CLICKS</th>
                   <th>CTR</th>
-                  <th>REVENUE</th>
-                  <th>STATUS</th>
                 </tr>
               </thead>
               <tbody>
-                {slots.length === 0 ? (
+                {campaigns.length === 0 ? (
                   <tr>
-                    <td colSpan={7} style={{ textAlign: "center", color: "rgba(255,255,255,0.5)" }}>
-                      No ad slots configured
+                    <td colSpan={6} style={{ textAlign: "center", color: "rgba(255,255,255,0.5)" }}>
+                      No campaigns created
                     </td>
                   </tr>
                 ) : (
-                  slots.map(slot => (
-                    <tr key={slot.id}>
-                      <td style={{ fontWeight: "600" }}>{slot.name}</td>
-                      <td style={{ color: "rgba(255,255,255,0.6)" }}>{slot.location}</td>
-                      <td style={{ fontFamily: "var(--font-roboto-mono), monospace" }}>
-                        {slot.impressions.toLocaleString()}
-                      </td>
-                      <td style={{ fontFamily: "var(--font-roboto-mono), monospace" }}>
-                        {slot.clicks.toLocaleString()}
-                      </td>
-                      <td style={{ fontFamily: "var(--font-roboto-mono), monospace" }}>
-                        {slot.ctr}
-                      </td>
-                      <td style={{ fontFamily: "var(--font-roboto-mono), monospace", color: "var(--green)" }}>
-                        ${slot.revenue.toFixed(2)}
+                  campaigns.map(campaign => (
+                    <tr key={campaign.id}>
+                      <td>
+                        <div style={{ fontWeight: "600" }}>{campaign.name}</div>
+                        <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>
+                          {campaign.placements.length} placement(s)
+                        </div>
                       </td>
                       <td>
-                        <button
-                          onClick={() => toggleSlot(slot.id, !slot.enabled)}
-                          className={`job-status ${slot.enabled ? "success" : "paused"}`}
-                          style={{ cursor: "pointer", border: "none" }}
-                        >
-                          {slot.enabled ? "ENABLED" : "DISABLED"}
-                        </button>
+                        <span className={`job-status ${campaign.status === "ACTIVE" ? "success" : campaign.status === "PAUSED" ? "paused" : "running"}`}>
+                          {campaign.status}
+                        </span>
+                      </td>
+                      <td style={{ fontSize: "14px" }}>
+                        {campaign.startDate || "-"} to {campaign.endDate || "-"}
+                      </td>
+                      <td style={{ fontFamily: "var(--font-roboto-mono), monospace" }}>
+                        {campaign.impressions.toLocaleString()}
+                      </td>
+                      <td style={{ fontFamily: "var(--font-roboto-mono), monospace" }}>
+                        {campaign.clicks.toLocaleString()}
+                      </td>
+                      <td style={{ fontFamily: "var(--font-roboto-mono), monospace" }}>
+                        {campaign.ctr.toFixed(2)}%
                       </td>
                     </tr>
                   ))

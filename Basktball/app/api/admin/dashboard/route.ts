@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/db/prisma";
+import { cache } from "@/lib/cache/redis";
 
 export const dynamic = "force-dynamic";
 
@@ -9,48 +11,8 @@ interface SystemStatus {
   cache: "healthy" | "degraded" | "down";
 }
 
-// Check if database is configured
-const isDatabaseConfigured = !!process.env.DATABASE_URL;
-
-// Demo data for when database isn't configured
-function getDemoData() {
-  return {
-    success: true,
-    status: {
-      api: "healthy" as const,
-      database: isDatabaseConfigured ? ("healthy" as const) : ("degraded" as const),
-      aiService: process.env.DEEPSEEK_API_KEY ? ("healthy" as const) : ("degraded" as const),
-      cache: "healthy" as const,
-    },
-    stats: {
-      totalGames: 12,
-      totalPlayers: 450,
-      totalInsights: 156,
-      pendingReviews: 8,
-      apiCalls24h: 2847,
-      aiTokensUsed: 125000,
-    },
-    recentActivity: [
-      { id: "1", type: "insight" as const, message: "Generated game preview: LAL vs BOS", time: "5 min ago" },
-      { id: "2", type: "job" as const, message: "live-scores-sync completed", time: "10 min ago" },
-      { id: "3", type: "insight" as const, message: "Generated player spotlight: LeBron James", time: "15 min ago" },
-      { id: "4", type: "job" as const, message: "standings-update completed", time: "30 min ago" },
-      { id: "5", type: "insight" as const, message: "Generated game recap: MIA vs NYK", time: "1 hour ago" },
-    ],
-  };
-}
-
 export async function GET() {
   try {
-    // If database isn't configured, return demo data
-    if (!isDatabaseConfigured) {
-      return NextResponse.json(getDemoData());
-    }
-
-    // Try to load prisma and cache dynamically only if database is configured
-    const { prisma } = await import("@/lib/db/prisma");
-    const { cache } = await import("@/lib/cache/redis");
-
     // Check system status
     const status: SystemStatus = {
       api: "healthy",
@@ -67,21 +29,27 @@ export async function GET() {
       status.database = "down";
     }
 
-    // Check cache
+    // Check cache and get cache stats
+    let cacheHitRate: number | null = null;
     try {
       await cache.set("health-check", "ok", 10);
       const result = await cache.get("health-check");
       status.cache = result === "ok" ? "healthy" : "degraded";
+
+      // Try to get cache stats if available
+      // Note: Upstash doesn't provide hit rate directly, would need custom tracking
+      cacheHitRate = null; // No way to get real hit rate without custom implementation
     } catch {
       status.cache = "degraded";
     }
 
     // Get counts from database
     const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
     const [
-      totalGames,
+      gamesToday,
       totalPlayers,
       totalInsights,
       pendingReviews,
@@ -89,7 +57,9 @@ export async function GET() {
       recentJobRuns,
       recentInsights,
     ] = await Promise.all([
-      prisma.game.count(),
+      prisma.game.count({
+        where: { gameDate: { gte: today } },
+      }),
       prisma.player.count(),
       prisma.aiInsight.count(),
       prisma.aiInsight.count({ where: { approved: false } }),
@@ -170,19 +140,22 @@ export async function GET() {
       success: true,
       status,
       stats: {
-        totalGames,
+        totalGames: gamesToday,
         totalPlayers,
         totalInsights,
         pendingReviews,
         apiCalls24h: apiLogs24h,
         aiTokensUsed: tokenUsageResult._sum.tokenUsage || 0,
+        cacheHitRate,
       },
       recentActivity,
     });
   } catch (error) {
     console.error("Dashboard API error:", error);
-    // Return demo data on error instead of failing
-    return NextResponse.json(getDemoData());
+    return NextResponse.json(
+      { success: false, error: "Failed to fetch dashboard data" },
+      { status: 500 }
+    );
   }
 }
 
