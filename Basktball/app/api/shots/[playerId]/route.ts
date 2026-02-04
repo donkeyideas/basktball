@@ -12,35 +12,34 @@ interface Shot {
   quarter: number;
 }
 
-// Player shooting profiles (based on real stats)
+// Player shooting profiles (2025-26 season stats)
 const PLAYER_PROFILES: Record<string, { fgPct: number; threePct: number; threeRate: number }> = {
-  "1629029": { fgPct: 48.7, threePct: 35.4, threeRate: 0.35 }, // Luka
-  "1628983": { fgPct: 53.5, threePct: 35.3, threeRate: 0.25 }, // SGA
-  "203507": { fgPct: 60.5, threePct: 27.1, threeRate: 0.15 },  // Giannis
-  "203954": { fgPct: 52.1, threePct: 38.8, threeRate: 0.20 },  // Embiid
-  "1628369": { fgPct: 45.8, threePct: 37.6, threeRate: 0.40 }, // Tatum
-  "203999": { fgPct: 58.2, threePct: 36.4, threeRate: 0.25 },  // Jokic
-  "1629027": { fgPct: 43.0, threePct: 34.2, threeRate: 0.45 }, // Trae
-  "201142": { fgPct: 52.3, threePct: 42.1, threeRate: 0.35 },  // KD
-  "1626164": { fgPct: 49.2, threePct: 38.9, threeRate: 0.35 }, // Booker
-  "203076": { fgPct: 55.6, threePct: 32.4, threeRate: 0.15 },  // AD
-  "1628378": { fgPct: 45.2, threePct: 36.8, threeRate: 0.40 }, // Mitchell
-  "1630162": { fgPct: 44.5, threePct: 35.5, threeRate: 0.35 }, // Edwards
-  "1629630": { fgPct: 46.8, threePct: 31.2, threeRate: 0.25 }, // Ja Morant
-  "1630595": { fgPct: 43.2, threePct: 34.5, threeRate: 0.35 }, // Cade
-  "1641705": { fgPct: 46.5, threePct: 32.8, threeRate: 0.30 }, // Wemby
-  "1628368": { fgPct: 47.2, threePct: 33.5, threeRate: 0.30 }, // Fox
-  "1629639": { fgPct: 44.8, threePct: 36.4, threeRate: 0.50 }, // Haliburton
-  "203081": { fgPct: 43.8, threePct: 36.2, threeRate: 0.45 },  // Lillard
-  "1630163": { fgPct: 43.5, threePct: 35.8, threeRate: 0.40 }, // LaMelo
-  "203506": { fgPct: 59.4, threePct: 32.7, threeRate: 0.15 },  // Sabonis
-  "1630559": { fgPct: 45.5, threePct: 34.2, threeRate: 0.30 }, // Franz
-  "203110": { fgPct: 44.5, threePct: 37.5, threeRate: 0.40 },  // Garland
-  "1629628": { fgPct: 44.8, threePct: 33.8, threeRate: 0.30 }, // RJ Barrett
-  "1630224": { fgPct: 45.8, threePct: 37.2, threeRate: 0.40 }, // Maxey
-  "1628991": { fgPct: 47.1, threePct: 32.4, threeRate: 0.30 }, // JJJ
-  "202691": { fgPct: 43.5, threePct: 38.5, threeRate: 0.60 },  // Klay
-  "203497": { fgPct: 66.8, threePct: 0.0, threeRate: 0.00 },   // Gobert
+  "1629029": { fgPct: 47.5, threePct: 35.2, threeRate: 0.35 }, // Luka (LAL)
+  "1628983": { fgPct: 53.2, threePct: 35.5, threeRate: 0.25 }, // SGA
+  "1630162": { fgPct: 45.2, threePct: 35.8, threeRate: 0.35 }, // Edwards
+  "1627759": { fgPct: 50.5, threePct: 36.8, threeRate: 0.35 }, // Jaylen Brown
+  "1630224": { fgPct: 45.8, threePct: 38.2, threeRate: 0.40 }, // Maxey
+  "1628378": { fgPct: 46.8, threePct: 39.2, threeRate: 0.40 }, // Mitchell
+  "202695": { fgPct: 51.2, threePct: 39.5, threeRate: 0.30 },  // Kawhi
+  "1628374": { fgPct: 46.2, threePct: 38.8, threeRate: 0.45 }, // Markkanen
+  "201939": { fgPct: 45.5, threePct: 41.5, threeRate: 0.55 },  // Curry
+  "1628973": { fgPct: 47.2, threePct: 38.5, threeRate: 0.40 }, // Brunson
+  "201142": { fgPct: 52.8, threePct: 40.5, threeRate: 0.35 },  // KD (HOU)
+  "1628966": { fgPct: 48.5, threePct: 38.5, threeRate: 0.45 }, // MPJ (BKN)
+  "1628969": { fgPct: 48.5, threePct: 37.2, threeRate: 0.40 }, // Murray
+  "1630166": { fgPct: 46.5, threePct: 36.2, threeRate: 0.35 }, // Avdija
+  "1626164": { fgPct: 48.8, threePct: 38.5, threeRate: 0.35 }, // Booker
+  "201935": { fgPct: 44.2, threePct: 36.5, threeRate: 0.50 },  // Harden
+  "1630595": { fgPct: 44.8, threePct: 35.5, threeRate: 0.40 }, // Cade
+  "1630524": { fgPct: 42.5, threePct: 35.2, threeRate: 0.50 }, // Keyonte George
+  "1641705": { fgPct: 47.8, threePct: 34.5, threeRate: 0.35 }, // Wemby
+  "1627783": { fgPct: 49.5, threePct: 33.5, threeRate: 0.25 }, // Siakam
+  "1629636": { fgPct: 48.2, threePct: 33.2, threeRate: 0.25 }, // Jalen Johnson
+  "1626181": { fgPct: 47.8, threePct: 40.2, threeRate: 0.45 }, // Norman Powell
+  "203944": { fgPct: 45.2, threePct: 35.5, threeRate: 0.30 },  // Randle
+  "1627742": { fgPct: 47.5, threePct: 34.8, threeRate: 0.30 }, // Ingram
+  "1630549": { fgPct: 45.8, threePct: 36.5, threeRate: 0.40 }, // Sharpe
+  "2544": { fgPct: 50.2, threePct: 37.5, threeRate: 0.30 },    // LeBron
 };
 
 const DEFAULT_PROFILE = { fgPct: 45.0, threePct: 35.0, threeRate: 0.30 };
