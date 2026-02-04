@@ -41,6 +41,15 @@ const TOP_PLAYERS: Record<string, {
   "1628991": { name: "Jaren Jackson Jr.", team: "MEM", teamName: "Memphis Grizzlies", position: "F-C", ppg: 21.5, rpg: 5.8, apg: 1.8, spg: 0.8, bpg: 1.8, fgPct: 47.1, threePct: 32.4, ftPct: 79.5, gamesPlayed: 40 },
   "203081": { name: "Damian Lillard", team: "MIL", teamName: "Milwaukee Bucks", position: "G", ppg: 25.1, rpg: 4.5, apg: 7.3, spg: 1.0, bpg: 0.3, fgPct: 43.8, threePct: 36.2, ftPct: 91.4, gamesPlayed: 44 },
   "202691": { name: "Klay Thompson", team: "DAL", teamName: "Dallas Mavericks", position: "G", ppg: 14.2, rpg: 3.5, apg: 2.1, spg: 0.6, bpg: 0.5, fgPct: 43.5, threePct: 38.5, ftPct: 92.1, gamesPlayed: 46 },
+  // Additional players from stats leaders
+  "1628378": { name: "Donovan Mitchell", team: "CLE", teamName: "Cleveland Cavaliers", position: "G", ppg: 24.5, rpg: 4.8, apg: 4.6, spg: 1.4, bpg: 0.3, fgPct: 45.2, threePct: 36.8, ftPct: 86.5, gamesPlayed: 46 },
+  "1630162": { name: "Anthony Edwards", team: "MIN", teamName: "Minnesota Timberwolves", position: "G", ppg: 24.2, rpg: 7.8, apg: 4.8, spg: 1.2, bpg: 0.5, fgPct: 44.5, threePct: 35.5, ftPct: 84.2, gamesPlayed: 47 },
+  "1630559": { name: "Franz Wagner", team: "ORL", teamName: "Orlando Magic", position: "F", ppg: 23.8, rpg: 5.9, apg: 4.2, spg: 0.9, bpg: 0.5, fgPct: 45.5, threePct: 34.2, ftPct: 85.8, gamesPlayed: 44 },
+  "1629630": { name: "Ja Morant", team: "MEM", teamName: "Memphis Grizzlies", position: "G", ppg: 24.8, rpg: 5.4, apg: 5.8, spg: 1.0, bpg: 0.4, fgPct: 46.8, threePct: 31.2, ftPct: 82.5, gamesPlayed: 35 },
+  "1630595": { name: "Cade Cunningham", team: "DET", teamName: "Detroit Pistons", position: "G", ppg: 20.5, rpg: 4.3, apg: 7.8, spg: 1.1, bpg: 0.4, fgPct: 43.2, threePct: 34.5, ftPct: 84.8, gamesPlayed: 45 },
+  "203110": { name: "Darius Garland", team: "CLE", teamName: "Cleveland Cavaliers", position: "G", ppg: 21.2, rpg: 2.8, apg: 6.8, spg: 0.8, bpg: 0.1, fgPct: 44.5, threePct: 37.5, ftPct: 88.2, gamesPlayed: 43 },
+  "1629628": { name: "RJ Barrett", team: "TOR", teamName: "Toronto Raptors", position: "F", ppg: 20.8, rpg: 5.6, apg: 4.5, spg: 0.8, bpg: 0.6, fgPct: 44.8, threePct: 33.8, ftPct: 78.5, gamesPlayed: 42 },
+  "1630224": { name: "Tyrese Maxey", team: "PHI", teamName: "Philadelphia 76ers", position: "G", ppg: 18.9, rpg: 3.2, apg: 5.2, spg: 0.9, bpg: 0.2, fgPct: 45.8, threePct: 37.2, ftPct: 87.5, gamesPlayed: 38 },
 };
 
 // GET - Fetch player details by NBA ID
