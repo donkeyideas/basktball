@@ -141,14 +141,20 @@ function normalizeEspnGame(event: EspnEvent): NormalizedGame | null {
   if (status.type.state === "post" || status.type.completed) {
     gameStatus = "final";
   } else if (status.type.state === "in") {
-    // Only mark as live if the game has actually started
-    // A game that's truly live should have a period > 0 or some score
-    if (period > 0 || homeScore > 0 || awayScore > 0) {
+    // Only mark as live if the game has ACTUAL scores
+    // ESPN sets state="in" and period=1 before games start, so we need actual scores
+    // OR a running clock (displayClock that's not "0:00" or empty)
+    const hasScores = homeScore > 0 || awayScore > 0;
+    const hasRunningClock = status.displayClock && status.displayClock !== "0:00" && period > 0;
+
+    if (hasScores || hasRunningClock) {
       gameStatus = "live";
     } else {
-      // ESPN says "in" but no scores/period yet - game hasn't actually started
+      // ESPN says "in" but no scores and no clock running - game hasn't actually started
       gameStatus = "scheduled";
     }
+  } else if (status.type.state === "pre") {
+    gameStatus = "scheduled";
   }
 
   return {
