@@ -381,7 +381,9 @@ export default function PlayerPage({ params }: { params: Promise<{ id: string }>
                 {player.weight && (
                   <div>
                     <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px" }}>WEIGHT</span>
-                    <p style={{ fontWeight: "bold", fontSize: "18px" }}>{player.weight} lbs</p>
+                    <p style={{ fontWeight: "bold", fontSize: "18px" }}>
+                      {typeof player.weight === "number" ? `${player.weight} lbs` : player.weight}
+                    </p>
                   </div>
                 )}
                 {player.college && (

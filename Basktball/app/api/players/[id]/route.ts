@@ -82,18 +82,96 @@ export async function GET(
       });
     }
 
-    // Try to fetch from ESPN
+    // Try to fetch from ESPN - both athlete info and statistics
     try {
-      const espnRes = await fetch(
-        `https://site.api.espn.com/apis/common/v3/sports/basketball/nba/athletes/${id}`,
-        { headers: { Accept: "application/json" } }
-      );
+      const [espnRes, statsRes] = await Promise.all([
+        fetch(
+          `https://site.api.espn.com/apis/common/v3/sports/basketball/nba/athletes/${id}`,
+          { headers: { Accept: "application/json" } }
+        ),
+        fetch(
+          `https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/athletes/${id}/statistics`,
+          { headers: { Accept: "application/json" } }
+        ),
+      ]);
 
       if (espnRes.ok) {
         const espnData = await espnRes.json();
         const athlete = espnData.athlete;
 
+        // Parse statistics if available
+        let stats = {
+          ppg: 0,
+          rpg: 0,
+          apg: 0,
+          spg: 0,
+          bpg: 0,
+          fgPct: 0,
+          threePct: 0,
+          ftPct: 0,
+          mpg: 0,
+          tov: 0,
+          gamesPlayed: 0,
+        };
+
+        if (statsRes.ok) {
+          try {
+            const statsData = await statsRes.json();
+            // ESPN statistics are in categories, look for season stats
+            const seasonStats = statsData.statistics?.splits?.categories;
+            if (seasonStats) {
+              for (const category of seasonStats) {
+                for (const stat of category.stats || []) {
+                  const value = parseFloat(stat.displayValue) || 0;
+                  switch (stat.abbreviation || stat.name) {
+                    case "PTS":
+                      stats.ppg = value;
+                      break;
+                    case "REB":
+                      stats.rpg = value;
+                      break;
+                    case "AST":
+                      stats.apg = value;
+                      break;
+                    case "STL":
+                      stats.spg = value;
+                      break;
+                    case "BLK":
+                      stats.bpg = value;
+                      break;
+                    case "FG%":
+                      stats.fgPct = value;
+                      break;
+                    case "3P%":
+                      stats.threePct = value;
+                      break;
+                    case "FT%":
+                      stats.ftPct = value;
+                      break;
+                    case "MIN":
+                      stats.mpg = value;
+                      break;
+                    case "TO":
+                      stats.tov = value;
+                      break;
+                    case "GP":
+                      stats.gamesPlayed = value;
+                      break;
+                  }
+                }
+              }
+            }
+          } catch {
+            console.error("Failed to parse ESPN stats");
+          }
+        }
+
         if (athlete) {
+          // Clean up weight - ESPN returns "230 lbs" but we want just the number
+          const weightNum = athlete.displayWeight
+            ? parseInt(athlete.displayWeight.replace(/[^\d]/g, ""))
+            : undefined;
+
           return NextResponse.json({
             success: true,
             player: {
@@ -103,22 +181,10 @@ export async function GET(
               teamAbbr: athlete.team?.abbreviation || "FA",
               position: athlete.position?.abbreviation,
               height: athlete.displayHeight,
-              weight: athlete.displayWeight,
+              weight: weightNum,
               headshotUrl: athlete.headshot?.href || getNbaHeadshot(id),
             },
-            stats: {
-              ppg: 0,
-              rpg: 0,
-              apg: 0,
-              spg: 0,
-              bpg: 0,
-              fgPct: 0,
-              threePct: 0,
-              ftPct: 0,
-              mpg: 0,
-              tov: 0,
-              gamesPlayed: 0,
-            },
+            stats,
             source: "espn",
           });
         }
