@@ -10,19 +10,22 @@ export class BasketballApi {
   // Get games for a specific league and date
   // Uses ESPN as primary source for games (real-time scores, no rate limits)
   async getGames(league: League, date?: string): Promise<NormalizedGame[]> {
-    const dateStr = date || new Date().toISOString().split("T")[0];
+    // Note: Only pass date to ESPN if explicitly provided
+    // ESPN determines "today" correctly on their end, avoiding UTC timezone issues
 
     switch (league) {
       case "nba":
         // ESPN is primary for live games (real-time scores, no rate limit)
         try {
-          const games = await espnApi.getNbaGames(dateStr);
+          // Don't pass date unless explicitly provided - let ESPN determine "today"
+          const games = await espnApi.getNbaGames(date);
           if (games.length > 0) return games;
         } catch (error) {
           console.warn("ESPN failed, trying balldontlie:", error);
         }
         // Fallback to balldontlie if ESPN fails
         try {
+          const dateStr = date || new Date().toISOString().split("T")[0];
           return await nbaApi.getGamesByDate(dateStr);
         } catch (error) {
           console.error("Both APIs failed for games:", error);
