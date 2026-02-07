@@ -1,10 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
+import { basketballApi } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
 
 // NBA.com headshot URL
 const getNbaHeadshot = (nbaId: string) =>
   `https://cdn.nba.com/headshots/nba/latest/1040x760/${nbaId}.png`;
+
+// Reverse lookup: find NBA ID from player name in TOP_PLAYERS
+function findByName(name: string): { nbaId: string; data: typeof TOP_PLAYERS[string] } | null {
+  for (const [nbaId, data] of Object.entries(TOP_PLAYERS)) {
+    if (data.name.toLowerCase() === name.toLowerCase()) {
+      return { nbaId, data };
+    }
+  }
+  return null;
+}
 
 // Fallback player data for top NBA players (2025-26 season)
 const TOP_PLAYERS: Record<string, {
@@ -88,6 +99,62 @@ export async function GET(
         },
         source: "nba_fallback",
       });
+    }
+
+    // Try BallDontLie API to resolve player name, then check TOP_PLAYERS by name
+    try {
+      const bdlPlayer = await basketballApi.getPlayer(id);
+      if (bdlPlayer) {
+        const nbaMatch = findByName(bdlPlayer.name);
+        if (nbaMatch) {
+          return NextResponse.json({
+            success: true,
+            player: {
+              id: nbaMatch.nbaId,
+              name: nbaMatch.data.name,
+              team: nbaMatch.data.teamName,
+              teamAbbr: nbaMatch.data.team,
+              position: nbaMatch.data.position,
+              headshotUrl: getNbaHeadshot(nbaMatch.nbaId),
+            },
+            stats: {
+              ppg: nbaMatch.data.ppg,
+              rpg: nbaMatch.data.rpg,
+              apg: nbaMatch.data.apg,
+              spg: nbaMatch.data.spg,
+              bpg: nbaMatch.data.bpg,
+              fgPct: nbaMatch.data.fgPct,
+              threePct: nbaMatch.data.threePct,
+              ftPct: nbaMatch.data.ftPct,
+              mpg: 0,
+              tov: 0,
+              gamesPlayed: nbaMatch.data.gamesPlayed,
+            },
+            source: "nba_fallback",
+          });
+        }
+
+        // Player found in BallDontLie but not in TOP_PLAYERS - return basic info
+        // with headshot from NBA CDN using the nbaId if available
+        const nbaId = bdlPlayer.nbaId || id;
+        return NextResponse.json({
+          success: true,
+          player: {
+            id: nbaId,
+            name: bdlPlayer.name,
+            team: bdlPlayer.team?.name || "Free Agent",
+            teamAbbr: bdlPlayer.team?.abbreviation || "FA",
+            position: bdlPlayer.position,
+            height: bdlPlayer.height,
+            weight: bdlPlayer.weight,
+            headshotUrl: bdlPlayer.headshotUrl || getNbaHeadshot(nbaId),
+          },
+          stats: null,
+          source: "balldontlie",
+        });
+      }
+    } catch (bdlError) {
+      console.error("BallDontLie fetch failed:", bdlError);
     }
 
     // Try to fetch from ESPN - athlete info and overview (which includes stats)

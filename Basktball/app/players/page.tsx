@@ -6,6 +6,7 @@ import { Header, Footer } from "@/components";
 
 interface Player {
   id: string;
+  nbaId?: string;
   name: string;
   team?: {
     id: string;
@@ -16,6 +17,7 @@ interface Player {
   height?: string;
   weight?: string;
   jerseyNumber?: string;
+  headshotUrl?: string;
 }
 
 export default function PlayersPage() {
@@ -182,56 +184,75 @@ export default function PlayersPage() {
                 gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
                 gap: "20px"
               }}>
-                {players.map(player => (
-                  <Link
-                    key={player.id}
-                    href={`/player/${player.id}`}
-                    className="player-card"
-                    style={{
-                      padding: "25px",
-                      textAlign: "left",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "20px",
-                      textDecoration: "none",
-                      color: "inherit",
-                      cursor: "pointer",
-                    }}
-                  >
-                    <div style={{
-                      width: "60px",
-                      height: "60px",
-                      borderRadius: "50%",
-                      background: "var(--orange)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontFamily: "var(--font-anton), Anton, sans-serif",
-                      fontSize: "24px",
-                      flexShrink: 0
-                    }}>
-                      {player.jerseyNumber || player.name.split(" ").map(n => n[0]).join("")}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <h3 style={{
+                {players.map(player => {
+                  const playerId = player.nbaId || player.id;
+                  return (
+                    <Link
+                      key={player.id}
+                      href={`/player/${playerId}`}
+                      className="player-card"
+                      style={{
+                        padding: "25px",
+                        textAlign: "left",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "20px",
+                        textDecoration: "none",
+                        color: "inherit",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <div style={{
+                        width: "60px",
+                        height: "60px",
+                        borderRadius: "50%",
+                        background: "var(--orange)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                         fontFamily: "var(--font-anton), Anton, sans-serif",
-                        fontSize: "20px",
-                        marginBottom: "5px"
+                        fontSize: "24px",
+                        flexShrink: 0,
+                        overflow: "hidden"
                       }}>
-                        {player.name}
-                      </h3>
-                      <p style={{ color: "var(--orange)", marginBottom: "5px" }}>
-                        {player.team?.name || "Free Agent"}
-                      </p>
-                      <p style={{
-                        color: "rgba(255,255,255,0.5)",
-                        fontSize: "14px"
-                      }}>
-                        {[player.position, player.height, player.weight].filter(Boolean).join(" | ")}
-                      </p>
-                    </div>
-                  </Link>
-                ))}
+                        {player.headshotUrl ? (
+                          <img
+                            src={player.headshotUrl}
+                            alt={player.name}
+                            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = "none";
+                              if (target.parentElement) {
+                                target.parentElement.textContent = player.jerseyNumber || player.name.split(" ").map(n => n[0]).join("");
+                              }
+                            }}
+                          />
+                        ) : (
+                          player.jerseyNumber || player.name.split(" ").map(n => n[0]).join("")
+                        )}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <h3 style={{
+                          fontFamily: "var(--font-anton), Anton, sans-serif",
+                          fontSize: "20px",
+                          marginBottom: "5px"
+                        }}>
+                          {player.name}
+                        </h3>
+                        <p style={{ color: "var(--orange)", marginBottom: "5px" }}>
+                          {player.team?.name || "Free Agent"}
+                        </p>
+                        <p style={{
+                          color: "rgba(255,255,255,0.5)",
+                          fontSize: "14px"
+                        }}>
+                          {[player.position, player.height, player.weight].filter(Boolean).join(" | ")}
+                        </p>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             )}
           </div>
