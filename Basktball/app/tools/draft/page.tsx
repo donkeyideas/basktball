@@ -3,6 +3,12 @@
 import { useState, useEffect } from "react";
 import { Header, Footer } from "@/components";
 
+// ESPN headshot URL helper for college players
+const getEspnHeadshot = (espnId: string) =>
+  espnId
+    ? `https://a.espncdn.com/combiner/i?img=/i/headshots/mens-college-basketball/players/full/${espnId}.png&w=350&h=254`
+    : null;
+
 interface Prospect {
   id?: string;
   rank: number;
@@ -18,11 +24,13 @@ interface Prospect {
     apg: number;
     fgPct: number;
     threePct: number;
+    ftPct: number;
   };
   strengths: string[];
   weaknesses: string[];
   comparison: string;
   projectedPick: string;
+  espnId?: string;
 }
 
 export default function DraftPage() {
@@ -35,11 +43,10 @@ export default function DraftPage() {
   useEffect(() => {
     async function fetchProspects() {
       try {
-        const res = await fetch("/api/draft/prospects");
+        const res = await fetch("/api/draft/prospects?year=2026");
         const data = await res.json();
 
         if (data.success && data.prospects?.length > 0) {
-          // Transform API data to match component interface
           const transformedProspects: Prospect[] = data.prospects.map((p: any) => ({
             id: p.id,
             rank: p.rank,
@@ -55,11 +62,13 @@ export default function DraftPage() {
               apg: p.apg,
               fgPct: p.fgPct,
               threePct: p.threePct,
+              ftPct: p.ftPct || 0,
             },
             strengths: p.strengths || [],
             weaknesses: p.weaknesses || [],
             comparison: p.comparison || "N/A",
             projectedPick: p.projectedPick || "TBD",
+            espnId: p.espnId || "",
           }));
           setProspects(transformedProspects);
           setSelectedProspect(transformedProspects[0]);
@@ -104,7 +113,7 @@ export default function DraftPage() {
             color: "rgba(255,255,255,0.6)",
             marginBottom: "40px"
           }}>
-            2025 NBA Draft prospect analysis and big board rankings.
+            2026 NBA Draft prospect analysis and big board rankings.
           </p>
 
           {isLoading ? (
@@ -130,7 +139,7 @@ export default function DraftPage() {
           <div style={{ display: "grid", gridTemplateColumns: "400px 1fr", gap: "30px" }}>
             {/* Big Board */}
             <div className="section">
-              <div className="section-title">2025 Big Board</div>
+              <div className="section-title">2026 Big Board</div>
 
               {/* Filters */}
               <div style={{ marginBottom: "20px" }}>
@@ -170,48 +179,84 @@ export default function DraftPage() {
               </div>
 
               {/* Prospect List */}
-              <div style={{ maxHeight: "500px", overflowY: "auto" }}>
-                {filteredProspects.map(prospect => (
-                  <div
-                    key={prospect.rank}
-                    onClick={() => setSelectedProspect(prospect)}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      padding: "12px",
-                      background: selectedProspect?.rank === prospect.rank ? "rgba(255, 107, 53, 0.2)" : "rgba(0,0,0,0.3)",
-                      border: selectedProspect?.rank === prospect.rank ? "1px solid var(--orange)" : "1px solid transparent",
-                      marginBottom: "8px",
-                      cursor: "pointer"
-                    }}
-                  >
-                    <div style={{
-                      width: "40px",
-                      height: "40px",
-                      background: prospect.rank <= 3 ? "var(--orange)" : "rgba(255,255,255,0.1)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontWeight: "bold",
-                      fontFamily: "var(--font-roboto-mono), monospace",
-                      marginRight: "15px"
-                    }}>
-                      {prospect.rank}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: "bold" }}>{prospect.name}</div>
-                      <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>
-                        {prospect.position} | {prospect.school}
+              <div style={{ maxHeight: "600px", overflowY: "auto" }}>
+                {filteredProspects.map(prospect => {
+                  const headshotUrl = getEspnHeadshot(prospect.espnId || "");
+                  return (
+                    <div
+                      key={prospect.rank}
+                      onClick={() => setSelectedProspect(prospect)}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        padding: "12px",
+                        background: selectedProspect?.rank === prospect.rank ? "rgba(255, 107, 53, 0.2)" : "rgba(0,0,0,0.3)",
+                        border: selectedProspect?.rank === prospect.rank ? "1px solid var(--orange)" : "1px solid transparent",
+                        marginBottom: "8px",
+                        cursor: "pointer"
+                      }}
+                    >
+                      <div style={{
+                        width: "40px",
+                        height: "40px",
+                        background: prospect.rank <= 3 ? "var(--orange)" : "rgba(255,255,255,0.1)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontWeight: "bold",
+                        fontFamily: "var(--font-roboto-mono), monospace",
+                        marginRight: "12px",
+                        flexShrink: 0,
+                      }}>
+                        {prospect.rank}
+                      </div>
+                      {/* Headshot in list */}
+                      <div style={{
+                        width: "36px",
+                        height: "36px",
+                        borderRadius: "50%",
+                        overflow: "hidden",
+                        marginRight: "12px",
+                        flexShrink: 0,
+                        background: "rgba(255,255,255,0.1)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}>
+                        {headshotUrl ? (
+                          <img
+                            src={headshotUrl}
+                            alt={prospect.name}
+                            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = "none";
+                              if (target.parentElement) {
+                                target.parentElement.textContent = prospect.name.split(" ").map(n => n[0]).join("");
+                              }
+                            }}
+                          />
+                        ) : (
+                          <span style={{ fontSize: "12px", fontWeight: "bold" }}>
+                            {prospect.name.split(" ").map(n => n[0]).join("")}
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontWeight: "bold", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{prospect.name}</div>
+                        <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>
+                          {prospect.position} | {prospect.school}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: "right", flexShrink: 0 }}>
+                        <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>Projected</div>
+                        <div style={{ fontFamily: "var(--font-roboto-mono), monospace", color: "var(--green)" }}>
+                          #{prospect.projectedPick}
+                        </div>
                       </div>
                     </div>
-                    <div style={{ textAlign: "right" }}>
-                      <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>Projected</div>
-                      <div style={{ fontFamily: "var(--font-roboto-mono), monospace", color: "var(--green)" }}>
-                        #{prospect.projectedPick}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -220,19 +265,45 @@ export default function DraftPage() {
             <div>
               <div className="section">
                 <div style={{ display: "flex", gap: "30px", marginBottom: "30px" }}>
-                  {/* Avatar */}
+                  {/* Headshot */}
                   <div style={{
                     width: "150px",
                     height: "150px",
-                    background: "var(--orange)",
+                    background: "rgba(255,255,255,0.05)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     fontSize: "48px",
                     fontWeight: "bold",
-                    flexShrink: 0
+                    flexShrink: 0,
+                    overflow: "hidden",
+                    borderRadius: "8px",
                   }}>
-                    {selectedProspect.name.split(" ").map(n => n[0]).join("")}
+                    {(() => {
+                      const url = getEspnHeadshot(selectedProspect.espnId || "");
+                      if (url) {
+                        return (
+                          <img
+                            src={url}
+                            alt={selectedProspect.name}
+                            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = "none";
+                              if (target.parentElement) {
+                                target.parentElement.style.background = "var(--orange)";
+                                target.parentElement.textContent = selectedProspect.name.split(" ").map(n => n[0]).join("");
+                              }
+                            }}
+                          />
+                        );
+                      }
+                      return (
+                        <span style={{ color: "var(--white)" }}>
+                          {selectedProspect.name.split(" ").map(n => n[0]).join("")}
+                        </span>
+                      );
+                    })()}
                   </div>
 
                   {/* Basic Info */}
@@ -277,17 +348,18 @@ export default function DraftPage() {
                 </div>
 
                 {/* Stats */}
-                <div className="section-title">Season Stats</div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "15px", marginBottom: "30px" }}>
+                <div className="section-title">2025-26 Season Stats</div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: "15px", marginBottom: "30px" }}>
                   {[
                     { label: "PPG", value: selectedProspect.stats.ppg },
                     { label: "RPG", value: selectedProspect.stats.rpg },
                     { label: "APG", value: selectedProspect.stats.apg },
                     { label: "FG%", value: selectedProspect.stats.fgPct },
                     { label: "3P%", value: selectedProspect.stats.threePct },
+                    { label: "FT%", value: selectedProspect.stats.ftPct },
                   ].map(stat => (
                     <div key={stat.label} style={{ background: "rgba(0,0,0,0.3)", padding: "20px", textAlign: "center" }}>
-                      <div style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "28px", fontWeight: "bold" }}>
+                      <div style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "24px", fontWeight: "bold" }}>
                         {stat.value.toFixed(1)}
                       </div>
                       <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px" }}>{stat.label}</div>
