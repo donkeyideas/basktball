@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth";
 import { getCourtUser } from "@/lib/court/auth";
+import { getMobileUser } from "@/lib/mobile-auth";
 
 // Vote on a poll
 export async function POST(
@@ -10,7 +11,15 @@ export async function POST(
 ) {
   try {
     const session = await auth();
-    const user = getCourtUser(session);
+    let user = getCourtUser(session);
+
+    if (!user) {
+      const mobileUser = await getMobileUser(request);
+      if (mobileUser) {
+        user = { id: mobileUser.id, role: mobileUser.role };
+      }
+    }
+
     if (!user) {
       return NextResponse.json({ message: "Authentication required" }, { status: 401 });
     }

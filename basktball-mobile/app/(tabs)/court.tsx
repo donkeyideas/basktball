@@ -38,6 +38,7 @@ interface Poll {
   totalVotes: number;
   endsAt: string | null;
   options: PollOption[];
+  userVotedOptionId?: string | null;
 }
 
 interface Take {
@@ -143,11 +144,15 @@ export default function CourtScreen() {
       // Cache-bust to ensure fresh data (polls, new takes)
       const data = await api.get<{ takes: any[] }>(`/court/feed?type=${type}&limit=20&_t=${Date.now()}`);
       if (data.takes) {
-        // Map userReaction field to userFired/userBricked booleans
+        // Map userReaction and poll vote data
         const mapped = data.takes.map((t: any) => ({
           ...t,
           userFired: t.userReaction === 'FIRE',
           userBricked: t.userReaction === 'BRICK',
+          poll: t.poll ? {
+            ...t.poll,
+            userVotedOptionId: t.poll.votes?.[0]?.optionId || null,
+          } : null,
         }));
         setTakes(mapped);
       }
@@ -266,6 +271,31 @@ export default function CourtScreen() {
     ]);
   }
 
+  async function handlePollVote(takeId: string, optionId: string) {
+    if (!requireAuth()) return;
+    // Optimistic update
+    setTakes(prev => prev.map(t => {
+      if (t.id !== takeId || !t.poll || t.poll.userVotedOptionId) return t;
+      return {
+        ...t,
+        poll: {
+          ...t.poll,
+          userVotedOptionId: optionId,
+          totalVotes: t.poll.totalVotes + 1,
+          options: t.poll.options.map(o =>
+            o.id === optionId ? { ...o, voteCount: o.voteCount + 1 } : o
+          ),
+        },
+      };
+    }));
+    try {
+      await api.post(`/court/takes/${takeId}/poll`, { optionId });
+    } catch (err: any) {
+      showAlert('Error', err?.message || 'Failed to vote.');
+      fetchFeed();
+    }
+  }
+
   function resetCompose() {
     setComposeText('');
     setShowPoll(false);
@@ -367,32 +397,50 @@ export default function CourtScreen() {
         )}
 
         {/* Poll */}
-        {item.poll && item.poll.options.length > 0 && (
-          <View style={styles.pollContainer}>
-            {item.poll.options.map((option) => {
-              const pct = item.poll!.totalVotes > 0 ? Math.round((option.voteCount / item.poll!.totalVotes) * 100) : 0;
-              return (
-                <View key={option.id} style={styles.pollOption}>
-                  <View style={[styles.pollBar, { width: `${pct}%` }]} />
-                  <View style={styles.pollOptionContent}>
-                    <Text style={styles.pollOptionText}>{option.text}</Text>
-                    <Text style={styles.pollOptionPct}>{pct}%</Text>
-                  </View>
-                </View>
-              );
-            })}
-            <View style={styles.pollFooter}>
-              <Text style={styles.pollFooterText}>{item.poll.totalVotes} votes</Text>
-              <Text style={styles.pollFooterText}>
-                {(() => {
-                  if (!item.poll!.endsAt) return 'Open poll';
-                  const hoursLeft = Math.max(0, Math.ceil((new Date(item.poll!.endsAt).getTime() - Date.now()) / 3600000));
-                  return hoursLeft > 24 ? `${Math.floor(hoursLeft / 24)}d left` : `${hoursLeft}h left`;
-                })()}
-              </Text>
+        {item.poll && item.poll.options.length > 0 && (() => {
+          const hasVoted = !!item.poll!.userVotedOptionId;
+          const pollEnded = item.poll!.endsAt ? new Date(item.poll!.endsAt) < new Date() : false;
+          const showResults = hasVoted || pollEnded;
+          return (
+            <View style={styles.pollContainer}>
+              {item.poll!.options.map((option) => {
+                const pct = item.poll!.totalVotes > 0 ? Math.round((option.voteCount / item.poll!.totalVotes) * 100) : 0;
+                const isVoted = item.poll!.userVotedOptionId === option.id;
+                if (showResults) {
+                  return (
+                    <View key={option.id} style={[styles.pollOption, isVoted && styles.pollOptionVoted]}>
+                      <View style={[styles.pollBar, { width: `${pct}%` }, isVoted && styles.pollBarVoted]} />
+                      <View style={styles.pollOptionContent}>
+                        <Text style={[styles.pollOptionText, isVoted && styles.pollOptionTextVoted]}>{option.text}</Text>
+                        <Text style={[styles.pollOptionPct, isVoted && styles.pollOptionTextVoted]}>{pct}%</Text>
+                      </View>
+                    </View>
+                  );
+                }
+                return (
+                  <TouchableOpacity
+                    key={option.id}
+                    style={styles.pollOptionTappable}
+                    activeOpacity={0.7}
+                    onPress={() => handlePollVote(item.id, option.id)}
+                  >
+                    <Text style={styles.pollOptionTappableText}>{option.text}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+              <View style={styles.pollFooter}>
+                <Text style={styles.pollFooterText}>{item.poll!.totalVotes} votes</Text>
+                <Text style={styles.pollFooterText}>
+                  {(() => {
+                    if (!item.poll!.endsAt) return 'Open poll';
+                    const hoursLeft = Math.max(0, Math.ceil((new Date(item.poll!.endsAt).getTime() - Date.now()) / 3600000));
+                    return hoursLeft > 24 ? `${Math.floor(hoursLeft / 24)}d left` : `${hoursLeft}h left`;
+                  })()}
+                </Text>
+              </View>
             </View>
-          </View>
-        )}
+          );
+        })()}
 
         {/* Actions */}
         <View style={styles.takeActions}>
@@ -641,6 +689,11 @@ function makeStyles(colors: any) {
   pollOptionContent: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 10 },
   pollOptionText: { fontFamily: Fonts.barlow, fontSize: 13, color: colors.textSecondary, flex: 1 },
   pollOptionPct: { fontFamily: Fonts.mono, fontSize: 12, color: colors.textSecondary, marginLeft: 8 },
+  pollOptionVoted: { borderLeftWidth: 3, borderLeftColor: Colors.orange },
+  pollBarVoted: { backgroundColor: 'rgba(255,107,53,0.2)' },
+  pollOptionTextVoted: { color: Colors.orange, fontFamily: Fonts.barlowSemiBold },
+  pollOptionTappable: { borderBottomWidth: 1, borderBottomColor: colors.border, paddingHorizontal: 14, paddingVertical: 12 },
+  pollOptionTappableText: { fontFamily: Fonts.barlow, fontSize: 14, color: colors.text },
   pollFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 8 },
   pollFooterText: { fontFamily: Fonts.barlow, fontSize: 12, color: colors.textTertiary },
   takeActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 10 },
