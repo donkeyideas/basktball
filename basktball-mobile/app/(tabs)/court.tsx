@@ -439,7 +439,61 @@ export default function CourtScreen() {
                 </View>
               )}
             </View>
-            <Text style={styles.takeHandle}>{timeAgo(item.createdAt)}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+              <Text style={styles.takeHandle}>{timeAgo(item.createdAt)}</Text>
+              {item.statCheck && item.statCheck.overallStatus !== 'PENDING' && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginLeft: 2 }}>
+                  <Text style={{ fontSize: 10, color: colors.textTertiary }}>&#183;</Text>
+                  <Ionicons name="search" size={11} color={item.statCheck.overallStatus === 'VERIFIED' ? '#22C55E' : item.statCheck.overallStatus === 'FALSE' ? '#EF4444' : '#9CA3AF'} />
+                  <Text style={{
+                    fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5,
+                    color: item.statCheck.overallStatus === 'VERIFIED' ? '#22C55E' : item.statCheck.overallStatus === 'FALSE' ? '#EF4444' : '#9CA3AF',
+                  }}>
+                    {item.statCheck.overallStatus === 'VERIFIED' ? 'Verified' : item.statCheck.overallStatus === 'FALSE' ? 'False' : 'Unverifiable'}
+                  </Text>
+                </View>
+              )}
+              {item.prediction && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginLeft: 2 }}>
+                  <Text style={{ fontSize: 10, color: colors.textTertiary }}>&#183;</Text>
+                  <Ionicons
+                    name={item.prediction.status === 'RECEIPT' ? 'checkmark-circle' : item.prediction.status === 'BUST' ? 'close-circle' : 'time'}
+                    size={11}
+                    color={item.prediction.status === 'RECEIPT' ? '#22C55E' : item.prediction.status === 'BUST' ? '#EF4444' : '#FBBF24'}
+                  />
+                  <Text style={{
+                    fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5,
+                    color: item.prediction.status === 'RECEIPT' ? '#22C55E' : item.prediction.status === 'BUST' ? '#EF4444' : '#FBBF24',
+                  }}>
+                    {item.prediction.status === 'RECEIPT' ? 'Receipt' : item.prediction.status === 'BUST' ? 'Bust' : 'Prediction'}
+                  </Text>
+                </View>
+              )}
+              {item.agingTake && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginLeft: 2 }}>
+                  <Text style={{ fontSize: 10, color: colors.textTertiary }}>&#183;</Text>
+                  <Ionicons name="hourglass" size={11} color={item.agingTake.status === 'AGED' ? '#A855F7' : '#FBBF24'} />
+                  <Text style={{
+                    fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5,
+                    color: item.agingTake.status === 'AGED' ? '#A855F7' : '#FBBF24',
+                  }}>
+                    {item.agingTake.status === 'AGED' ? 'Aged' : (() => {
+                      const days = Math.max(0, Math.ceil((new Date(item.agingTake!.revisitDate).getTime() - Date.now()) / 86400000));
+                      return days > 0 ? `${days}d` : 'Due';
+                    })()}
+                  </Text>
+                </View>
+              )}
+              {item.gameClock && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginLeft: 2 }}>
+                  <Text style={{ fontSize: 10, color: colors.textTertiary }}>&#183;</Text>
+                  <Ionicons name="timer" size={11} color="#3B82F6" />
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#3B82F6', fontFamily: 'RobotoMono_400Regular' }}>
+                    {item.quarter ? `Q${item.quarter} ` : ''}{item.gameClock}
+                  </Text>
+                </View>
+              )}
+            </View>
           </View>
           <TouchableOpacity style={styles.moreButton} onPress={() => {
             const isOwner = user?.id === item.author?.id;
@@ -459,83 +513,6 @@ export default function CourtScreen() {
         {/* Content */}
         <Text style={styles.takeText}>{item.content}</Text>
 
-        {/* Feature Badges */}
-        {(item.prediction || item.statCheck || item.agingTake || item.gameClock) && (
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
-            {item.prediction && (
-              <View style={{
-                flexDirection: 'row', alignItems: 'center', gap: 4,
-                paddingHorizontal: 10, paddingVertical: 3, borderRadius: 12,
-                backgroundColor: item.prediction.status === 'RECEIPT' ? 'rgba(34,197,94,0.15)' : item.prediction.status === 'BUST' ? 'rgba(239,68,68,0.15)' : 'rgba(251,191,36,0.15)',
-                borderWidth: 1,
-                borderColor: item.prediction.status === 'RECEIPT' ? 'rgba(34,197,94,0.3)' : item.prediction.status === 'BUST' ? 'rgba(239,68,68,0.3)' : 'rgba(251,191,36,0.3)',
-              }}>
-                <Ionicons
-                  name={item.prediction.status === 'RECEIPT' ? 'checkmark-circle' : item.prediction.status === 'BUST' ? 'close-circle' : 'time'}
-                  size={12}
-                  color={item.prediction.status === 'RECEIPT' ? '#22C55E' : item.prediction.status === 'BUST' ? '#EF4444' : '#FBBF24'}
-                />
-                <Text style={{
-                  fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5,
-                  color: item.prediction.status === 'RECEIPT' ? '#22C55E' : item.prediction.status === 'BUST' ? '#EF4444' : '#FBBF24',
-                }}>
-                  {item.prediction.status === 'RECEIPT' ? 'Receipt' : item.prediction.status === 'BUST' ? 'Bust' : 'Prediction'}
-                </Text>
-              </View>
-            )}
-            {item.statCheck && item.statCheck.overallStatus !== 'PENDING' && (
-              <View style={{
-                flexDirection: 'row', alignItems: 'center', gap: 4,
-                paddingHorizontal: 10, paddingVertical: 3, borderRadius: 12,
-                backgroundColor: item.statCheck.overallStatus === 'VERIFIED' ? 'rgba(34,197,94,0.15)' : item.statCheck.overallStatus === 'FALSE' ? 'rgba(239,68,68,0.15)' : 'rgba(156,163,175,0.15)',
-                borderWidth: 1,
-                borderColor: item.statCheck.overallStatus === 'VERIFIED' ? 'rgba(34,197,94,0.3)' : item.statCheck.overallStatus === 'FALSE' ? 'rgba(239,68,68,0.3)' : 'rgba(156,163,175,0.3)',
-              }}>
-                <Ionicons name="search" size={12} color={item.statCheck.overallStatus === 'VERIFIED' ? '#22C55E' : item.statCheck.overallStatus === 'FALSE' ? '#EF4444' : '#9CA3AF'} />
-                <Text style={{
-                  fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5,
-                  color: item.statCheck.overallStatus === 'VERIFIED' ? '#22C55E' : item.statCheck.overallStatus === 'FALSE' ? '#EF4444' : '#9CA3AF',
-                }}>
-                  {item.statCheck.overallStatus === 'VERIFIED' ? 'Verified' : item.statCheck.overallStatus === 'FALSE' ? 'False' : 'Unverifiable'}
-                </Text>
-              </View>
-            )}
-            {item.agingTake && (
-              <View style={{
-                flexDirection: 'row', alignItems: 'center', gap: 4,
-                paddingHorizontal: 10, paddingVertical: 3, borderRadius: 12,
-                backgroundColor: item.agingTake.status === 'AGED' ? 'rgba(168,85,247,0.15)' : 'rgba(251,191,36,0.15)',
-                borderWidth: 1,
-                borderColor: item.agingTake.status === 'AGED' ? 'rgba(168,85,247,0.3)' : 'rgba(251,191,36,0.3)',
-              }}>
-                <Ionicons name="hourglass" size={12} color={item.agingTake.status === 'AGED' ? '#A855F7' : '#FBBF24'} />
-                <Text style={{
-                  fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5,
-                  color: item.agingTake.status === 'AGED' ? '#A855F7' : '#FBBF24',
-                }}>
-                  {item.agingTake.status === 'AGED' ? 'Aged' : (() => {
-                    const days = Math.max(0, Math.ceil((new Date(item.agingTake!.revisitDate).getTime() - Date.now()) / 86400000));
-                    return days > 0 ? `${days}d` : 'Due';
-                  })()}
-                </Text>
-              </View>
-            )}
-            {item.gameClock && (
-              <View style={{
-                flexDirection: 'row', alignItems: 'center', gap: 4,
-                paddingHorizontal: 10, paddingVertical: 3, borderRadius: 12,
-                backgroundColor: 'rgba(59,130,246,0.15)',
-                borderWidth: 1,
-                borderColor: 'rgba(59,130,246,0.3)',
-              }}>
-                <Ionicons name="timer" size={12} color="#3B82F6" />
-                <Text style={{ fontSize: 11, fontWeight: '700', color: '#3B82F6', fontFamily: 'RobotoMono_400Regular' }}>
-                  {item.quarter ? `Q${item.quarter} ` : ''}{item.gameClock}
-                </Text>
-              </View>
-            )}
-          </View>
-        )}
 
         {/* Tags */}
         {item.tags && item.tags.length > 0 && (

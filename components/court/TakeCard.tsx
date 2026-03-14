@@ -462,6 +462,102 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
             <span style={handleStyle}>@{take.author.name}</span>
             <span style={dotStyle}>&#183;</span>
             <span style={timeStyle}>{getTimeAgo(take.createdAt)}</span>
+            {/* Stat Check Status */}
+            {take.statCheck && take.statCheck.overallStatus !== "PENDING" && (
+              <>
+                <span style={dotStyle}>&#183;</span>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "3px",
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    fontFamily: "var(--font-barlow), sans-serif",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                    color: take.statCheck.overallStatus === "VERIFIED" ? "#22C55E" : take.statCheck.overallStatus === "FALSE" ? "#EF4444" : "#9CA3AF",
+                  }}
+                >
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                  {take.statCheck.overallStatus === "VERIFIED" ? "Verified" : take.statCheck.overallStatus === "FALSE" ? "False" : "Unverifiable"}
+                </span>
+              </>
+            )}
+            {/* Prediction Status */}
+            {take.prediction && (
+              <>
+                <span style={dotStyle}>&#183;</span>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "3px",
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    fontFamily: "var(--font-barlow), sans-serif",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                    color: take.prediction.status === "RECEIPT" ? "#22C55E" : take.prediction.status === "BUST" ? "#EF4444" : "#FBBf24",
+                  }}
+                  title={take.prediction.claim}
+                >
+                  {take.prediction.status === "RECEIPT" ? (
+                    <><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>Receipt</>
+                  ) : take.prediction.status === "BUST" ? (
+                    <><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>Bust</>
+                  ) : (
+                    <><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>Prediction</>
+                  )}
+                </span>
+              </>
+            )}
+            {/* Aging Status */}
+            {take.agingTake && (
+              <>
+                <span style={dotStyle}>&#183;</span>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "3px",
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    fontFamily: "var(--font-barlow), sans-serif",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                    color: take.agingTake.status === "AGED" ? "#A855F7" : "#FBBf24",
+                  }}
+                  title={take.agingTake.status === "AGED" ? `Resurfaced from ${new Date(take.agingTake.revisitDate).toLocaleDateString()}` : `Revisit on ${new Date(take.agingTake.revisitDate).toLocaleDateString()}`}
+                >
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                  {take.agingTake.status === "AGED" ? "Aged" : (() => {
+                    const days = Math.max(0, Math.ceil((new Date(take.agingTake!.revisitDate).getTime() - Date.now()) / 86400000));
+                    return days > 0 ? `${days}d` : "Due";
+                  })()}
+                </span>
+              </>
+            )}
+            {/* Courtside Clock */}
+            {take.gameClock && (
+              <>
+                <span style={dotStyle}>&#183;</span>
+                <span
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "3px",
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    fontFamily: "var(--font-mono), monospace",
+                    color: "#3B82F6",
+                  }}
+                >
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                  {take.quarter && `Q${take.quarter} `}{take.gameClock}
+                </span>
+              </>
+            )}
           </div>
         </div>
         {canDelete && (
@@ -529,119 +625,6 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
 
       {/* Content */}
       <div style={contentStyle}>{take.content}</div>
-
-      {/* Feature Badges Row */}
-      {(take.prediction || take.statCheck || take.agingTake || take.gameClock) && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "8px" }}>
-          {/* Prediction Badge */}
-          {take.prediction && (
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "4px",
-                padding: "3px 10px",
-                borderRadius: "12px",
-                fontSize: "11px",
-                fontWeight: 700,
-                fontFamily: "var(--font-barlow), sans-serif",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-                ...(take.prediction.status === "RECEIPT"
-                  ? { background: "rgba(34,197,94,0.15)", color: "#22C55E", border: "1px solid rgba(34,197,94,0.3)" }
-                  : take.prediction.status === "BUST"
-                  ? { background: "rgba(239,68,68,0.15)", color: "#EF4444", border: "1px solid rgba(239,68,68,0.3)" }
-                  : { background: "rgba(251,191,36,0.15)", color: "#FBBf24", border: "1px solid rgba(251,191,36,0.3)" }),
-              }}
-              title={take.prediction.claim}
-            >
-              {take.prediction.status === "RECEIPT" ? (
-                <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg> Receipt</>
-              ) : take.prediction.status === "BUST" ? (
-                <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg> Bust</>
-              ) : (
-                <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg> Prediction</>
-              )}
-            </span>
-          )}
-
-          {/* Stat Check Badge */}
-          {take.statCheck && take.statCheck.overallStatus !== "PENDING" && (
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "4px",
-                padding: "3px 10px",
-                borderRadius: "12px",
-                fontSize: "11px",
-                fontWeight: 700,
-                fontFamily: "var(--font-barlow), sans-serif",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-                ...(take.statCheck.overallStatus === "VERIFIED"
-                  ? { background: "rgba(34,197,94,0.15)", color: "#22C55E", border: "1px solid rgba(34,197,94,0.3)" }
-                  : take.statCheck.overallStatus === "FALSE"
-                  ? { background: "rgba(239,68,68,0.15)", color: "#EF4444", border: "1px solid rgba(239,68,68,0.3)" }
-                  : { background: "rgba(156,163,175,0.15)", color: "#9CA3AF", border: "1px solid rgba(156,163,175,0.3)" }),
-              }}
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
-              {take.statCheck.overallStatus === "VERIFIED" ? "Verified" : take.statCheck.overallStatus === "FALSE" ? "False" : "Unverifiable"}
-            </span>
-          )}
-
-          {/* Aging Badge */}
-          {take.agingTake && (
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "4px",
-                padding: "3px 10px",
-                borderRadius: "12px",
-                fontSize: "11px",
-                fontWeight: 700,
-                fontFamily: "var(--font-barlow), sans-serif",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-                ...(take.agingTake.status === "AGED"
-                  ? { background: "rgba(168,85,247,0.15)", color: "#A855F7", border: "1px solid rgba(168,85,247,0.3)" }
-                  : { background: "rgba(251,191,36,0.15)", color: "#FBBf24", border: "1px solid rgba(251,191,36,0.3)" }),
-              }}
-              title={take.agingTake.status === "AGED" ? `Resurfaced from ${new Date(take.agingTake.revisitDate).toLocaleDateString()}` : `Revisit on ${new Date(take.agingTake.revisitDate).toLocaleDateString()}`}
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" /></svg>
-              {take.agingTake.status === "AGED" ? "Aged" : (() => {
-                const days = Math.max(0, Math.ceil((new Date(take.agingTake!.revisitDate).getTime() - Date.now()) / 86400000));
-                return days > 0 ? `${days}d` : "Due";
-              })()}
-            </span>
-          )}
-
-          {/* Courtside Clock Badge */}
-          {take.gameClock && (
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "4px",
-                padding: "3px 10px",
-                borderRadius: "12px",
-                fontSize: "11px",
-                fontWeight: 700,
-                fontFamily: "var(--font-mono), monospace",
-                background: "rgba(59,130,246,0.15)",
-                color: "#3B82F6",
-                border: "1px solid rgba(59,130,246,0.3)",
-              }}
-            >
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-              {take.quarter && `Q${take.quarter} `}{take.gameClock}
-            </span>
-          )}
-        </div>
-      )}
 
       {/* Tags */}
       {take.tags && take.tags.length > 0 && (
