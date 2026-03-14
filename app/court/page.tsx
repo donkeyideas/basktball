@@ -441,7 +441,7 @@ export default function CourtPage() {
     <>
       <Header />
       <main style={{ minHeight: "100vh", padding: "40px 20px" }}>
-        <div style={{ maxWidth: "1160px", margin: "0 auto" }}>
+        <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
           {/* Page Header */}
           <div style={{ marginBottom: "28px" }}>
             <div style={{
@@ -488,12 +488,114 @@ export default function CourtPage() {
           </div>
 
           {/* Main Content Grid */}
-          <div style={{
+          <div className="court-grid" style={{
             display: "grid",
-            gridTemplateColumns: "1fr 320px",
+            gridTemplateColumns: "260px 1fr 320px",
             gap: "28px",
             alignItems: "start",
           }}>
+            {/* Features Sidebar */}
+            <div className="court-features-sidebar" style={{ position: "sticky", top: "100px" }}>
+              <div style={{
+                background: "#1A1A1A",
+                borderRadius: "12px",
+                border: "1px solid #2a2a2a",
+                padding: "20px",
+              }}>
+                <h3 style={{
+                  fontFamily: "var(--font-anton), sans-serif",
+                  fontSize: "16px",
+                  color: "#FF6B35",
+                  letterSpacing: "1px",
+                  marginBottom: "16px",
+                }}>COURT FEATURES</h3>
+
+                {[
+                  {
+                    icon: (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-1.07-4.14 0-6 1.5 2 2 3.5 2 5.5a2.5 2.5 0 0 0 5 0c0-2.5-1-4-2-6 1 1.5 2 3.5 2 6s-1.5 5-4 6.5c-1 .6-2 1-3 1.5"/>
+                      </svg>
+                    ),
+                    title: "Hot Streak",
+                    desc: "Users earn fire or ice badges based on recent take performance. Updated every 4 hours.",
+                  },
+                  {
+                    icon: (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/>
+                        <path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/>
+                      </svg>
+                    ),
+                    title: "Receipts",
+                    desc: "Post a prediction — AI auto-detects it. After the game, it's stamped RECEIPT or BUST.",
+                  },
+                  {
+                    icon: (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/>
+                      </svg>
+                    ),
+                    title: "Courtside",
+                    desc: "Tag your takes with quarter and game clock during live games.",
+                  },
+                  {
+                    icon: (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        <line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+                      </svg>
+                    ),
+                    title: "Stat Check",
+                    desc: "Tap the magnifying glass to AI fact-check statistical claims on any take.",
+                  },
+                  {
+                    icon: (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>
+                      </svg>
+                    ),
+                    title: "Challenge",
+                    desc: "Tap the flag on someone's take to challenge them to a head-to-head debate.",
+                  },
+                  {
+                    icon: (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                      </svg>
+                    ),
+                    title: "Aging Takes",
+                    desc: "Tap the clock icon to set a revisit date. The take resurfaces for re-evaluation.",
+                  },
+                ].map((feature, i) => (
+                  <div key={i} style={{
+                    display: "flex",
+                    gap: "12px",
+                    alignItems: "flex-start",
+                    padding: "12px 0",
+                    borderTop: i === 0 ? "none" : "1px solid #2a2a2a",
+                  }}>
+                    <div style={{ flexShrink: 0, marginTop: "2px" }}>{feature.icon}</div>
+                    <div>
+                      <div style={{
+                        fontFamily: "var(--font-barlow), sans-serif",
+                        fontWeight: 700,
+                        fontSize: "13px",
+                        color: "white",
+                        marginBottom: "3px",
+                      }}>{feature.title}</div>
+                      <div style={{
+                        fontFamily: "var(--font-barlow), sans-serif",
+                        fontSize: "12px",
+                        color: "rgba(255,255,255,0.45)",
+                        lineHeight: "1.4",
+                      }}>{feature.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Feed Column */}
             <div>
               <div style={{
@@ -1354,10 +1456,12 @@ export default function CourtPage() {
         )}
 
         <style>{`
-          @media (max-width: 900px) {
-            div[style*="gridTemplateColumns: 1fr 320px"] {
-              grid-template-columns: 1fr !important;
-            }
+          @media (max-width: 1100px) {
+            .court-features-sidebar { display: none !important; }
+            .court-grid { grid-template-columns: 1fr 320px !important; }
+          }
+          @media (max-width: 768px) {
+            .court-grid { grid-template-columns: 1fr !important; }
           }
           @keyframes spin {
             to { transform: rotate(360deg); }
