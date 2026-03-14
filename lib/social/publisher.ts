@@ -1,5 +1,4 @@
-import { TwitterApi } from "twitter-api-v2";
-import prisma from "@/lib/db/prisma";
+import { prisma } from "@/lib/db/prisma";
 import type { SocialPlatform, SocialMediaPost } from "@prisma/client";
 import type { PublishResult, PlatformCredentials } from "./types";
 
@@ -33,19 +32,26 @@ async function publishToTwitter(
   post: SocialMediaPost,
   creds: PlatformCredentials
 ): Promise<PublishResult> {
-  if (!hasCredentials(creds, "API_KEY", "API_SECRET", "ACCESS_TOKEN", "ACCESS_SECRET")) {
-    return { success: false, error: "Twitter credentials incomplete" };
+  if (!hasCredentials(creds, "BEARER_TOKEN")) {
+    return { success: false, error: "Twitter credentials incomplete (need BEARER_TOKEN)" };
   }
 
-  const client = new TwitterApi({
-    appKey: creds.API_KEY,
-    appSecret: creds.API_SECRET,
-    accessToken: creds.ACCESS_TOKEN,
-    accessSecret: creds.ACCESS_SECRET,
+  const response = await fetch("https://api.twitter.com/2/tweets", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${creds.BEARER_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ text: post.content }),
   });
 
-  const tweet = await client.v2.tweet(post.content);
-  return { success: true, externalId: tweet.data.id };
+  if (!response.ok) {
+    const errText = await response.text();
+    return { success: false, error: `Twitter API ${response.status}: ${errText}` };
+  }
+
+  const data = await response.json();
+  return { success: true, externalId: data.data?.id };
 }
 
 async function publishToLinkedIn(
@@ -171,17 +177,17 @@ export async function testConnection(
   try {
     switch (platform) {
       case "TWITTER": {
-        if (!hasCredentials(creds, "API_KEY", "API_SECRET", "ACCESS_TOKEN", "ACCESS_SECRET")) {
-          return { success: false, message: "Twitter credentials are incomplete." };
+        if (!hasCredentials(creds, "BEARER_TOKEN")) {
+          return { success: false, message: "Twitter BEARER_TOKEN is missing." };
         }
-        const client = new TwitterApi({
-          appKey: creds.API_KEY,
-          appSecret: creds.API_SECRET,
-          accessToken: creds.ACCESS_TOKEN,
-          accessSecret: creds.ACCESS_SECRET,
+        const twitterRes = await fetch("https://api.twitter.com/2/users/me", {
+          headers: { Authorization: `Bearer ${creds.BEARER_TOKEN}` },
         });
-        const me = await client.v2.me();
-        return { success: true, message: `Connected as @${me.data.username}` };
+        if (!twitterRes.ok) {
+          return { success: false, message: `Twitter API error: ${twitterRes.status}` };
+        }
+        const twitterData = await twitterRes.json();
+        return { success: true, message: `Connected as @${twitterData.data?.username || "unknown"}` };
       }
 
       case "LINKEDIN": {
