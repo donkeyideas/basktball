@@ -608,6 +608,9 @@ export default function CourtPage() {
             {/* Feed Column */}
             <div>
               <div style={{
+                position: "sticky",
+                top: "100px",
+                zIndex: 10,
                 background: "#1A1A1A",
                 borderRadius: "12px 12px 0 0",
                 border: "1px solid #2a2a2a",
