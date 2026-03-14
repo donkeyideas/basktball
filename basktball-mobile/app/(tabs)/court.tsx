@@ -135,12 +135,13 @@ export default function CourtScreen() {
   async function handleStatCheck(takeId: string) {
     setStatCheckLoading(takeId);
     try {
-      const res = await api.post(`/court/takes/${takeId}/stat-check`);
+      const res: any = await api.post(`/court/takes/${takeId}/stat-check`, {});
       if (res.statCheck) {
         setTakes(prev => prev.map(t => t.id === takeId ? { ...t, statCheck: res.statCheck } : t));
+        showAlert('Stat Check', `Result: ${res.statCheck.overallStatus}`);
       }
-    } catch {
-      showAlert('Error', 'Stat check is not available right now.');
+    } catch (err: any) {
+      showAlert('Error', err?.message || 'Stat check is not available right now.');
     } finally {
       setStatCheckLoading(null);
     }
@@ -152,30 +153,31 @@ export default function CourtScreen() {
       await api.post('/court/challenges', {
         topic: challengeModal.topic.trim(),
         challengedId: challengeModal.authorId,
-        challengerTakeId: challengeModal.takeId,
       });
+      setChallengeModal(null);
       showAlert('Challenge Sent', 'Your challenge has been sent!');
-    } catch {
-      showAlert('Error', 'Failed to send challenge.');
+    } catch (err: any) {
+      setChallengeModal(null);
+      showAlert('Error', err?.message || 'Failed to send challenge.');
     }
-    setChallengeModal(null);
   }
 
   async function submitAge() {
     if (!ageModal) return;
     const days = parseInt(ageModal.days, 10);
     if (!days || days < 1) return;
+    const takeId = ageModal.takeId;
     const revisitDate = new Date(Date.now() + days * 86400000).toISOString();
+    setAgeModal(null);
     try {
-      const res = await api.post(`/court/takes/${ageModal.takeId}/age`, { revisitDate });
+      const res: any = await api.post(`/court/takes/${takeId}/age`, { revisitDate });
       if (res.agingTake) {
-        setTakes(prev => prev.map(t => t.id === ageModal.takeId ? { ...t, agingTake: res.agingTake } : t));
+        setTakes(prev => prev.map(t => t.id === takeId ? { ...t, agingTake: res.agingTake } : t));
       }
       showAlert('Aged', `This take will resurface in ${days} days.`);
-    } catch {
-      showAlert('Error', 'Failed to age this take.');
+    } catch (err: any) {
+      showAlert('Error', err?.message || 'Failed to age this take.');
     }
-    setAgeModal(null);
   }
 
   useEffect(() => {
@@ -780,65 +782,71 @@ export default function CourtScreen() {
 
       {/* Age Take Modal */}
       <Modal visible={!!ageModal} animationType="fade" transparent>
-        <TouchableOpacity style={styles.alertOverlay} activeOpacity={1} onPress={() => setAgeModal(null)}>
-          <TouchableOpacity activeOpacity={1} style={styles.alertBox}>
+        <View style={styles.alertOverlay}>
+          <View style={styles.alertBox}>
             <Text style={styles.alertTitle}>AGE THIS TAKE</Text>
             <Text style={styles.alertMessage}>Set a revisit date. This take will resurface for the community to re-evaluate.</Text>
             <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: colors.textSecondary, marginBottom: 8 }}>Revisit in how many days?</Text>
             <TextInput
-              style={{ backgroundColor: 'rgba(0,0,0,0.3)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: 10, color: colors.text, fontSize: 16, fontFamily: Fonts.barlow, marginBottom: 16 }}
+              style={{ backgroundColor: 'rgba(0,0,0,0.3)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, color: colors.text, fontSize: 16, fontFamily: Fonts.barlow, marginBottom: 20 }}
               keyboardType="number-pad"
               value={ageModal?.days || ''}
-              onChangeText={(val) => setAgeModal(prev => prev ? { ...prev, days: val } : null)}
+              onChangeText={(val) => setAgeModal(prev => prev ? { ...prev, days: val.replace(/[^0-9]/g, '') } : null)}
               placeholder="7"
               placeholderTextColor={colors.textTertiary}
               autoFocus
             />
-            <View style={{ flexDirection: 'row', gap: 10, justifyContent: 'flex-end' }}>
-              <TouchableOpacity style={[styles.alertButton, styles.alertButtonCancel]} onPress={() => setAgeModal(null)}>
+            <View style={{ flexDirection: 'row', gap: 12, justifyContent: 'flex-end' }}>
+              <TouchableOpacity
+                style={[styles.alertButton, styles.alertButtonCancel, { paddingHorizontal: 24, minHeight: 44 }]}
+                onPress={() => setAgeModal(null)}
+              >
                 <Text style={[styles.alertButtonText, styles.alertButtonTextCancel]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.alertButton, styles.alertButtonDefault, { opacity: !ageModal?.days || parseInt(ageModal?.days) < 1 ? 0.5 : 1 }]}
+                style={[styles.alertButton, styles.alertButtonDefault, { paddingHorizontal: 24, minHeight: 44, opacity: !ageModal?.days || parseInt(ageModal?.days) < 1 ? 0.5 : 1 }]}
                 onPress={submitAge}
                 disabled={!ageModal?.days || parseInt(ageModal?.days) < 1}
               >
                 <Text style={styles.alertButtonText}>Age It</Text>
               </TouchableOpacity>
             </View>
-          </TouchableOpacity>
-        </TouchableOpacity>
+          </View>
+        </View>
       </Modal>
 
       {/* Challenge Modal */}
       <Modal visible={!!challengeModal} animationType="fade" transparent>
-        <TouchableOpacity style={styles.alertOverlay} activeOpacity={1} onPress={() => setChallengeModal(null)}>
-          <TouchableOpacity activeOpacity={1} style={styles.alertBox}>
+        <View style={styles.alertOverlay}>
+          <View style={styles.alertBox}>
             <Text style={styles.alertTitle}>CHALLENGE</Text>
             <Text style={styles.alertMessage}>Challenge this user to a head-to-head debate. The community votes on who wins.</Text>
             <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: colors.textSecondary, marginBottom: 8 }}>What&apos;s the debate topic?</Text>
             <TextInput
-              style={{ backgroundColor: 'rgba(0,0,0,0.3)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: 10, color: colors.text, fontSize: 14, fontFamily: Fonts.barlow, marginBottom: 16 }}
+              style={{ backgroundColor: 'rgba(0,0,0,0.3)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 12, color: colors.text, fontSize: 14, fontFamily: Fonts.barlow, marginBottom: 20 }}
               value={challengeModal?.topic || ''}
               onChangeText={(val) => setChallengeModal(prev => prev ? { ...prev, topic: val } : null)}
               placeholder="e.g. LeBron vs Jordan, Best PG..."
               placeholderTextColor={colors.textTertiary}
               autoFocus
             />
-            <View style={{ flexDirection: 'row', gap: 10, justifyContent: 'flex-end' }}>
-              <TouchableOpacity style={[styles.alertButton, styles.alertButtonCancel]} onPress={() => setChallengeModal(null)}>
+            <View style={{ flexDirection: 'row', gap: 12, justifyContent: 'flex-end' }}>
+              <TouchableOpacity
+                style={[styles.alertButton, styles.alertButtonCancel, { paddingHorizontal: 24, minHeight: 44 }]}
+                onPress={() => setChallengeModal(null)}
+              >
                 <Text style={[styles.alertButtonText, styles.alertButtonTextCancel]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.alertButton, styles.alertButtonDefault, { opacity: !challengeModal?.topic?.trim() ? 0.5 : 1 }]}
+                style={[styles.alertButton, styles.alertButtonDefault, { paddingHorizontal: 24, minHeight: 44, opacity: !challengeModal?.topic?.trim() ? 0.5 : 1 }]}
                 onPress={submitChallenge}
                 disabled={!challengeModal?.topic?.trim()}
               >
                 <Text style={styles.alertButtonText}>Send Challenge</Text>
               </TouchableOpacity>
             </View>
-          </TouchableOpacity>
-        </TouchableOpacity>
+          </View>
+        </View>
       </Modal>
 
       {/* Themed Alert Modal */}
@@ -962,7 +970,7 @@ function makeStyles(colors: any) {
   alertTitle: { fontFamily: Fonts.barlowBold, fontSize: 18, color: colors.text, textAlign: 'center', letterSpacing: 0.5, marginBottom: 8 },
   alertMessage: { fontFamily: Fonts.barlow, fontSize: 14, color: colors.textSecondary, textAlign: 'center', lineHeight: 20, marginBottom: 20 },
   alertButtons: { gap: 8, marginTop: 4 },
-  alertButton: { paddingVertical: 12, borderRadius: 10, alignItems: 'center' },
+  alertButton: { paddingVertical: 14, paddingHorizontal: 16, borderRadius: 10, alignItems: 'center', justifyContent: 'center', minHeight: 48 },
   alertButtonDefault: { backgroundColor: Colors.orange },
   alertButtonDestructive: { backgroundColor: '#EF4444' },
   alertButtonCancel: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.border },

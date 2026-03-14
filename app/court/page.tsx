@@ -293,7 +293,7 @@ export default function CourtPage() {
       await fetch("/api/court/challenges", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic: challengeModal.topic.trim(), challengedId: challengeModal.authorId, challengerTakeId: challengeModal.takeId }),
+        body: JSON.stringify({ topic: challengeModal.topic.trim(), challengedId: challengeModal.authorId }),
       });
     } catch {
       // silently fail
