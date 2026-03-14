@@ -18,7 +18,7 @@ function getInitial(name: string): string {
   return (name?.charAt(0) || "?").toUpperCase();
 }
 
-const MAX_CHARS = 280;
+const MAX_CHARS = 2000;
 
 // --- Component ---
 

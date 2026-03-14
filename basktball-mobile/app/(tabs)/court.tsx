@@ -52,6 +52,8 @@ interface Take {
   createdAt: string;
   tags: string[];
   gameId: string | null;
+  quarter?: string | null;
+  gameClock?: string | null;
   author: {
     id: string;
     name: string | null;
@@ -59,8 +61,13 @@ interface Take {
     image: string | null;
     avatarUrl: string | null;
     role: string;
+    streakType?: 'HOT' | 'COLD' | 'NEUTRAL';
+    streakCount?: number;
   };
   poll: Poll | null;
+  prediction?: { status: string; claim: string; result?: string | null } | null;
+  statCheck?: { overallStatus: string; claims: unknown } | null;
+  agingTake?: { revisitDate: string; status: string; resurfacedAt?: string | null } | null;
   userFired?: boolean;
   userBricked?: boolean;
   userBookmarked?: boolean;
@@ -118,6 +125,57 @@ export default function CourtScreen() {
 
   function dismissAlert() {
     setAlertConfig(prev => ({ ...prev, visible: false }));
+  }
+
+  // Modal state for Age and Challenge
+  const [ageModal, setAgeModal] = useState<{ takeId: string; days: string } | null>(null);
+  const [challengeModal, setChallengeModal] = useState<{ takeId: string; authorId: string; topic: string } | null>(null);
+  const [statCheckLoading, setStatCheckLoading] = useState<string | null>(null);
+
+  async function handleStatCheck(takeId: string) {
+    setStatCheckLoading(takeId);
+    try {
+      const res = await api.post(`/court/takes/${takeId}/stat-check`);
+      if (res.statCheck) {
+        setTakes(prev => prev.map(t => t.id === takeId ? { ...t, statCheck: res.statCheck } : t));
+      }
+    } catch {
+      showAlert('Error', 'Stat check is not available right now.');
+    } finally {
+      setStatCheckLoading(null);
+    }
+  }
+
+  async function submitChallenge() {
+    if (!challengeModal || !challengeModal.topic.trim()) return;
+    try {
+      await api.post('/court/challenges', {
+        topic: challengeModal.topic.trim(),
+        challengedId: challengeModal.authorId,
+        challengerTakeId: challengeModal.takeId,
+      });
+      showAlert('Challenge Sent', 'Your challenge has been sent!');
+    } catch {
+      showAlert('Error', 'Failed to send challenge.');
+    }
+    setChallengeModal(null);
+  }
+
+  async function submitAge() {
+    if (!ageModal) return;
+    const days = parseInt(ageModal.days, 10);
+    if (!days || days < 1) return;
+    const revisitDate = new Date(Date.now() + days * 86400000).toISOString();
+    try {
+      const res = await api.post(`/court/takes/${ageModal.takeId}/age`, { revisitDate });
+      if (res.agingTake) {
+        setTakes(prev => prev.map(t => t.id === ageModal.takeId ? { ...t, agingTake: res.agingTake } : t));
+      }
+      showAlert('Aged', `This take will resurface in ${days} days.`);
+    } catch {
+      showAlert('Error', 'Failed to age this take.');
+    }
+    setAgeModal(null);
   }
 
   useEffect(() => {
@@ -305,8 +363,8 @@ export default function CourtScreen() {
 
   async function handlePost() {
     if (!composeText.trim()) return;
-    if (composeText.length > 280) {
-      showAlert('Too Long', 'Takes must be 280 characters or less.');
+    if (composeText.length > 2000) {
+      showAlert('Too Long', 'Takes must be 2,000 characters or less.');
       return;
     }
     // Validate poll if enabled
@@ -366,6 +424,18 @@ export default function CourtScreen() {
               {item.author?.role === 'MODERATOR' || item.author?.role === 'ADMIN' ? (
                 <Ionicons name="checkmark-circle" size={14} color={Colors.orange} style={styles.verifiedIcon} />
               ) : null}
+              {item.author?.streakType === 'HOT' && (item.author?.streakCount ?? 0) > 0 && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, marginLeft: 4 }}>
+                  <Ionicons name="flame" size={14} color={Colors.orange} />
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: Colors.orange, fontFamily: 'RobotoMono_400Regular' }}>{item.author.streakCount}</Text>
+                </View>
+              )}
+              {item.author?.streakType === 'COLD' && (item.author?.streakCount ?? 0) > 0 && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, marginLeft: 4 }}>
+                  <Ionicons name="snow" size={14} color="#3B82F6" />
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#3B82F6', fontFamily: 'RobotoMono_400Regular' }}>{item.author.streakCount}</Text>
+                </View>
+              )}
             </View>
             <Text style={styles.takeHandle}>{timeAgo(item.createdAt)}</Text>
           </View>
@@ -386,6 +456,84 @@ export default function CourtScreen() {
 
         {/* Content */}
         <Text style={styles.takeText}>{item.content}</Text>
+
+        {/* Feature Badges */}
+        {(item.prediction || item.statCheck || item.agingTake || item.gameClock) && (
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+            {item.prediction && (
+              <View style={{
+                flexDirection: 'row', alignItems: 'center', gap: 4,
+                paddingHorizontal: 10, paddingVertical: 3, borderRadius: 12,
+                backgroundColor: item.prediction.status === 'RECEIPT' ? 'rgba(34,197,94,0.15)' : item.prediction.status === 'BUST' ? 'rgba(239,68,68,0.15)' : 'rgba(251,191,36,0.15)',
+                borderWidth: 1,
+                borderColor: item.prediction.status === 'RECEIPT' ? 'rgba(34,197,94,0.3)' : item.prediction.status === 'BUST' ? 'rgba(239,68,68,0.3)' : 'rgba(251,191,36,0.3)',
+              }}>
+                <Ionicons
+                  name={item.prediction.status === 'RECEIPT' ? 'checkmark-circle' : item.prediction.status === 'BUST' ? 'close-circle' : 'time'}
+                  size={12}
+                  color={item.prediction.status === 'RECEIPT' ? '#22C55E' : item.prediction.status === 'BUST' ? '#EF4444' : '#FBBF24'}
+                />
+                <Text style={{
+                  fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5,
+                  color: item.prediction.status === 'RECEIPT' ? '#22C55E' : item.prediction.status === 'BUST' ? '#EF4444' : '#FBBF24',
+                }}>
+                  {item.prediction.status === 'RECEIPT' ? 'Receipt' : item.prediction.status === 'BUST' ? 'Bust' : 'Prediction'}
+                </Text>
+              </View>
+            )}
+            {item.statCheck && item.statCheck.overallStatus !== 'PENDING' && (
+              <View style={{
+                flexDirection: 'row', alignItems: 'center', gap: 4,
+                paddingHorizontal: 10, paddingVertical: 3, borderRadius: 12,
+                backgroundColor: item.statCheck.overallStatus === 'VERIFIED' ? 'rgba(34,197,94,0.15)' : item.statCheck.overallStatus === 'FALSE' ? 'rgba(239,68,68,0.15)' : 'rgba(156,163,175,0.15)',
+                borderWidth: 1,
+                borderColor: item.statCheck.overallStatus === 'VERIFIED' ? 'rgba(34,197,94,0.3)' : item.statCheck.overallStatus === 'FALSE' ? 'rgba(239,68,68,0.3)' : 'rgba(156,163,175,0.3)',
+              }}>
+                <Ionicons name="search" size={12} color={item.statCheck.overallStatus === 'VERIFIED' ? '#22C55E' : item.statCheck.overallStatus === 'FALSE' ? '#EF4444' : '#9CA3AF'} />
+                <Text style={{
+                  fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5,
+                  color: item.statCheck.overallStatus === 'VERIFIED' ? '#22C55E' : item.statCheck.overallStatus === 'FALSE' ? '#EF4444' : '#9CA3AF',
+                }}>
+                  {item.statCheck.overallStatus === 'VERIFIED' ? 'Verified' : item.statCheck.overallStatus === 'FALSE' ? 'False' : 'Unverifiable'}
+                </Text>
+              </View>
+            )}
+            {item.agingTake && (
+              <View style={{
+                flexDirection: 'row', alignItems: 'center', gap: 4,
+                paddingHorizontal: 10, paddingVertical: 3, borderRadius: 12,
+                backgroundColor: item.agingTake.status === 'AGED' ? 'rgba(168,85,247,0.15)' : 'rgba(251,191,36,0.15)',
+                borderWidth: 1,
+                borderColor: item.agingTake.status === 'AGED' ? 'rgba(168,85,247,0.3)' : 'rgba(251,191,36,0.3)',
+              }}>
+                <Ionicons name="hourglass" size={12} color={item.agingTake.status === 'AGED' ? '#A855F7' : '#FBBF24'} />
+                <Text style={{
+                  fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5,
+                  color: item.agingTake.status === 'AGED' ? '#A855F7' : '#FBBF24',
+                }}>
+                  {item.agingTake.status === 'AGED' ? 'Aged' : (() => {
+                    const days = Math.max(0, Math.ceil((new Date(item.agingTake!.revisitDate).getTime() - Date.now()) / 86400000));
+                    return days > 0 ? `${days}d` : 'Due';
+                  })()}
+                </Text>
+              </View>
+            )}
+            {item.gameClock && (
+              <View style={{
+                flexDirection: 'row', alignItems: 'center', gap: 4,
+                paddingHorizontal: 10, paddingVertical: 3, borderRadius: 12,
+                backgroundColor: 'rgba(59,130,246,0.15)',
+                borderWidth: 1,
+                borderColor: 'rgba(59,130,246,0.3)',
+              }}>
+                <Ionicons name="timer" size={12} color="#3B82F6" />
+                <Text style={{ fontSize: 11, fontWeight: '700', color: '#3B82F6', fontFamily: 'RobotoMono_400Regular' }}>
+                  {item.quarter ? `Q${item.quarter} ` : ''}{item.gameClock}
+                </Text>
+              </View>
+            )}
+          </View>
+        )}
 
         {/* Tags */}
         {item.tags && item.tags.length > 0 && (
@@ -463,6 +611,25 @@ export default function CourtScreen() {
           <TouchableOpacity style={styles.takeAction} onPress={() => handleBookmark(item.id)}>
             <Ionicons name={item.userBookmarked ? 'bookmark' : 'bookmark-outline'} size={18} color={item.userBookmarked ? Colors.orange : colors.textSecondary} />
           </TouchableOpacity>
+          {!item.statCheck && (
+            <TouchableOpacity style={styles.takeAction} onPress={() => handleStatCheck(item.id)} disabled={statCheckLoading === item.id}>
+              {statCheckLoading === item.id ? (
+                <ActivityIndicator size="small" color={Colors.orange} />
+              ) : (
+                <Ionicons name="search" size={16} color={colors.textTertiary} />
+              )}
+            </TouchableOpacity>
+          )}
+          {user && user.id !== item.author?.id && (
+            <TouchableOpacity style={styles.takeAction} onPress={() => setChallengeModal({ takeId: item.id, authorId: item.author.id!, topic: '' })}>
+              <Ionicons name="flag-outline" size={16} color={colors.textTertiary} />
+            </TouchableOpacity>
+          )}
+          {!item.agingTake && (
+            <TouchableOpacity style={styles.takeAction} onPress={() => setAgeModal({ takeId: item.id, days: '7' })}>
+              <Ionicons name="time-outline" size={16} color={colors.textTertiary} />
+            </TouchableOpacity>
+          )}
           <View style={styles.takeAction}>
             <Ionicons name="eye-outline" size={14} color={colors.textTertiary} />
             <Text style={[styles.takeActionCount, { color: colors.textTertiary, fontSize: 11 }]}>{item.viewCount ?? 0}</Text>
@@ -542,12 +709,12 @@ export default function CourtScreen() {
               placeholder="What's your take?"
               placeholderTextColor={colors.textTertiary}
               multiline
-              maxLength={280}
+              maxLength={2000}
               value={composeText}
               onChangeText={setComposeText}
               autoFocus
             />
-            <Text style={styles.charCount}>{composeText.length}/280</Text>
+            <Text style={styles.charCount}>{composeText.length}/2000</Text>
 
             {/* Poll Toggle & Builder */}
             {showPoll ? (
@@ -609,6 +776,69 @@ export default function CourtScreen() {
             </ScrollView>
           </View>
         </KeyboardAvoidingView>
+      </Modal>
+
+      {/* Age Take Modal */}
+      <Modal visible={!!ageModal} animationType="fade" transparent>
+        <TouchableOpacity style={styles.alertOverlay} activeOpacity={1} onPress={() => setAgeModal(null)}>
+          <TouchableOpacity activeOpacity={1} style={styles.alertBox}>
+            <Text style={styles.alertTitle}>AGE THIS TAKE</Text>
+            <Text style={styles.alertMessage}>Set a revisit date. This take will resurface for the community to re-evaluate.</Text>
+            <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: colors.textSecondary, marginBottom: 8 }}>Revisit in how many days?</Text>
+            <TextInput
+              style={{ backgroundColor: 'rgba(0,0,0,0.3)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: 10, color: colors.text, fontSize: 16, fontFamily: Fonts.barlow, marginBottom: 16 }}
+              keyboardType="number-pad"
+              value={ageModal?.days || ''}
+              onChangeText={(val) => setAgeModal(prev => prev ? { ...prev, days: val } : null)}
+              placeholder="7"
+              placeholderTextColor={colors.textTertiary}
+              autoFocus
+            />
+            <View style={{ flexDirection: 'row', gap: 10, justifyContent: 'flex-end' }}>
+              <TouchableOpacity style={[styles.alertButton, styles.alertButtonCancel]} onPress={() => setAgeModal(null)}>
+                <Text style={[styles.alertButtonText, styles.alertButtonTextCancel]}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.alertButton, styles.alertButtonDefault, { opacity: !ageModal?.days || parseInt(ageModal?.days) < 1 ? 0.5 : 1 }]}
+                onPress={submitAge}
+                disabled={!ageModal?.days || parseInt(ageModal?.days) < 1}
+              >
+                <Text style={styles.alertButtonText}>Age It</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Challenge Modal */}
+      <Modal visible={!!challengeModal} animationType="fade" transparent>
+        <TouchableOpacity style={styles.alertOverlay} activeOpacity={1} onPress={() => setChallengeModal(null)}>
+          <TouchableOpacity activeOpacity={1} style={styles.alertBox}>
+            <Text style={styles.alertTitle}>CHALLENGE</Text>
+            <Text style={styles.alertMessage}>Challenge this user to a head-to-head debate. The community votes on who wins.</Text>
+            <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: colors.textSecondary, marginBottom: 8 }}>What&apos;s the debate topic?</Text>
+            <TextInput
+              style={{ backgroundColor: 'rgba(0,0,0,0.3)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.15)', borderRadius: 8, padding: 10, color: colors.text, fontSize: 14, fontFamily: Fonts.barlow, marginBottom: 16 }}
+              value={challengeModal?.topic || ''}
+              onChangeText={(val) => setChallengeModal(prev => prev ? { ...prev, topic: val } : null)}
+              placeholder="e.g. LeBron vs Jordan, Best PG..."
+              placeholderTextColor={colors.textTertiary}
+              autoFocus
+            />
+            <View style={{ flexDirection: 'row', gap: 10, justifyContent: 'flex-end' }}>
+              <TouchableOpacity style={[styles.alertButton, styles.alertButtonCancel]} onPress={() => setChallengeModal(null)}>
+                <Text style={[styles.alertButtonText, styles.alertButtonTextCancel]}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.alertButton, styles.alertButtonDefault, { opacity: !challengeModal?.topic?.trim() ? 0.5 : 1 }]}
+                onPress={submitChallenge}
+                disabled={!challengeModal?.topic?.trim()}
+              >
+                <Text style={styles.alertButtonText}>Send Challenge</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
 
       {/* Themed Alert Modal */}

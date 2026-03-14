@@ -48,6 +48,21 @@ enum JobStatus {
   SKIPPED
 }
 
+enum SocialPlatform {
+  TWITTER
+  LINKEDIN
+  FACEBOOK
+  INSTAGRAM
+  TIKTOK
+}
+
+enum SocialPostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  FAILED
+}
+
 // =============================================================================
 // CORE MODELS
 // =============================================================================
@@ -128,6 +143,7 @@ model Game {
   teamStats   TeamStat[]
   insights    AiInsight[]
   chatRoom    ChatRoom?
+  predictions Prediction[]
 
   @@index([gameDate])
   @@index([status])
@@ -300,6 +316,33 @@ model ApiTracker {
   @@index([provider])
   @@index([createdAt])
   @@index([cached])
+}
+
+// =============================================================================
+// SOCIAL MEDIA
+// =============================================================================
+
+model SocialMediaPost {
+  id           String           @id @default(cuid())
+  platform     SocialPlatform
+  content      String           @db.Text
+  imagePrompt  String?
+  hashtags     String[]
+  status       SocialPostStatus @default(DRAFT)
+  tone         String?
+  topic        String?
+  scheduledAt  DateTime?
+  publishedAt  DateTime?
+  externalId   String?
+  errorMessage String?          @db.Text
+  metadata     Json?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([platform])
+  @@index([status])
+  @@index([scheduledAt])
+  @@index([createdAt])
 }
 
 // =============================================================================
@@ -545,6 +588,23 @@ model User {
   takeCount      Int @default(0)
   followerCount  Int @default(0)
   followingCount Int @default(0)
+
+  // Novel feature stats
+  predictionCount    Int        @default(0)
+  correctPredictions Int        @default(0)
+  challengeWins      Int        @default(0)
+  challengeLosses    Int        @default(0)
+  streakType         StreakType  @default(NEUTRAL)
+  streakCount        Int        @default(0)
+
+  // Novel feature relations
+  predictions        Prediction[]
+  statChecks         StatCheck[]
+  agingTakes         AgingTake[]
+  challengesSent     Challenge[]      @relation("ChallengerUser")
+  challengesReceived Challenge[]      @relation("ChallengedUser")
+  challengesWon      Challenge[]      @relation("ChallengeWinner")
+  challengeVotes     ChallengeVote[]
 
   @@index([email])
   @@index([displayName])
@@ -839,9 +899,38 @@ enum TakeReactionType {
   BRICK
 }
 
+enum PredictionStatus {
+  PENDING
+  RECEIPT
+  BUST
+  UNRESOLVABLE
+}
+
+enum VerificationStatus {
+  VERIFIED
+  FALSE
+  UNVERIFIABLE
+  PENDING
+}
+
+enum ChallengeStatus {
+  OPEN
+  ACTIVE
+  VOTING
+  COMPLETED
+  EXPIRED
+  DECLINED
+}
+
+enum StreakType {
+  HOT
+  COLD
+  NEUTRAL
+}
+
 model Take {
   id          String      @id @default(cuid())
-  content     String      @db.VarChar(280)
+  content     String      @db.VarChar(2000)
   authorId    String
   gameId      String?
   parentId    String?
@@ -859,6 +948,10 @@ model Take {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
+  // Courtside mode
+  quarter     String?
+  gameClock   String?
+
   // Relations
   author      User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
   parent      Take?       @relation("TakeReplies", fields: [parentId], references: [id], onDelete: SetNull)
@@ -867,6 +960,13 @@ model Take {
   reposts     Repost[]
   bookmarks   Bookmark[]
   poll        Poll?
+
+  // Novel feature relations
+  prediction  Prediction?
+  statCheck   StatCheck?
+  agingTake   AgingTake?
+  challengerTakes  Challenge[] @relation("ChallengerTake")
+  challengedTakes  Challenge[] @relation("ChallengedTake")
 
   @@index([authorId])
   @@index([gameId])
@@ -981,4 +1081,107 @@ model DeviceToken {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+// =============================================================================
+// NOVEL COURT FEATURES
+// =============================================================================
+
+model Prediction {
+  id          String           @id @default(cuid())
+  takeId      String           @unique
+  userId      String
+  gameId      String?
+  playerId    String?
+  claim       String           @db.Text
+  threshold   String?
+  status      PredictionStatus @default(PENDING)
+  result      String?
+  resolvedAt  DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  take        Take             @relation(fields: [takeId], references: [id], onDelete: Cascade)
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game        Game?            @relation(fields: [gameId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([gameId])
+  @@index([status])
+}
+
+model Challenge {
+  id               String          @id @default(cuid())
+  topic            String
+  challengerId     String
+  challengedId     String
+  challengerTakeId String?
+  challengedTakeId String?
+  votesChallenger  Int             @default(0)
+  votesChallenged  Int             @default(0)
+  winnerId         String?
+  status           ChallengeStatus @default(OPEN)
+  expiresAt        DateTime
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  challenger       User            @relation("ChallengerUser", fields: [challengerId], references: [id], onDelete: Cascade)
+  challenged       User            @relation("ChallengedUser", fields: [challengedId], references: [id], onDelete: Cascade)
+  winner           User?           @relation("ChallengeWinner", fields: [winnerId], references: [id], onDelete: SetNull)
+  challengerTake   Take?           @relation("ChallengerTake", fields: [challengerTakeId], references: [id], onDelete: SetNull)
+  challengedTake   Take?           @relation("ChallengedTake", fields: [challengedTakeId], references: [id], onDelete: SetNull)
+  votes            ChallengeVote[]
+
+  @@index([challengerId])
+  @@index([challengedId])
+  @@index([status])
+}
+
+model ChallengeVote {
+  id          String    @id @default(cuid())
+  challengeId String
+  userId      String
+  votedForId  String
+  createdAt   DateTime  @default(now())
+
+  challenge   Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([challengeId, userId])
+  @@index([challengeId])
+}
+
+model StatCheck {
+  id            String             @id @default(cuid())
+  takeId        String             @unique
+  userId        String
+  claims        Json
+  overallStatus VerificationStatus @default(PENDING)
+  aiResponse    String?            @db.Text
+  checkedAt     DateTime?
+  createdAt     DateTime           @default(now())
+
+  take          Take               @relation(fields: [takeId], references: [id], onDelete: Cascade)
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([overallStatus])
+}
+
+model AgingTake {
+  id           String   @id @default(cuid())
+  takeId       String   @unique
+  userId       String
+  revisitDate  DateTime
+  reason       String?
+  status       String   @default("AGING") // AGING | AGED | EXPIRED
+  resurfacedAt DateTime?
+  createdAt    DateTime @default(now())
+
+  take         Take     @relation(fields: [takeId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([revisitDate])
+  @@index([status])
 }

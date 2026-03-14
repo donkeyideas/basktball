@@ -1,19 +1,20 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { requireMobileUser } from "@/lib/mobile-auth";
+import { detectPrediction } from "@/lib/court/prediction-detector";
 
 // POST /api/mobile/takes - Create a take
 export async function POST(request: Request) {
   try {
     const user = await requireMobileUser(request);
-    const { content, gameId, parentId, tags, pollOptions, pollDuration } = await request.json();
+    const { content, gameId, parentId, tags, pollOptions, pollDuration, quarter, gameClock } = await request.json();
 
     if (!content || content.trim().length === 0) {
       return NextResponse.json({ message: "Content is required" }, { status: 400 });
     }
 
-    if (content.length > 280) {
-      return NextResponse.json({ message: "Take must be 280 characters or less" }, { status: 400 });
+    if (content.length > 2000) {
+      return NextResponse.json({ message: "Take must be 2,000 characters or less" }, { status: 400 });
     }
 
     const take = await prisma.take.create({
@@ -23,6 +24,8 @@ export async function POST(request: Request) {
         gameId: gameId || null,
         parentId: parentId || null,
         tags: tags || [],
+        quarter: quarter || null,
+        gameClock: gameClock || null,
       },
       include: {
         author: {
@@ -65,6 +68,9 @@ export async function POST(request: Request) {
         data: { replyCount: { increment: 1 } },
       });
     }
+
+    // Fire-and-forget: detect if this take is a prediction
+    detectPrediction(take.id, content.trim(), user.id, gameId || null).catch(() => {});
 
     return NextResponse.json(take, { status: 201 });
   } catch (error: unknown) {

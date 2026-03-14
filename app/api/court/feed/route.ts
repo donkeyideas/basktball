@@ -52,6 +52,8 @@ export async function GET(request: NextRequest) {
             image: true,
             avatarUrl: true,
             role: true,
+            streakType: true,
+            streakCount: true,
           },
         },
         poll: {
@@ -66,6 +68,15 @@ export async function GET(request: NextRequest) {
                 }
               : {}),
           },
+        },
+        prediction: {
+          select: { status: true, claim: true, result: true },
+        },
+        statCheck: {
+          select: { overallStatus: true, claims: true },
+        },
+        agingTake: {
+          select: { revisitDate: true, status: true, resurfacedAt: true },
         },
         ...(user
           ? {

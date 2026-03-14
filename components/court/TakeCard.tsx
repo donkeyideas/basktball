@@ -12,6 +12,25 @@ interface TakeAuthor {
   image?: string | null;
   avatarUrl?: string | null;
   role?: string;
+  streakType?: "HOT" | "COLD" | "NEUTRAL";
+  streakCount?: number;
+}
+
+interface TakePrediction {
+  status: "PENDING" | "RECEIPT" | "BUST" | "UNRESOLVABLE";
+  claim: string;
+  result?: string | null;
+}
+
+interface TakeStatCheck {
+  overallStatus: "VERIFIED" | "FALSE" | "UNVERIFIABLE" | "PENDING";
+  claims: unknown;
+}
+
+interface TakeAgingInfo {
+  revisitDate: string;
+  status: "AGING" | "AGED" | "EXPIRED";
+  resurfacedAt?: string | null;
 }
 
 export interface PollOption {
@@ -38,13 +57,19 @@ export interface Take {
   brickCount: number;
   replyCount: number;
   repostCount: number;
+  viewCount?: number;
   tags: string[];
   gameId?: string | null;
   parentId?: string | null;
+  quarter?: string | null;
+  gameClock?: string | null;
   userReaction: "FIRE" | "BRICK" | null;
   userBookmarked: boolean;
   userReposted: boolean;
   poll?: TakePoll | null;
+  prediction?: TakePrediction | null;
+  statCheck?: TakeStatCheck | null;
+  agingTake?: TakeAgingInfo | null;
 }
 
 interface TakeCardProps {
@@ -57,6 +82,10 @@ interface TakeCardProps {
   onDelete?: (takeId: string) => void;
   onPollVote?: (takeId: string, optionId: string) => void;
   onReply?: (takeId: string) => void;
+  onStatCheck?: (takeId: string) => void;
+  onChallenge?: (takeId: string, authorId: string) => void;
+  onAge?: (takeId: string) => void;
+  statCheckLoading?: string | null;
 }
 
 // --- Helpers ---
@@ -178,7 +207,7 @@ function BookmarkIcon({ active }: { active: boolean }) {
 
 // --- Component ---
 
-export default function TakeCard({ take, currentUserId, currentUserRole, onReact, onBookmark, onRepost, onDelete, onPollVote, onReply }: TakeCardProps) {
+export default function TakeCard({ take, currentUserId, currentUserRole, onReact, onBookmark, onRepost, onDelete, onPollVote, onReply, onStatCheck, onChallenge, onAge, statCheckLoading }: TakeCardProps) {
   const [hovered, setHovered] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [votingOptionId, setVotingOptionId] = useState<string | null>(null);
@@ -418,6 +447,18 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
           </div>
           <div style={metaStyle}>
             <span style={displayNameStyle}>{take.author.displayName || take.author.name}</span>
+            {take.author.streakType === "HOT" && take.author.streakCount && take.author.streakCount > 0 && (
+              <span title={`${take.author.streakCount} hot streak`} style={{ display: "inline-flex", alignItems: "center", gap: "2px", fontSize: "12px", color: "#FF6B35", fontWeight: 700, fontFamily: "var(--font-mono), monospace" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#FF6B35" stroke="#FF6B35" strokeWidth="1"><path d="M12 12c2-2.96 0-7-1-8 0 3.04-4 6.5-4 8s2.05 4 5 4 5-2 5-4c0-2-2-3-3-3-1 2-2 3-2 3z" /></svg>
+                {take.author.streakCount}
+              </span>
+            )}
+            {take.author.streakType === "COLD" && take.author.streakCount && take.author.streakCount > 0 && (
+              <span title={`${take.author.streakCount} cold streak`} style={{ display: "inline-flex", alignItems: "center", gap: "2px", fontSize: "12px", color: "#3B82F6", fontWeight: 700, fontFamily: "var(--font-mono), monospace" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="2" strokeLinecap="round"><path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M19.07 4.93L4.93 19.07" /></svg>
+                {take.author.streakCount}
+              </span>
+            )}
             <span style={handleStyle}>@{take.author.name}</span>
             <span style={dotStyle}>&#183;</span>
             <span style={timeStyle}>{getTimeAgo(take.createdAt)}</span>
@@ -488,6 +529,119 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
 
       {/* Content */}
       <div style={contentStyle}>{take.content}</div>
+
+      {/* Feature Badges Row */}
+      {(take.prediction || take.statCheck || take.agingTake || take.gameClock) && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "8px" }}>
+          {/* Prediction Badge */}
+          {take.prediction && (
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+                padding: "3px 10px",
+                borderRadius: "12px",
+                fontSize: "11px",
+                fontWeight: 700,
+                fontFamily: "var(--font-barlow), sans-serif",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+                ...(take.prediction.status === "RECEIPT"
+                  ? { background: "rgba(34,197,94,0.15)", color: "#22C55E", border: "1px solid rgba(34,197,94,0.3)" }
+                  : take.prediction.status === "BUST"
+                  ? { background: "rgba(239,68,68,0.15)", color: "#EF4444", border: "1px solid rgba(239,68,68,0.3)" }
+                  : { background: "rgba(251,191,36,0.15)", color: "#FBBf24", border: "1px solid rgba(251,191,36,0.3)" }),
+              }}
+              title={take.prediction.claim}
+            >
+              {take.prediction.status === "RECEIPT" ? (
+                <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg> Receipt</>
+              ) : take.prediction.status === "BUST" ? (
+                <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg> Bust</>
+              ) : (
+                <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg> Prediction</>
+              )}
+            </span>
+          )}
+
+          {/* Stat Check Badge */}
+          {take.statCheck && take.statCheck.overallStatus !== "PENDING" && (
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+                padding: "3px 10px",
+                borderRadius: "12px",
+                fontSize: "11px",
+                fontWeight: 700,
+                fontFamily: "var(--font-barlow), sans-serif",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+                ...(take.statCheck.overallStatus === "VERIFIED"
+                  ? { background: "rgba(34,197,94,0.15)", color: "#22C55E", border: "1px solid rgba(34,197,94,0.3)" }
+                  : take.statCheck.overallStatus === "FALSE"
+                  ? { background: "rgba(239,68,68,0.15)", color: "#EF4444", border: "1px solid rgba(239,68,68,0.3)" }
+                  : { background: "rgba(156,163,175,0.15)", color: "#9CA3AF", border: "1px solid rgba(156,163,175,0.3)" }),
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
+              {take.statCheck.overallStatus === "VERIFIED" ? "Verified" : take.statCheck.overallStatus === "FALSE" ? "False" : "Unverifiable"}
+            </span>
+          )}
+
+          {/* Aging Badge */}
+          {take.agingTake && (
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+                padding: "3px 10px",
+                borderRadius: "12px",
+                fontSize: "11px",
+                fontWeight: 700,
+                fontFamily: "var(--font-barlow), sans-serif",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+                ...(take.agingTake.status === "AGED"
+                  ? { background: "rgba(168,85,247,0.15)", color: "#A855F7", border: "1px solid rgba(168,85,247,0.3)" }
+                  : { background: "rgba(251,191,36,0.15)", color: "#FBBf24", border: "1px solid rgba(251,191,36,0.3)" }),
+              }}
+              title={take.agingTake.status === "AGED" ? `Resurfaced from ${new Date(take.agingTake.revisitDate).toLocaleDateString()}` : `Revisit on ${new Date(take.agingTake.revisitDate).toLocaleDateString()}`}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" /></svg>
+              {take.agingTake.status === "AGED" ? "Aged" : (() => {
+                const days = Math.max(0, Math.ceil((new Date(take.agingTake!.revisitDate).getTime() - Date.now()) / 86400000));
+                return days > 0 ? `${days}d` : "Due";
+              })()}
+            </span>
+          )}
+
+          {/* Courtside Clock Badge */}
+          {take.gameClock && (
+            <span
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+                padding: "3px 10px",
+                borderRadius: "12px",
+                fontSize: "11px",
+                fontWeight: 700,
+                fontFamily: "var(--font-mono), monospace",
+                background: "rgba(59,130,246,0.15)",
+                color: "#3B82F6",
+                border: "1px solid rgba(59,130,246,0.3)",
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+              {take.quarter && `Q${take.quarter} `}{take.gameClock}
+            </span>
+          )}
+        </div>
+      )}
 
       {/* Tags */}
       {take.tags && take.tags.length > 0 && (
@@ -684,10 +838,86 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
           </span>
         </button>
 
+        {/* Stat Check */}
+        {onStatCheck && !take.statCheck && (
+          <button
+            type="button"
+            style={{ ...actionBtnStyle, color: statCheckLoading === take.id ? "#FF6B35" : "rgba(255,255,255,0.45)" }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (statCheckLoading !== take.id) onStatCheck(take.id); }}
+            aria-label="Stat Check"
+            title={statCheckLoading === take.id ? "Checking..." : "Fact-check this take"}
+            disabled={statCheckLoading === take.id}
+          >
+            {statCheckLoading === take.id ? (
+              <span style={{ display: "inline-block", width: 16, height: 16, border: "2px solid rgba(255,107,53,0.3)", borderTopColor: "#FF6B35", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
+            )}
+          </button>
+        )}
+
+        {/* Challenge */}
+        {onChallenge && currentUserId && currentUserId !== take.author.id && (
+          <button
+            type="button"
+            style={{ ...actionBtnStyle, color: "rgba(255,255,255,0.45)" }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onChallenge(take.id, take.author.id); }}
+            aria-label="Challenge"
+            title="Challenge this user"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><line x1="4" y1="22" x2="4" y2="15" /></svg>
+          </button>
+        )}
+
+        {/* Age */}
+        {onAge && !take.agingTake && (
+          <button
+            type="button"
+            style={{ ...actionBtnStyle, color: "rgba(255,255,255,0.45)" }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAge(take.id); }}
+            aria-label="Age this take"
+            title="Mark for revisit later"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+          </button>
+        )}
+
+        {/* Views */}
+        {(take.viewCount ?? 0) > 0 && (
+          <span
+            style={{
+              ...actionBtnStyle,
+              cursor: "default",
+              color: "rgba(255,255,255,0.35)",
+              marginLeft: "auto",
+            }}
+            aria-label="Views"
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="rgba(255,255,255,0.35)"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            <span style={actionCountStyle()}>
+              {take.viewCount! >= 1000
+                ? `${(take.viewCount! / 1000).toFixed(take.viewCount! >= 10000 ? 0 : 1)}K`
+                : take.viewCount}
+            </span>
+          </span>
+        )}
+
         {/* Bookmark */}
         <button
           type="button"
-          style={{ ...actionBtnStyle, marginLeft: "auto", color: take.userBookmarked ? "#FF6B35" : "rgba(255,255,255,0.45)" }}
+          style={{ ...actionBtnStyle, marginLeft: (take.viewCount ?? 0) > 0 ? undefined : "auto", color: take.userBookmarked ? "#FF6B35" : "rgba(255,255,255,0.45)" }}
           onClick={handleBookmark}
           aria-label="Save"
         >

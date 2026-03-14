@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Header, Footer } from "@/components";
@@ -37,6 +37,27 @@ export default function CourtPage() {
   const [followLoading, setFollowLoading] = useState<Set<string>>(new Set());
   const [hasLiveGames, setHasLiveGames] = useState(false);
   const [liveGames, setLiveGames] = useState<{ id: string; homeTeam: { abbreviation: string; logoUrl?: string }; awayTeam: { abbreviation: string; logoUrl?: string }; homeScore: number; awayScore: number; status: string; quarter?: string; clock?: string }[]>([]);
+
+  // Inline compose state
+  const [composeContent, setComposeContent] = useState("");
+  const [composeTags, setComposeTags] = useState<string[]>([]);
+  const [composeTagInput, setComposeTagInput] = useState("");
+  const [composeShowPoll, setComposeShowPoll] = useState(false);
+  const [composePollOptions, setComposePollOptions] = useState<string[]>(["", ""]);
+  const [composePollDuration, setComposePollDuration] = useState(24);
+  const [composeSubmitting, setComposeSubmitting] = useState(false);
+  const composeTextareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Modal state for Age and Challenge
+  const [ageModal, setAgeModal] = useState<{ takeId: string; days: string } | null>(null);
+  const [challengeModal, setChallengeModal] = useState<{ takeId: string; authorId: string; topic: string } | null>(null);
+  const [statCheckLoading, setStatCheckLoading] = useState<string | null>(null);
+
+  const composeCharCount = composeContent.length;
+  const composeIsOverLimit = composeCharCount > 2000;
+  const composeValidPollOptions = composePollOptions.filter((o) => o.trim().length > 0);
+  const composePollValid = !composeShowPoll || composeValidPollOptions.length >= 2;
+  const composeCanPost = composeContent.trim().length > 0 && !composeIsOverLimit && !composeSubmitting && composePollValid;
 
   // Fetch feed from API
   const fetchFeed = useCallback(async (tab: FeedTab, cursor?: string) => {
@@ -243,6 +264,71 @@ export default function CourtPage() {
     }
   }, [activeTab, fetchFeed]);
 
+  // Stat Check handler
+  const handleStatCheck = useCallback(async (takeId: string) => {
+    setStatCheckLoading(takeId);
+    try {
+      const res = await fetch(`/api/court/takes/${takeId}/stat-check`, { method: "POST" });
+      const data = await res.json();
+      if (data.statCheck) {
+        setTakes((prev) =>
+          prev.map((t) => (t.id === takeId ? { ...t, statCheck: data.statCheck } : t))
+        );
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setStatCheckLoading(null);
+    }
+  }, []);
+
+  // Challenge handler — opens modal
+  const handleChallenge = useCallback((_takeId: string, authorId: string) => {
+    setChallengeModal({ takeId: _takeId, authorId, topic: "" });
+  }, []);
+
+  const submitChallenge = useCallback(async () => {
+    if (!challengeModal || !challengeModal.topic.trim()) return;
+    try {
+      await fetch("/api/court/challenges", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic: challengeModal.topic.trim(), challengedId: challengeModal.authorId, challengerTakeId: challengeModal.takeId }),
+      });
+    } catch {
+      // silently fail
+    }
+    setChallengeModal(null);
+  }, [challengeModal]);
+
+  // Age handler — opens modal
+  const handleAge = useCallback((takeId: string) => {
+    setAgeModal({ takeId, days: "7" });
+  }, []);
+
+  const submitAge = useCallback(async () => {
+    if (!ageModal) return;
+    const days = parseInt(ageModal.days, 10);
+    if (!days || days < 1) return;
+    const revisitDate = new Date(Date.now() + days * 86400000).toISOString();
+    try {
+      const res = await fetch(`/api/court/takes/${ageModal.takeId}/age`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ revisitDate }),
+      });
+      const data = await res.json();
+      if (data.agingTake) {
+        setTakes((prev) =>
+          prev.map((t) => (t.id === ageModal.takeId ? { ...t, agingTake: data.agingTake } : t))
+        );
+      }
+    } catch {
+      // silently fail
+    }
+    setAgeModal(null);
+  }, [ageModal]);
+
   // Add newly composed take to feed (ComposeTake already POSTed to API)
   const handleCompose = useCallback((data: Record<string, unknown>) => {
     if (data.take) {
@@ -250,6 +336,71 @@ export default function CourtPage() {
       setTakes((prev) => [{ ...take, userReaction: null, userBookmarked: false, userReposted: false }, ...prev]);
     }
   }, []);
+
+  // Inline compose handlers
+  const handleComposeContentChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setComposeContent(e.target.value);
+    const ta = e.target;
+    ta.style.height = "auto";
+    ta.style.height = ta.scrollHeight + "px";
+  }, []);
+
+  const handleComposeTagKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter" || e.key === ",") {
+        e.preventDefault();
+        const raw = composeTagInput.trim().replace(/^#/, "").replace(/[^a-zA-Z0-9_]/g, "");
+        if (raw.length > 0 && !composeTags.includes(raw) && composeTags.length < 5) {
+          setComposeTags((prev) => [...prev, raw]);
+        }
+        setComposeTagInput("");
+      } else if (e.key === "Backspace" && composeTagInput === "" && composeTags.length > 0) {
+        setComposeTags((prev) => prev.slice(0, -1));
+      }
+    },
+    [composeTagInput, composeTags]
+  );
+
+  const handleInlinePost = useCallback(async () => {
+    if (!composeCanPost) return;
+    setComposeSubmitting(true);
+    try {
+      const body: Record<string, unknown> = {
+        content: composeContent.trim(),
+        tags: composeTags,
+      };
+      if (activeTab === "LIVE" && liveGames.length > 0) {
+        body.gameId = liveGames[0].id;
+      }
+      if (composeShowPoll && composeValidPollOptions.length >= 2) {
+        body.pollOptions = composeValidPollOptions.map((o) => o.trim());
+        body.pollDuration = composePollDuration;
+      }
+      const res = await fetch("/api/court/takes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.take) {
+          setTakes((prev) => [{ ...data.take, userReaction: null, userBookmarked: false, userReposted: false }, ...prev]);
+        }
+        setComposeContent("");
+        setComposeTags([]);
+        setComposeTagInput("");
+        setComposeShowPoll(false);
+        setComposePollOptions(["", ""]);
+        if (composeTextareaRef.current) {
+          composeTextareaRef.current.style.height = "auto";
+        }
+      }
+    } catch (err) {
+      console.error("Error posting take:", err);
+    } finally {
+      setComposeSubmitting(false);
+    }
+  }, [composeCanPost, composeContent, composeTags, activeTab, liveGames, composeShowPoll, composeValidPollOptions, composePollDuration]);
 
   const handleFollow = useCallback(async (targetUserId: string) => {
     if (!session?.user) return;
@@ -308,30 +459,7 @@ export default function CourtPage() {
               }}>
                 THE COURT
               </h1>
-              {session?.user ? (
-                <button
-                  onClick={() => {
-                    setReplyToId(null);
-                    setComposeGameId(activeTab === "LIVE" && liveGames.length > 0 ? liveGames[0].id : null);
-                    setShowCompose(true);
-                  }}
-                  style={{
-                    padding: "10px 24px",
-                    borderRadius: "8px",
-                    background: "#FF6B35",
-                    color: "#fff",
-                    border: "none",
-                    fontWeight: "700",
-                    fontSize: "14px",
-                    fontFamily: "var(--font-barlow), sans-serif",
-                    textTransform: "uppercase",
-                    letterSpacing: "1px",
-                    cursor: "pointer",
-                  }}
-                >
-                  New Take
-                </button>
-              ) : (
+              {!session?.user && (
                 <Link
                   href="/login"
                   style={{
@@ -381,6 +509,323 @@ export default function CourtPage() {
                   hasLiveGames={hasLiveGames}
                 />
               </div>
+
+              {/* Inline Compose Box */}
+              {session?.user && (
+                <div style={{
+                  background: "#1A1A1A",
+                  border: "1px solid #2a2a2a",
+                  borderTop: "none",
+                  padding: "16px",
+                }}>
+                  <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
+                    <div style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: "50%",
+                      backgroundColor: "#FF6B35",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      flexShrink: 0,
+                      overflow: "hidden",
+                      fontFamily: "var(--font-anton), sans-serif",
+                      fontSize: "16px",
+                      color: "#fff",
+                    }}>
+                      {session.user.image ? (
+                        <img src={session.user.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
+                      ) : (
+                        (session.user.name || "?").charAt(0).toUpperCase()
+                      )}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <textarea
+                        ref={composeTextareaRef}
+                        value={composeContent}
+                        onChange={handleComposeContentChange}
+                        placeholder="What's your take?"
+                        maxLength={2010}
+                        style={{
+                          width: "100%",
+                          fontFamily: "var(--font-barlow), sans-serif",
+                          fontSize: "15px",
+                          lineHeight: 1.45,
+                          color: "rgba(255,255,255,0.9)",
+                          backgroundColor: "transparent",
+                          border: "none",
+                          outline: "none",
+                          resize: "none",
+                          minHeight: "48px",
+                          maxHeight: "200px",
+                          overflow: "auto",
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Poll Creation UI */}
+                  {composeShowPoll && (
+                    <div style={{ padding: "12px 0 0 52px" }}>
+                      <div style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        marginBottom: "10px",
+                      }}>
+                        <span style={{
+                          fontFamily: "var(--font-barlow), sans-serif",
+                          fontSize: "13px",
+                          fontWeight: 700,
+                          color: "#FF6B35",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.5px",
+                        }}>
+                          Poll Options
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => { setComposeShowPoll(false); setComposePollOptions(["", ""]); }}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "rgba(255,255,255,0.4)",
+                            cursor: "pointer",
+                            fontSize: "12px",
+                            fontFamily: "var(--font-barlow), sans-serif",
+                            fontWeight: 600,
+                          }}
+                        >
+                          Remove Poll
+                        </button>
+                      </div>
+                      {composePollOptions.map((opt, i) => (
+                        <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                          <input
+                            type="text"
+                            value={opt}
+                            onChange={(e) => {
+                              const updated = [...composePollOptions];
+                              updated[i] = e.target.value;
+                              setComposePollOptions(updated);
+                            }}
+                            placeholder={`Option ${i + 1}${i < 2 ? " (required)" : ""}`}
+                            maxLength={80}
+                            style={{
+                              flex: 1,
+                              padding: "8px 12px",
+                              borderRadius: "8px",
+                              border: "1px solid rgba(255,255,255,0.12)",
+                              background: "rgba(255,255,255,0.04)",
+                              color: "rgba(255,255,255,0.85)",
+                              fontFamily: "var(--font-barlow), sans-serif",
+                              fontSize: "13px",
+                              outline: "none",
+                            }}
+                          />
+                          {i >= 2 && (
+                            <button
+                              type="button"
+                              onClick={() => setComposePollOptions((prev) => prev.filter((_, j) => j !== i))}
+                              style={{
+                                background: "none",
+                                border: "none",
+                                color: "rgba(255,255,255,0.3)",
+                                cursor: "pointer",
+                                fontSize: "16px",
+                                lineHeight: 1,
+                                padding: "4px",
+                              }}
+                            >
+                              &times;
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "4px" }}>
+                        {composePollOptions.length < 4 && (
+                          <button
+                            type="button"
+                            onClick={() => setComposePollOptions((prev) => [...prev, ""])}
+                            style={{
+                              background: "none",
+                              border: "1px solid rgba(255,107,53,0.3)",
+                              color: "#FF6B35",
+                              cursor: "pointer",
+                              fontSize: "12px",
+                              fontFamily: "var(--font-barlow), sans-serif",
+                              fontWeight: 600,
+                              padding: "4px 12px",
+                              borderRadius: "6px",
+                              textTransform: "uppercase",
+                              letterSpacing: "0.3px",
+                            }}
+                          >
+                            + Add Option
+                          </button>
+                        )}
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginLeft: "auto" }}>
+                          <span style={{
+                            fontFamily: "var(--font-barlow), sans-serif",
+                            fontSize: "12px",
+                            color: "rgba(255,255,255,0.4)",
+                          }}>
+                            Duration:
+                          </span>
+                          <select
+                            value={composePollDuration}
+                            onChange={(e) => setComposePollDuration(Number(e.target.value))}
+                            style={{
+                              padding: "4px 8px",
+                              borderRadius: "6px",
+                              border: "1px solid rgba(255,255,255,0.12)",
+                              background: "#1A1A1A",
+                              color: "rgba(255,255,255,0.7)",
+                              fontFamily: "var(--font-barlow), sans-serif",
+                              fontSize: "12px",
+                              outline: "none",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <option value={1}>1 hour</option>
+                            <option value={6}>6 hours</option>
+                            <option value={12}>12 hours</option>
+                            <option value={24}>1 day</option>
+                            <option value={72}>3 days</option>
+                            <option value={168}>7 days</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Footer: tags, poll toggle, char count, post button */}
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    marginTop: "10px",
+                    paddingLeft: "52px",
+                    flexWrap: "wrap",
+                  }}>
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      flexWrap: "wrap",
+                      flex: 1,
+                    }}>
+                      {composeTags.map((tag) => (
+                        <span key={tag} style={{
+                          fontFamily: "var(--font-barlow), sans-serif",
+                          fontSize: "11px",
+                          fontWeight: 600,
+                          color: "#FF6B35",
+                          backgroundColor: "rgba(255,107,53,0.12)",
+                          padding: "2px 8px",
+                          borderRadius: "10px",
+                          lineHeight: 1.5,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          textTransform: "uppercase",
+                        }}>
+                          #{tag}
+                          <button
+                            type="button"
+                            onClick={() => setComposeTags((prev) => prev.filter((t) => t !== tag))}
+                            style={{
+                              background: "none",
+                              border: "none",
+                              color: "#FF6B35",
+                              cursor: "pointer",
+                              padding: "0",
+                              fontSize: "13px",
+                              lineHeight: 1,
+                              fontWeight: 700,
+                            }}
+                          >
+                            x
+                          </button>
+                        </span>
+                      ))}
+                      {composeTags.length < 5 && (
+                        <input
+                          type="text"
+                          placeholder="#tag"
+                          value={composeTagInput}
+                          onChange={(e) => setComposeTagInput(e.target.value)}
+                          onKeyDown={handleComposeTagKeyDown}
+                          style={{
+                            fontFamily: "var(--font-barlow), sans-serif",
+                            fontSize: "12px",
+                            color: "rgba(255,255,255,0.6)",
+                            backgroundColor: "transparent",
+                            border: "none",
+                            outline: "none",
+                            width: "80px",
+                          }}
+                        />
+                      )}
+                    </div>
+                    {!composeShowPoll && (
+                      <button
+                        type="button"
+                        onClick={() => setComposeShowPoll(true)}
+                        style={{
+                          background: "none",
+                          border: "1px solid rgba(255,107,53,0.3)",
+                          color: "#FF6B35",
+                          cursor: "pointer",
+                          fontSize: "11px",
+                          fontFamily: "var(--font-barlow), sans-serif",
+                          fontWeight: 700,
+                          padding: "3px 10px",
+                          borderRadius: "6px",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.3px",
+                          flexShrink: 0,
+                        }}
+                      >
+                        + Poll
+                      </button>
+                    )}
+                    <span style={{
+                      fontFamily: "var(--font-mono), monospace",
+                      fontSize: "12px",
+                      fontWeight: 500,
+                      color: composeIsOverLimit
+                        ? "#EF4444"
+                        : composeCharCount > 1900
+                        ? "#F59E0B"
+                        : "rgba(255,255,255,0.35)",
+                      flexShrink: 0,
+                    }}>
+                      {composeCharCount}/2000
+                    </span>
+                    <button
+                      onClick={handleInlinePost}
+                      disabled={!composeCanPost}
+                      style={{
+                        padding: "6px 20px",
+                        borderRadius: "20px",
+                        background: composeCanPost ? "#FF6B35" : "rgba(255,107,53,0.2)",
+                        color: composeCanPost ? "#fff" : "rgba(255,255,255,0.3)",
+                        border: "none",
+                        fontWeight: "700",
+                        fontSize: "13px",
+                        fontFamily: "var(--font-barlow), sans-serif",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.5px",
+                        cursor: composeCanPost ? "pointer" : "not-allowed",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {composeSubmitting ? "Posting..." : "Post"}
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div style={{
                 background: "#1A1A1A",
@@ -512,6 +957,10 @@ export default function CourtPage() {
                       onDelete={handleDelete}
                       onPollVote={handlePollVote}
                       onReply={handleReply}
+                      onStatCheck={handleStatCheck}
+                      onChallenge={handleChallenge}
+                      onAge={handleAge}
+                      statCheckLoading={statCheckLoading}
                     />
                   ))
                 )}
@@ -889,22 +1338,17 @@ export default function CourtPage() {
           </div>
         </div>
 
-        {showCompose && (
+        {showCompose && replyToId && (
           <ComposeTake
             onClose={() => { setShowCompose(false); setReplyToId(null); setComposeGameId(null); }}
-            onSubmit={(data) => {
-              if (replyToId) {
-                // Reply: increment replyCount optimistically
-                setTakes((prev) =>
-                  prev.map((t) =>
-                    t.id === replyToId ? { ...t, replyCount: t.replyCount + 1 } : t
-                  )
-                );
-              } else {
-                handleCompose(data);
-              }
+            onSubmit={() => {
+              setTakes((prev) =>
+                prev.map((t) =>
+                  t.id === replyToId ? { ...t, replyCount: t.replyCount + 1 } : t
+                )
+              );
             }}
-            parentId={replyToId || undefined}
+            parentId={replyToId}
             gameId={composeGameId || undefined}
           />
         )}
@@ -915,7 +1359,65 @@ export default function CourtPage() {
               grid-template-columns: 1fr !important;
             }
           }
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
         `}</style>
+
+        {/* Age Take Modal */}
+        {ageModal && (
+          <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }} onClick={() => setAgeModal(null)}>
+            <div
+              style={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "16px", padding: "28px", width: "100%", maxWidth: "400px", boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 style={{ fontFamily: "var(--font-anton), sans-serif", fontSize: "18px", color: "white", marginBottom: "6px" }}>AGE THIS TAKE</h3>
+              <p style={{ fontFamily: "var(--font-barlow), sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.5)", marginBottom: "20px" }}>Set a revisit date. This take will resurface for the community to re-evaluate.</p>
+              <label style={{ fontFamily: "var(--font-barlow), sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.6)", display: "block", marginBottom: "8px" }}>Revisit in how many days?</label>
+              <input
+                type="number"
+                min="1"
+                max="365"
+                value={ageModal.days}
+                onChange={(e) => setAgeModal({ ...ageModal, days: e.target.value })}
+                autoFocus
+                onKeyDown={(e) => { if (e.key === "Enter") submitAge(); }}
+                style={{ width: "100%", padding: "10px 14px", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", color: "white", fontSize: "16px", fontFamily: "var(--font-barlow), sans-serif" }}
+              />
+              <div style={{ display: "flex", gap: "10px", marginTop: "20px", justifyContent: "flex-end" }}>
+                <button onClick={() => setAgeModal(null)} style={{ padding: "8px 20px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "rgba(255,255,255,0.7)", cursor: "pointer", fontSize: "13px", fontFamily: "var(--font-barlow), sans-serif", fontWeight: 600 }}>Cancel</button>
+                <button onClick={submitAge} disabled={!ageModal.days || parseInt(ageModal.days) < 1} style={{ padding: "8px 20px", background: "#FF6B35", border: "none", borderRadius: "8px", color: "black", cursor: "pointer", fontSize: "13px", fontFamily: "var(--font-barlow), sans-serif", fontWeight: 700, opacity: !ageModal.days || parseInt(ageModal.days) < 1 ? 0.5 : 1 }}>Age It</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Challenge Modal */}
+        {challengeModal && (
+          <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }} onClick={() => setChallengeModal(null)}>
+            <div
+              style={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "16px", padding: "28px", width: "100%", maxWidth: "440px", boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 style={{ fontFamily: "var(--font-anton), sans-serif", fontSize: "18px", color: "white", marginBottom: "6px" }}>CHALLENGE</h3>
+              <p style={{ fontFamily: "var(--font-barlow), sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.5)", marginBottom: "20px" }}>Challenge this user to a head-to-head debate. The community votes on who wins.</p>
+              <label style={{ fontFamily: "var(--font-barlow), sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.6)", display: "block", marginBottom: "8px" }}>What&apos;s the debate topic?</label>
+              <input
+                type="text"
+                value={challengeModal.topic}
+                onChange={(e) => setChallengeModal({ ...challengeModal, topic: e.target.value })}
+                placeholder="e.g. LeBron vs Jordan, Best PG in the league..."
+                autoFocus
+                onKeyDown={(e) => { if (e.key === "Enter") submitChallenge(); }}
+                style={{ width: "100%", padding: "10px 14px", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", color: "white", fontSize: "14px", fontFamily: "var(--font-barlow), sans-serif" }}
+              />
+              <div style={{ display: "flex", gap: "10px", marginTop: "20px", justifyContent: "flex-end" }}>
+                <button onClick={() => setChallengeModal(null)} style={{ padding: "8px 20px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "rgba(255,255,255,0.7)", cursor: "pointer", fontSize: "13px", fontFamily: "var(--font-barlow), sans-serif", fontWeight: 600 }}>Cancel</button>
+                <button onClick={submitChallenge} disabled={!challengeModal.topic.trim()} style={{ padding: "8px 20px", background: "#FF6B35", border: "none", borderRadius: "8px", color: "black", cursor: "pointer", fontSize: "13px", fontFamily: "var(--font-barlow), sans-serif", fontWeight: 700, opacity: !challengeModal.topic.trim() ? 0.5 : 1 }}>Send Challenge</button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
       <Footer />
     </>

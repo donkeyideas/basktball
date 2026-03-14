@@ -352,7 +352,7 @@ export default function TakeDetailScreen() {
               value={replyText}
               onChangeText={setReplyText}
               multiline
-              maxLength={280}
+              maxLength={2000}
             />
           </View>
           <TouchableOpacity
