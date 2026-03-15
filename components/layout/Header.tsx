@@ -32,7 +32,7 @@ export function Header() {
   const handleLinkClick = () => setMenuOpen(false);
 
   return (
-    <header>
+    <header style={{ position: "sticky", top: 0, zIndex: 50, boxShadow: "0 20px 0 0 #0D0D0D" }}>
       {/* Top Bar */}
       <div className="top-bar">
         <div className="live-indicator">

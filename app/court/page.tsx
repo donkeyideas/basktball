@@ -442,51 +442,6 @@ export default function CourtPage() {
       <Header />
       <main style={{ minHeight: "100vh", padding: "40px 20px" }}>
         <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
-          {/* Page Header */}
-          <div style={{ marginBottom: "28px" }}>
-            <div style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "6px",
-            }}>
-              <h1 style={{
-                fontFamily: "var(--font-anton), Anton, sans-serif",
-                fontSize: "40px",
-                color: "#FF6B35",
-                margin: 0,
-                letterSpacing: "2px",
-              }}>
-                THE COURT
-              </h1>
-              {!session?.user && (
-                <Link
-                  href="/login"
-                  style={{
-                    padding: "10px 20px",
-                    borderRadius: "8px",
-                    border: "1px solid #FF6B35",
-                    color: "#FF6B35",
-                    textDecoration: "none",
-                    fontWeight: "600",
-                    fontSize: "14px",
-                    fontFamily: "var(--font-barlow), sans-serif",
-                  }}
-                >
-                  Sign In to Join
-                </Link>
-              )}
-            </div>
-            <p style={{
-              color: "rgba(255,255,255,0.45)",
-              fontSize: "15px",
-              fontFamily: "var(--font-barlow), sans-serif",
-              margin: 0,
-            }}>
-              Where basketball talk lives
-            </p>
-          </div>
-
           {/* Main Content Grid */}
           <div className="court-grid" style={{
             display: "grid",
@@ -495,7 +450,7 @@ export default function CourtPage() {
             alignItems: "start",
           }}>
             {/* Features Sidebar */}
-            <div className="court-features-sidebar" style={{ position: "sticky", top: "100px" }}>
+            <div className="court-features-sidebar" style={{ position: "sticky", top: "140px" }}>
               <div style={{
                 background: "#1A1A1A",
                 borderRadius: "12px",
@@ -607,21 +562,20 @@ export default function CourtPage() {
 
             {/* Feed Column */}
             <div>
-              <div style={{
-                position: "sticky",
-                top: "100px",
-                zIndex: 10,
-                background: "#1A1A1A",
-                borderRadius: "12px 12px 0 0",
-                border: "1px solid #2a2a2a",
-                borderBottom: "none",
-                overflow: "hidden",
-              }}>
-                <FeedTabs
-                  activeTab={activeTab}
-                  onTabChange={handleTabChange}
-                  hasLiveGames={hasLiveGames}
-                />
+              <div style={{ position: "sticky", top: "140px", zIndex: 20 }}>
+                <div style={{
+                  background: "#1A1A1A",
+                  borderRadius: "12px 12px 0 0",
+                  border: "1px solid #2a2a2a",
+                  borderBottom: "none",
+                  overflow: "hidden",
+                }}>
+                  <FeedTabs
+                    activeTab={activeTab}
+                    onTabChange={handleTabChange}
+                    hasLiveGames={hasLiveGames}
+                  />
+                </div>
               </div>
 
               {/* Inline Compose Box */}
@@ -948,7 +902,7 @@ export default function CourtPage() {
                 borderTop: "none",
                 overflow: "hidden",
               }}>
-                {loading ? (
+                {loading ?(
                   <div style={{
                     padding: "60px 20px",
                     textAlign: "center",
@@ -1108,7 +1062,7 @@ export default function CourtPage() {
             </div>
 
             {/* Sidebar */}
-            <aside style={{ position: "sticky", top: "100px", alignSelf: "start" }}>
+            <aside style={{ position: "sticky", top: "140px", alignSelf: "start" }}>
               {/* Live Scores */}
               {liveGames.length > 0 && (
                 <div style={{
