@@ -5,6 +5,9 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 
+const GOOGLE_PLAY_URL = "https://play.google.com/store/apps/details?id=com.basktball.app";
+const APP_STORE_URL = ""; // Add when available
+
 export function Header() {
   const { data: session } = useSession();
   const [liveCount, setLiveCount] = useState(0);
@@ -40,6 +43,18 @@ export function Header() {
           <span>{liveCount} GAMES LIVE NOW</span>
         </div>
         <span className="top-bar-update">UPDATED EVERY 30 SECONDS</span>
+        <div className="top-bar-apps">
+          {GOOGLE_PLAY_URL && (
+            <a href={GOOGLE_PLAY_URL} target="_blank" rel="noopener noreferrer" className="app-badge-link" title="Get it on Google Play">
+              <Image src="/images/google-play-badge.svg" alt="Get it on Google Play" width={110} height={32} />
+            </a>
+          )}
+          {APP_STORE_URL && (
+            <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="app-badge-link" title="Download on the App Store">
+              <Image src="/images/app-store-badge.svg" alt="Download on the App Store" width={110} height={32} />
+            </a>
+          )}
+        </div>
       </div>
 
       {/* Navigation */}
@@ -246,6 +261,18 @@ export function Header() {
             {!session?.user && (
               <Link href="/login" onClick={handleLinkClick} style={{ color: "var(--orange)" }}>SIGN IN</Link>
             )}
+            <div style={{ display: "flex", gap: "8px", marginTop: "12px", justifyContent: "center" }}>
+              {GOOGLE_PLAY_URL && (
+                <a href={GOOGLE_PLAY_URL} target="_blank" rel="noopener noreferrer">
+                  <Image src="/images/google-play-badge.svg" alt="Get it on Google Play" width={120} height={36} />
+                </a>
+              )}
+              {APP_STORE_URL && (
+                <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer">
+                  <Image src="/images/app-store-badge.svg" alt="Download on the App Store" width={120} height={36} />
+                </a>
+              )}
+            </div>
           </div>
         )}
       </nav>

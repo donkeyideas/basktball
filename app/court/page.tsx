@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import Image from "next/image";
 import { Header, Footer } from "@/components";
 import TakeCard from "@/components/court/TakeCard";
 import type { Take } from "@/components/court/TakeCard";
@@ -10,12 +11,17 @@ import ComposeTake from "@/components/court/ComposeTake";
 import FeedTabs from "@/components/court/FeedTabs";
 import type { FeedTab } from "@/components/court/FeedTabs";
 
+const GOOGLE_PLAY_URL = "https://play.google.com/store/apps/details?id=com.basktball.app";
+const APP_STORE_URL = ""; // Add when available
+
 function feedTabToApiType(tab: FeedTab): string {
   if (tab === "FOR YOU") return "foryou";
   if (tab === "FOLLOWING") return "following";
   return "live";
 }
 
+
+const FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
 
 export default function CourtPage() {
   const { data: session } = useSession();
@@ -440,7 +446,7 @@ export default function CourtPage() {
   return (
     <>
       <Header />
-      <main style={{ minHeight: "100vh", padding: "40px 20px" }}>
+      <main style={{ minHeight: "100vh", padding: "40px 20px", fontSize: "15px", fontFamily: FONT }}>
         <div style={{ maxWidth: "1440px", margin: "0 auto" }}>
           {/* Main Content Grid */}
           <div className="court-grid" style={{
@@ -542,14 +548,14 @@ export default function CourtPage() {
                     <div style={{ flexShrink: 0, marginTop: "2px" }}>{feature.icon}</div>
                     <div>
                       <div style={{
-                        fontFamily: "var(--font-barlow), sans-serif",
+                        fontFamily: FONT,
                         fontWeight: 700,
                         fontSize: "14px",
                         color: "white",
                         marginBottom: "4px",
                       }}>{feature.title}</div>
                       <div style={{
-                        fontFamily: "var(--font-barlow), sans-serif",
+                        fontFamily: FONT,
                         fontSize: "13px",
                         color: "rgba(255,255,255,0.5)",
                         lineHeight: "1.45",
@@ -558,6 +564,45 @@ export default function CourtPage() {
                   </div>
                 ))}
               </div>
+
+              {/* Download the App */}
+              {(GOOGLE_PLAY_URL || APP_STORE_URL) && (
+                <div style={{
+                  background: "#1A1A1A",
+                  borderRadius: "12px",
+                  border: "1px solid #2a2a2a",
+                  padding: "20px",
+                  marginTop: "12px",
+                  textAlign: "center",
+                }}>
+                  <h3 style={{
+                    fontFamily: "var(--font-anton), sans-serif",
+                    fontSize: "16px",
+                    color: "#FF6B35",
+                    letterSpacing: "1px",
+                    marginBottom: "8px",
+                  }}>GET THE APP</h3>
+                  <p style={{
+                    fontFamily: FONT,
+                    fontSize: "13px",
+                    color: "rgba(255,255,255,0.5)",
+                    marginBottom: "14px",
+                    lineHeight: "1.4",
+                  }}>Take your takes on the go. Download BASKTBALL for mobile.</p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "center" }}>
+                    {GOOGLE_PLAY_URL && (
+                      <a href={GOOGLE_PLAY_URL} target="_blank" rel="noopener noreferrer">
+                        <Image src="/images/google-play-badge.svg" alt="Get it on Google Play" width={140} height={42} />
+                      </a>
+                    )}
+                    {APP_STORE_URL && (
+                      <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer">
+                        <Image src="/images/app-store-badge.svg" alt="Download on the App Store" width={140} height={42} />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Feed Column */}
@@ -616,7 +661,7 @@ export default function CourtPage() {
                         maxLength={2010}
                         style={{
                           width: "100%",
-                          fontFamily: "var(--font-barlow), sans-serif",
+                          fontFamily: FONT,
                           fontSize: "15px",
                           lineHeight: 1.45,
                           color: "rgba(255,255,255,0.9)",
@@ -642,7 +687,7 @@ export default function CourtPage() {
                         marginBottom: "10px",
                       }}>
                         <span style={{
-                          fontFamily: "var(--font-barlow), sans-serif",
+                          fontFamily: FONT,
                           fontSize: "13px",
                           fontWeight: 700,
                           color: "#FF6B35",
@@ -660,7 +705,7 @@ export default function CourtPage() {
                             color: "rgba(255,255,255,0.4)",
                             cursor: "pointer",
                             fontSize: "12px",
-                            fontFamily: "var(--font-barlow), sans-serif",
+                            fontFamily: FONT,
                             fontWeight: 600,
                           }}
                         >
@@ -686,7 +731,7 @@ export default function CourtPage() {
                               border: "1px solid rgba(255,255,255,0.12)",
                               background: "rgba(255,255,255,0.04)",
                               color: "rgba(255,255,255,0.85)",
-                              fontFamily: "var(--font-barlow), sans-serif",
+                              fontFamily: FONT,
                               fontSize: "13px",
                               outline: "none",
                             }}
@@ -721,7 +766,7 @@ export default function CourtPage() {
                               color: "#FF6B35",
                               cursor: "pointer",
                               fontSize: "12px",
-                              fontFamily: "var(--font-barlow), sans-serif",
+                              fontFamily: FONT,
                               fontWeight: 600,
                               padding: "4px 12px",
                               borderRadius: "6px",
@@ -734,7 +779,7 @@ export default function CourtPage() {
                         )}
                         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginLeft: "auto" }}>
                           <span style={{
-                            fontFamily: "var(--font-barlow), sans-serif",
+                            fontFamily: FONT,
                             fontSize: "12px",
                             color: "rgba(255,255,255,0.4)",
                           }}>
@@ -749,7 +794,7 @@ export default function CourtPage() {
                               border: "1px solid rgba(255,255,255,0.12)",
                               background: "#1A1A1A",
                               color: "rgba(255,255,255,0.7)",
-                              fontFamily: "var(--font-barlow), sans-serif",
+                              fontFamily: FONT,
                               fontSize: "12px",
                               outline: "none",
                               cursor: "pointer",
@@ -785,7 +830,7 @@ export default function CourtPage() {
                     }}>
                       {composeTags.map((tag) => (
                         <span key={tag} style={{
-                          fontFamily: "var(--font-barlow), sans-serif",
+                          fontFamily: FONT,
                           fontSize: "11px",
                           fontWeight: 600,
                           color: "#FF6B35",
@@ -825,7 +870,7 @@ export default function CourtPage() {
                           onChange={(e) => setComposeTagInput(e.target.value)}
                           onKeyDown={handleComposeTagKeyDown}
                           style={{
-                            fontFamily: "var(--font-barlow), sans-serif",
+                            fontFamily: FONT,
                             fontSize: "12px",
                             color: "rgba(255,255,255,0.6)",
                             backgroundColor: "transparent",
@@ -846,7 +891,7 @@ export default function CourtPage() {
                           color: "#FF6B35",
                           cursor: "pointer",
                           fontSize: "11px",
-                          fontFamily: "var(--font-barlow), sans-serif",
+                          fontFamily: FONT,
                           fontWeight: 700,
                           padding: "3px 10px",
                           borderRadius: "6px",
@@ -882,7 +927,7 @@ export default function CourtPage() {
                         border: "none",
                         fontWeight: "700",
                         fontSize: "13px",
-                        fontFamily: "var(--font-barlow), sans-serif",
+                        fontFamily: FONT,
                         textTransform: "uppercase",
                         letterSpacing: "0.5px",
                         cursor: composeCanPost ? "pointer" : "not-allowed",
@@ -907,7 +952,7 @@ export default function CourtPage() {
                     padding: "60px 20px",
                     textAlign: "center",
                     color: "rgba(255,255,255,0.35)",
-                    fontFamily: "var(--font-barlow), sans-serif",
+                    fontFamily: FONT,
                     fontSize: "15px",
                   }}>
                     Loading takes...
@@ -919,7 +964,7 @@ export default function CourtPage() {
                   }}>
                     <div style={{
                       color: "rgba(255,255,255,0.5)",
-                      fontFamily: "var(--font-barlow), sans-serif",
+                      fontFamily: FONT,
                       fontSize: "16px",
                       marginBottom: "12px",
                     }}>
@@ -935,7 +980,7 @@ export default function CourtPage() {
                         border: "none",
                         fontWeight: "700",
                         fontSize: "13px",
-                        fontFamily: "var(--font-barlow), sans-serif",
+                        fontFamily: FONT,
                         textTransform: "uppercase",
                         letterSpacing: "1px",
                         cursor: "pointer",
@@ -951,7 +996,7 @@ export default function CourtPage() {
                   }}>
                     <div style={{
                       color: "rgba(255,255,255,0.5)",
-                      fontFamily: "var(--font-barlow), sans-serif",
+                      fontFamily: FONT,
                       fontSize: "16px",
                       marginBottom: "8px",
                     }}>
@@ -959,7 +1004,7 @@ export default function CourtPage() {
                     </div>
                     <div style={{
                       color: "rgba(255,255,255,0.3)",
-                      fontFamily: "var(--font-barlow), sans-serif",
+                      fontFamily: FONT,
                       fontSize: "14px",
                     }}>
                       {!session?.user
@@ -989,7 +1034,7 @@ export default function CourtPage() {
                               background: "rgba(255,107,53,0.1)",
                               border: "1px solid rgba(255,107,53,0.3)",
                               color: "#fff",
-                              fontFamily: "var(--font-barlow), sans-serif",
+                              fontFamily: FONT,
                               fontSize: "14px",
                               fontWeight: "600",
                               cursor: "pointer",
@@ -1048,7 +1093,7 @@ export default function CourtPage() {
                       color: "#FF6B35",
                       fontWeight: "700",
                       fontSize: "13px",
-                      fontFamily: "var(--font-barlow), sans-serif",
+                      fontFamily: FONT,
                       textTransform: "uppercase",
                       letterSpacing: "1px",
                       cursor: loadingMore ? "not-allowed" : "pointer",
@@ -1094,7 +1139,7 @@ export default function CourtPage() {
                       gap: "4px",
                       fontSize: "11px",
                       color: "#22c55e",
-                      fontFamily: "var(--font-barlow), sans-serif",
+                      fontFamily: FONT,
                       fontWeight: 600,
                     }}>
                       <span style={{
@@ -1129,7 +1174,7 @@ export default function CourtPage() {
                               <img src={game.awayTeam.logoUrl} alt={game.awayTeam.abbreviation} style={{ width: 16, height: 16, objectFit: "contain" }} />
                             )}
                             <span style={{
-                              fontFamily: "var(--font-barlow), sans-serif",
+                              fontFamily: FONT,
                               fontSize: "13px",
                               fontWeight: 600,
                               color: game.awayScore > game.homeScore ? "#fff" : "rgba(255,255,255,0.5)",
@@ -1152,7 +1197,7 @@ export default function CourtPage() {
                               <img src={game.homeTeam.logoUrl} alt={game.homeTeam.abbreviation} style={{ width: 16, height: 16, objectFit: "contain" }} />
                             )}
                             <span style={{
-                              fontFamily: "var(--font-barlow), sans-serif",
+                              fontFamily: FONT,
                               fontSize: "13px",
                               fontWeight: 600,
                               color: game.homeScore > game.awayScore ? "#fff" : "rgba(255,255,255,0.5)",
@@ -1172,7 +1217,7 @@ export default function CourtPage() {
                       </div>
                       <div style={{ marginLeft: "12px", textAlign: "center", minWidth: "40px" }}>
                         <div style={{
-                          fontFamily: "var(--font-barlow), sans-serif",
+                          fontFamily: FONT,
                           fontSize: "10px",
                           fontWeight: 700,
                           color: game.status === "live" ? "#22c55e" : "rgba(255,255,255,0.4)",
@@ -1198,7 +1243,7 @@ export default function CourtPage() {
                       display: "block",
                       textAlign: "center",
                       marginTop: "10px",
-                      fontFamily: "var(--font-barlow), sans-serif",
+                      fontFamily: FONT,
                       fontSize: "12px",
                       fontWeight: 600,
                       color: "#FF6B35",
@@ -1231,7 +1276,7 @@ export default function CourtPage() {
                   Latest News
                 </h3>
                 {newsArticles.length === 0 ? (
-                  <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "13px", fontFamily: "var(--font-barlow), sans-serif" }}>
+                  <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "13px", fontFamily: FONT }}>
                     Loading news...
                   </div>
                 ) : (
@@ -1280,7 +1325,7 @@ export default function CourtPage() {
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{
-                            fontFamily: "var(--font-barlow), sans-serif",
+                            fontFamily: FONT,
                             fontSize: "13px",
                             fontWeight: "600",
                             color: "#fff",
@@ -1293,7 +1338,7 @@ export default function CourtPage() {
                             {article.title}
                           </div>
                           <div style={{
-                            fontFamily: "var(--font-barlow), sans-serif",
+                            fontFamily: FONT,
                             fontSize: "11px",
                             color: "rgba(255,255,255,0.35)",
                             marginTop: "4px",
@@ -1309,7 +1354,7 @@ export default function CourtPage() {
                         display: "block",
                         textAlign: "center",
                         marginTop: "12px",
-                        fontFamily: "var(--font-barlow), sans-serif",
+                        fontFamily: FONT,
                         fontSize: "13px",
                         fontWeight: "600",
                         color: "#FF6B35",
@@ -1370,10 +1415,10 @@ export default function CourtPage() {
                             : (user.name || "?").charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <div style={{ fontFamily: "var(--font-barlow), sans-serif", fontSize: "13px", fontWeight: "700", color: "#fff" }}>
+                          <div style={{ fontFamily: FONT, fontSize: "13px", fontWeight: "700", color: "#fff" }}>
                             {user.name}
                           </div>
-                          <div style={{ fontFamily: "var(--font-barlow), sans-serif", fontSize: "11px", color: "rgba(255,255,255,0.35)" }}>
+                          <div style={{ fontFamily: FONT, fontSize: "11px", color: "rgba(255,255,255,0.35)" }}>
                             {user.takeCount} takes
                           </div>
                         </div>
@@ -1389,7 +1434,7 @@ export default function CourtPage() {
                           color: followedIds.has(user.id) ? "rgba(255,255,255,0.6)" : "#FF6B35",
                           fontSize: "11px",
                           fontWeight: "700",
-                          fontFamily: "var(--font-barlow), sans-serif",
+                          fontFamily: FONT,
                           cursor: followLoading.has(user.id) ? "wait" : "pointer",
                           textTransform: "uppercase",
                           letterSpacing: "0.5px",
@@ -1442,8 +1487,8 @@ export default function CourtPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <h3 style={{ fontFamily: "var(--font-anton), sans-serif", fontSize: "18px", color: "white", marginBottom: "6px" }}>AGE THIS TAKE</h3>
-              <p style={{ fontFamily: "var(--font-barlow), sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.5)", marginBottom: "20px" }}>Set a revisit date. This take will resurface for the community to re-evaluate.</p>
-              <label style={{ fontFamily: "var(--font-barlow), sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.6)", display: "block", marginBottom: "8px" }}>Revisit in how many days?</label>
+              <p style={{ fontFamily: FONT, fontSize: "13px", color: "rgba(255,255,255,0.5)", marginBottom: "20px" }}>Set a revisit date. This take will resurface for the community to re-evaluate.</p>
+              <label style={{ fontFamily: FONT, fontSize: "13px", color: "rgba(255,255,255,0.6)", display: "block", marginBottom: "8px" }}>Revisit in how many days?</label>
               <input
                 type="number"
                 min="1"
@@ -1452,11 +1497,11 @@ export default function CourtPage() {
                 onChange={(e) => setAgeModal({ ...ageModal, days: e.target.value })}
                 autoFocus
                 onKeyDown={(e) => { if (e.key === "Enter") submitAge(); }}
-                style={{ width: "100%", padding: "10px 14px", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", color: "white", fontSize: "16px", fontFamily: "var(--font-barlow), sans-serif" }}
+                style={{ width: "100%", padding: "10px 14px", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", color: "white", fontSize: "16px", fontFamily: FONT }}
               />
               <div style={{ display: "flex", gap: "10px", marginTop: "20px", justifyContent: "flex-end" }}>
-                <button onClick={() => setAgeModal(null)} style={{ padding: "8px 20px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "rgba(255,255,255,0.7)", cursor: "pointer", fontSize: "13px", fontFamily: "var(--font-barlow), sans-serif", fontWeight: 600 }}>Cancel</button>
-                <button onClick={submitAge} disabled={!ageModal.days || parseInt(ageModal.days) < 1} style={{ padding: "8px 20px", background: "#FF6B35", border: "none", borderRadius: "8px", color: "black", cursor: "pointer", fontSize: "13px", fontFamily: "var(--font-barlow), sans-serif", fontWeight: 700, opacity: !ageModal.days || parseInt(ageModal.days) < 1 ? 0.5 : 1 }}>Age It</button>
+                <button onClick={() => setAgeModal(null)} style={{ padding: "8px 20px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "rgba(255,255,255,0.7)", cursor: "pointer", fontSize: "13px", fontFamily: FONT, fontWeight: 600 }}>Cancel</button>
+                <button onClick={submitAge} disabled={!ageModal.days || parseInt(ageModal.days) < 1} style={{ padding: "8px 20px", background: "#FF6B35", border: "none", borderRadius: "8px", color: "black", cursor: "pointer", fontSize: "13px", fontFamily: FONT, fontWeight: 700, opacity: !ageModal.days || parseInt(ageModal.days) < 1 ? 0.5 : 1 }}>Age It</button>
               </div>
             </div>
           </div>
@@ -1470,8 +1515,8 @@ export default function CourtPage() {
               onClick={(e) => e.stopPropagation()}
             >
               <h3 style={{ fontFamily: "var(--font-anton), sans-serif", fontSize: "18px", color: "white", marginBottom: "6px" }}>CHALLENGE</h3>
-              <p style={{ fontFamily: "var(--font-barlow), sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.5)", marginBottom: "20px" }}>Challenge this user to a head-to-head debate. The community votes on who wins.</p>
-              <label style={{ fontFamily: "var(--font-barlow), sans-serif", fontSize: "13px", color: "rgba(255,255,255,0.6)", display: "block", marginBottom: "8px" }}>What&apos;s the debate topic?</label>
+              <p style={{ fontFamily: FONT, fontSize: "13px", color: "rgba(255,255,255,0.5)", marginBottom: "20px" }}>Challenge this user to a head-to-head debate. The community votes on who wins.</p>
+              <label style={{ fontFamily: FONT, fontSize: "13px", color: "rgba(255,255,255,0.6)", display: "block", marginBottom: "8px" }}>What&apos;s the debate topic?</label>
               <input
                 type="text"
                 value={challengeModal.topic}
@@ -1479,11 +1524,11 @@ export default function CourtPage() {
                 placeholder="e.g. LeBron vs Jordan, Best PG in the league..."
                 autoFocus
                 onKeyDown={(e) => { if (e.key === "Enter") submitChallenge(); }}
-                style={{ width: "100%", padding: "10px 14px", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", color: "white", fontSize: "14px", fontFamily: "var(--font-barlow), sans-serif" }}
+                style={{ width: "100%", padding: "10px 14px", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", color: "white", fontSize: "14px", fontFamily: FONT }}
               />
               <div style={{ display: "flex", gap: "10px", marginTop: "20px", justifyContent: "flex-end" }}>
-                <button onClick={() => setChallengeModal(null)} style={{ padding: "8px 20px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "rgba(255,255,255,0.7)", cursor: "pointer", fontSize: "13px", fontFamily: "var(--font-barlow), sans-serif", fontWeight: 600 }}>Cancel</button>
-                <button onClick={submitChallenge} disabled={!challengeModal.topic.trim()} style={{ padding: "8px 20px", background: "#FF6B35", border: "none", borderRadius: "8px", color: "black", cursor: "pointer", fontSize: "13px", fontFamily: "var(--font-barlow), sans-serif", fontWeight: 700, opacity: !challengeModal.topic.trim() ? 0.5 : 1 }}>Send Challenge</button>
+                <button onClick={() => setChallengeModal(null)} style={{ padding: "8px 20px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "rgba(255,255,255,0.7)", cursor: "pointer", fontSize: "13px", fontFamily: FONT, fontWeight: 600 }}>Cancel</button>
+                <button onClick={submitChallenge} disabled={!challengeModal.topic.trim()} style={{ padding: "8px 20px", background: "#FF6B35", border: "none", borderRadius: "8px", color: "black", cursor: "pointer", fontSize: "13px", fontFamily: FONT, fontWeight: 700, opacity: !challengeModal.topic.trim() ? 0.5 : 1 }}>Send Challenge</button>
               </div>
             </div>
           </div>

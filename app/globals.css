@@ -100,7 +100,7 @@ body {
 /* Top Bar */
 .top-bar {
   background: var(--orange);
-  padding: 8px 0;
+  padding: 8px 20px;
   text-align: center;
   font-size: 14px;
   font-weight: 600;
@@ -109,6 +109,28 @@ body {
   justify-content: center;
   align-items: center;
   gap: 20px;
+  position: relative;
+}
+
+.top-bar-apps {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  position: absolute;
+  right: 20px;
+}
+
+.app-badge-link {
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+  opacity: 0.9;
+}
+
+.app-badge-link:hover {
+  transform: scale(1.05);
+  opacity: 1;
 }
 
 .live-indicator {
@@ -1724,8 +1746,9 @@ body.admin-page::after {
     padding: 15px 20px !important;
   }
 
-  /* Hide "UPDATED EVERY 30 SECONDS" on mobile */
-  .top-bar-update {
+  /* Hide "UPDATED EVERY 30 SECONDS" and app badges on mobile */
+  .top-bar-update,
+  .top-bar-apps {
     display: none;
   }
 

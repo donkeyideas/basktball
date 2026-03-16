@@ -218,7 +218,7 @@ function parseRssXml(xml: string, source: FeedSource): NewsArticle[] {
     // Detect league from article content — NOT from the feed source
     const league = detectLeague(cleanTitle, cleanDesc, source.defaultLeague);
 
-    const id = Buffer.from(`${source.name}:${link}`).toString("base64url").substring(0, 32);
+    const id = Buffer.from(`${source.name}:${link}`).toString("base64url");
 
     articles.push({
       id,

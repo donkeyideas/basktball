@@ -281,17 +281,7 @@ export default function ProfileScreen() {
             <Text style={styles.editButtonText}>EDIT PROFILE</Text>
           </TouchableOpacity>
 
-          {/* Admin Dashboard Button */}
-          {isAdmin && (
-            <TouchableOpacity
-              style={styles.adminButton}
-              activeOpacity={0.7}
-              onPress={() => router.push('/(admin)')}
-            >
-              <Ionicons name="shield-checkmark" size={18} color="#FFFFFF" />
-              <Text style={styles.adminButtonText}>ADMIN DASHBOARD</Text>
-            </TouchableOpacity>
-          )}
+          {/* Admin Dashboard Button - hidden for production builds */}
         </View>
 
         {/* Segment Tabs */}

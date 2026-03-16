@@ -1,9 +1,10 @@
 import { DarkTheme, DefaultTheme, ThemeProvider as NavThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthProvider } from '@/lib/auth/AuthContext';
 import { ThemeProvider, useTheme } from '@/lib/theme/ThemeContext';
 
@@ -41,22 +42,44 @@ export default function RootLayout() {
     RobotoMono: require('../assets/fonts/RobotoMono-Regular.ttf'),
     'RobotoMono-Bold': require('../assets/fonts/RobotoMono-Bold.ttf'),
   });
+  const [onboardingChecked, setOnboardingChecked] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    async function checkOnboarding() {
+      try {
+        const seen = await AsyncStorage.getItem('hasSeenOnboarding');
+        setShowOnboarding(seen !== 'true');
+      } catch {
+        setShowOnboarding(false);
+      }
+      setOnboardingChecked(true);
+    }
+    checkOnboarding();
+  }, []);
 
   useEffect(() => {
     if (fontError) {
-      // Fonts failed to load - continue with system fonts
       console.warn('Font loading error:', fontError);
       SplashScreen.hideAsync();
     }
   }, [fontError]);
 
   useEffect(() => {
-    if (fontsLoaded) {
+    if (fontsLoaded && onboardingChecked) {
       SplashScreen.hideAsync();
+      if (showOnboarding) {
+        // Navigate to onboarding after layout mounts
+        setTimeout(() => router.replace('/onboarding'), 0);
+      }
     }
-  }, [fontsLoaded]);
+  }, [fontsLoaded, onboardingChecked, showOnboarding]);
 
   if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
+  if (!onboardingChecked) {
     return null;
   }
 
@@ -76,6 +99,7 @@ function ThemedStack() {
         }}
       >
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="onboarding" options={{ headerShown: false, animation: 'fade' }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen
             name="(admin)"
