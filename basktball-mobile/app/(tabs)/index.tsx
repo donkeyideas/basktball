@@ -31,6 +31,8 @@ interface LiveGame {
   id: string;
   away: string;
   home: string;
+  awayLogo: string | null;
+  homeLogo: string | null;
   awayScore: number;
   homeScore: number;
   quarter: string;
@@ -63,6 +65,7 @@ interface TrendingTake {
     name: string | null;
     displayName: string | null;
     image: string | null;
+    avatarUrl: string | null;
   };
 }
 
@@ -154,6 +157,8 @@ export default function HomeScreen() {
             id: g.id,
             away: g.awayTeam?.abbreviation || '???',
             home: g.homeTeam?.abbreviation || '???',
+            awayLogo: g.awayTeam?.logoUrl || null,
+            homeLogo: g.homeTeam?.logoUrl || null,
             awayScore: g.awayScore || 0,
             homeScore: g.homeScore || 0,
             quarter,
@@ -285,10 +290,16 @@ export default function HomeScreen() {
                   {game.isLive && <View style={styles.gameLiveDot} />}
                 </View>
                 <View style={styles.gameTeamRow}>
+                  {game.awayLogo ? (
+                    <Image source={{ uri: game.awayLogo }} style={styles.teamLogo} />
+                  ) : null}
                   <Text style={styles.teamAbbr}>{game.away}</Text>
                   <Text style={styles.teamScore}>{game.awayScore}</Text>
                 </View>
                 <View style={styles.gameTeamRow}>
+                  {game.homeLogo ? (
+                    <Image source={{ uri: game.homeLogo }} style={styles.teamLogo} />
+                  ) : null}
                   <Text style={styles.teamAbbr}>{game.home}</Text>
                   <Text style={[styles.teamScore, game.homeScore > game.awayScore && styles.teamScoreWinning]}>
                     {game.homeScore}
@@ -368,8 +379,8 @@ export default function HomeScreen() {
                 onPress={() => router.push(`/take/${take.id}`)}
               >
                 <View style={styles.takeHeader}>
-                  {take.author?.image ? (
-                    <Image source={{ uri: take.author.image }} style={styles.takeAvatarImg} />
+                  {(take.author?.avatarUrl || take.author?.image) ? (
+                    <Image source={{ uri: (take.author.avatarUrl || take.author.image)! }} style={styles.takeAvatarImg} />
                   ) : (
                     <View style={styles.takeAvatar}>
                       <Text style={styles.takeAvatarText}>{displayName.charAt(0)}</Text>
@@ -594,6 +605,12 @@ function makeStyles(colors: any) {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 6,
+  },
+  teamLogo: {
+    width: 22,
+    height: 22,
+    marginRight: 8,
+    resizeMode: 'contain' as const,
   },
   teamAbbr: {
     fontFamily: Fonts.barlowBold,

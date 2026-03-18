@@ -7,8 +7,11 @@ import { Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from '@/lib/auth/AuthContext';
 import { ThemeProvider, useTheme } from '@/lib/theme/ThemeContext';
+
+const queryClient = new QueryClient();
 
 // expo-notifications push features don't work in Expo Go since SDK 53
 const isExpoGo = Constants.appOwnership === 'expo';
@@ -207,11 +210,13 @@ function PushNotificationRegistrar() {
 
 function RootLayoutNav() {
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <PushNotificationRegistrar />
-        <ThemedStack />
-      </ThemeProvider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <ThemeProvider>
+          <PushNotificationRegistrar />
+          <ThemedStack />
+        </ThemeProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { getDualUser } from "@/lib/court/dual-auth";
-import { deepseek } from "@/lib/ai";
+import { gemini } from "@/lib/ai/gemini";
 import { createNotification } from "@/lib/notifications/service";
 
 export const dynamic = "force-dynamic";
@@ -142,15 +142,15 @@ export async function POST(
     }`;
 
     // Check for API key
-    if (!process.env.DEEPSEEK_API_KEY) {
+    if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json(
-        { message: "AI service not configured. Add DEEPSEEK_API_KEY to environment." },
+        { message: "AI service not configured. Add GEMINI_API_KEY to environment." },
         { status: 503 }
       );
     }
 
-    // Call DeepSeek AI for fact-checking
-    const aiResult = await deepseek.generate(
+    // Call Gemini AI for fact-checking
+    const aiResult = await gemini.generate(
       userPrompt,
       STAT_CHECK_SYSTEM_PROMPT,
       { temperature: 0.3, maxTokens: 1000 }

@@ -120,14 +120,59 @@ function getFallbackTake(personality: BotPersonality): string {
   return pickRandom(FALLBACK_TAKES.default);
 }
 
-// ====== AI GENERATION ======
+// ====== AI GENERATION (Google Gemini) ======
+
+async function fetchRecentNewsHeadlines(): Promise<string[]> {
+  try {
+    const res = await fetch("https://www.espn.com/espn/rss/nba/news", { signal: AbortSignal.timeout(5000) });
+    if (res.ok) {
+      const xml = await res.text();
+      const titles: string[] = [];
+      // Try CDATA-wrapped titles first
+      const cdataMatches = xml.matchAll(/<title><!\[CDATA\[(.+?)\]\]><\/title>/g);
+      for (const match of cdataMatches) {
+        if (titles.length >= 8) break;
+        const title = match[1].trim();
+        if (title && title !== "NBA" && !title.includes("ESPN")) {
+          titles.push(title);
+        }
+      }
+      // Fallback to plain title tags
+      if (titles.length < 3) {
+        const plainMatches = xml.matchAll(/<title>([^<]+)<\/title>/g);
+        for (const match of plainMatches) {
+          if (titles.length >= 8) break;
+          const title = match[1].trim();
+          if (title && title !== "NBA" && !title.includes("ESPN") && !titles.includes(title)) {
+            titles.push(title);
+          }
+        }
+      }
+      return titles;
+    }
+  } catch {
+    // Context is optional - silently fail
+  }
+  return [];
+}
 
 async function generateWithAI(personality: BotPersonality, context: string): Promise<string | null> {
   try {
-    const { deepseek } = await import("@/lib/ai/deepseek");
-    if (!process.env.DEEPSEEK_API_KEY) return null;
+    const { gemini } = await import("@/lib/ai/gemini");
+    if (!process.env.GEMINI_API_KEY) return null;
+
+    // Fetch current news headlines for up-to-date context
+    const newsHeadlines = await fetchRecentNewsHeadlines();
+    let newsContext = "";
+    if (newsHeadlines.length > 0) {
+      newsContext = "\n\nCurrent basketball news headlines from this week:\n" + newsHeadlines.map((h) => `- ${h}`).join("\n");
+    }
+
+    const today = new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
     const systemPrompt = `You are a basketball fan posting on a social media platform called The Court. Your personality: ${personality.tone} tone, interested in ${personality.interests.join(", ")}, ${personality.responseStyle} style.${personality.favoriteTeams ? ` You root for ${personality.favoriteTeams.join(", ")}.` : ""}
+
+Today's date is ${today}.
 
 IMPORTANT RULES:
 - Write a single short basketball hot take or opinion (under 280 characters)
@@ -135,14 +180,13 @@ IMPORTANT RULES:
 - NO markdown formatting (no **, ##, *, backticks, bullet points)
 - NO hashtags unless natural
 - Be opinionated and engaging
-- Reference current events or players when possible
-- Vary your style - sometimes ask a question, sometimes make a bold claim`;
+- You MUST reference current events, recent games, or recent news from this week
+- DO NOT write generic basketball opinions - be specific about players, teams, and recent happenings
+- Vary your style - sometimes ask a question, sometimes make a bold claim, sometimes a hot prediction`;
 
-    const userPrompt = context
-      ? `Given this context about what's happening right now, write a hot take:\n\n${context}`
-      : "Write a basketball hot take about any current NBA topic.";
+    const userPrompt = `Given this context about what's happening in basketball RIGHT NOW, write a fresh, timely hot take:\n\n${context}${newsContext}`;
 
-    const result = await deepseek.generate(userPrompt, systemPrompt, {
+    const result = await gemini.generate(userPrompt, systemPrompt, {
       temperature: 0.9,
       maxTokens: 150,
     });
@@ -161,8 +205,8 @@ IMPORTANT RULES:
 
 async function generateReplyWithAI(personality: BotPersonality, originalContent: string): Promise<string | null> {
   try {
-    const { deepseek } = await import("@/lib/ai/deepseek");
-    if (!process.env.DEEPSEEK_API_KEY) return null;
+    const { gemini } = await import("@/lib/ai/gemini");
+    if (!process.env.GEMINI_API_KEY) return null;
 
     const systemPrompt = `You are a basketball fan replying to a post on a social media platform called The Court. Your personality: ${personality.tone} tone, ${personality.responseStyle} style.
 
@@ -172,7 +216,7 @@ RULES:
 - NO markdown formatting
 - Be engaging - agree, disagree, add context, or challenge the take`;
 
-    const result = await deepseek.generate(
+    const result = await gemini.generate(
       `Reply to this take: "${originalContent}"`,
       systemPrompt,
       { temperature: 0.9, maxTokens: 100 }
@@ -206,9 +250,9 @@ export async function generateBotTake(botUserId: string): Promise<string | null>
     personality = { tone: "casual", interests: ["basketball"], responseStyle: "concise" };
   }
 
-  // Gather context
+  // Gather context - recent takes, live games, and recent completed games
   const recentTakes = await prisma.take.findMany({
-    where: { isDeleted: false, parentId: null },
+    where: { isDeleted: false, parentId: null, authorId: { not: botUserId } },
     orderBy: { createdAt: "desc" },
     take: 10,
     select: { content: true },
@@ -223,12 +267,28 @@ export async function generateBotTake(botUserId: string): Promise<string | null>
     take: 3,
   });
 
+  // Also get recent completed games from the past 2 days for context
+  const twoDaysAgo = new Date();
+  twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+  const recentGames = await prisma.game.findMany({
+    where: { status: "FINAL", gameDate: { gte: twoDaysAgo } },
+    include: {
+      homeTeam: { select: { name: true, abbreviation: true } },
+      awayTeam: { select: { name: true, abbreviation: true } },
+    },
+    orderBy: { gameDate: "desc" },
+    take: 5,
+  });
+
   let context = "";
   if (recentTakes.length > 0) {
-    context += "Recent takes on the timeline:\n" + recentTakes.map((t) => `- ${t.content.slice(0, 100)}`).join("\n");
+    context += "Recent takes on the timeline (DO NOT repeat these):\n" + recentTakes.map((t) => `- ${t.content.slice(0, 100)}`).join("\n");
   }
   if (liveGames.length > 0) {
     context += "\n\nLive games right now:\n" + liveGames.map((g) => `- ${g.awayTeam.name} ${g.awayScore || 0} @ ${g.homeTeam.name} ${g.homeScore || 0} (${g.quarter || "Q1"} ${g.clock || ""})`).join("\n");
+  }
+  if (recentGames.length > 0) {
+    context += "\n\nRecent game results:\n" + recentGames.map((g) => `- ${g.awayTeam.name} ${g.awayScore || 0} @ ${g.homeTeam.name} ${g.homeScore || 0} (FINAL)`).join("\n");
   }
 
   // Try AI first, fallback to pre-written content

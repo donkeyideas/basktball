@@ -7,6 +7,7 @@ import { Prisma } from "@prisma/client";
 
 export const ApiProvider = {
   DEEPSEEK: "DEEPSEEK",
+  GEMINI: "GEMINI",
   ESPN: "ESPN",
   BDL: "BDL",
   NBA_CDN: "NBA_CDN",

@@ -410,9 +410,9 @@ export default function CourtScreen() {
       >
         {/* Header */}
         <View style={styles.takeHeader}>
-          {item.author?.image || item.author?.avatarUrl ? (
+          {item.author?.avatarUrl || item.author?.image ? (
             <Image
-              source={{ uri: item.author.image || item.author.avatarUrl! }}
+              source={{ uri: (item.author.avatarUrl || item.author.image)! }}
               style={styles.takeAvatarImg}
             />
           ) : (
