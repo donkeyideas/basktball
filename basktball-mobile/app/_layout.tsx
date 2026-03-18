@@ -6,17 +6,24 @@ import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import { AuthProvider, useAuth } from '@/lib/auth/AuthContext';
 import { ThemeProvider, useTheme } from '@/lib/theme/ThemeContext';
 
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-});
+// expo-notifications push features don't work in Expo Go since SDK 53
+const isExpoGo = Constants.appOwnership === 'expo';
+
+let Notifications: typeof import('expo-notifications') | null = null;
+if (!isExpoGo) {
+  Notifications = require('expo-notifications');
+  Notifications!.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: true,
+    }),
+  });
+}
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -136,6 +143,10 @@ function ThemedStack() {
             options={{ headerShown: false }}
           />
           <Stack.Screen
+            name="challenge/[id]"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
             name="notifications"
             options={{ headerShown: false }}
           />
@@ -152,19 +163,19 @@ function PushNotificationRegistrar() {
   const { user, api } = useAuth();
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !Notifications) return;
 
     async function registerPush() {
       try {
-        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        const { status: existingStatus } = await Notifications!.getPermissionsAsync();
         let finalStatus = existingStatus;
         if (existingStatus !== 'granted') {
-          const { status } = await Notifications.requestPermissionsAsync();
+          const { status } = await Notifications!.requestPermissionsAsync();
           finalStatus = status;
         }
         if (finalStatus !== 'granted') return;
 
-        const tokenData = await Notifications.getExpoPushTokenAsync();
+        const tokenData = await Notifications!.getExpoPushTokenAsync();
         const platform = Platform.OS === 'ios' ? 'ios' : 'android';
 
         await api.post('/mobile/notifications/register-device', {
@@ -181,6 +192,7 @@ function PushNotificationRegistrar() {
 
   // Handle notification tap
   useEffect(() => {
+    if (!Notifications) return;
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
       const data = response.notification.request.content.data;
       if (data?.takeId) {

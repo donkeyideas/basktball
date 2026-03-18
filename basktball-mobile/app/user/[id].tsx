@@ -321,16 +321,16 @@ export default function UserProfileScreen() {
               <Text style={[styles.emptyText, { color: colors.textTertiary }]}>No challenges yet</Text>
             ) : (
               challenges.map((c: any) => (
-                <View key={c.id} style={[styles.takeRow, { borderBottomColor: colors.border }]}>
+                <TouchableOpacity key={c.id} style={[styles.takeRow, { borderBottomColor: colors.border }]} activeOpacity={0.7} onPress={() => router.push(`/challenge/${c.id}` as never)}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <Text style={{ fontFamily: Fonts.barlowBold, fontSize: 11, color: c.status === 'RESOLVED' ? '#22C55E' : Colors.orange, textTransform: 'uppercase' as const }}>{c.status}</Text>
+                    <Text style={{ fontFamily: Fonts.barlowBold, fontSize: 11, color: c.status === 'COMPLETED' ? '#22C55E' : Colors.orange, textTransform: 'uppercase' as const }}>{c.status}</Text>
                     <Text style={{ fontFamily: Fonts.mono, fontSize: 11, color: colors.textTertiary }}>{timeAgo(c.createdAt)}</Text>
                   </View>
                   <Text style={[styles.takeContent, { color: colors.text }]}>{c.topic}</Text>
                   <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: colors.textTertiary }}>
                     {c.challenger?.displayName || c.challenger?.name} vs {c.challenged?.displayName || c.challenged?.name}
                   </Text>
-                </View>
+                </TouchableOpacity>
               ))
             )}
           </>

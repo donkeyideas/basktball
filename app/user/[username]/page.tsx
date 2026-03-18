@@ -503,12 +503,16 @@ export default function UserProfilePage() {
                         <div style={{ textAlign: "center", padding: "40px", color: "rgba(255,255,255,0.4)" }}>No challenges yet</div>
                       ) : (
                         challenges.map((c) => (
-                          <div key={c.id} style={{ padding: "16px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                          <Link
+                            key={c.id}
+                            href={`/court/challenge/${c.id}`}
+                            style={{ display: "block", padding: "16px", borderBottom: "1px solid rgba(255,255,255,0.08)", textDecoration: "none" }}
+                          >
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
                               <span style={{
                                 fontSize: "11px", fontWeight: 700, padding: "2px 8px", borderRadius: "4px", textTransform: "uppercase",
-                                background: c.status === "RESOLVED" ? "rgba(34,197,94,0.2)" : c.status === "EXPIRED" ? "rgba(255,255,255,0.1)" : "rgba(249,115,22,0.2)",
-                                color: c.status === "RESOLVED" ? "#22C55E" : c.status === "EXPIRED" ? "rgba(255,255,255,0.4)" : "#F97316",
+                                background: c.status === "COMPLETED" ? "rgba(34,197,94,0.2)" : c.status === "EXPIRED" ? "rgba(255,255,255,0.1)" : "rgba(249,115,22,0.2)",
+                                color: c.status === "COMPLETED" ? "#22C55E" : c.status === "EXPIRED" ? "rgba(255,255,255,0.4)" : "#F97316",
                               }}>{c.status}</span>
                               <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)" }}>{new Date(c.createdAt).toLocaleDateString()}</span>
                             </div>
@@ -521,7 +525,7 @@ export default function UserProfilePage() {
                                 <span style={{ color: "rgba(255,255,255,0.3)", marginLeft: "auto", fontSize: "12px" }}>{c.votesChallenger} - {c.votesChallenged} votes</span>
                               )}
                             </div>
-                          </div>
+                          </Link>
                         ))
                       )}
                     </div>

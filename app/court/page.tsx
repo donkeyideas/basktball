@@ -1283,10 +1283,7 @@ export default function CourtPage() {
                     Active Challenges
                   </h3>
                   {activeChallenges.map((c) => (
-                    <div key={c.id} style={{
-                      padding: "10px 0",
-                      borderTop: "1px solid #2a2a2a",
-                    }}>
+                    <Link key={c.id} href={`/court/challenge/${c.id}`} style={{ display: "block", padding: "10px 0", borderTop: "1px solid #2a2a2a", textDecoration: "none" }}>
                       <div style={{
                         fontSize: "13px",
                         color: "#fff",
@@ -1332,7 +1329,7 @@ export default function CourtPage() {
                           }} />
                         </div>
                       )}
-                    </div>
+                    </Link>
                   ))}
                 </div>
               )}

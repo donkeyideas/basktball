@@ -340,9 +340,9 @@ export default function ProfileScreen() {
             <Text style={styles.emptyText}>No challenges yet</Text>
           ) : (
             challenges.map((c: any) => (
-              <TouchableOpacity key={c.id} style={styles.takeCard} activeOpacity={0.7}>
+              <TouchableOpacity key={c.id} style={styles.takeCard} activeOpacity={0.7} onPress={() => router.push(`/challenge/${c.id}` as never)}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <Text style={{ fontFamily: Fonts.barlowBold, fontSize: 11, color: c.status === 'RESOLVED' ? '#22C55E' : Colors.orange, textTransform: 'uppercase' }}>{c.status}</Text>
+                  <Text style={{ fontFamily: Fonts.barlowBold, fontSize: 11, color: c.status === 'COMPLETED' ? '#22C55E' : Colors.orange, textTransform: 'uppercase' }}>{c.status}</Text>
                   <Text style={{ fontFamily: Fonts.mono, fontSize: 11, color: colors.textTertiary }}>{timeAgo(c.createdAt)}</Text>
                 </View>
                 <Text style={styles.takeText}>{c.topic}</Text>
