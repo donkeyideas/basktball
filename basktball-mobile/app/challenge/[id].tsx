@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,9 @@ import {
   ActivityIndicator,
   Alert,
   TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -113,6 +116,7 @@ export default function ChallengeDetailScreen() {
   const [actionLoading, setActionLoading] = useState(false);
   const [responseText, setResponseText] = useState('');
   const [posting, setPosting] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -176,15 +180,15 @@ export default function ChallengeDetailScreen() {
     if (!responseText.trim() || !challenge) return;
     setPosting(true);
     try {
-      // Post a take
-      const takeData = await api.post<{ take: { id: string } }>('/court/takes', {
+      // Post a take via mobile endpoint (returns take object directly)
+      const newTake = await api.post<{ id: string }>('/mobile/takes', {
         content: responseText.trim(),
         tags: ['challenge'],
       });
       // Link the take to the challenge
       const side = user?.id === challenge.challenger.id ? 'challenger' : 'challenged';
       await api.post(`/court/challenges/${id}/link-take`, {
-        takeId: takeData.take.id,
+        takeId: newTake.id,
         side,
       });
       setResponseText('');
@@ -226,7 +230,13 @@ export default function ChallengeDetailScreen() {
         <View style={{ width: 40 }} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}>
+      <ScrollView
+        ref={scrollRef}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
         {loading && <ActivityIndicator color={Colors.orange} size="large" style={{ marginTop: 60 }} />}
 
         {error && (
@@ -404,6 +414,9 @@ export default function ChallengeDetailScreen() {
                         onChangeText={setResponseText}
                         multiline
                         maxLength={500}
+                        onFocus={() => {
+                          setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300);
+                        }}
                       />
                       <TouchableOpacity
                         style={[styles.actionBtn, {
@@ -505,6 +518,7 @@ export default function ChallengeDetailScreen() {
           </>
         )}
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -535,7 +549,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
-    paddingBottom: 40,
+    paddingBottom: 60,
   },
   card: {
     borderRadius: 12,

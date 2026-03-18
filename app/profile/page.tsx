@@ -88,12 +88,14 @@ export default function ProfilePage() {
       setProfile((prev) => (prev ? { ...prev, ...data.profile } : prev));
       setSuccess("Profile updated successfully!");
       setTimeout(() => setSuccess(null), 3000);
+      // Refresh NextAuth session so header name/avatar update immediately
+      await update();
     } catch {
       setError("Failed to update profile");
     } finally {
       setSaving(false);
     }
-  }, [displayName, handle, bio, location]);
+  }, [displayName, handle, bio, location, update]);
 
   const handleAvatarUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
