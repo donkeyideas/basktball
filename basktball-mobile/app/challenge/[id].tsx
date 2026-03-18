@@ -8,6 +8,7 @@ import {
   Image,
   ActivityIndicator,
   Alert,
+  TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -110,6 +111,8 @@ export default function ChallengeDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [responseText, setResponseText] = useState('');
+  const [posting, setPosting] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -166,6 +169,32 @@ export default function ChallengeDetailScreen() {
       Alert.alert('Error', err.message || 'Failed to vote');
     } finally {
       setActionLoading(false);
+    }
+  }
+
+  async function handlePostResponse() {
+    if (!responseText.trim() || !challenge) return;
+    setPosting(true);
+    try {
+      // Post a take
+      const takeData = await api.post<{ take: { id: string } }>('/court/takes', {
+        content: responseText.trim(),
+        tags: ['challenge'],
+      });
+      // Link the take to the challenge
+      const side = user?.id === challenge.challenger.id ? 'challenger' : 'challenged';
+      await api.post(`/court/challenges/${id}/link-take`, {
+        takeId: takeData.take.id,
+        side,
+      });
+      setResponseText('');
+      // Refresh challenge data
+      const refreshed = await api.get<{ challenge: Challenge }>(`/court/challenges/${id}`);
+      setChallenge(refreshed.challenge);
+    } catch (err: any) {
+      Alert.alert('Error', err.message || 'Failed to post response');
+    } finally {
+      setPosting(false);
     }
   }
 
@@ -229,7 +258,7 @@ export default function ChallengeDetailScreen() {
               <View style={styles.vsContainer}>
                 <TouchableOpacity
                   style={styles.userSide}
-                  onPress={() => router.push(`/user/${challenge.challenger.name}` as never)}
+                  onPress={() => router.push(`/user/${challenge.challenger.id}` as never)}
                 >
                   <UserAvatar user={challenge.challenger} size={52} />
                   <Text style={[styles.userName, { color: colors.text }]} numberOfLines={1}>
@@ -246,7 +275,7 @@ export default function ChallengeDetailScreen() {
 
                 <TouchableOpacity
                   style={styles.userSide}
-                  onPress={() => router.push(`/user/${challenge.challenged.name}` as never)}
+                  onPress={() => router.push(`/user/${challenge.challenged.id}` as never)}
                 >
                   <UserAvatar user={challenge.challenged} size={52} />
                   <Text style={[styles.userName, { color: colors.text }]} numberOfLines={1}>
@@ -348,6 +377,58 @@ export default function ChallengeDetailScreen() {
                   <Text style={styles.statusMessageText}>
                     Waiting for {challenge.challenged.displayName || challenge.challenged.name} to respond...
                   </Text>
+                </View>
+              )}
+
+              {/* Participant response area - post a take for this challenge */}
+              {isParticipant && (challenge.status === 'ACTIVE' || challenge.status === 'VOTING') && (
+                <View>
+                  {/* Show who needs to respond */}
+                  {isChallenger && !challenge.challengerTake && (
+                    <Text style={[styles.statusMessageText, { textAlign: 'center', marginBottom: 10, color: Colors.orange }]}>
+                      Post your take to make your case
+                    </Text>
+                  )}
+                  {isChallenged && !challenge.challengedTake && (
+                    <Text style={[styles.statusMessageText, { textAlign: 'center', marginBottom: 10, color: Colors.orange }]}>
+                      Post your response take
+                    </Text>
+                  )}
+                  {((isChallenger && !challenge.challengerTake) || (isChallenged && !challenge.challengedTake)) && (
+                    <View>
+                      <TextInput
+                        style={[styles.responseInput, { color: colors.text, borderColor: colors.border }]}
+                        placeholder="Share your take on this challenge..."
+                        placeholderTextColor="rgba(255,255,255,0.3)"
+                        value={responseText}
+                        onChangeText={setResponseText}
+                        multiline
+                        maxLength={500}
+                      />
+                      <TouchableOpacity
+                        style={[styles.actionBtn, {
+                          backgroundColor: responseText.trim() ? Colors.orange : 'rgba(255,107,53,0.3)',
+                          marginTop: 8,
+                        }]}
+                        onPress={handlePostResponse}
+                        disabled={posting || !responseText.trim()}
+                      >
+                        {posting ? (
+                          <ActivityIndicator color="#fff" size="small" />
+                        ) : (
+                          <Text style={styles.actionBtnText}>Post Response</Text>
+                        )}
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                  {/* Both takes posted - waiting for community votes */}
+                  {((isChallenger && challenge.challengerTake) || (isChallenged && challenge.challengedTake)) && (
+                    <View style={styles.statusMessage}>
+                      <Text style={[styles.statusMessageText, { color: Colors.green }]}>
+                        Your take is posted! Waiting for community votes.
+                      </Text>
+                    </View>
+                  )}
                 </View>
               )}
 
@@ -594,5 +675,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'rgba(255,255,255,0.5)',
     textAlign: 'center',
+  },
+  responseInput: {
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 12,
+    fontFamily: Fonts.barlow,
+    fontSize: 15,
+    minHeight: 80,
+    textAlignVertical: 'top',
   },
 });

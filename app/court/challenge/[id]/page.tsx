@@ -113,6 +113,8 @@ export default function ChallengeDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [responseText, setResponseText] = useState("");
+  const [posting, setPosting] = useState(false);
 
   useEffect(() => {
     if (!challengeId) return;
@@ -188,6 +190,41 @@ export default function ChallengeDetailPage() {
       setActionError((err as Error).message);
     } finally {
       setActionLoading(false);
+    }
+  }
+
+  async function handlePostResponse() {
+    if (!responseText.trim() || !challenge) return;
+    setPosting(true);
+    setActionError(null);
+    try {
+      // Post a take
+      const takeRes = await fetch("/api/court/takes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: responseText.trim(), tags: ["challenge"] }),
+      });
+      if (!takeRes.ok) throw new Error("Failed to post take");
+      const takeData = await takeRes.json();
+
+      // Link the take to this challenge
+      const currentUserId = (session?.user as { id?: string })?.id;
+      const side = currentUserId === challenge.challenger.id ? "challenger" : "challenged";
+      await fetch(`/api/court/challenges/${challengeId}/link-take`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ takeId: takeData.take.id, side }),
+      });
+
+      setResponseText("");
+      // Refresh challenge
+      const refreshRes = await fetch(`/api/court/challenges/${challengeId}`);
+      const refreshData = await refreshRes.json();
+      setChallenge(refreshData.challenge);
+    } catch (err: unknown) {
+      setActionError((err as Error).message);
+    } finally {
+      setPosting(false);
     }
   }
 
@@ -490,6 +527,62 @@ export default function ChallengeDetailPage() {
                     color: "rgba(255,255,255,0.5)", fontSize: "14px", fontFamily: FONT,
                   }}>
                     Waiting for {challenge.challenged.displayName || challenge.challenged.name} to respond...
+                  </div>
+                )}
+
+                {/* Participant response area */}
+                {isParticipant && (challenge.status === "ACTIVE" || challenge.status === "VOTING") && (
+                  <div>
+                    {isChallenger && !challenge.challengerTake && (
+                      <p style={{ textAlign: "center", color: "#FF6B35", fontSize: "14px", margin: "0 0 12px 0", fontFamily: FONT, fontWeight: 600 }}>
+                        Post your take to make your case
+                      </p>
+                    )}
+                    {isChallenged && !challenge.challengedTake && (
+                      <p style={{ textAlign: "center", color: "#FF6B35", fontSize: "14px", margin: "0 0 12px 0", fontFamily: FONT, fontWeight: 600 }}>
+                        Post your response take
+                      </p>
+                    )}
+                    {((isChallenger && !challenge.challengerTake) || (isChallenged && !challenge.challengedTake)) && (
+                      <div>
+                        <textarea
+                          value={responseText}
+                          onChange={(e) => setResponseText(e.target.value)}
+                          placeholder="Share your take on this challenge..."
+                          maxLength={500}
+                          style={{
+                            width: "100%", minHeight: "80px", padding: "12px",
+                            borderRadius: "10px", border: "1px solid #333",
+                            background: "#111", color: "#fff", fontSize: "14px",
+                            fontFamily: FONT, resize: "vertical", outline: "none",
+                            boxSizing: "border-box",
+                          }}
+                        />
+                        <button
+                          onClick={handlePostResponse}
+                          disabled={posting || !responseText.trim()}
+                          style={{
+                            width: "100%", padding: "14px", marginTop: "8px",
+                            borderRadius: "10px", border: "none",
+                            background: responseText.trim() ? "#FF6B35" : "rgba(255,107,53,0.3)",
+                            color: "#fff", fontSize: "15px", fontWeight: 700,
+                            cursor: posting || !responseText.trim() ? "not-allowed" : "pointer",
+                            fontFamily: FONT, opacity: posting ? 0.6 : 1,
+                          }}
+                        >
+                          {posting ? "Posting..." : "Post Response"}
+                        </button>
+                      </div>
+                    )}
+                    {((isChallenger && challenge.challengerTake) || (isChallenged && challenge.challengedTake)) && (
+                      <div style={{
+                        textAlign: "center", padding: "12px",
+                        background: "rgba(34,197,94,0.08)", borderRadius: "10px",
+                        color: "#22C55E", fontSize: "14px", fontFamily: FONT,
+                      }}>
+                        Your take is posted! Waiting for community votes.
+                      </div>
+                    )}
                   </div>
                 )}
 
