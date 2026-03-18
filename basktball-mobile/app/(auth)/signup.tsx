@@ -15,6 +15,7 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as WebBrowser from 'expo-web-browser';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { Colors, Fonts } from '@/constants/Colors';
 import { useAuth } from '@/lib/auth/AuthContext';
 
@@ -37,6 +38,7 @@ export default function SignupScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [appleLoading, setAppleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   async function handleGoogleSignup() {
@@ -62,6 +64,48 @@ export default function SignupScreen() {
     } catch (err: any) {
       Alert.alert('Error', 'Could not complete Google sign-in.');
       setGoogleLoading(false);
+    }
+  }
+
+  async function handleAppleSignup() {
+    setAppleLoading(true);
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+
+      if (!credential.identityToken) {
+        throw new Error('No identity token received');
+      }
+
+      const res = await fetch(`${API_BASE}/api/mobile/auth/apple`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          identityToken: credential.identityToken,
+          fullName: credential.fullName,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Apple sign-in failed');
+      }
+
+      await loginWithToken(data.token, data.user);
+      router.replace('/(tabs)');
+    } catch (err: any) {
+      if (err.code === 'ERR_REQUEST_CANCELED') {
+        // User cancelled
+      } else {
+        Alert.alert('Error', err.message || 'Could not complete Apple sign-in.');
+      }
+    } finally {
+      setAppleLoading(false);
     }
   }
 
@@ -112,6 +156,25 @@ export default function SignupScreen() {
 
           {/* Heading */}
           <Text style={styles.heading}>CREATE ACCOUNT</Text>
+
+          {/* Apple Sign-Up (iOS only) */}
+          {Platform.OS === 'ios' && (
+            <TouchableOpacity
+              style={styles.appleButton}
+              activeOpacity={0.7}
+              onPress={handleAppleSignup}
+              disabled={appleLoading}
+            >
+              {appleLoading ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
+                <>
+                  <Ionicons name="logo-apple" size={22} color="#fff" />
+                  <Text style={styles.appleButtonText}>Sign up with Apple</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          )}
 
           {/* Google Sign-Up */}
           <TouchableOpacity
@@ -265,6 +328,23 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: 2,
     marginBottom: 28,
+  },
+  appleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#000',
+    borderRadius: 12,
+    paddingVertical: 14,
+    marginBottom: 12,
+    gap: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  appleButtonText: {
+    fontFamily: Fonts.barlowSemiBold,
+    fontSize: 16,
+    color: '#fff',
   },
   googleButton: {
     flexDirection: 'row',
