@@ -20,7 +20,7 @@ import { useTheme } from '@/lib/theme/ThemeContext';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { api } from '@/lib/api/client';
 
-const PROFILE_SEGMENTS = ['TAKES', 'REPLIES', 'BOOKMARKS'];
+const PROFILE_SEGMENTS = ['TAKES', 'REPLIES', 'CHALLENGES', 'PREDICTIONS', 'AGING', 'BOOKMARKS'];
 
 interface Take {
   id: string;
@@ -59,6 +59,9 @@ export default function ProfileScreen() {
   const [selectedSegment, setSelectedSegment] = useState('TAKES');
   const [takes, setTakes] = useState<Take[]>([]);
   const [bookmarks, setBookmarks] = useState<Take[]>([]);
+  const [challenges, setChallenges] = useState<any[]>([]);
+  const [predictions, setPredictions] = useState<any[]>([]);
+  const [agingTakes, setAgingTakes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editName, setEditName] = useState('');
@@ -86,7 +89,10 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     if (selectedSegment === 'BOOKMARKS' && user?.id) fetchBookmarks();
-  }, [selectedSegment, user?.id]);
+    if (selectedSegment === 'CHALLENGES' && user?.name) fetchChallenges();
+    if (selectedSegment === 'PREDICTIONS' && user?.name) fetchPredictions();
+    if (selectedSegment === 'AGING' && user?.name) fetchAgingTakes();
+  }, [selectedSegment, user?.id, user?.name]);
 
   async function fetchUserTakes() {
     try {
@@ -105,6 +111,33 @@ export default function ProfileScreen() {
       setBookmarks(data.takes || []);
     } catch {
       setBookmarks([]);
+    }
+  }
+
+  async function fetchChallenges() {
+    try {
+      const data = await api.get<{ challenges: any[] }>(`/users/${user?.name}/challenges`);
+      setChallenges(data.challenges || []);
+    } catch {
+      setChallenges([]);
+    }
+  }
+
+  async function fetchPredictions() {
+    try {
+      const data = await api.get<{ predictions: any[] }>(`/users/${user?.name}/predictions`);
+      setPredictions(data.predictions || []);
+    } catch {
+      setPredictions([]);
+    }
+  }
+
+  async function fetchAgingTakes() {
+    try {
+      const data = await api.get<{ agingTakes: any[] }>(`/users/${user?.name}/aging-takes`);
+      setAgingTakes(data.agingTakes || []);
+    } catch {
+      setAgingTakes([]);
     }
   }
 
@@ -247,8 +280,8 @@ export default function ProfileScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Profile Header */}
         <View style={styles.profileHeader}>
-          {user?.image || user?.avatarUrl ? (
-            <Image source={{ uri: user.image || user.avatarUrl }} style={styles.avatarImage} />
+          {user?.avatarUrl || user?.image ? (
+            <Image source={{ uri: user.avatarUrl || user.image }} style={styles.avatarImage} />
           ) : (
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>{initials}</Text>
@@ -285,7 +318,7 @@ export default function ProfileScreen() {
         </View>
 
         {/* Segment Tabs */}
-        <View style={styles.segmentRow}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.segmentRow}>
           {PROFILE_SEGMENTS.map((seg) => (
             <TouchableOpacity
               key={seg}
@@ -297,11 +330,58 @@ export default function ProfileScreen() {
               </Text>
             </TouchableOpacity>
           ))}
-        </View>
+        </ScrollView>
 
         {/* Content */}
         {loading ? (
           <ActivityIndicator color={Colors.orange} style={{ marginTop: 30 }} />
+        ) : selectedSegment === 'CHALLENGES' ? (
+          challenges.length === 0 ? (
+            <Text style={styles.emptyText}>No challenges yet</Text>
+          ) : (
+            challenges.map((c: any) => (
+              <TouchableOpacity key={c.id} style={styles.takeCard} activeOpacity={0.7}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <Text style={{ fontFamily: Fonts.barlowBold, fontSize: 11, color: c.status === 'RESOLVED' ? '#22C55E' : Colors.orange, textTransform: 'uppercase' }}>{c.status}</Text>
+                  <Text style={{ fontFamily: Fonts.mono, fontSize: 11, color: colors.textTertiary }}>{timeAgo(c.createdAt)}</Text>
+                </View>
+                <Text style={styles.takeText}>{c.topic}</Text>
+                <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: colors.textSecondary }}>
+                  {c.challenger?.displayName || c.challenger?.name} vs {c.challenged?.displayName || c.challenged?.name}
+                </Text>
+              </TouchableOpacity>
+            ))
+          )
+        ) : selectedSegment === 'PREDICTIONS' ? (
+          predictions.length === 0 ? (
+            <Text style={styles.emptyText}>No predictions yet</Text>
+          ) : (
+            predictions.map((p: any) => (
+              <TouchableOpacity key={p.id} style={styles.takeCard} activeOpacity={0.7} onPress={() => p.take && router.push(`/take/${p.take.id}`)}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <Text style={{ fontFamily: Fonts.barlowBold, fontSize: 11, color: p.status === 'RECEIPT' ? '#22C55E' : p.status === 'BUST' ? '#EF4444' : colors.textSecondary, textTransform: 'uppercase' }}>{p.status}</Text>
+                </View>
+                <Text style={styles.takeText}>{p.claim}</Text>
+                {p.result && <Text style={{ fontFamily: Fonts.barlow, fontSize: 12, color: colors.textTertiary }}>{p.result}</Text>}
+              </TouchableOpacity>
+            ))
+          )
+        ) : selectedSegment === 'AGING' ? (
+          agingTakes.length === 0 ? (
+            <Text style={styles.emptyText}>No aging takes yet</Text>
+          ) : (
+            agingTakes.map((at: any) => (
+              <TouchableOpacity key={at.id} style={styles.takeCard} activeOpacity={0.7} onPress={() => router.push(`/take/${at.take?.id}`)}>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <Text style={{ fontFamily: Fonts.barlowBold, fontSize: 11, color: at.status === 'AGED' ? '#EAB308' : at.status === 'AGING' ? '#3B82F6' : colors.textTertiary, textTransform: 'uppercase' }}>{at.status}</Text>
+                </View>
+                <Text style={styles.takeText}>{at.take?.content}</Text>
+                <Text style={{ fontFamily: Fonts.barlow, fontSize: 12, color: colors.textTertiary }}>
+                  Revisit: {new Date(at.revisitDate).toLocaleDateString()}
+                </Text>
+              </TouchableOpacity>
+            ))
+          )
         ) : filteredTakes.length === 0 ? (
           <Text style={styles.emptyText}>
             {selectedSegment === 'BOOKMARKS' ? 'No bookmarks yet' : 'No takes yet'}
@@ -517,8 +597,8 @@ function makeStyles(colors: any) {
     marginBottom: 4,
   },
   segment: {
-    flex: 1,
     paddingVertical: 14,
+    paddingHorizontal: 12,
     alignItems: 'center',
     borderBottomWidth: 2,
     borderBottomColor: 'transparent',

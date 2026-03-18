@@ -50,6 +50,8 @@ function timeAgo(dateStr: string): string {
   return `${Math.floor(diff / 86400)}d`;
 }
 
+const PROFILE_TABS = ['TAKES', 'CHALLENGES', 'PREDICTIONS', 'AGING'];
+
 export default function UserProfileScreen() {
   const { colors } = useTheme();
   const styles = React.useMemo(() => makeStyles(colors), [colors]);
@@ -57,6 +59,10 @@ export default function UserProfileScreen() {
   const { token } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [takes, setTakes] = useState<UserTake[]>([]);
+  const [challenges, setChallenges] = useState<any[]>([]);
+  const [predictions, setPredictions] = useState<any[]>([]);
+  const [agingTakes, setAgingTakes] = useState<any[]>([]);
+  const [selectedTab, setSelectedTab] = useState('TAKES');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -91,6 +97,37 @@ export default function UserProfileScreen() {
     } finally {
       setLoading(false);
     }
+  }
+
+  useEffect(() => {
+    if (!profile?.name) return;
+    if (selectedTab === 'CHALLENGES') fetchChallenges();
+    if (selectedTab === 'PREDICTIONS') fetchPredictions();
+    if (selectedTab === 'AGING') fetchAgingTakes();
+  }, [selectedTab, profile?.name]);
+
+  async function fetchChallenges() {
+    try {
+      const res = await fetch(`${API_BASE}/api/users/${profile?.name}/challenges`);
+      const data = await res.json();
+      setChallenges(data.challenges || []);
+    } catch { setChallenges([]); }
+  }
+
+  async function fetchPredictions() {
+    try {
+      const res = await fetch(`${API_BASE}/api/users/${profile?.name}/predictions`);
+      const data = await res.json();
+      setPredictions(data.predictions || []);
+    } catch { setPredictions([]); }
+  }
+
+  async function fetchAgingTakes() {
+    try {
+      const res = await fetch(`${API_BASE}/api/users/${profile?.name}/aging-takes`);
+      const data = await res.json();
+      setAgingTakes(data.agingTakes || []);
+    } catch { setAgingTakes([]); }
   }
 
   async function handleFollow() {
@@ -227,42 +264,114 @@ export default function UserProfileScreen() {
         {/* Divider */}
         <View style={[styles.divider, { backgroundColor: colors.border }]} />
 
-        {/* Takes */}
-        <View style={styles.takesHeader}>
-          <Text style={[styles.takesTitle, { color: colors.text }]}>TAKES</Text>
-        </View>
-
-        {takes.length === 0 ? (
-          <Text style={[styles.emptyText, { color: colors.textTertiary }]}>No takes yet</Text>
-        ) : (
-          takes.map((take) => (
+        {/* Tabs */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ borderBottomWidth: 1, borderBottomColor: colors.border }}>
+          {PROFILE_TABS.map((tab) => (
             <TouchableOpacity
-              key={take.id}
-              style={[styles.takeRow, { borderBottomColor: colors.border }]}
-              activeOpacity={0.7}
-              onPress={() => router.push(`/take/${take.id}`)}
+              key={tab}
+              onPress={() => setSelectedTab(tab)}
+              style={{ paddingVertical: 14, paddingHorizontal: 16, borderBottomWidth: 2, borderBottomColor: selectedTab === tab ? Colors.orange : 'transparent' }}
             >
-              <Text style={[styles.takeContent, { color: colors.text }]}>{take.content}</Text>
-              {take.tags.length > 0 && (
-                <View style={styles.tagsRow}>
-                  {take.tags.map((tag) => (
-                    <Text key={tag} style={styles.tag}>#{tag}</Text>
-                  ))}
-                </View>
-              )}
-              <View style={styles.takeActions}>
-                <View style={styles.takeAction}>
-                  <Ionicons name="flame-outline" size={14} color={colors.textTertiary} />
-                  <Text style={[styles.takeActionCount, { color: colors.textTertiary }]}>{take.fireCount}</Text>
-                </View>
-                <View style={styles.takeAction}>
-                  <Ionicons name="chatbubble-outline" size={14} color={colors.textTertiary} />
-                  <Text style={[styles.takeActionCount, { color: colors.textTertiary }]}>{take.replyCount}</Text>
-                </View>
-                <Text style={[styles.takeTime, { color: colors.textTertiary }]}>{timeAgo(take.createdAt)}</Text>
-              </View>
+              <Text style={{ fontFamily: Fonts.barlowSemiBold, fontSize: 13, letterSpacing: 1, color: selectedTab === tab ? colors.text : colors.textTertiary }}>{tab}</Text>
             </TouchableOpacity>
-          ))
+          ))}
+        </ScrollView>
+
+        {/* Tab Content */}
+        {selectedTab === 'TAKES' && (
+          <>
+            {takes.length === 0 ? (
+              <Text style={[styles.emptyText, { color: colors.textTertiary }]}>No takes yet</Text>
+            ) : (
+              takes.map((take) => (
+                <TouchableOpacity
+                  key={take.id}
+                  style={[styles.takeRow, { borderBottomColor: colors.border }]}
+                  activeOpacity={0.7}
+                  onPress={() => router.push(`/take/${take.id}`)}
+                >
+                  <Text style={[styles.takeContent, { color: colors.text }]}>{take.content}</Text>
+                  {take.tags.length > 0 && (
+                    <View style={styles.tagsRow}>
+                      {take.tags.map((tag) => (
+                        <Text key={tag} style={styles.tag}>#{tag}</Text>
+                      ))}
+                    </View>
+                  )}
+                  <View style={styles.takeActions}>
+                    <View style={styles.takeAction}>
+                      <Ionicons name="flame-outline" size={14} color={colors.textTertiary} />
+                      <Text style={[styles.takeActionCount, { color: colors.textTertiary }]}>{take.fireCount}</Text>
+                    </View>
+                    <View style={styles.takeAction}>
+                      <Ionicons name="chatbubble-outline" size={14} color={colors.textTertiary} />
+                      <Text style={[styles.takeActionCount, { color: colors.textTertiary }]}>{take.replyCount}</Text>
+                    </View>
+                    <Text style={[styles.takeTime, { color: colors.textTertiary }]}>{timeAgo(take.createdAt)}</Text>
+                  </View>
+                </TouchableOpacity>
+              ))
+            )}
+          </>
+        )}
+
+        {selectedTab === 'CHALLENGES' && (
+          <>
+            {challenges.length === 0 ? (
+              <Text style={[styles.emptyText, { color: colors.textTertiary }]}>No challenges yet</Text>
+            ) : (
+              challenges.map((c: any) => (
+                <View key={c.id} style={[styles.takeRow, { borderBottomColor: colors.border }]}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <Text style={{ fontFamily: Fonts.barlowBold, fontSize: 11, color: c.status === 'RESOLVED' ? '#22C55E' : Colors.orange, textTransform: 'uppercase' as const }}>{c.status}</Text>
+                    <Text style={{ fontFamily: Fonts.mono, fontSize: 11, color: colors.textTertiary }}>{timeAgo(c.createdAt)}</Text>
+                  </View>
+                  <Text style={[styles.takeContent, { color: colors.text }]}>{c.topic}</Text>
+                  <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: colors.textTertiary }}>
+                    {c.challenger?.displayName || c.challenger?.name} vs {c.challenged?.displayName || c.challenged?.name}
+                  </Text>
+                </View>
+              ))
+            )}
+          </>
+        )}
+
+        {selectedTab === 'PREDICTIONS' && (
+          <>
+            {predictions.length === 0 ? (
+              <Text style={[styles.emptyText, { color: colors.textTertiary }]}>No predictions yet</Text>
+            ) : (
+              predictions.map((p: any) => (
+                <TouchableOpacity key={p.id} style={[styles.takeRow, { borderBottomColor: colors.border }]} activeOpacity={0.7} onPress={() => p.take && router.push(`/take/${p.take.id}`)}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <Text style={{ fontFamily: Fonts.barlowBold, fontSize: 11, color: p.status === 'RECEIPT' ? '#22C55E' : p.status === 'BUST' ? '#EF4444' : colors.textTertiary, textTransform: 'uppercase' as const }}>{p.status}</Text>
+                  </View>
+                  <Text style={[styles.takeContent, { color: colors.text }]}>{p.claim}</Text>
+                  {p.result && <Text style={{ fontFamily: Fonts.barlow, fontSize: 12, color: colors.textTertiary }}>{p.result}</Text>}
+                </TouchableOpacity>
+              ))
+            )}
+          </>
+        )}
+
+        {selectedTab === 'AGING' && (
+          <>
+            {agingTakes.length === 0 ? (
+              <Text style={[styles.emptyText, { color: colors.textTertiary }]}>No aging takes yet</Text>
+            ) : (
+              agingTakes.map((at: any) => (
+                <TouchableOpacity key={at.id} style={[styles.takeRow, { borderBottomColor: colors.border }]} activeOpacity={0.7} onPress={() => router.push(`/take/${at.take?.id}`)}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+                    <Text style={{ fontFamily: Fonts.barlowBold, fontSize: 11, color: at.status === 'AGED' ? '#EAB308' : at.status === 'AGING' ? '#3B82F6' : colors.textTertiary, textTransform: 'uppercase' as const }}>{at.status}</Text>
+                  </View>
+                  <Text style={[styles.takeContent, { color: colors.text }]}>{at.take?.content}</Text>
+                  <Text style={{ fontFamily: Fonts.barlow, fontSize: 12, color: colors.textTertiary }}>
+                    Revisit: {new Date(at.revisitDate).toLocaleDateString()}
+                  </Text>
+                </TouchableOpacity>
+              ))
+            )}
+          </>
         )}
 
         <View style={{ height: 40 }} />

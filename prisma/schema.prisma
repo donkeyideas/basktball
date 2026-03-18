@@ -542,6 +542,11 @@ model User {
   avatarUrl       String?
   location        String?
 
+  // Bot configuration
+  isBot           Boolean  @default(false)
+  botPersonality  String?  @db.Text
+  botActive       Boolean  @default(false)
+
   // Basketball preferences
   favoriteTeams   String[]
   favoritePlayers String[]
@@ -605,6 +610,7 @@ model User {
   challengesReceived Challenge[]      @relation("ChallengedUser")
   challengesWon      Challenge[]      @relation("ChallengeWinner")
   challengeVotes     ChallengeVote[]
+  notifications      Notification[]
 
   @@index([email])
   @@index([displayName])
@@ -928,6 +934,23 @@ enum StreakType {
   NEUTRAL
 }
 
+enum NotificationType {
+  FIRE
+  BRICK
+  REPLY
+  REPOST
+  FOLLOW
+  CHALLENGE
+  CHALLENGE_ACCEPT
+  CHALLENGE_VOTE
+  CHALLENGE_RESULT
+  PREDICTION_RESOLVED
+  AGING_RESURFACED
+  STAT_CHECK
+  MENTION
+  POLL_ENDED
+}
+
 model Take {
   id          String      @id @default(cuid())
   content     String      @db.VarChar(2000)
@@ -1184,4 +1207,26 @@ model AgingTake {
   @@index([userId])
   @@index([revisitDate])
   @@index([status])
+}
+
+// =============================================================================
+// NOTIFICATION SYSTEM
+// =============================================================================
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String?
+  data      Json?
+  read      Boolean          @default(false)
+  pushed    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
+  @@index([createdAt])
 }

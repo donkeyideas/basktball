@@ -30,6 +30,10 @@
     {
       "path": "/api/cron/resurface-aged",
       "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/bot-post",
+      "schedule": "0 */3 * * *"
     }
   ]
 }

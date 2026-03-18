@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 // --- Types ---
 
@@ -208,6 +209,7 @@ function BookmarkIcon({ active }: { active: boolean }) {
 // --- Component ---
 
 export default function TakeCard({ take, currentUserId, currentUserRole, onReact, onBookmark, onRepost, onDelete, onPollVote, onReply, onStatCheck, onChallenge, onAge, statCheckLoading }: TakeCardProps) {
+  const router = useRouter();
   const [hovered, setHovered] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [votingOptionId, setVotingOptionId] = useState<string | null>(null);
@@ -438,15 +440,25 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
       {/* Header row: avatar + name/handle/time + menu */}
       <div style={{ ...headerRowStyle, justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: "10px" }}>
-          <div style={avatarStyle}>
+          <span
+            role="link"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(`/user/${take.author.name}`); }}
+            style={{ ...avatarStyle, textDecoration: "none", color: "inherit", cursor: "pointer" }}
+          >
             {avatarSrc ? (
               <img src={avatarSrc} alt={take.author.displayName || take.author.name} style={avatarImgStyle} />
             ) : (
               getInitial(take.author.displayName || take.author.name)
             )}
-          </div>
+          </span>
           <div style={metaStyle}>
-            <span style={displayNameStyle}>{take.author.displayName || take.author.name}</span>
+            <span
+              role="link"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(`/user/${take.author.name}`); }}
+              style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}
+            >
+              <span style={displayNameStyle}>{take.author.displayName || take.author.name}</span>
+            </span>
             {take.author.streakType === "HOT" && take.author.streakCount && take.author.streakCount > 0 && (
               <span title={`${take.author.streakCount} hot streak`} style={{ display: "inline-flex", alignItems: "center", gap: "2px", fontSize: "12px", color: "#FF6B35", fontWeight: 700, fontFamily: "var(--font-mono), monospace" }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="#FF6B35" stroke="#FF6B35" strokeWidth="1"><path d="M12 12c2-2.96 0-7-1-8 0 3.04-4 6.5-4 8s2.05 4 5 4 5-2 5-4c0-2-2-3-3-3-1 2-2 3-2 3z" /></svg>

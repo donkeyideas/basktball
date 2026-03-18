@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
+import { createNotification } from "@/lib/notifications/service";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -26,17 +27,39 @@ export async function GET(request: NextRequest) {
 async function resurfaceAgedTakes() {
   const now = new Date();
 
-  // Find AgingTakes where revisitDate has passed and status is still AGING
-  const result = await prisma.agingTake.updateMany({
+  // Find aging takes to resurface (need individual records for notifications)
+  const agingTakes = await prisma.agingTake.findMany({
     where: {
       revisitDate: { lte: now },
       status: "AGING",
+    },
+    select: { id: true, userId: true, takeId: true },
+  });
+
+  if (agingTakes.length === 0) {
+    return { success: true, resurfacedCount: 0 };
+  }
+
+  // Bulk update
+  const result = await prisma.agingTake.updateMany({
+    where: {
+      id: { in: agingTakes.map((a) => a.id) },
     },
     data: {
       status: "AGED",
       resurfacedAt: now,
     },
   });
+
+  // Notify each user
+  for (const agingTake of agingTakes) {
+    createNotification({
+      userId: agingTake.userId,
+      type: "AGING_RESURFACED",
+      title: "Your aging take has resurfaced!",
+      data: { takeId: agingTake.takeId },
+    }).catch(() => {});
+  }
 
   return {
     success: true,

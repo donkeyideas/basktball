@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
+import { createNotification } from "@/lib/notifications/service";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -78,6 +79,23 @@ async function resolveChallenges() {
           where: { id: loserId },
           data: { challengeLosses: { increment: 1 } },
         });
+
+        // Notify both participants
+        createNotification({
+          userId: winnerId,
+          type: "CHALLENGE_RESULT",
+          title: "You won your challenge!",
+          body: challenge.topic,
+          data: { challengeId: challenge.id },
+        }).catch(() => {});
+
+        createNotification({
+          userId: loserId,
+          type: "CHALLENGE_RESULT",
+          title: "You lost your challenge",
+          body: challenge.topic,
+          data: { challengeId: challenge.id },
+        }).catch(() => {});
 
         completedCount++;
       }

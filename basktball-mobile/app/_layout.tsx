@@ -3,10 +3,20 @@ import { useFonts } from 'expo-font';
 import { Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AuthProvider } from '@/lib/auth/AuthContext';
+import * as Notifications from 'expo-notifications';
+import { AuthProvider, useAuth } from '@/lib/auth/AuthContext';
 import { ThemeProvider, useTheme } from '@/lib/theme/ThemeContext';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -102,10 +112,6 @@ function ThemedStack() {
           <Stack.Screen name="onboarding" options={{ headerShown: false, animation: 'fade' }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen
-            name="(admin)"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
             name="game/[id]"
             options={{ headerShown: false }}
           />
@@ -142,10 +148,56 @@ function ThemedStack() {
   );
 }
 
+function PushNotificationRegistrar() {
+  const { user, api } = useAuth();
+
+  useEffect(() => {
+    if (!user) return;
+
+    async function registerPush() {
+      try {
+        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
+        if (existingStatus !== 'granted') {
+          const { status } = await Notifications.requestPermissionsAsync();
+          finalStatus = status;
+        }
+        if (finalStatus !== 'granted') return;
+
+        const tokenData = await Notifications.getExpoPushTokenAsync();
+        const platform = Platform.OS === 'ios' ? 'ios' : 'android';
+
+        await api.post('/mobile/notifications/register-device', {
+          token: tokenData.data,
+          platform,
+        });
+      } catch (err) {
+        console.log('Push registration failed:', err);
+      }
+    }
+
+    registerPush();
+  }, [user]);
+
+  // Handle notification tap
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      const data = response.notification.request.content.data;
+      if (data?.takeId) {
+        router.push(`/take/${data.takeId}` as never);
+      }
+    });
+    return () => subscription.remove();
+  }, []);
+
+  return null;
+}
+
 function RootLayoutNav() {
   return (
     <AuthProvider>
       <ThemeProvider>
+        <PushNotificationRegistrar />
         <ThemedStack />
       </ThemeProvider>
     </AuthProvider>

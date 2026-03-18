@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Header, Footer } from "@/components";
@@ -22,7 +22,7 @@ interface Profile {
 }
 
 export default function ProfilePage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const router = useRouter();
 
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -36,6 +36,8 @@ export default function ProfilePage() {
   const [handle, setHandle] = useState("");
   const [bio, setBio] = useState("");
   const [location, setLocation] = useState("");
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -93,6 +95,52 @@ export default function ProfilePage() {
     }
   }, [displayName, handle, bio, location]);
 
+  const handleAvatarUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Image too large (max 5MB)");
+      return;
+    }
+
+    setUploadingAvatar(true);
+    setError(null);
+
+    try {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = (reader.result as string).split(",")[1];
+        const res = await fetch("/api/account/avatar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: base64, mimeType: file.type }),
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.message || "Failed to upload avatar");
+          setUploadingAvatar(false);
+          return;
+        }
+
+        setProfile((prev) => prev ? { ...prev, avatarUrl: data.avatarUrl } : prev);
+        setSuccess("Avatar updated!");
+        setTimeout(() => setSuccess(null), 3000);
+        // Trigger NextAuth session update to refresh avatar in header
+        await update();
+        setUploadingAvatar(false);
+      };
+      reader.readAsDataURL(file);
+    } catch {
+      setError("Failed to upload avatar");
+      setUploadingAvatar(false);
+    }
+
+    // Reset file input
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }, []);
+
   if (status === "loading" || loading) {
     return (
       <>
@@ -132,25 +180,69 @@ export default function ProfilePage() {
             gap: "16px",
             marginBottom: "32px",
           }}>
-            <div style={{
-              width: 72,
-              height: 72,
-              borderRadius: "50%",
-              background: "#FF6B35",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: "28px",
-              fontWeight: "700",
-              color: "#fff",
-              overflow: "hidden",
-              fontFamily: "var(--font-barlow)",
-              flexShrink: 0,
-            }}>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={handleAvatarUpload}
+              style={{ display: "none" }}
+            />
+            <div
+              onClick={() => !uploadingAvatar && fileInputRef.current?.click()}
+              style={{
+                width: 72,
+                height: 72,
+                borderRadius: "50%",
+                background: "#FF6B35",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "28px",
+                fontWeight: "700",
+                color: "#fff",
+                overflow: "hidden",
+                fontFamily: "var(--font-barlow)",
+                flexShrink: 0,
+                cursor: "pointer",
+                position: "relative",
+                opacity: uploadingAvatar ? 0.6 : 1,
+              }}
+              title="Click to change avatar"
+            >
               {avatarSrc ? (
                 <img src={avatarSrc} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               ) : (
                 (profile?.displayName || profile?.name || "U").charAt(0).toUpperCase()
+              )}
+              {!uploadingAvatar && (
+                <div style={{
+                  position: "absolute",
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  background: "rgba(0,0,0,0.6)",
+                  padding: "2px 0",
+                  fontSize: "10px",
+                  textAlign: "center",
+                  fontFamily: "var(--font-barlow)",
+                  fontWeight: 600,
+                }}>
+                  EDIT
+                </div>
+              )}
+              {uploadingAvatar && (
+                <div style={{
+                  position: "absolute",
+                  inset: 0,
+                  background: "rgba(0,0,0,0.5)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "11px",
+                  fontFamily: "var(--font-barlow)",
+                }}>
+                  ...
+                </div>
               )}
             </div>
             <div>

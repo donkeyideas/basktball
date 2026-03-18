@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
+import { NotificationBell } from "./NotificationBell";
 
 const GOOGLE_PLAY_URL = "https://play.google.com/store/apps/details?id=com.basktball.app";
 const APP_STORE_URL = ""; // Add when available
@@ -46,12 +47,12 @@ export function Header() {
         <div className="top-bar-apps">
           {GOOGLE_PLAY_URL && (
             <a href={GOOGLE_PLAY_URL} target="_blank" rel="noopener noreferrer" className="app-badge-link" title="Get it on Google Play">
-              <Image src="/images/google-play-badge.svg" alt="Get it on Google Play" width={110} height={32} />
+              <Image src="/images/google-play-badge.svg" alt="Get it on Google Play" width={110} height={32} style={{ width: "auto", height: "auto" }} />
             </a>
           )}
           {APP_STORE_URL && (
             <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="app-badge-link" title="Download on the App Store">
-              <Image src="/images/app-store-badge.svg" alt="Download on the App Store" width={110} height={32} />
+              <Image src="/images/app-store-badge.svg" alt="Download on the App Store" width={110} height={32} style={{ width: "auto", height: "auto" }} />
             </a>
           )}
         </div>
@@ -137,6 +138,7 @@ export function Header() {
 
         {/* User auth section */}
         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginLeft: "16px" }}>
+          {session?.user && <NotificationBell />}
           {session?.user ? (
             <div style={{ position: "relative" }}>
               <button
@@ -188,6 +190,22 @@ export function Header() {
                   minWidth: "150px",
                   zIndex: 100,
                 }}>
+                  <Link
+                    href={`/user/${session.user.name}`}
+                    onClick={() => setUserMenuOpen(false)}
+                    style={{
+                      display: "block",
+                      width: "100%",
+                      padding: "8px 16px",
+                      color: "rgba(255,255,255,0.8)",
+                      fontSize: "13px",
+                      textDecoration: "none",
+                      fontFamily: "var(--font-barlow)",
+                      fontWeight: 600,
+                    }}
+                  >
+                    View Profile
+                  </Link>
                   <Link
                     href="/profile"
                     onClick={() => setUserMenuOpen(false)}
@@ -264,12 +282,12 @@ export function Header() {
             <div style={{ display: "flex", gap: "8px", marginTop: "12px", justifyContent: "center" }}>
               {GOOGLE_PLAY_URL && (
                 <a href={GOOGLE_PLAY_URL} target="_blank" rel="noopener noreferrer">
-                  <Image src="/images/google-play-badge.svg" alt="Get it on Google Play" width={120} height={36} />
+                  <Image src="/images/google-play-badge.svg" alt="Get it on Google Play" width={120} height={36} style={{ width: "auto", height: "auto" }} />
                 </a>
               )}
               {APP_STORE_URL && (
                 <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer">
-                  <Image src="/images/app-store-badge.svg" alt="Download on the App Store" width={120} height={36} />
+                  <Image src="/images/app-store-badge.svg" alt="Download on the App Store" width={120} height={36} style={{ width: "auto", height: "auto" }} />
                 </a>
               )}
             </div>

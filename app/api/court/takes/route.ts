@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth";
 import { getCourtUser } from "@/lib/court/auth";
 import { detectPrediction } from "@/lib/court/prediction-detector";
+import { createNotification } from "@/lib/notifications/service";
 
 export async function POST(request: Request) {
   try {
@@ -73,10 +74,20 @@ export async function POST(request: Request) {
     });
 
     if (parentId) {
-      await prisma.take.update({
+      const parentTake = await prisma.take.update({
         where: { id: parentId },
         data: { replyCount: { increment: 1 } },
+        select: { authorId: true, content: true },
       });
+
+      createNotification({
+        userId: parentTake.authorId,
+        type: "REPLY",
+        title: "Someone replied to your take",
+        body: content.trim().slice(0, 100),
+        data: { takeId: take.id, parentTakeId: parentId },
+        actorId: user.id,
+      }).catch(() => {});
     }
 
     // Fire-and-forget: detect if this take is a prediction

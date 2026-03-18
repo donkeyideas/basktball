@@ -1,20 +1,122 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, RefreshControl, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Colors, Fonts } from '@/constants/Colors';
+import { useAuth } from '@/lib/auth/AuthContext';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-const MOCK_NOTIFICATIONS = [
-  { id: '1', type: 'game', icon: 'basketball' as const, title: 'Lakers vs Celtics starting now!', time: '2m ago', read: false },
-  { id: '2', type: 'reply', icon: 'chatbubble' as const, title: 'HoopsAnalyst replied to your take', time: '1h ago', read: false },
-  { id: '3', type: 'fire', icon: 'flame' as const, title: 'Your take got 100 fires!', time: '3h ago', read: false },
-  { id: '4', type: 'game', icon: 'basketball' as const, title: 'Thunder 110 - Nuggets 105 (FINAL)', time: '5h ago', read: true },
-  { id: '5', type: 'follow', icon: 'person-add' as const, title: 'CourtVision started following you', time: '8h ago', read: true },
-  { id: '6', type: 'game', icon: 'basketball' as const, title: 'Warriors vs Suns starting soon', time: '1d ago', read: true },
-];
+interface Notification {
+  id: string;
+  type: string;
+  title: string;
+  body: string | null;
+  read: boolean;
+  data: Record<string, string> | null;
+  createdAt: string;
+}
+
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d ago`;
+}
+
+const NOTIF_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
+  FIRE: 'flame',
+  BRICK: 'cube',
+  REPLY: 'chatbubble',
+  REPOST: 'repeat',
+  FOLLOW: 'person-add',
+  CHALLENGE: 'flag',
+  CHALLENGE_ACCEPT: 'checkmark-circle',
+  CHALLENGE_VOTE: 'thumbs-up',
+  CHALLENGE_RESULT: 'trophy',
+  PREDICTION_RESOLVED: 'receipt',
+  AGING_RESURFACED: 'time',
+  STAT_CHECK: 'search',
+  MENTION: 'at',
+  POLL_ENDED: 'bar-chart',
+};
 
 export default function NotificationsScreen() {
+  const { api } = useAuth();
+  const queryClient = useQueryClient();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: async () => {
+      const res = await api.get('/mobile/notifications?limit=50');
+      return res.data;
+    },
+    staleTime: 30000,
+  });
+
+  const notifications: Notification[] = data?.notifications || [];
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    setRefreshing(false);
+  }, [queryClient]);
+
+  const handleNotifPress = async (notif: Notification) => {
+    // Mark as read
+    if (!notif.read) {
+      api.patch('/mobile/notifications', { notificationId: notif.id }).catch(() => {});
+      queryClient.setQueryData(['notifications'], (old: { notifications: Notification[] } | undefined) => {
+        if (!old) return old;
+        return {
+          ...old,
+          notifications: old.notifications.map((n: Notification) =>
+            n.id === notif.id ? { ...n, read: true } : n
+          ),
+        };
+      });
+    }
+
+    // Navigate based on type
+    if (notif.data?.takeId) {
+      router.push(`/take/${notif.data.takeId}` as never);
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    await api.patch('/mobile/notifications', { markAllRead: true });
+    queryClient.invalidateQueries({ queryKey: ['notifications'] });
+  };
+
+  const renderItem = ({ item }: { item: Notification }) => {
+    const iconName = NOTIF_ICONS[item.type] || 'notifications';
+
+    return (
+      <TouchableOpacity
+        style={[styles.notifRow, !item.read && styles.notifUnread]}
+        activeOpacity={0.7}
+        onPress={() => handleNotifPress(item)}
+      >
+        <View style={[styles.notifIcon, !item.read && styles.notifIconUnread]}>
+          <Ionicons name={iconName} size={20} color={!item.read ? Colors.orange : Colors.textSecondary} />
+        </View>
+        <View style={styles.notifContent}>
+          <Text style={[styles.notifText, !item.read && styles.notifTextUnread]}>{item.title}</Text>
+          {item.body ? (
+            <Text style={styles.notifBody} numberOfLines={1}>{item.body}</Text>
+          ) : null}
+          <Text style={styles.notifTime}>{timeAgo(item.createdAt)}</Text>
+        </View>
+        {!item.read && <View style={styles.unreadDot} />}
+      </TouchableOpacity>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
@@ -22,27 +124,35 @@ export default function NotificationsScreen() {
           <Ionicons name="arrow-back" size={24} color={Colors.white} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>NOTIFICATIONS</Text>
-        <View style={{ width: 40 }} />
+        <TouchableOpacity onPress={handleMarkAllRead} style={{ padding: 8 }}>
+          <Ionicons name="checkmark-done" size={22} color={Colors.orange} />
+        </TouchableOpacity>
       </View>
 
-      <FlatList
-        data={MOCK_NOTIFICATIONS}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={[styles.notifRow, !item.read && styles.notifUnread]} activeOpacity={0.7}>
-            <View style={[styles.notifIcon, !item.read && styles.notifIconUnread]}>
-              <Ionicons name={item.icon} size={20} color={!item.read ? Colors.orange : Colors.textSecondary} />
+      {isLoading ? (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator color={Colors.orange} />
+        </View>
+      ) : (
+        <FlatList
+          data={notifications}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          contentContainerStyle={styles.list}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.orange} />
+          }
+          ListEmptyComponent={
+            <View style={{ padding: 40, alignItems: 'center' }}>
+              <Ionicons name="notifications-off" size={40} color={Colors.textTertiary} />
+              <Text style={{ fontFamily: Fonts.barlow, fontSize: 14, color: Colors.textTertiary, marginTop: 12 }}>
+                No notifications yet
+              </Text>
             </View>
-            <View style={styles.notifContent}>
-              <Text style={[styles.notifText, !item.read && styles.notifTextUnread]}>{item.title}</Text>
-              <Text style={styles.notifTime}>{item.time}</Text>
-            </View>
-            {!item.read && <View style={styles.unreadDot} />}
-          </TouchableOpacity>
-        )}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        contentContainerStyle={styles.list}
-      />
+          }
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -84,6 +194,10 @@ const styles = StyleSheet.create({
   },
   notifTextUnread: {
     fontFamily: Fonts.barlowSemiBold, color: Colors.white,
+  },
+  notifBody: {
+    fontFamily: Fonts.barlow, fontSize: 12,
+    color: Colors.textTertiary, marginTop: 2,
   },
   notifTime: {
     fontFamily: Fonts.mono, fontSize: 11,

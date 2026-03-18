@@ -75,6 +75,9 @@ export const authConfig: NextAuthConfig = {
             }
           }
 
+          // Block bot login
+          if (user.isBot) return null;
+
           // Check ban status
           if (user.status === "BANNED") return null;
           if (user.status === "SUSPENDED" && user.bannedUntil && user.bannedUntil > new Date()) {
@@ -101,6 +104,9 @@ export const authConfig: NextAuthConfig = {
         });
 
         if (!user || !user.passwordHash) return null;
+
+        // Block bot login
+        if (user.isBot) return null;
 
         const isValid = await bcrypt.compare(password, user.passwordHash);
         if (!isValid) return null;
@@ -131,15 +137,18 @@ export const authConfig: NextAuthConfig = {
       if (user) {
         token.role = (user as { role?: string }).role;
         token.userId = user.id;
+        token.picture = user.image;
       }
-      // On session update, refresh role from DB
+      // On session update, refresh role and avatar from DB
       if (trigger === "update" && token.userId) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.userId as string },
-          select: { role: true, status: true, displayName: true },
+          select: { role: true, status: true, displayName: true, name: true, avatarUrl: true, image: true },
         });
         if (dbUser) {
           token.role = dbUser.role;
+          token.picture = dbUser.avatarUrl || dbUser.image;
+          token.name = dbUser.displayName || dbUser.name;
         }
       }
       return token;
@@ -149,6 +158,9 @@ export const authConfig: NextAuthConfig = {
       if (session.user) {
         (session.user as { id?: string }).id = token.userId as string;
         (session.user as { role?: string }).role = token.role as string;
+        if (token.picture) {
+          session.user.image = token.picture as string;
+        }
       }
       return session;
     },

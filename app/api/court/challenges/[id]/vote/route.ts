@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { getDualUser } from "@/lib/court/dual-auth";
+import { createNotification } from "@/lib/notifications/service";
 
 export const dynamic = "force-dynamic";
 
@@ -110,6 +111,23 @@ export async function POST(
         },
       }),
     ]);
+
+    // Notify both participants about the vote
+    createNotification({
+      userId: challenge.challengerId,
+      type: "CHALLENGE_VOTE",
+      title: "Someone voted on your challenge!",
+      data: { challengeId: id },
+      actorId: user.id,
+    }).catch(() => {});
+
+    createNotification({
+      userId: challenge.challengedId,
+      type: "CHALLENGE_VOTE",
+      title: "Someone voted on your challenge!",
+      data: { challengeId: id },
+      actorId: user.id,
+    }).catch(() => {});
 
     return NextResponse.json({
       vote: {

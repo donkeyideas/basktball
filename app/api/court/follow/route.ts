@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth";
 import { getCourtUser } from "@/lib/court/auth";
+import { createNotification } from "@/lib/notifications/service";
 
 export async function POST(request: Request) {
   try {
@@ -56,6 +57,15 @@ export async function POST(request: Request) {
           data: { followerCount: { increment: 1 } },
         }),
       ]);
+
+      createNotification({
+        userId: targetUserId,
+        type: "FOLLOW",
+        title: "You have a new follower!",
+        data: { followerId: user.id },
+        actorId: user.id,
+      }).catch(() => {});
+
       return NextResponse.json({ action: "followed" });
     }
   } catch (error) {

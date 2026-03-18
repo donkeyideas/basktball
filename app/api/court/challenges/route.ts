@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { getDualUser } from "@/lib/court/dual-auth";
+import { createNotification } from "@/lib/notifications/service";
 
 export const dynamic = "force-dynamic";
 
@@ -182,6 +183,16 @@ export async function POST(request: Request) {
         },
       },
     });
+
+    // Notify the challenged user
+    createNotification({
+      userId: challengedId,
+      type: "CHALLENGE",
+      title: "You've been challenged!",
+      body: topic.trim().slice(0, 100),
+      data: { challengeId: challenge.id },
+      actorId: user.id,
+    }).catch(() => {});
 
     return NextResponse.json({ challenge }, { status: 201 });
   } catch (error) {

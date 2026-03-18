@@ -43,6 +43,7 @@ export default function CourtPage() {
   const [followLoading, setFollowLoading] = useState<Set<string>>(new Set());
   const [hasLiveGames, setHasLiveGames] = useState(false);
   const [liveGames, setLiveGames] = useState<{ id: string; homeTeam: { abbreviation: string; logoUrl?: string }; awayTeam: { abbreviation: string; logoUrl?: string }; homeScore: number; awayScore: number; status: string; quarter?: string; clock?: string }[]>([]);
+  const [activeChallenges, setActiveChallenges] = useState<{ id: string; topic: string; status: string; challenger: { displayName: string | null; name: string }; challenged: { displayName: string | null; name: string }; votesChallenger: number; votesChallenged: number }[]>([]);
 
   // Inline compose state
   const [composeContent, setComposeContent] = useState("");
@@ -114,10 +115,11 @@ export default function CourtPage() {
   // Fetch sidebar data
   const fetchSidebarData = useCallback(async () => {
     try {
-      const [newsRes, usersRes, liveRes] = await Promise.allSettled([
+      const [newsRes, usersRes, liveRes, challengesRes] = await Promise.allSettled([
         fetch("/api/news?limit=5"),
         fetch("/api/court/suggested-users"),
         fetch("/api/games/live"),
+        fetch("/api/court/challenges?limit=5"),
       ]);
 
       if (newsRes.status === "fulfilled" && newsRes.value.ok) {
@@ -133,6 +135,10 @@ export default function CourtPage() {
         const games = data.games || [];
         setHasLiveGames(games.length > 0);
         setLiveGames(games.slice(0, 5));
+      }
+      if (challengesRes.status === "fulfilled" && challengesRes.value.ok) {
+        const data = await challengesRes.value.json();
+        setActiveChallenges((data.challenges || []).slice(0, 5));
       }
     } catch {
       // Sidebar fetch failed silently
@@ -1254,6 +1260,80 @@ export default function CourtPage() {
                   >
                     View All Scores
                   </Link>
+                </div>
+              )}
+
+              {/* Active Challenges */}
+              {activeChallenges.length > 0 && (
+                <div style={{
+                  background: "#1A1A1A",
+                  borderRadius: "12px",
+                  border: "1px solid #2a2a2a",
+                  padding: "20px",
+                  marginBottom: "16px",
+                }}>
+                  <h3 style={{
+                    fontFamily: "var(--font-anton), Anton, sans-serif",
+                    fontSize: "14px",
+                    color: "#FF6B35",
+                    margin: "0 0 14px 0",
+                    letterSpacing: "1px",
+                    textTransform: "uppercase",
+                  }}>
+                    Active Challenges
+                  </h3>
+                  {activeChallenges.map((c) => (
+                    <div key={c.id} style={{
+                      padding: "10px 0",
+                      borderTop: "1px solid #2a2a2a",
+                    }}>
+                      <div style={{
+                        fontSize: "13px",
+                        color: "#fff",
+                        fontFamily: FONT,
+                        fontWeight: 600,
+                        marginBottom: "6px",
+                        lineHeight: "1.3",
+                      }}>
+                        {c.topic.length > 80 ? c.topic.slice(0, 77) + "..." : c.topic}
+                      </div>
+                      <div style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        fontSize: "12px",
+                        fontFamily: FONT,
+                      }}>
+                        <span style={{ color: "rgba(255,255,255,0.5)" }}>
+                          {c.challenger.displayName || c.challenger.name} vs {c.challenged.displayName || c.challenged.name}
+                        </span>
+                        <span style={{
+                          fontSize: "11px",
+                          color: c.status === "VOTING" ? "#EAB308" : "#22C55E",
+                          fontWeight: 700,
+                          textTransform: "uppercase",
+                        }}>
+                          {c.status}
+                        </span>
+                      </div>
+                      {(c.votesChallenger > 0 || c.votesChallenged > 0) && (
+                        <div style={{
+                          marginTop: "6px",
+                          height: "4px",
+                          borderRadius: "2px",
+                          background: "#333",
+                          overflow: "hidden",
+                          display: "flex",
+                        }}>
+                          <div style={{
+                            width: `${(c.votesChallenger / (c.votesChallenger + c.votesChallenged)) * 100}%`,
+                            background: "#FF6B35",
+                            borderRadius: "2px 0 0 2px",
+                          }} />
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
 

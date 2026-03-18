@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { deepseek } from "@/lib/ai";
+import { createNotification } from "@/lib/notifications/service";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -141,6 +142,15 @@ async function resolvePredictions() {
         where: { id: prediction.userId },
         data: userUpdate,
       });
+
+      // Notify user about prediction resolution
+      createNotification({
+        userId: prediction.userId,
+        type: "PREDICTION_RESOLVED",
+        title: verdict === "RECEIPT" ? "RECEIPT! Your prediction was correct!" : "BUST! Your prediction was wrong",
+        body: prediction.claim.slice(0, 100),
+        data: { predictionId: prediction.id, takeId: prediction.takeId, verdict },
+      }).catch(() => {});
 
       resolvedCount++;
     } catch (error) {

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { getDualUser } from "@/lib/court/dual-auth";
 import { deepseek } from "@/lib/ai";
+import { createNotification } from "@/lib/notifications/service";
 
 export const dynamic = "force-dynamic";
 
@@ -206,6 +207,18 @@ export async function POST(
         checkedAt: new Date(),
       },
     });
+
+    // Notify take author about stat check result
+    if (take.author.id !== user.id) {
+      createNotification({
+        userId: take.author.id,
+        type: "STAT_CHECK",
+        title: `Stat Check: ${overallStatus}`,
+        body: take.content.slice(0, 100),
+        data: { takeId: id, status: overallStatus },
+        actorId: user.id,
+      }).catch(() => {});
+    }
 
     return NextResponse.json({
       statCheck,

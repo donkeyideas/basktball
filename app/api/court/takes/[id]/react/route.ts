@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/lib/auth";
 import { getCourtUser } from "@/lib/court/auth";
+import { createNotification } from "@/lib/notifications/service";
 
 export async function POST(
   request: Request,
@@ -37,7 +38,7 @@ export async function POST(
       ]);
       return NextResponse.json({ action: "removed" });
     } else {
-      await prisma.$transaction([
+      const [, updatedTake] = await prisma.$transaction([
         prisma.takeReaction.create({
           data: { takeId, userId: user.id, type },
         }),
@@ -46,8 +47,20 @@ export async function POST(
           data: {
             [type === "FIRE" ? "fireCount" : "brickCount"]: { increment: 1 },
           },
+          select: { authorId: true, content: true },
         }),
       ]);
+
+      // Notify take author
+      createNotification({
+        userId: updatedTake.authorId,
+        type: type === "FIRE" ? "FIRE" : "BRICK",
+        title: type === "FIRE" ? "Your take got a Fire!" : "Your take got a Brick",
+        body: updatedTake.content.slice(0, 100),
+        data: { takeId },
+        actorId: user.id,
+      }).catch(() => {});
+
       return NextResponse.json({ action: "added" });
     }
   } catch (error) {
