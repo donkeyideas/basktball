@@ -9,6 +9,12 @@ interface BotPersonality {
   emojiUsage?: string;
 }
 
+interface BotTeam {
+  id: string;
+  name: string;
+  abbreviation: string;
+}
+
 function stripMarkdown(text: string): string {
   return text
     .replace(/\*\*(.+?)\*\*/g, "$1")
@@ -156,7 +162,7 @@ async function fetchRecentNewsHeadlines(): Promise<string[]> {
   return [];
 }
 
-async function generateWithAI(personality: BotPersonality, context: string): Promise<string | null> {
+async function generateWithAI(personality: BotPersonality, context: string, favoriteTeam?: BotTeam | null): Promise<string | null> {
   try {
     const { gemini } = await import("@/lib/ai/gemini");
     if (!process.env.GEMINI_API_KEY) return null;
@@ -170,7 +176,15 @@ async function generateWithAI(personality: BotPersonality, context: string): Pro
 
     const today = new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
-    const systemPrompt = `You are a basketball fan posting on a social media platform called The Court. Your personality: ${personality.tone} tone, interested in ${personality.interests.join(", ")}, ${personality.responseStyle} style.${personality.favoriteTeams ? ` You root for ${personality.favoriteTeams.join(", ")}.` : ""}
+    // 80% of the time, focus on the bot's favorite team
+    const shouldFocusTeam = favoriteTeam && Math.random() < 0.8;
+    const teamDirective = shouldFocusTeam
+      ? `\n- You are a DIE-HARD ${favoriteTeam.name} fan. This take MUST be about the ${favoriteTeam.name} (${favoriteTeam.abbreviation}) - their players, recent games, trades, or matchups. Show your passion for this team.`
+      : favoriteTeam
+        ? `\n- You are a ${favoriteTeam.name} fan but this time talk about the broader NBA landscape, other teams, or league-wide topics.`
+        : "";
+
+    const systemPrompt = `You are a basketball fan posting on a social media platform called The Court. Your personality: ${personality.tone} tone, interested in ${personality.interests.join(", ")}, ${personality.responseStyle} style.${favoriteTeam ? ` You are a ${favoriteTeam.name} fan.` : ""}
 
 Today's date is ${today}.
 
@@ -182,7 +196,7 @@ IMPORTANT RULES:
 - Be opinionated and engaging
 - You MUST reference current events, recent games, or recent news from this week
 - DO NOT write generic basketball opinions - be specific about players, teams, and recent happenings
-- Vary your style - sometimes ask a question, sometimes make a bold claim, sometimes a hot prediction`;
+- Vary your style - sometimes ask a question, sometimes make a bold claim, sometimes a hot prediction${teamDirective}`;
 
     const userPrompt = `Given this context about what's happening in basketball RIGHT NOW, write a fresh, timely hot take:\n\n${context}${newsContext}`;
 
@@ -203,12 +217,14 @@ IMPORTANT RULES:
   }
 }
 
-async function generateReplyWithAI(personality: BotPersonality, originalContent: string): Promise<string | null> {
+async function generateReplyWithAI(personality: BotPersonality, originalContent: string, favoriteTeam?: BotTeam | null): Promise<string | null> {
   try {
     const { gemini } = await import("@/lib/ai/gemini");
     if (!process.env.GEMINI_API_KEY) return null;
 
-    const systemPrompt = `You are a basketball fan replying to a post on a social media platform called The Court. Your personality: ${personality.tone} tone, ${personality.responseStyle} style.
+    const teamContext = favoriteTeam ? ` You are a ${favoriteTeam.name} fan, and your perspective is colored by that loyalty.` : "";
+
+    const systemPrompt = `You are a basketball fan replying to a post on a social media platform called The Court. Your personality: ${personality.tone} tone, ${personality.responseStyle} style.${teamContext}
 
 RULES:
 - Write a short reply (under 200 characters)
@@ -238,7 +254,10 @@ RULES:
 export async function generateBotTake(botUserId: string): Promise<string | null> {
   const bot = await prisma.user.findUnique({
     where: { id: botUserId },
-    select: { id: true, displayName: true, name: true, botPersonality: true, botActive: true, isBot: true },
+    select: {
+      id: true, displayName: true, name: true, botPersonality: true, botActive: true, isBot: true,
+      favoriteTeamId: true,
+    },
   });
 
   if (!bot || !bot.isBot || !bot.botActive) return null;
@@ -291,8 +310,18 @@ export async function generateBotTake(botUserId: string): Promise<string | null>
     context += "\n\nRecent game results:\n" + recentGames.map((g) => `- ${g.awayTeam.name} ${g.awayScore || 0} @ ${g.homeTeam.name} ${g.homeScore || 0} (FINAL)`).join("\n");
   }
 
+  // Fetch bot's favorite team if set
+  let favoriteTeam: BotTeam | null = null;
+  if (bot.favoriteTeamId) {
+    const team = await prisma.team.findUnique({
+      where: { id: bot.favoriteTeamId },
+      select: { id: true, name: true, abbreviation: true },
+    });
+    if (team) favoriteTeam = team;
+  }
+
   // Try AI first, fallback to pre-written content
-  const aiContent = await generateWithAI(personality, context);
+  const aiContent = await generateWithAI(personality, context, favoriteTeam);
   return aiContent || getFallbackTake(personality);
 }
 
@@ -345,7 +374,7 @@ export async function botReactToTakes(botUserId: string): Promise<void> {
 export async function botReplyToTakes(botUserId: string): Promise<void> {
   const bot = await prisma.user.findUnique({
     where: { id: botUserId },
-    select: { botPersonality: true, isBot: true, botActive: true },
+    select: { botPersonality: true, isBot: true, botActive: true, favoriteTeamId: true },
   });
   if (!bot || !bot.isBot || !bot.botActive) return;
 
@@ -354,6 +383,16 @@ export async function botReplyToTakes(botUserId: string): Promise<void> {
     personality = JSON.parse(bot.botPersonality || "{}");
   } catch {
     personality = { tone: "casual", interests: ["basketball"], responseStyle: "concise" };
+  }
+
+  // Fetch favorite team for reply context
+  let favoriteTeam: BotTeam | null = null;
+  if (bot.favoriteTeamId) {
+    const team = await prisma.team.findUnique({
+      where: { id: bot.favoriteTeamId },
+      select: { id: true, name: true, abbreviation: true },
+    });
+    if (team) favoriteTeam = team;
   }
 
   // Find recent takes to reply to (not own, not already replied to by this bot)
@@ -374,7 +413,7 @@ export async function botReplyToTakes(botUserId: string): Promise<void> {
     if (existingReply) continue;
 
     // Generate reply
-    const aiReply = await generateReplyWithAI(personality, take.content);
+    const aiReply = await generateReplyWithAI(personality, take.content, favoriteTeam);
     const replyContent = aiReply || pickRandom(FALLBACK_REPLIES);
 
     await prisma.take.create({

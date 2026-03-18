@@ -33,7 +33,7 @@
     },
     {
       "path": "/api/cron/bot-post",
-      "schedule": "0 */3 * * *"
+      "schedule": "0 * * * *"
     }
   ]
 }

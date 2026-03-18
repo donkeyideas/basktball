@@ -15,10 +15,19 @@ interface Bot {
   botActive: boolean;
   takeCount: number;
   createdAt: string;
+  favoriteTeamId: string | null;
+}
+
+interface NbaTeam {
+  id: string;
+  name: string;
+  abbreviation: string;
+  logoUrl: string | null;
 }
 
 export default function AdminBotsPage() {
   const [bots, setBots] = useState<Bot[]>([]);
+  const [teams, setTeams] = useState<NbaTeam[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [posting, setPosting] = useState<string | null>(null);
@@ -31,6 +40,7 @@ export default function AdminBotsPage() {
   const [bio, setBio] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [selectedPreset, setSelectedPreset] = useState("");
+  const [selectedTeam, setSelectedTeam] = useState("");
   const [creating, setCreating] = useState(false);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState("");
@@ -41,6 +51,7 @@ export default function AdminBotsPage() {
   const [editDisplayName, setEditDisplayName] = useState("");
   const [editBio, setEditBio] = useState("");
   const [editPreset, setEditPreset] = useState("");
+  const [editTeam, setEditTeam] = useState("");
   const [editAvatarFile, setEditAvatarFile] = useState<File | null>(null);
   const [editAvatarPreview, setEditAvatarPreview] = useState("");
   const [saving, setSaving] = useState(false);
@@ -51,6 +62,7 @@ export default function AdminBotsPage() {
       const res = await fetch("/api/admin/bots");
       const data = await res.json();
       setBots(data.bots || []);
+      if (data.teams) setTeams(data.teams);
     } catch {
       setError("Failed to load bots");
     } finally {
@@ -121,7 +133,7 @@ export default function AdminBotsPage() {
       const res = await fetch("/api/admin/bots", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ handle, displayName, bio, avatarUrl, personality }),
+        body: JSON.stringify({ handle, displayName, bio, avatarUrl, personality, favoriteTeamId: selectedTeam || null }),
       });
 
       if (!res.ok) {
@@ -146,6 +158,7 @@ export default function AdminBotsPage() {
       setBio("");
       setAvatarUrl("");
       setSelectedPreset("");
+      setSelectedTeam("");
       setAvatarFile(null);
       setAvatarPreview("");
       setShowCreate(false);
@@ -162,6 +175,7 @@ export default function AdminBotsPage() {
     setEditBot(bot);
     setEditDisplayName(bot.displayName);
     setEditBio(bot.bio || "");
+    setEditTeam(bot.favoriteTeamId || "");
     setEditAvatarFile(null);
     setEditAvatarPreview(bot.avatarUrl || "");
 
@@ -202,6 +216,7 @@ export default function AdminBotsPage() {
       const body: Record<string, unknown> = {
         displayName: editDisplayName,
         bio: editBio,
+        favoriteTeamId: editTeam || null,
       };
       if (personality) body.personality = personality;
 
@@ -384,6 +399,15 @@ export default function AdminBotsPage() {
                 ))}
               </select>
             </div>
+            <div>
+              <label style={labelStyle}>Favorite Team</label>
+              <select value={selectedTeam} onChange={(e) => setSelectedTeam(e.target.value)} style={inputStyle}>
+                <option value="">No team (general NBA)</option>
+                {teams.map((t) => (
+                  <option key={t.id} value={t.id}>{t.name} ({t.abbreviation})</option>
+                ))}
+              </select>
+            </div>
             <div style={{ gridColumn: "1 / -1" }}>
               <label style={labelStyle}>Bio</label>
               <textarea value={bio} onChange={(e) => setBio(e.target.value)} placeholder="Short bio for the bot profile..." rows={2} style={{ ...inputStyle, resize: "vertical" as const }} />
@@ -411,6 +435,7 @@ export default function AdminBotsPage() {
             let personality: { tone?: string; interests?: string[] } = {};
             try { personality = JSON.parse(bot.botPersonality || "{}"); } catch { /* */ }
             const avatar = bot.avatarUrl || bot.image;
+            const botTeam = teams.find((t) => t.id === bot.favoriteTeamId);
 
             return (
               <div key={bot.id} style={{ background: "rgba(255,255,255,0.05)", borderRadius: "12px", padding: "20px", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", gap: "16px" }}>
@@ -447,6 +472,7 @@ export default function AdminBotsPage() {
                   </div>
                   <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "13px", marginTop: "4px" }}>
                     {bot.takeCount} takes &middot; {personality.tone || "default"} tone &middot; {(personality.interests || []).join(", ") || "basketball"}
+                    {botTeam && <> &middot; <span style={{ color: "#F97316" }}>{botTeam.abbreviation}</span> fan</>}
                   </div>
                   {bot.bio && <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px", marginTop: "2px" }}>{bot.bio}</div>}
                 </div>
@@ -620,12 +646,23 @@ export default function AdminBotsPage() {
             </div>
 
             {/* Personality */}
-            <div style={{ marginBottom: "24px" }}>
+            <div style={{ marginBottom: "16px" }}>
               <label style={labelStyle}>Personality Preset</label>
               <select value={editPreset} onChange={(e) => setEditPreset(e.target.value)} style={inputStyle}>
                 <option value="">Keep Current</option>
                 {PERSONALITY_PRESETS.map((p) => (
                   <option key={p.name} value={p.name}>{p.name} - {p.description}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Favorite Team */}
+            <div style={{ marginBottom: "24px" }}>
+              <label style={labelStyle}>Favorite Team <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "11px" }}>(~80% of takes will focus on this team)</span></label>
+              <select value={editTeam} onChange={(e) => setEditTeam(e.target.value)} style={inputStyle}>
+                <option value="">No team (general NBA)</option>
+                {teams.map((t) => (
+                  <option key={t.id} value={t.id}>{t.name} ({t.abbreviation})</option>
                 ))}
               </select>
             </div>

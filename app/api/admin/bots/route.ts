@@ -30,11 +30,19 @@ export async function GET() {
       botActive: true,
       takeCount: true,
       createdAt: true,
+      favoriteTeamId: true,
     },
     orderBy: { createdAt: "desc" },
   });
 
-  return NextResponse.json({ bots });
+  // Fetch all NBA teams for the team selector
+  const teams = await prisma.team.findMany({
+    where: { league: "NBA" },
+    select: { id: true, name: true, abbreviation: true, logoUrl: true },
+    orderBy: { name: "asc" },
+  });
+
+  return NextResponse.json({ bots, teams });
 }
 
 export async function POST(request: Request) {
@@ -42,7 +50,7 @@ export async function POST(request: Request) {
   if (!user) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
   const body = await request.json();
-  const { handle, displayName, bio, personality, avatarUrl } = body;
+  const { handle, displayName, bio, personality, avatarUrl, favoriteTeamId } = body;
 
   if (!handle || !displayName) {
     return NextResponse.json({ message: "Handle and display name are required" }, { status: 400 });
@@ -70,6 +78,7 @@ export async function POST(request: Request) {
       isBot: true,
       botActive: true,
       botPersonality: personality ? JSON.stringify(personality) : null,
+      favoriteTeamId: favoriteTeamId || null,
       role: "USER",
       status: "ACTIVE",
     },
@@ -84,6 +93,7 @@ export async function POST(request: Request) {
       botActive: true,
       takeCount: true,
       createdAt: true,
+      favoriteTeamId: true,
     },
   });
 

@@ -34,6 +34,7 @@ export async function GET(
       botActive: true,
       takeCount: true,
       createdAt: true,
+      favoriteTeamId: true,
     },
   });
 
@@ -53,7 +54,7 @@ export async function PATCH(
 
   const { id } = await params;
   const body = await request.json();
-  const { displayName, bio, personality, avatarUrl, botActive } = body;
+  const { displayName, bio, personality, avatarUrl, botActive, favoriteTeamId } = body;
 
   const existing = await prisma.user.findUnique({
     where: { id, isBot: true },
@@ -72,6 +73,9 @@ export async function PATCH(
   if (personality !== undefined) {
     data.botPersonality = personality ? JSON.stringify(personality) : null;
   }
+  if (favoriteTeamId !== undefined) {
+    data.favoriteTeamId = favoriteTeamId || null;
+  }
 
   const bot = await prisma.user.update({
     where: { id },
@@ -88,6 +92,7 @@ export async function PATCH(
       botActive: true,
       takeCount: true,
       createdAt: true,
+      favoriteTeamId: true,
     },
   });
 
