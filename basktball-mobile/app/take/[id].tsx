@@ -48,6 +48,7 @@ interface TakeData {
     endsAt: string | null;
     options: Array<{ id: string; text: string; voteCount: number; position: number }>;
   } | null;
+  statCheck?: { overallStatus: string; claims: unknown } | null;
 }
 
 interface TakeDetail extends TakeData {
@@ -82,6 +83,7 @@ export default function TakeDetailScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [statCheckLoading, setStatCheckLoading] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTake();
@@ -147,6 +149,22 @@ export default function TakeDetailScreen() {
       fetchTake();
     } catch {
       // silently fail
+    }
+  }
+
+  async function handleStatCheck(takeId: string) {
+    if (!requireAuth()) return;
+    setStatCheckLoading(takeId);
+    try {
+      const res: any = await api.post(`/court/takes/${takeId}/stat-check`, {});
+      if (res.statCheck) {
+        setTake(prev => prev ? { ...prev, statCheck: res.statCheck } : prev);
+        Alert.alert('Stat Check', `Result: ${res.statCheck.overallStatus}`);
+      }
+    } catch (err: any) {
+      Alert.alert('Error', err?.message || 'Stat check is not available right now.');
+    } finally {
+      setStatCheckLoading(null);
     }
   }
 
@@ -283,6 +301,18 @@ export default function TakeDetailScreen() {
           </TouchableOpacity>
           <TouchableOpacity style={styles.reactionItem} activeOpacity={0.7} onPress={() => handleBookmark(item.id)}>
             <Ionicons name="bookmark-outline" size={isMainTake ? 20 : 16} color={colors.textTertiary} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.reactionItem}
+            activeOpacity={0.7}
+            disabled={statCheckLoading === item.id}
+            onPress={() => handleStatCheck(item.id)}
+          >
+            {statCheckLoading === item.id ? (
+              <ActivityIndicator size="small" color={Colors.orange} />
+            ) : (
+              <Ionicons name="search" size={isMainTake ? 20 : 16} color={colors.textTertiary} />
+            )}
           </TouchableOpacity>
           {isMainTake && (
             <View style={styles.reactionItem}>

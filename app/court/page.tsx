@@ -282,13 +282,17 @@ export default function CourtPage() {
     try {
       const res = await fetch(`/api/court/takes/${takeId}/stat-check`, { method: "POST" });
       const data = await res.json();
+      if (!res.ok) {
+        alert(data.message || "Failed to run stat check");
+        return;
+      }
       if (data.statCheck) {
         setTakes((prev) =>
           prev.map((t) => (t.id === takeId ? { ...t, statCheck: data.statCheck } : t))
         );
       }
     } catch {
-      // silently fail
+      alert("Stat check is not available right now. Please try again later.");
     } finally {
       setStatCheckLoading(null);
     }

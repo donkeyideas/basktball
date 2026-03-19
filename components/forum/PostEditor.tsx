@@ -89,7 +89,7 @@ export default function PostEditor({ onSubmit, placeholder = "Write your reply..
           background: "#0D0D0D",
           color: "#fff",
           fontSize: "14px",
-          fontFamily: "var(--font-barlow)",
+          fontFamily: "var(--font-inter)",
           resize: "vertical",
           outline: "none",
           boxSizing: "border-box",
@@ -110,7 +110,7 @@ export default function PostEditor({ onSubmit, placeholder = "Write your reply..
             color: content.trim() ? "#3B82F6" : "rgba(255,255,255,0.3)",
             fontSize: "13px",
             cursor: content.trim() ? "pointer" : "default",
-            fontFamily: "var(--font-barlow)",
+            fontFamily: "var(--font-inter)",
           }}
         >
           {aiLoading ? "AI thinking..." : "✨ AI Help"}
@@ -128,7 +128,7 @@ export default function PostEditor({ onSubmit, placeholder = "Write your reply..
             fontSize: "14px",
             fontWeight: "600",
             cursor: content.trim() ? "pointer" : "default",
-            fontFamily: "var(--font-barlow)",
+            fontFamily: "var(--font-inter)",
             letterSpacing: "0.5px",
             textTransform: "uppercase",
           }}

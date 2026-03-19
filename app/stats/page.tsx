@@ -110,7 +110,7 @@ export default function StatsPage() {
                   border: "2px solid",
                   borderColor: category === cat.id ? "var(--orange)" : "rgba(255,255,255,0.1)",
                   color: "var(--white)",
-                  fontFamily: "var(--font-barlow), sans-serif",
+                  fontFamily: "var(--font-inter), sans-serif",
                   fontSize: "14px",
                   fontWeight: "600",
                   letterSpacing: "1px",

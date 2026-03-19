@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { BOT_PRESETS as PERSONALITY_PRESETS } from "@/lib/bots/personalities";
+import { NBA_TEAMS, WNBA_TEAMS, getTeam, getTeamFullName } from "@/lib/bots/nba-teams";
 
 interface Bot {
   id: string;
@@ -18,16 +19,8 @@ interface Bot {
   favoriteTeamId: string | null;
 }
 
-interface NbaTeam {
-  id: string;
-  name: string;
-  abbreviation: string;
-  logoUrl: string | null;
-}
-
 export default function AdminBotsPage() {
   const [bots, setBots] = useState<Bot[]>([]);
-  const [teams, setTeams] = useState<NbaTeam[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [posting, setPosting] = useState<string | null>(null);
@@ -62,7 +55,6 @@ export default function AdminBotsPage() {
       const res = await fetch("/api/admin/bots");
       const data = await res.json();
       setBots(data.bots || []);
-      if (data.teams) setTeams(data.teams);
     } catch {
       setError("Failed to load bots");
     } finally {
@@ -402,10 +394,17 @@ export default function AdminBotsPage() {
             <div>
               <label style={labelStyle}>Favorite Team</label>
               <select value={selectedTeam} onChange={(e) => setSelectedTeam(e.target.value)} style={inputStyle}>
-                <option value="">No team (general NBA)</option>
-                {teams.map((t) => (
-                  <option key={t.id} value={t.id}>{t.name} ({t.abbreviation})</option>
-                ))}
+                <option value="">No team (general basketball)</option>
+                <optgroup label="NBA">
+                  {NBA_TEAMS.map((t) => (
+                    <option key={t.abbreviation} value={t.abbreviation}>{t.city} {t.name}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="WNBA">
+                  {WNBA_TEAMS.map((t) => (
+                    <option key={t.abbreviation} value={t.abbreviation}>{t.city} {t.name}</option>
+                  ))}
+                </optgroup>
               </select>
             </div>
             <div style={{ gridColumn: "1 / -1" }}>
@@ -435,7 +434,7 @@ export default function AdminBotsPage() {
             let personality: { tone?: string; interests?: string[] } = {};
             try { personality = JSON.parse(bot.botPersonality || "{}"); } catch { /* */ }
             const avatar = bot.avatarUrl || bot.image;
-            const botTeam = teams.find((t) => t.id === bot.favoriteTeamId);
+            const botTeam = bot.favoriteTeamId ? getTeam(bot.favoriteTeamId) : undefined;
 
             return (
               <div key={bot.id} style={{ background: "rgba(255,255,255,0.05)", borderRadius: "12px", padding: "20px", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", gap: "16px" }}>
@@ -472,7 +471,7 @@ export default function AdminBotsPage() {
                   </div>
                   <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "13px", marginTop: "4px" }}>
                     {bot.takeCount} takes &middot; {personality.tone || "default"} tone &middot; {(personality.interests || []).join(", ") || "basketball"}
-                    {botTeam && <> &middot; <span style={{ color: "#F97316" }}>{botTeam.abbreviation}</span> fan</>}
+                    {botTeam && <> &middot; <span style={{ color: "#F97316" }}>{getTeamFullName(botTeam)}</span> fan</>}
                   </div>
                   {bot.bio && <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px", marginTop: "2px" }}>{bot.bio}</div>}
                 </div>
@@ -660,10 +659,17 @@ export default function AdminBotsPage() {
             <div style={{ marginBottom: "24px" }}>
               <label style={labelStyle}>Favorite Team <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "11px" }}>(~80% of takes will focus on this team)</span></label>
               <select value={editTeam} onChange={(e) => setEditTeam(e.target.value)} style={inputStyle}>
-                <option value="">No team (general NBA)</option>
-                {teams.map((t) => (
-                  <option key={t.id} value={t.id}>{t.name} ({t.abbreviation})</option>
-                ))}
+                <option value="">No team (general basketball)</option>
+                <optgroup label="NBA">
+                  {NBA_TEAMS.map((t) => (
+                    <option key={t.abbreviation} value={t.abbreviation}>{t.city} {t.name}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="WNBA">
+                  {WNBA_TEAMS.map((t) => (
+                    <option key={t.abbreviation} value={t.abbreviation}>{t.city} {t.name}</option>
+                  ))}
+                </optgroup>
               </select>
             </div>
 

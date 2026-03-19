@@ -74,7 +74,7 @@ export default function UserBadge({ user }: UserBadgeProps) {
   };
 
   const displayNameStyle: React.CSSProperties = {
-    fontFamily: "var(--font-barlow), sans-serif",
+    fontFamily: "var(--font-inter), sans-serif",
     fontWeight: 700,
     fontSize: "13px",
     color: "#FFFFFF",
@@ -84,7 +84,7 @@ export default function UserBadge({ user }: UserBadgeProps) {
 
   const roleBadgeStyle: React.CSSProperties = roleBadge
     ? {
-        fontFamily: "var(--font-barlow), sans-serif",
+        fontFamily: "var(--font-inter), sans-serif",
         fontSize: "9px",
         fontWeight: 700,
         color: roleBadge.color,

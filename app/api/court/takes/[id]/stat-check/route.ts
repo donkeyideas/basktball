@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { getDualUser } from "@/lib/court/dual-auth";
-import { gemini } from "@/lib/ai/gemini";
+import { deepseek } from "@/lib/ai/deepseek";
 import { createNotification } from "@/lib/notifications/service";
 
 export const dynamic = "force-dynamic";
 
-const STAT_CHECK_SYSTEM_PROMPT = `You are a basketball statistics fact-checker. Extract statistical claims from this post, then verify each against the provided data. Return JSON: { "claims": [{ "claim": "...", "verdict": "VERIFIED" | "FALSE" | "UNVERIFIABLE", "evidence": "..." }], "overall": "VERIFIED" | "FALSE" | "UNVERIFIABLE" }`;
+const STAT_CHECK_SYSTEM_PROMPT = `You are a basketball statistics and facts expert. Analyze the post and extract any factual or statistical claims — including references to players, records, achievements, rankings, career stats, team history, and commonly known basketball facts. Use your general basketball knowledge to verify claims even when no specific game data is provided. For pure opinions with no factual basis to check (e.g. "basketball is fun"), mark as UNVERIFIABLE. But if an opinion contains any checkable facts (e.g. "Robert Horry would be top-10 because he has 7 rings"), verify those facts. Return ONLY valid JSON with no extra text: { "claims": [{ "claim": "extracted claim", "verdict": "VERIFIED" | "FALSE" | "UNVERIFIABLE", "evidence": "brief explanation" }], "overall": "VERIFIED" | "FALSE" | "UNVERIFIABLE" }. The overall verdict should reflect the majority of claims. Always try to find at least one checkable claim.`;
 
 export async function GET(
   request: Request,
@@ -142,19 +142,28 @@ export async function POST(
     }`;
 
     // Check for API key
-    if (!process.env.GEMINI_API_KEY) {
+    if (!process.env.DEEPSEEK_API_KEY) {
       return NextResponse.json(
-        { message: "AI service not configured. Add GEMINI_API_KEY to environment." },
+        { message: "AI service not configured" },
         { status: 503 }
       );
     }
 
-    // Call Gemini AI for fact-checking
-    const aiResult = await gemini.generate(
-      userPrompt,
-      STAT_CHECK_SYSTEM_PROMPT,
-      { temperature: 0.3, maxTokens: 1000 }
-    );
+    // Call DeepSeek AI for fact-checking
+    let aiResult;
+    try {
+      aiResult = await deepseek.generate(
+        userPrompt,
+        STAT_CHECK_SYSTEM_PROMPT,
+        { temperature: 0.3, maxTokens: 1000 }
+      );
+    } catch (aiError) {
+      console.error("DeepSeek AI error during stat check:", aiError);
+      return NextResponse.json(
+        { message: "AI service temporarily unavailable. Please try again later." },
+        { status: 503 }
+      );
+    }
 
     // Parse the AI response
     let claims: Array<{ claim: string; verdict: string; evidence: string }> = [];

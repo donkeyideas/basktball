@@ -126,7 +126,7 @@ export default function CategoryPage() {
               textDecoration: "none",
               fontWeight: "700",
               fontSize: "14px",
-              fontFamily: "var(--font-barlow)",
+              fontFamily: "var(--font-inter)",
               textTransform: "uppercase",
             }}
           >
@@ -151,7 +151,7 @@ export default function CategoryPage() {
               fontWeight: "600",
               cursor: "pointer",
               textTransform: "capitalize",
-              fontFamily: "var(--font-barlow)",
+              fontFamily: "var(--font-inter)",
             }}
           >
             {s}

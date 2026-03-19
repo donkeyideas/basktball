@@ -227,7 +227,7 @@ export default function TeamsPage() {
                 background: "var(--dark-gray)",
                 border: "2px solid rgba(255,255,255,0.1)",
                 color: "var(--white)",
-                fontFamily: "var(--font-barlow), sans-serif",
+                fontFamily: "var(--font-inter), sans-serif",
                 fontSize: "14px",
                 width: "250px",
                 outline: "none",
@@ -257,7 +257,7 @@ export default function TeamsPage() {
                           ? "var(--orange)"
                           : "rgba(255,255,255,0.2)",
                       color: "var(--white)",
-                      fontFamily: "var(--font-barlow), sans-serif",
+                      fontFamily: "var(--font-inter), sans-serif",
                       fontSize: "13px",
                       fontWeight: "600",
                       letterSpacing: "1px",

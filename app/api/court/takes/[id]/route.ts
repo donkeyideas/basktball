@@ -61,6 +61,9 @@ export async function GET(
           },
           orderBy: { createdAt: "asc" },
         },
+        statCheck: {
+          select: { overallStatus: true, claims: true },
+        },
         ...(user
           ? {
               reactions: {

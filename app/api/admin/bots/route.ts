@@ -35,14 +35,7 @@ export async function GET() {
     orderBy: { createdAt: "desc" },
   });
 
-  // Fetch all NBA teams for the team selector
-  const teams = await prisma.team.findMany({
-    where: { league: "NBA" },
-    select: { id: true, name: true, abbreviation: true, logoUrl: true },
-    orderBy: { name: "asc" },
-  });
-
-  return NextResponse.json({ bots, teams });
+  return NextResponse.json({ bots });
 }
 
 export async function POST(request: Request) {

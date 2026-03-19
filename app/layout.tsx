@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Anton, Barlow_Condensed, Roboto_Mono } from "next/font/google";
+import { Anton, Barlow_Condensed, Inter, Roboto_Mono } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import Script from "next/script";
 import { auth } from "@/lib/auth";
@@ -18,6 +18,13 @@ const barlowCondensed = Barlow_Condensed({
   weight: ["400", "500", "600", "700"],
   subsets: ["latin"],
   variable: "--font-barlow",
+  display: "swap",
+});
+
+const inter = Inter({
+  weight: ["400", "500", "600", "700"],
+  subsets: ["latin"],
+  variable: "--font-inter",
   display: "swap",
 });
 
@@ -74,7 +81,7 @@ export default async function RootLayout({
   const session = await auth();
 
   return (
-    <html lang="en" className={`${anton.variable} ${barlowCondensed.variable} ${robotoMono.variable}`}>
+    <html lang="en" className={`${anton.variable} ${barlowCondensed.variable} ${inter.variable} ${robotoMono.variable}`}>
       <head>
         <script
           type="application/ld+json"

@@ -143,7 +143,7 @@ export function NotificationModal({
           </h2>
           <p
             style={{
-              fontFamily: "var(--font-barlow), sans-serif",
+              fontFamily: "var(--font-inter), sans-serif",
               fontSize: "16px",
               color: "rgba(255, 255, 255, 0.8)",
               lineHeight: "1.6",
@@ -161,7 +161,7 @@ export function NotificationModal({
               backgroundColor: color,
               border: "none",
               color: "var(--white)",
-              fontFamily: "var(--font-barlow), sans-serif",
+              fontFamily: "var(--font-inter), sans-serif",
               fontWeight: 600,
               fontSize: "14px",
               textTransform: "uppercase",

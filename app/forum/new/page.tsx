@@ -140,7 +140,7 @@ export default function NewThreadPage() {
 
       {/* Category selector */}
       <div style={{ marginBottom: "16px" }}>
-        <label style={{ display: "block", color: "rgba(255,255,255,0.7)", fontSize: "13px", marginBottom: "6px", fontFamily: "var(--font-barlow)" }}>
+        <label style={{ display: "block", color: "rgba(255,255,255,0.7)", fontSize: "13px", marginBottom: "6px", fontFamily: "var(--font-inter)" }}>
           Category *
         </label>
         <select
@@ -154,7 +154,7 @@ export default function NewThreadPage() {
             background: "#0D0D0D",
             color: "#fff",
             fontSize: "15px",
-            fontFamily: "var(--font-barlow)",
+            fontFamily: "var(--font-inter)",
             outline: "none",
           }}
         >
@@ -167,7 +167,7 @@ export default function NewThreadPage() {
 
       {/* Title */}
       <div style={{ marginBottom: "16px" }}>
-        <label style={{ display: "block", color: "rgba(255,255,255,0.7)", fontSize: "13px", marginBottom: "6px", fontFamily: "var(--font-barlow)" }}>
+        <label style={{ display: "block", color: "rgba(255,255,255,0.7)", fontSize: "13px", marginBottom: "6px", fontFamily: "var(--font-inter)" }}>
           Title *
         </label>
         <input
@@ -184,7 +184,7 @@ export default function NewThreadPage() {
             background: "#0D0D0D",
             color: "#fff",
             fontSize: "15px",
-            fontFamily: "var(--font-barlow)",
+            fontFamily: "var(--font-inter)",
             outline: "none",
             boxSizing: "border-box",
           }}

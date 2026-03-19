@@ -166,7 +166,7 @@ export default function TeamClient() {
               color: "var(--orange)",
               textDecoration: "none",
               marginBottom: "30px",
-              fontFamily: "var(--font-barlow), sans-serif",
+              fontFamily: "var(--font-inter), sans-serif",
               fontSize: "14px",
               fontWeight: "600",
             }}
@@ -190,7 +190,7 @@ export default function TeamClient() {
                   border: "none",
                   color: "var(--white)",
                   cursor: "pointer",
-                  fontFamily: "var(--font-barlow), sans-serif",
+                  fontFamily: "var(--font-inter), sans-serif",
                 }}
               >
                 Return to Teams
@@ -256,7 +256,7 @@ export default function TeamClient() {
                       padding: "4px 12px",
                       background: "var(--orange)",
                       marginBottom: "10px",
-                      fontFamily: "var(--font-barlow), sans-serif",
+                      fontFamily: "var(--font-inter), sans-serif",
                       fontSize: "11px",
                       fontWeight: "600",
                       letterSpacing: "1px",
@@ -330,7 +330,7 @@ export default function TeamClient() {
                         activeTab === tab.id
                           ? "var(--white)"
                           : "rgba(255,255,255,0.5)",
-                      fontFamily: "var(--font-barlow), sans-serif",
+                      fontFamily: "var(--font-inter), sans-serif",
                       fontSize: "14px",
                       fontWeight: "600",
                       cursor: "pointer",

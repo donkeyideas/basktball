@@ -329,7 +329,7 @@ export default function UserProfilePage() {
                         fontWeight: 700,
                         fontSize: "13px",
                         cursor: "pointer",
-                        fontFamily: "var(--font-barlow), sans-serif",
+                        fontFamily: "var(--font-inter), sans-serif",
                         textTransform: "uppercase",
                         letterSpacing: "0.5px",
                         width: "100%",
@@ -351,7 +351,7 @@ export default function UserProfilePage() {
                         fontWeight: 600,
                         fontSize: "13px",
                         textDecoration: "none",
-                        fontFamily: "var(--font-barlow), sans-serif",
+                        fontFamily: "var(--font-inter), sans-serif",
                         textAlign: "center",
                       }}
                     >
@@ -370,10 +370,10 @@ export default function UserProfilePage() {
                       { label: "W-L", value: `${profile.challengeWins}-${profile.challengeLosses}` },
                     ].map((stat) => (
                       <div key={stat.label} style={{ textAlign: "center" }}>
-                        <div style={{ fontSize: "18px", fontWeight: 700, color: "#fff", fontFamily: "var(--font-barlow)" }}>
+                        <div style={{ fontSize: "18px", fontWeight: 700, color: "#fff", fontFamily: "var(--font-inter)" }}>
                           {stat.value}
                         </div>
-                        <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.5px", fontFamily: "var(--font-barlow)" }}>
+                        <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.5px", fontFamily: "var(--font-inter)" }}>
                           {stat.label}
                         </div>
                       </div>
@@ -381,10 +381,10 @@ export default function UserProfilePage() {
                   </div>
                   {profile.predictionCount > 0 && (
                     <div style={{ textAlign: "center", marginTop: "12px", paddingTop: "12px", borderTop: "1px solid #2a2a2a" }}>
-                      <div style={{ fontSize: "18px", fontWeight: 700, color: "#22C55E", fontFamily: "var(--font-barlow)" }}>
+                      <div style={{ fontSize: "18px", fontWeight: 700, color: "#22C55E", fontFamily: "var(--font-inter)" }}>
                         {predictionAccuracy}%
                       </div>
-                      <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.5px", fontFamily: "var(--font-barlow)" }}>
+                      <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.5px", fontFamily: "var(--font-inter)" }}>
                         Prediction Accuracy
                       </div>
                     </div>
@@ -426,7 +426,7 @@ export default function UserProfilePage() {
                         fontSize: "12px",
                         fontWeight: 700,
                         cursor: "pointer",
-                        fontFamily: "var(--font-barlow), sans-serif",
+                        fontFamily: "var(--font-inter), sans-serif",
                         textTransform: "uppercase",
                         letterSpacing: "0.5px",
                         whiteSpace: "nowrap",
@@ -489,7 +489,7 @@ export default function UserProfilePage() {
                                 </span>
                               )}
                             </div>
-                            <p style={{ color: "rgba(255,255,255,0.8)", fontSize: "14px", lineHeight: "1.4", fontFamily: "var(--font-barlow)" }}>{p.claim}</p>
+                            <p style={{ color: "rgba(255,255,255,0.8)", fontSize: "14px", lineHeight: "1.4", fontFamily: "var(--font-inter)" }}>{p.claim}</p>
                             {p.result && <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px", marginTop: "6px" }}>{p.result}</p>}
                           </Link>
                         ))
@@ -516,7 +516,7 @@ export default function UserProfilePage() {
                               }}>{c.status}</span>
                               <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)" }}>{new Date(c.createdAt).toLocaleDateString()}</span>
                             </div>
-                            <p style={{ color: "#fff", fontSize: "14px", fontWeight: 600, marginBottom: "8px", fontFamily: "var(--font-barlow)" }}>{c.topic}</p>
+                            <p style={{ color: "#fff", fontSize: "14px", fontWeight: 600, marginBottom: "8px", fontFamily: "var(--font-inter)" }}>{c.topic}</p>
                             <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "13px" }}>
                               <span style={{ color: "rgba(255,255,255,0.7)" }}>{c.challenger.displayName || c.challenger.name}</span>
                               <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "11px" }}>VS</span>
@@ -551,7 +551,7 @@ export default function UserProfilePage() {
                                 {at.status === "AGING" ? `Aging until ${new Date(at.revisitDate).toLocaleDateString()}` : at.status}
                               </span>
                             </div>
-                            <p style={{ color: "rgba(255,255,255,0.8)", fontSize: "14px", lineHeight: "1.4", fontFamily: "var(--font-barlow)" }}>{at.take.content}</p>
+                            <p style={{ color: "rgba(255,255,255,0.8)", fontSize: "14px", lineHeight: "1.4", fontFamily: "var(--font-inter)" }}>{at.take.content}</p>
                             <div style={{ display: "flex", gap: "12px", marginTop: "8px", fontSize: "12px", color: "rgba(255,255,255,0.3)" }}>
                               <span>{at.take.fireCount} fires</span>
                               <span>{at.take.brickCount} bricks</span>

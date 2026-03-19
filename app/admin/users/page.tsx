@@ -340,7 +340,7 @@ export default function AdminUsersPage() {
                     color: "#fff",
                     fontSize: "14px",
                     outline: "none",
-                    fontFamily: "var(--font-barlow), sans-serif",
+                    fontFamily: "var(--font-inter), sans-serif",
                   }}
                 />
                 <select

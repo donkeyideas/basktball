@@ -149,7 +149,7 @@ export default function ProfilePage() {
         <Header />
         <main style={{ minHeight: "100vh", padding: "60px 20px" }}>
           <div style={{ maxWidth: "600px", margin: "0 auto", textAlign: "center" }}>
-            <p style={{ color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-barlow)" }}>Loading profile...</p>
+            <p style={{ color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-inter)" }}>Loading profile...</p>
           </div>
         </main>
         <Footer />
@@ -203,7 +203,7 @@ export default function ProfilePage() {
                 fontWeight: "700",
                 color: "#fff",
                 overflow: "hidden",
-                fontFamily: "var(--font-barlow)",
+                fontFamily: "var(--font-inter)",
                 flexShrink: 0,
                 cursor: "pointer",
                 position: "relative",
@@ -226,7 +226,7 @@ export default function ProfilePage() {
                   padding: "2px 0",
                   fontSize: "10px",
                   textAlign: "center",
-                  fontFamily: "var(--font-barlow)",
+                  fontFamily: "var(--font-inter)",
                   fontWeight: 600,
                 }}>
                   EDIT
@@ -241,7 +241,7 @@ export default function ProfilePage() {
                   alignItems: "center",
                   justifyContent: "center",
                   fontSize: "11px",
-                  fontFamily: "var(--font-barlow)",
+                  fontFamily: "var(--font-inter)",
                 }}>
                   ...
                 </div>
@@ -249,7 +249,7 @@ export default function ProfilePage() {
             </div>
             <div>
               <div style={{
-                fontFamily: "var(--font-barlow)",
+                fontFamily: "var(--font-inter)",
                 fontWeight: "700",
                 fontSize: "18px",
                 color: "#fff",
@@ -257,7 +257,7 @@ export default function ProfilePage() {
                 {profile?.displayName || profile?.name}
               </div>
               <div style={{
-                fontFamily: "var(--font-barlow)",
+                fontFamily: "var(--font-inter)",
                 fontSize: "13px",
                 color: "rgba(255,255,255,0.4)",
               }}>
@@ -283,7 +283,7 @@ export default function ProfilePage() {
             ].map(({ count, label }) => (
               <div key={label}>
                 <div style={{
-                  fontFamily: "var(--font-barlow)",
+                  fontFamily: "var(--font-inter)",
                   fontWeight: "700",
                   fontSize: "18px",
                   color: "#fff",
@@ -291,7 +291,7 @@ export default function ProfilePage() {
                   {count}
                 </div>
                 <div style={{
-                  fontFamily: "var(--font-barlow)",
+                  fontFamily: "var(--font-inter)",
                   fontSize: "12px",
                   color: "rgba(255,255,255,0.4)",
                   textTransform: "uppercase",
@@ -318,7 +318,7 @@ export default function ProfilePage() {
                 background: "rgba(34,197,94,0.1)",
                 border: "1px solid rgba(34,197,94,0.3)",
                 color: "#22c55e",
-                fontFamily: "var(--font-barlow)",
+                fontFamily: "var(--font-inter)",
                 fontSize: "14px",
                 marginBottom: "20px",
               }}>
@@ -332,7 +332,7 @@ export default function ProfilePage() {
                 background: "rgba(239,68,68,0.1)",
                 border: "1px solid rgba(239,68,68,0.3)",
                 color: "#EF4444",
-                fontFamily: "var(--font-barlow)",
+                fontFamily: "var(--font-inter)",
                 fontSize: "14px",
                 marginBottom: "20px",
               }}>
@@ -344,7 +344,7 @@ export default function ProfilePage() {
             <div style={{ marginBottom: "20px" }}>
               <label style={{
                 display: "block",
-                fontFamily: "var(--font-barlow)",
+                fontFamily: "var(--font-inter)",
                 fontSize: "13px",
                 fontWeight: "600",
                 color: "rgba(255,255,255,0.6)",
@@ -366,7 +366,7 @@ export default function ProfilePage() {
                   border: "1px solid rgba(255,255,255,0.15)",
                   background: "rgba(255,255,255,0.05)",
                   color: "#fff",
-                  fontFamily: "var(--font-barlow)",
+                  fontFamily: "var(--font-inter)",
                   fontSize: "15px",
                   outline: "none",
                   transition: "border-color 0.15s",
@@ -376,7 +376,7 @@ export default function ProfilePage() {
                 onBlur={(e) => { e.target.style.borderColor = "rgba(255,255,255,0.15)"; }}
               />
               <div style={{
-                fontFamily: "var(--font-barlow)",
+                fontFamily: "var(--font-inter)",
                 fontSize: "12px",
                 color: "rgba(255,255,255,0.3)",
                 marginTop: "4px",
@@ -389,7 +389,7 @@ export default function ProfilePage() {
             <div style={{ marginBottom: "20px" }}>
               <label style={{
                 display: "block",
-                fontFamily: "var(--font-barlow)",
+                fontFamily: "var(--font-inter)",
                 fontSize: "13px",
                 fontWeight: "600",
                 color: "rgba(255,255,255,0.6)",
@@ -405,7 +405,7 @@ export default function ProfilePage() {
                   left: "14px",
                   top: "50%",
                   transform: "translateY(-50%)",
-                  fontFamily: "var(--font-barlow)",
+                  fontFamily: "var(--font-inter)",
                   fontSize: "15px",
                   color: "rgba(255,255,255,0.35)",
                   pointerEvents: "none",
@@ -424,7 +424,7 @@ export default function ProfilePage() {
                     border: "1px solid rgba(255,255,255,0.15)",
                     background: "rgba(255,255,255,0.05)",
                     color: "#fff",
-                    fontFamily: "var(--font-barlow)",
+                    fontFamily: "var(--font-inter)",
                     fontSize: "15px",
                     outline: "none",
                     transition: "border-color 0.15s",
@@ -435,7 +435,7 @@ export default function ProfilePage() {
                 />
               </div>
               <div style={{
-                fontFamily: "var(--font-barlow)",
+                fontFamily: "var(--font-inter)",
                 fontSize: "12px",
                 color: "rgba(255,255,255,0.3)",
                 marginTop: "4px",
@@ -448,7 +448,7 @@ export default function ProfilePage() {
             <div style={{ marginBottom: "20px" }}>
               <label style={{
                 display: "block",
-                fontFamily: "var(--font-barlow)",
+                fontFamily: "var(--font-inter)",
                 fontSize: "13px",
                 fontWeight: "600",
                 color: "rgba(255,255,255,0.6)",
@@ -471,7 +471,7 @@ export default function ProfilePage() {
                   border: "1px solid rgba(255,255,255,0.15)",
                   background: "rgba(255,255,255,0.05)",
                   color: "#fff",
-                  fontFamily: "var(--font-barlow)",
+                  fontFamily: "var(--font-inter)",
                   fontSize: "15px",
                   outline: "none",
                   resize: "vertical",
@@ -483,7 +483,7 @@ export default function ProfilePage() {
                 onBlur={(e) => { e.target.style.borderColor = "rgba(255,255,255,0.15)"; }}
               />
               <div style={{
-                fontFamily: "var(--font-barlow)",
+                fontFamily: "var(--font-inter)",
                 fontSize: "12px",
                 color: "rgba(255,255,255,0.3)",
                 marginTop: "4px",
@@ -496,7 +496,7 @@ export default function ProfilePage() {
             <div style={{ marginBottom: "24px" }}>
               <label style={{
                 display: "block",
-                fontFamily: "var(--font-barlow)",
+                fontFamily: "var(--font-inter)",
                 fontSize: "13px",
                 fontWeight: "600",
                 color: "rgba(255,255,255,0.6)",
@@ -519,7 +519,7 @@ export default function ProfilePage() {
                   border: "1px solid rgba(255,255,255,0.15)",
                   background: "rgba(255,255,255,0.05)",
                   color: "#fff",
-                  fontFamily: "var(--font-barlow)",
+                  fontFamily: "var(--font-inter)",
                   fontSize: "15px",
                   outline: "none",
                   transition: "border-color 0.15s",
@@ -534,7 +534,7 @@ export default function ProfilePage() {
             <div style={{ marginBottom: "24px" }}>
               <label style={{
                 display: "block",
-                fontFamily: "var(--font-barlow)",
+                fontFamily: "var(--font-inter)",
                 fontSize: "13px",
                 fontWeight: "600",
                 color: "rgba(255,255,255,0.6)",
@@ -555,14 +555,14 @@ export default function ProfilePage() {
                   border: "1px solid rgba(255,255,255,0.08)",
                   background: "rgba(255,255,255,0.02)",
                   color: "rgba(255,255,255,0.35)",
-                  fontFamily: "var(--font-barlow)",
+                  fontFamily: "var(--font-inter)",
                   fontSize: "15px",
                   cursor: "not-allowed",
                   boxSizing: "border-box",
                 }}
               />
               <div style={{
-                fontFamily: "var(--font-barlow)",
+                fontFamily: "var(--font-inter)",
                 fontSize: "12px",
                 color: "rgba(255,255,255,0.2)",
                 marginTop: "4px",
@@ -582,7 +582,7 @@ export default function ProfilePage() {
                 border: "none",
                 background: saving || !displayName.trim() || handle.trim().length < 3 ? "rgba(255,107,53,0.3)" : "#FF6B35",
                 color: saving || !displayName.trim() || handle.trim().length < 3 ? "rgba(255,255,255,0.4)" : "#fff",
-                fontFamily: "var(--font-barlow)",
+                fontFamily: "var(--font-inter)",
                 fontSize: "15px",
                 fontWeight: "700",
                 textTransform: "uppercase",

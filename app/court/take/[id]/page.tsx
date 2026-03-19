@@ -19,6 +19,7 @@ export default function TakeDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showCompose, setShowCompose] = useState(false);
+  const [statCheckLoading, setStatCheckLoading] = useState<string | null>(null);
 
   // Fetch take detail from API
   useEffect(() => {
@@ -49,6 +50,7 @@ export default function TakeDetailPage() {
           userBookmarked: (t.bookmarks?.length || 0) > 0,
           userReposted: (t.reposts?.length || 0) > 0,
           poll: t.poll || null,
+          statCheck: t.statCheck || null,
         });
         setReplies(
           (t.replies || []).map((r: Record<string, unknown>) => ({
@@ -207,6 +209,34 @@ export default function TakeDetailPage() {
     [mainTake?.id]
   );
 
+  const handleStatCheck = useCallback(
+    async (targetId: string) => {
+      setStatCheckLoading(targetId);
+      try {
+        const res = await fetch(`/api/court/takes/${targetId}/stat-check`, { method: "POST" });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.message || "Failed to run stat check");
+          return;
+        }
+        if (data.statCheck) {
+          const updater = (t: Take): Take =>
+            t.id === targetId ? { ...t, statCheck: data.statCheck } : t;
+          if (targetId === mainTake?.id) {
+            setMainTake((t) => (t ? updater(t) : t));
+          } else {
+            setReplies((prev) => prev.map(updater));
+          }
+        }
+      } catch {
+        alert("Stat check is not available right now. Please try again later.");
+      } finally {
+        setStatCheckLoading(null);
+      }
+    },
+    [mainTake?.id]
+  );
+
   const handleComposeReply = useCallback(
     (data: { content: string; tags: string[] }) => {
       const newReply: Take = {
@@ -252,7 +282,7 @@ export default function TakeDetailPage() {
                 gap: "6px",
                 color: "rgba(255,255,255,0.5)",
                 textDecoration: "none",
-                fontFamily: "var(--font-barlow), sans-serif",
+                fontFamily: "var(--font-inter), sans-serif",
                 fontSize: "14px",
                 fontWeight: "600",
                 marginBottom: "20px",
@@ -316,7 +346,7 @@ export default function TakeDetailPage() {
                 gap: "6px",
                 color: "rgba(255,255,255,0.5)",
                 textDecoration: "none",
-                fontFamily: "var(--font-barlow), sans-serif",
+                fontFamily: "var(--font-inter), sans-serif",
                 fontSize: "14px",
                 fontWeight: "600",
                 marginBottom: "40px",
@@ -337,7 +367,7 @@ export default function TakeDetailPage() {
             >
               <p
                 style={{
-                  fontFamily: "var(--font-barlow), sans-serif",
+                  fontFamily: "var(--font-inter), sans-serif",
                   fontSize: "16px",
                   color: "rgba(255,255,255,0.5)",
                   margin: 0,
@@ -379,7 +409,7 @@ export default function TakeDetailPage() {
               gap: "6px",
               color: "rgba(255,255,255,0.5)",
               textDecoration: "none",
-              fontFamily: "var(--font-barlow), sans-serif",
+              fontFamily: "var(--font-inter), sans-serif",
               fontSize: "14px",
               fontWeight: "600",
               marginBottom: "20px",
@@ -425,7 +455,7 @@ export default function TakeDetailPage() {
                   color: "#fff",
                   flexShrink: 0,
                   overflow: "hidden",
-                  fontFamily: "var(--font-barlow), sans-serif",
+                  fontFamily: "var(--font-inter), sans-serif",
                 }}
               >
                 {avatarSrc ? (
@@ -437,7 +467,7 @@ export default function TakeDetailPage() {
               <div>
                 <div
                   style={{
-                    fontFamily: "var(--font-barlow), sans-serif",
+                    fontFamily: "var(--font-inter), sans-serif",
                     fontWeight: "700",
                     fontSize: "16px",
                     color: "#fff",
@@ -447,7 +477,7 @@ export default function TakeDetailPage() {
                 </div>
                 <div
                   style={{
-                    fontFamily: "var(--font-barlow), sans-serif",
+                    fontFamily: "var(--font-inter), sans-serif",
                     fontSize: "13px",
                     color: "rgba(255,255,255,0.35)",
                   }}
@@ -461,7 +491,7 @@ export default function TakeDetailPage() {
             <p
               style={{
                 color: "#fff",
-                fontFamily: "var(--font-barlow), sans-serif",
+                fontFamily: "var(--font-inter), sans-serif",
                 fontSize: "20px",
                 lineHeight: "1.5",
                 margin: "0 0 16px 0",
@@ -483,7 +513,7 @@ export default function TakeDetailPage() {
                       borderRadius: "10px",
                       background: "rgba(255,107,53,0.12)",
                       color: "#FF6B35",
-                      fontFamily: "var(--font-barlow), sans-serif",
+                      fontFamily: "var(--font-inter), sans-serif",
                       fontWeight: "600",
                       textTransform: "uppercase",
                       letterSpacing: "0.3px",
@@ -498,7 +528,7 @@ export default function TakeDetailPage() {
             {/* Full Timestamp */}
             <div
               style={{
-                fontFamily: "var(--font-barlow), sans-serif",
+                fontFamily: "var(--font-inter), sans-serif",
                 fontSize: "13px",
                 color: "rgba(255,255,255,0.3)",
                 marginBottom: "16px",
@@ -528,7 +558,7 @@ export default function TakeDetailPage() {
                 <div key={label} style={{ display: "flex", gap: "4px", alignItems: "baseline" }}>
                   <span
                     style={{
-                      fontFamily: "var(--font-barlow), sans-serif",
+                      fontFamily: "var(--font-inter), sans-serif",
                       fontWeight: "700",
                       fontSize: "15px",
                       color: "#fff",
@@ -538,7 +568,7 @@ export default function TakeDetailPage() {
                   </span>
                   <span
                     style={{
-                      fontFamily: "var(--font-barlow), sans-serif",
+                      fontFamily: "var(--font-inter), sans-serif",
                       fontSize: "13px",
                       color: "rgba(255,255,255,0.35)",
                     }}
@@ -567,7 +597,7 @@ export default function TakeDetailPage() {
                   border: "none",
                   color: mainTake.userReaction === "FIRE" ? "#FF6B35" : "rgba(255,255,255,0.4)",
                   fontSize: "14px",
-                  fontFamily: "var(--font-barlow), sans-serif",
+                  fontFamily: "var(--font-inter), sans-serif",
                   fontWeight: "600",
                   cursor: "pointer",
                   padding: "8px 12px",
@@ -597,7 +627,7 @@ export default function TakeDetailPage() {
                   border: "none",
                   color: mainTake.userReaction === "BRICK" ? "#EF4444" : "rgba(255,255,255,0.4)",
                   fontSize: "14px",
-                  fontFamily: "var(--font-barlow), sans-serif",
+                  fontFamily: "var(--font-inter), sans-serif",
                   fontWeight: "600",
                   cursor: "pointer",
                   padding: "8px 12px",
@@ -622,7 +652,7 @@ export default function TakeDetailPage() {
                   border: "none",
                   color: mainTake.userReposted ? "#22c55e" : "rgba(255,255,255,0.4)",
                   fontSize: "14px",
-                  fontFamily: "var(--font-barlow), sans-serif",
+                  fontFamily: "var(--font-inter), sans-serif",
                   fontWeight: "600",
                   cursor: "pointer",
                   padding: "8px 12px",
@@ -648,7 +678,7 @@ export default function TakeDetailPage() {
                   border: "none",
                   color: mainTake.userBookmarked ? "#FF6B35" : "rgba(255,255,255,0.4)",
                   fontSize: "14px",
-                  fontFamily: "var(--font-barlow), sans-serif",
+                  fontFamily: "var(--font-inter), sans-serif",
                   fontWeight: "600",
                   cursor: "pointer",
                   padding: "8px 12px",
@@ -669,6 +699,59 @@ export default function TakeDetailPage() {
                 Save
               </button>
 
+              {/* Stat Check button */}
+              {session?.user && !mainTake.statCheck && (
+                <button
+                  onClick={() => handleStatCheck(mainTake.id)}
+                  disabled={statCheckLoading === mainTake.id}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    background: "none",
+                    border: "none",
+                    color: statCheckLoading === mainTake.id ? "#FF6B35" : "rgba(255,255,255,0.4)",
+                    fontSize: "14px",
+                    fontFamily: "var(--font-inter), sans-serif",
+                    fontWeight: "600",
+                    cursor: statCheckLoading === mainTake.id ? "default" : "pointer",
+                    padding: "8px 12px",
+                    borderRadius: "8px",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  {statCheckLoading === mainTake.id ? (
+                    <span style={{ display: "inline-block", width: 20, height: 20, border: "2px solid rgba(255,107,53,0.3)", borderTopColor: "#FF6B35", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+                  ) : (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="11" cy="11" r="8" />
+                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                      <line x1="11" y1="8" x2="11" y2="14" />
+                      <line x1="8" y1="11" x2="14" y2="11" />
+                    </svg>
+                  )}
+                  Stat Check
+                </button>
+              )}
+              {mainTake.statCheck && (
+                <span style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  fontSize: "14px",
+                  fontFamily: "var(--font-inter), sans-serif",
+                  fontWeight: "700",
+                  color: mainTake.statCheck.overallStatus === "VERIFIED" ? "#22C55E" : mainTake.statCheck.overallStatus === "FALSE" ? "#EF4444" : "#9CA3AF",
+                  padding: "8px 12px",
+                }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
+                  {mainTake.statCheck.overallStatus}
+                </span>
+              )}
+
               {/* Delete button for owner/admin */}
               {((session?.user as { id?: string })?.id === mainTake.author.id ||
                 (session?.user as { role?: string })?.role === "ADMIN" ||
@@ -687,7 +770,7 @@ export default function TakeDetailPage() {
                     border: "none",
                     color: "rgba(255,255,255,0.3)",
                     fontSize: "14px",
-                    fontFamily: "var(--font-barlow), sans-serif",
+                    fontFamily: "var(--font-inter), sans-serif",
                     fontWeight: "600",
                     cursor: "pointer",
                     padding: "8px 12px",
@@ -747,7 +830,7 @@ export default function TakeDetailPage() {
                   padding: "40px 20px",
                   textAlign: "center",
                   color: "rgba(255,255,255,0.35)",
-                  fontFamily: "var(--font-barlow), sans-serif",
+                  fontFamily: "var(--font-inter), sans-serif",
                   fontSize: "14px",
                 }}
               >
@@ -765,6 +848,8 @@ export default function TakeDetailPage() {
                   onRepost={handleRepost}
                   onDelete={handleDelete}
                   onPollVote={handlePollVote}
+                  onStatCheck={handleStatCheck}
+                  statCheckLoading={statCheckLoading}
                 />
               ))
             )}
@@ -799,7 +884,7 @@ export default function TakeDetailPage() {
                   color: "#fff",
                   flexShrink: 0,
                   overflow: "hidden",
-                  fontFamily: "var(--font-barlow), sans-serif",
+                  fontFamily: "var(--font-inter), sans-serif",
                 }}
               >
                 {session.user.image ? (
@@ -810,7 +895,7 @@ export default function TakeDetailPage() {
               </div>
               <span
                 style={{
-                  fontFamily: "var(--font-barlow), sans-serif",
+                  fontFamily: "var(--font-inter), sans-serif",
                   fontSize: "14px",
                   color: "rgba(255,255,255,0.35)",
                 }}
@@ -833,7 +918,7 @@ export default function TakeDetailPage() {
                 style={{
                   color: "#FF6B35",
                   textDecoration: "none",
-                  fontFamily: "var(--font-barlow), sans-serif",
+                  fontFamily: "var(--font-inter), sans-serif",
                   fontSize: "14px",
                   fontWeight: "600",
                 }}

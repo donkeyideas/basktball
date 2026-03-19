@@ -230,7 +230,7 @@ export default function ThreadPage() {
                 color: "#8B5CF6",
                 fontSize: "13px",
                 cursor: "pointer",
-                fontFamily: "var(--font-barlow)",
+                fontFamily: "var(--font-inter)",
               }}
             >
               {summaryLoading ? "Generating summary..." : "Summarize this thread"}

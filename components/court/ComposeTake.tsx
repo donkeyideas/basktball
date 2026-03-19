@@ -174,7 +174,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
   };
 
   const cancelBtnStyle: React.CSSProperties = {
-    fontFamily: "var(--font-barlow), sans-serif",
+    fontFamily: "var(--font-inter), sans-serif",
     fontSize: "14px",
     fontWeight: 600,
     color: "rgba(255,255,255,0.5)",
@@ -187,7 +187,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
   };
 
   const postBtnStyle: React.CSSProperties = {
-    fontFamily: "var(--font-barlow), sans-serif",
+    fontFamily: "var(--font-inter), sans-serif",
     fontSize: "14px",
     fontWeight: 700,
     color: canPost ? "#FFFFFF" : "rgba(255,255,255,0.3)",
@@ -233,7 +233,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
 
   const textareaStyle: React.CSSProperties = {
     flex: 1,
-    fontFamily: "var(--font-barlow), sans-serif",
+    fontFamily: "var(--font-inter), sans-serif",
     fontSize: "15px",
     lineHeight: 1.45,
     color: "rgba(255,255,255,0.9)",
@@ -266,7 +266,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
   };
 
   const tagPillStyle: React.CSSProperties = {
-    fontFamily: "var(--font-barlow), sans-serif",
+    fontFamily: "var(--font-inter), sans-serif",
     fontSize: "11px",
     fontWeight: 600,
     color: "#FF6B35",
@@ -294,7 +294,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
   };
 
   const tagInputStyle: React.CSSProperties = {
-    fontFamily: "var(--font-barlow), sans-serif",
+    fontFamily: "var(--font-inter), sans-serif",
     fontSize: "12px",
     color: "rgba(255,255,255,0.6)",
     backgroundColor: "transparent",
@@ -368,7 +368,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
               marginBottom: "10px",
             }}>
               <span style={{
-                fontFamily: "var(--font-barlow), sans-serif",
+                fontFamily: "var(--font-inter), sans-serif",
                 fontSize: "13px",
                 fontWeight: 700,
                 color: "#FF6B35",
@@ -389,7 +389,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
                   color: "rgba(255,255,255,0.4)",
                   cursor: "pointer",
                   fontSize: "12px",
-                  fontFamily: "var(--font-barlow), sans-serif",
+                  fontFamily: "var(--font-inter), sans-serif",
                   fontWeight: 600,
                 }}
               >
@@ -415,7 +415,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
                     border: "1px solid rgba(255,255,255,0.12)",
                     background: "rgba(255,255,255,0.04)",
                     color: "rgba(255,255,255,0.85)",
-                    fontFamily: "var(--font-barlow), sans-serif",
+                    fontFamily: "var(--font-inter), sans-serif",
                     fontSize: "13px",
                     outline: "none",
                   }}
@@ -450,7 +450,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
                     color: "#FF6B35",
                     cursor: "pointer",
                     fontSize: "12px",
-                    fontFamily: "var(--font-barlow), sans-serif",
+                    fontFamily: "var(--font-inter), sans-serif",
                     fontWeight: 600,
                     padding: "4px 12px",
                     borderRadius: "6px",
@@ -463,7 +463,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
               )}
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginLeft: "auto" }}>
                 <span style={{
-                  fontFamily: "var(--font-barlow), sans-serif",
+                  fontFamily: "var(--font-inter), sans-serif",
                   fontSize: "12px",
                   color: "rgba(255,255,255,0.4)",
                 }}>
@@ -478,7 +478,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
                     border: "1px solid rgba(255,255,255,0.12)",
                     background: "#1A1A1A",
                     color: "rgba(255,255,255,0.7)",
-                    fontFamily: "var(--font-barlow), sans-serif",
+                    fontFamily: "var(--font-inter), sans-serif",
                     fontSize: "12px",
                     outline: "none",
                     cursor: "pointer",
@@ -533,7 +533,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
                 color: "#FF6B35",
                 cursor: "pointer",
                 fontSize: "11px",
-                fontFamily: "var(--font-barlow), sans-serif",
+                fontFamily: "var(--font-inter), sans-serif",
                 fontWeight: 700,
                 padding: "3px 10px",
                 borderRadius: "6px",

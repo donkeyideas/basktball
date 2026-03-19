@@ -122,7 +122,7 @@ export default function PlayersPage() {
                   border: "2px solid rgba(255,255,255,0.1)",
                   color: "var(--white)",
                   fontSize: "18px",
-                  fontFamily: "var(--font-barlow), sans-serif"
+                  fontFamily: "var(--font-inter), sans-serif"
                 }}
               />
               <svg

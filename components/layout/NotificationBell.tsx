@@ -141,7 +141,7 @@ export function NotificationBell() {
             minWidth: "16px",
             textAlign: "center",
             lineHeight: "14px",
-            fontFamily: "var(--font-barlow)",
+            fontFamily: "var(--font-inter)",
           }}>
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
@@ -187,7 +187,7 @@ export function NotificationBell() {
                   color: "#FF6B35",
                   fontSize: "12px",
                   cursor: "pointer",
-                  fontFamily: "var(--font-barlow)",
+                  fontFamily: "var(--font-inter)",
                   fontWeight: 600,
                 }}
               >
@@ -197,11 +197,11 @@ export function NotificationBell() {
           </div>
 
           {loading ? (
-            <div style={{ padding: "24px", textAlign: "center", color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-barlow)" }}>
+            <div style={{ padding: "24px", textAlign: "center", color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-inter)" }}>
               Loading...
             </div>
           ) : notifications.length === 0 ? (
-            <div style={{ padding: "24px", textAlign: "center", color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-barlow)" }}>
+            <div style={{ padding: "24px", textAlign: "center", color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-inter)" }}>
               No notifications yet
             </div>
           ) : (
@@ -229,7 +229,7 @@ export function NotificationBell() {
                   </span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{
-                      fontFamily: "var(--font-barlow)",
+                      fontFamily: "var(--font-inter)",
                       fontSize: "13px",
                       color: notif.read ? "rgba(255,255,255,0.5)" : "#fff",
                       fontWeight: notif.read ? 400 : 600,
@@ -239,7 +239,7 @@ export function NotificationBell() {
                     </div>
                     {notif.body && (
                       <div style={{
-                        fontFamily: "var(--font-barlow)",
+                        fontFamily: "var(--font-inter)",
                         fontSize: "12px",
                         color: "rgba(255,255,255,0.3)",
                         marginTop: "2px",

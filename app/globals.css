@@ -25,8 +25,8 @@
 }
 
 body {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 18px;
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
   background-color: var(--black);
   color: var(--white);
   overflow-x: hidden;
@@ -102,6 +102,7 @@ body {
   background: var(--orange);
   padding: 8px 20px;
   text-align: center;
+  font-family: var(--font-barlow), 'Barlow Condensed', sans-serif;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 2px;
@@ -156,6 +157,7 @@ body {
 .nav-links a {
   color: var(--white);
   text-decoration: none;
+  font-family: var(--font-barlow), 'Barlow Condensed', sans-serif;
   font-size: 18px;
   font-weight: 600;
   letter-spacing: 1px;
@@ -267,7 +269,7 @@ select option {
 .btn {
   display: inline-block;
   padding: 15px 40px;
-  font-family: 'Barlow Condensed', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 18px;
   font-weight: 600;
   text-decoration: none;
@@ -763,7 +765,7 @@ footer .footer-links a:hover {
 }
 
 .legal-page h2 {
-  font-family: var(--font-barlow), 'Barlow Condensed', sans-serif;
+  font-family: var(--font-inter), 'Inter', sans-serif;
   font-size: 20px;
   font-weight: 700;
   color: var(--orange);

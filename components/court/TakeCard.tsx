@@ -213,6 +213,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
   const [hovered, setHovered] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [votingOptionId, setVotingOptionId] = useState<string | null>(null);
+  const [showStatCheckDetails, setShowStatCheckDetails] = useState(false);
 
   const canDelete = currentUserId === take.author.id || currentUserRole === "ADMIN" || currentUserRole === "MODERATOR";
 
@@ -342,7 +343,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
   };
 
   const displayNameStyle: React.CSSProperties = {
-    fontFamily: "var(--font-barlow), sans-serif",
+    fontFamily: "var(--font-inter), sans-serif",
     fontWeight: 700,
     fontSize: "14px",
     color: "#FFFFFF",
@@ -350,7 +351,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
   };
 
   const handleStyle: React.CSSProperties = {
-    fontFamily: "var(--font-barlow), sans-serif",
+    fontFamily: "var(--font-inter), sans-serif",
     fontWeight: 400,
     fontSize: "13px",
     color: "rgba(255,255,255,0.45)",
@@ -363,7 +364,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
   };
 
   const timeStyle: React.CSSProperties = {
-    fontFamily: "var(--font-barlow), sans-serif",
+    fontFamily: "var(--font-inter), sans-serif",
     fontWeight: 400,
     fontSize: "13px",
     color: "rgba(255,255,255,0.45)",
@@ -371,7 +372,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
   };
 
   const contentStyle: React.CSSProperties = {
-    fontFamily: "var(--font-barlow), sans-serif",
+    fontFamily: "var(--font-inter), sans-serif",
     fontSize: "15px",
     lineHeight: 1.45,
     color: "rgba(255,255,255,0.85)",
@@ -388,7 +389,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
   };
 
   const tagPillStyle: React.CSSProperties = {
-    fontFamily: "var(--font-barlow), sans-serif",
+    fontFamily: "var(--font-inter), sans-serif",
     fontSize: "11px",
     fontWeight: 600,
     color: "#FF6B35",
@@ -417,7 +418,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
     background: "none",
     cursor: "pointer",
     transition: "background-color 0.15s ease",
-    fontFamily: "var(--font-barlow), sans-serif",
+    fontFamily: "var(--font-inter), sans-serif",
     fontSize: "13px",
     fontWeight: 500,
   };
@@ -479,17 +480,20 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
               <>
                 <span style={dotStyle}>&#183;</span>
                 <span
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowStatCheckDetails((v) => !v); }}
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "3px",
                     fontSize: "11px",
                     fontWeight: 700,
-                    fontFamily: "var(--font-barlow), sans-serif",
+                    fontFamily: "var(--font-inter), sans-serif",
                     textTransform: "uppercase",
                     letterSpacing: "0.5px",
                     color: take.statCheck.overallStatus === "VERIFIED" ? "#22C55E" : take.statCheck.overallStatus === "FALSE" ? "#EF4444" : "#9CA3AF",
+                    cursor: "pointer",
                   }}
+                  title="Click to see details"
                 >
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
                   {take.statCheck.overallStatus === "VERIFIED" ? "Verified" : take.statCheck.overallStatus === "FALSE" ? "False" : "Unverifiable"}
@@ -507,7 +511,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
                     gap: "3px",
                     fontSize: "11px",
                     fontWeight: 700,
-                    fontFamily: "var(--font-barlow), sans-serif",
+                    fontFamily: "var(--font-inter), sans-serif",
                     textTransform: "uppercase",
                     letterSpacing: "0.5px",
                     color: take.prediction.status === "RECEIPT" ? "#22C55E" : take.prediction.status === "BUST" ? "#EF4444" : "#FBBf24",
@@ -535,7 +539,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
                     gap: "3px",
                     fontSize: "11px",
                     fontWeight: 700,
-                    fontFamily: "var(--font-barlow), sans-serif",
+                    fontFamily: "var(--font-inter), sans-serif",
                     textTransform: "uppercase",
                     letterSpacing: "0.5px",
                     color: take.agingTake.status === "AGED" ? "#A855F7" : "#FBBf24",
@@ -617,7 +621,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
                     background: "none",
                     border: "none",
                     color: "#EF4444",
-                    fontFamily: "var(--font-barlow), sans-serif",
+                    fontFamily: "var(--font-inter), sans-serif",
                     fontSize: "13px",
                     fontWeight: 600,
                     cursor: "pointer",
@@ -637,6 +641,50 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
 
       {/* Content */}
       <div style={contentStyle}>{take.content}</div>
+
+      {/* Stat Check Claims Detail */}
+      {showStatCheckDetails && take.statCheck && Array.isArray(take.statCheck.claims) && take.statCheck.claims.length > 0 && (
+        <div
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          style={{
+            margin: "8px 0 10px",
+            padding: "10px 12px",
+            borderRadius: "8px",
+            background: "rgba(255,255,255,0.04)",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
+          <div style={{ fontSize: "11px", fontWeight: 700, color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-inter), sans-serif", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "8px" }}>
+            Stat Check Analysis
+          </div>
+          {(take.statCheck.claims as Array<{ claim: string; verdict: string; evidence: string }>).map((c, i) => (
+            <div key={i} style={{ marginBottom: i < (take.statCheck!.claims as unknown[]).length - 1 ? "8px" : 0, paddingBottom: i < (take.statCheck!.claims as unknown[]).length - 1 ? "8px" : 0, borderBottom: i < (take.statCheck!.claims as unknown[]).length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "3px" }}>
+                <span style={{
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  fontFamily: "var(--font-inter), sans-serif",
+                  textTransform: "uppercase",
+                  padding: "1px 6px",
+                  borderRadius: "4px",
+                  background: c.verdict === "VERIFIED" ? "rgba(34,197,94,0.15)" : c.verdict === "FALSE" ? "rgba(239,68,68,0.15)" : "rgba(156,163,175,0.15)",
+                  color: c.verdict === "VERIFIED" ? "#22C55E" : c.verdict === "FALSE" ? "#EF4444" : "#9CA3AF",
+                }}>
+                  {c.verdict}
+                </span>
+                <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.8)", fontFamily: "var(--font-inter), sans-serif", fontWeight: 600 }}>
+                  {c.claim}
+                </span>
+              </div>
+              {c.evidence && (
+                <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-inter), sans-serif", paddingLeft: "2px" }}>
+                  {c.evidence}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Tags */}
       {take.tags && take.tags.length > 0 && (
@@ -695,7 +743,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
                     />
                     <div style={{ position: "relative", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <span style={{
-                        fontFamily: "var(--font-barlow), sans-serif",
+                        fontFamily: "var(--font-inter), sans-serif",
                         fontSize: "13px",
                         fontWeight: isUserVote ? 700 : 500,
                         color: isUserVote ? "#FF6B35" : "rgba(255,255,255,0.7)",
@@ -738,7 +786,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
                     borderBottomColor: "rgba(255,255,255,0.06)",
                     cursor: votingOptionId ? "not-allowed" : "pointer",
                     textAlign: "left",
-                    fontFamily: "var(--font-barlow), sans-serif",
+                    fontFamily: "var(--font-inter), sans-serif",
                     fontSize: "13px",
                     fontWeight: 500,
                     color: "rgba(255,255,255,0.8)",
@@ -759,14 +807,14 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
               alignItems: "center",
             }}>
               <span style={{
-                fontFamily: "var(--font-barlow), sans-serif",
+                fontFamily: "var(--font-inter), sans-serif",
                 fontSize: "12px",
                 color: "rgba(255,255,255,0.35)",
               }}>
                 {totalVotes} {totalVotes === 1 ? "vote" : "votes"}
               </span>
               <span style={{
-                fontFamily: "var(--font-barlow), sans-serif",
+                fontFamily: "var(--font-inter), sans-serif",
                 fontSize: "12px",
                 color: pollEnded ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.35)",
               }}>

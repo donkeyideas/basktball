@@ -429,7 +429,7 @@ export default function AdminApiTrackerPage() {
               fontSize: "13px",
               color: "rgba(255,255,255,0.4)",
               marginLeft: "10px",
-              fontFamily: "var(--font-barlow)",
+              fontFamily: "var(--font-inter)",
             }}>
               {pagination.totalCount.toLocaleString()} total
             </span>

@@ -27,7 +27,7 @@
     },
     "android": {
       "package": "com.basktball.app",
-      "versionCode": 13,
+      "versionCode": 14,
       "softwareKeyboardLayoutMode": "adjustResize",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/android-icon-foreground.png",

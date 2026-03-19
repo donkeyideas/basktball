@@ -131,7 +131,7 @@ export default function AiDebatePanel() {
             background: "#0D0D0D",
             color: "#fff",
             fontSize: "14px",
-            fontFamily: "var(--font-barlow)",
+            fontFamily: "var(--font-inter)",
             outline: "none",
           }}
         />

@@ -205,7 +205,7 @@ export default function ContactPage() {
                   cursor: submitting ? "not-allowed" : "pointer",
                   fontSize: "16px",
                   fontWeight: "700",
-                  fontFamily: "var(--font-barlow)",
+                  fontFamily: "var(--font-inter)",
                   letterSpacing: "1px",
                   textTransform: "uppercase",
                   alignSelf: "flex-start",

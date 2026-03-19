@@ -165,7 +165,7 @@ export default function LivePage() {
                   border: "2px solid",
                   borderColor: selectedLeague === league.id ? "var(--orange)" : "rgba(255,255,255,0.1)",
                   color: "var(--white)",
-                  fontFamily: "var(--font-barlow), sans-serif",
+                  fontFamily: "var(--font-inter), sans-serif",
                   fontSize: "16px",
                   fontWeight: "600",
                   letterSpacing: "1px",

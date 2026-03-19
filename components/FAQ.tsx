@@ -57,7 +57,7 @@ export function FAQ({ items, title = "Frequently Asked Questions" }: FAQProps) {
             >
               <h3
                 style={{
-                  fontFamily: "var(--font-barlow), sans-serif",
+                  fontFamily: "var(--font-inter), sans-serif",
                   fontSize: "18px",
                   fontWeight: "600",
                   color: "var(--orange)",
@@ -68,7 +68,7 @@ export function FAQ({ items, title = "Frequently Asked Questions" }: FAQProps) {
               </h3>
               <p
                 style={{
-                  fontFamily: "var(--font-barlow), sans-serif",
+                  fontFamily: "var(--font-inter), sans-serif",
                   fontSize: "15px",
                   color: "rgba(255,255,255,0.7)",
                   lineHeight: "1.6",

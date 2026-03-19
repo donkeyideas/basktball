@@ -48,7 +48,7 @@ export default function FeedTabs({ activeTab, onTabChange, hasLiveGames = false 
       justifyContent: "center",
       gap: "6px",
       padding: "12px 0",
-      fontFamily: "var(--font-barlow), sans-serif",
+      fontFamily: "var(--font-inter), sans-serif",
       fontSize: "13px",
       fontWeight: 700,
       letterSpacing: "1.2px",

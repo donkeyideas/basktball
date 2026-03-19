@@ -47,12 +47,12 @@ export function Header() {
         <div className="top-bar-apps">
           {GOOGLE_PLAY_URL && (
             <a href={GOOGLE_PLAY_URL} target="_blank" rel="noopener noreferrer" className="app-badge-link" title="Get it on Google Play">
-              <Image src="/images/google-play-badge.svg" alt="Get it on Google Play" width={110} height={32} style={{ width: "auto", height: "auto" }} />
+              <Image src="/images/google-play-badge.svg" alt="Get it on Google Play" width={110} height={32} style={{ height: "24px", width: "auto" }} />
             </a>
           )}
           {APP_STORE_URL && (
             <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="app-badge-link" title="Download on the App Store">
-              <Image src="/images/app-store-badge.svg" alt="Download on the App Store" width={110} height={32} style={{ width: "auto", height: "auto" }} />
+              <Image src="/images/app-store-badge.svg" alt="Download on the App Store" width={110} height={32} style={{ height: "24px", width: "auto" }} />
             </a>
           )}
         </div>
@@ -154,7 +154,7 @@ export function Header() {
                   cursor: "pointer",
                   color: "#fff",
                   fontSize: "13px",
-                  fontFamily: "var(--font-barlow)",
+                  fontFamily: "var(--font-inter)",
                 }}
               >
                 <div style={{
@@ -200,7 +200,7 @@ export function Header() {
                       color: "rgba(255,255,255,0.8)",
                       fontSize: "13px",
                       textDecoration: "none",
-                      fontFamily: "var(--font-barlow)",
+                      fontFamily: "var(--font-inter)",
                       fontWeight: 600,
                     }}
                   >
@@ -216,7 +216,7 @@ export function Header() {
                       color: "rgba(255,255,255,0.8)",
                       fontSize: "13px",
                       textDecoration: "none",
-                      fontFamily: "var(--font-barlow)",
+                      fontFamily: "var(--font-inter)",
                       fontWeight: 600,
                     }}
                   >
@@ -235,7 +235,7 @@ export function Header() {
                       fontSize: "13px",
                       cursor: "pointer",
                       textAlign: "left",
-                      fontFamily: "var(--font-barlow)",
+                      fontFamily: "var(--font-inter)",
                     }}
                   >
                     Sign Out
@@ -255,7 +255,7 @@ export function Header() {
                 textDecoration: "none",
                 fontSize: "13px",
                 fontWeight: "600",
-                fontFamily: "var(--font-barlow)",
+                fontFamily: "var(--font-inter)",
                 whiteSpace: "nowrap",
               }}
             >

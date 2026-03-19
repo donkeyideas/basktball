@@ -130,7 +130,7 @@ export default function LoginPage() {
             alignItems: "center",
             justifyContent: "center",
             gap: "10px",
-            fontFamily: "var(--font-barlow)",
+            fontFamily: "var(--font-inter)",
           }}
         >
           <svg width="18" height="18" viewBox="0 0 24 24">
@@ -172,7 +172,7 @@ export default function LoginPage() {
           )}
 
           <div style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", color: "rgba(255,255,255,0.7)", fontSize: "13px", marginBottom: "6px", fontFamily: "var(--font-barlow)" }}>
+            <label style={{ display: "block", color: "rgba(255,255,255,0.7)", fontSize: "13px", marginBottom: "6px", fontFamily: "var(--font-inter)" }}>
               Email
             </label>
             <input
@@ -188,7 +188,7 @@ export default function LoginPage() {
                 background: "#0D0D0D",
                 color: "#fff",
                 fontSize: "15px",
-                fontFamily: "var(--font-barlow)",
+                fontFamily: "var(--font-inter)",
                 outline: "none",
                 boxSizing: "border-box",
               }}
@@ -197,7 +197,7 @@ export default function LoginPage() {
           </div>
 
           <div style={{ marginBottom: "24px" }}>
-            <label style={{ display: "block", color: "rgba(255,255,255,0.7)", fontSize: "13px", marginBottom: "6px", fontFamily: "var(--font-barlow)" }}>
+            <label style={{ display: "block", color: "rgba(255,255,255,0.7)", fontSize: "13px", marginBottom: "6px", fontFamily: "var(--font-inter)" }}>
               Password
             </label>
             <input
@@ -213,7 +213,7 @@ export default function LoginPage() {
                 background: "#0D0D0D",
                 color: "#fff",
                 fontSize: "15px",
-                fontFamily: "var(--font-barlow)",
+                fontFamily: "var(--font-inter)",
                 outline: "none",
                 boxSizing: "border-box",
               }}
@@ -234,7 +234,7 @@ export default function LoginPage() {
               fontSize: "16px",
               fontWeight: "700",
               cursor: loading ? "not-allowed" : "pointer",
-              fontFamily: "var(--font-barlow)",
+              fontFamily: "var(--font-inter)",
               letterSpacing: "1px",
               textTransform: "uppercase",
             }}
@@ -248,7 +248,7 @@ export default function LoginPage() {
           marginTop: "24px",
           color: "rgba(255,255,255,0.5)",
           fontSize: "14px",
-          fontFamily: "var(--font-barlow)",
+          fontFamily: "var(--font-inter)",
         }}>
           Don&apos;t have an account?{" "}
           <Link href="/register" style={{ color: "#FF6B35", textDecoration: "none" }}>

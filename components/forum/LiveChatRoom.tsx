@@ -96,7 +96,7 @@ export default function LiveChatRoom({ gameId, compact }: LiveChatRoomProps) {
         justifyContent: "space-between",
         alignItems: "center",
       }}>
-        <span style={{ fontWeight: "700", fontSize: "14px", color: "#FF6B35", fontFamily: "var(--font-barlow)" }}>
+        <span style={{ fontWeight: "700", fontSize: "14px", color: "#FF6B35", fontFamily: "var(--font-inter)" }}>
           LIVE CHAT
         </span>
         <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)" }}>
@@ -178,7 +178,7 @@ export default function LiveChatRoom({ gameId, compact }: LiveChatRoomProps) {
               background: "#0D0D0D",
               color: "#fff",
               fontSize: "13px",
-              fontFamily: "var(--font-barlow)",
+              fontFamily: "var(--font-inter)",
               outline: "none",
             }}
           />
