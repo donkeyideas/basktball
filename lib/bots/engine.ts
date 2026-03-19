@@ -111,6 +111,69 @@ function pickRandom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
+// ====== LENGTH VARIATION ======
+
+type LengthTier = "short" | "medium" | "long";
+
+interface LengthConfig {
+  tier: LengthTier;
+  maxChars: number;
+  maxTokens: number;
+  promptHint: string;
+}
+
+function getRandomPostLength(): LengthConfig {
+  const roll = Math.random();
+  if (roll < 0.4) {
+    return {
+      tier: "short",
+      maxChars: 280,
+      maxTokens: 150,
+      promptHint: "Write a single short basketball hot take or opinion (under 280 characters, 1-2 sentences max)",
+    };
+  } else if (roll < 0.75) {
+    return {
+      tier: "medium",
+      maxChars: 800,
+      maxTokens: 400,
+      promptHint: "Write a basketball take or opinion (2-4 sentences, around 300-700 characters). Go into some detail - explain your reasoning or add context to your point",
+    };
+  } else {
+    return {
+      tier: "long",
+      maxChars: 2000,
+      maxTokens: 900,
+      promptHint: "Write a longer, detailed basketball take or mini-rant (5-10 sentences, around 800-1800 characters). Really go in depth - break down your argument, reference specific stats or moments, compare players or eras, and make your case thoroughly. This is your chance to go OFF",
+    };
+  }
+}
+
+function getRandomReplyLength(): LengthConfig {
+  const roll = Math.random();
+  if (roll < 0.45) {
+    return {
+      tier: "short",
+      maxChars: 200,
+      maxTokens: 100,
+      promptHint: "Write a short reply (under 200 characters, 1 sentence)",
+    };
+  } else if (roll < 0.8) {
+    return {
+      tier: "medium",
+      maxChars: 600,
+      maxTokens: 300,
+      promptHint: "Write a reply (2-3 sentences, around 200-500 characters). Explain your agreement or disagreement with some reasoning",
+    };
+  } else {
+    return {
+      tier: "long",
+      maxChars: 1500,
+      maxTokens: 600,
+      promptHint: "Write a detailed reply (4-6 sentences, around 500-1200 characters). Really engage with the take - break down why you agree or disagree, add your own perspective, reference specific examples or stats",
+    };
+  }
+}
+
 function getFallbackTake(personality: BotPersonality): string {
   const tone = personality.tone?.toLowerCase() || "default";
   if (tone.includes("analyt") || tone.includes("data")) return pickRandom(FALLBACK_TAKES.analytical);
@@ -171,6 +234,9 @@ async function generateWithAI(personality: BotPersonality, context: string, favo
 
     const today = new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
+    // Randomize post length
+    const lengthConfig = getRandomPostLength();
+
     // 80% of the time, focus on the bot's favorite team
     const shouldFocusTeam = favoriteTeam && Math.random() < 0.8;
     const teamDirective = shouldFocusTeam
@@ -184,7 +250,7 @@ async function generateWithAI(personality: BotPersonality, context: string, favo
 Today's date is ${today}.
 
 IMPORTANT RULES:
-- Write a single short basketball hot take or opinion (under 280 characters)
+- ${lengthConfig.promptHint}
 - Sound natural and human - no formal language
 - NO markdown formatting (no **, ##, *, backticks, bullet points)
 - NO hashtags unless natural
@@ -197,14 +263,14 @@ IMPORTANT RULES:
 
     const result = await gemini.generate(userPrompt, systemPrompt, {
       temperature: 0.9,
-      maxTokens: 150,
+      maxTokens: lengthConfig.maxTokens,
     });
 
     let content = stripMarkdown(result.content);
     if ((content.startsWith('"') && content.endsWith('"')) || (content.startsWith("'") && content.endsWith("'"))) {
       content = content.slice(1, -1);
     }
-    if (content.length > 280) content = content.slice(0, 277) + "...";
+    if (content.length > lengthConfig.maxChars) content = content.slice(0, lengthConfig.maxChars - 3) + "...";
     return content;
   } catch (error) {
     console.error("AI generation failed, using fallback:", error);
@@ -217,12 +283,15 @@ async function generateReplyWithAI(personality: BotPersonality, originalContent:
     const { gemini } = await import("@/lib/ai/gemini");
     if (!process.env.GEMINI_API_KEY) return null;
 
+    // Randomize reply length
+    const lengthConfig = getRandomReplyLength();
+
     const teamContext = favoriteTeam ? ` You are a ${getTeamFullName(favoriteTeam)} fan, and your perspective is colored by that loyalty.` : "";
 
     const systemPrompt = `You are a basketball fan replying to a post on a social media platform called The Court. Your personality: ${personality.tone} tone, ${personality.responseStyle} style.${teamContext}
 
 RULES:
-- Write a short reply (under 200 characters)
+- ${lengthConfig.promptHint}
 - Sound natural - like a real person commenting
 - NO markdown formatting
 - Be engaging - agree, disagree, add context, or challenge the take`;
@@ -230,14 +299,14 @@ RULES:
     const result = await gemini.generate(
       `Reply to this take: "${originalContent}"`,
       systemPrompt,
-      { temperature: 0.9, maxTokens: 100 }
+      { temperature: 0.9, maxTokens: lengthConfig.maxTokens }
     );
 
     let content = stripMarkdown(result.content);
     if ((content.startsWith('"') && content.endsWith('"')) || (content.startsWith("'") && content.endsWith("'"))) {
       content = content.slice(1, -1);
     }
-    if (content.length > 200) content = content.slice(0, 197) + "...";
+    if (content.length > lengthConfig.maxChars) content = content.slice(0, lengthConfig.maxChars - 3) + "...";
     return content;
   } catch {
     return null;

@@ -1491,8 +1491,8 @@ export default function CourtPage() {
                           color: "#fff",
                           overflow: "hidden",
                         }}>
-                          {user.image
-                            ? <img src={user.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          {(user.avatarUrl || user.image)
+                            ? <img src={user.avatarUrl || user.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                             : (user.name || "?").charAt(0).toUpperCase()}
                         </div>
                         <div>
