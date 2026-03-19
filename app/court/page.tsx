@@ -38,7 +38,7 @@ export default function CourtPage() {
   // Sidebar data
   const [newsArticles, setNewsArticles] = useState<{ id: string; title: string; link: string; imageUrl?: string; source: string; pubDate: string }[]>([]);
   // stats removed per user request
-  const [suggestedUsers, setSuggestedUsers] = useState<{ id: string; name: string; takeCount: number; image: string | null }[]>([]);
+  const [suggestedUsers, setSuggestedUsers] = useState<{ id: string; name: string; takeCount: number; image: string | null; avatarUrl?: string | null }[]>([]);
   const [followedIds, setFollowedIds] = useState<Set<string>>(new Set());
   const [followLoading, setFollowLoading] = useState<Set<string>>(new Set());
   const [hasLiveGames, setHasLiveGames] = useState(false);
