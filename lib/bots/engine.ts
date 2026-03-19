@@ -274,25 +274,7 @@ async function generateWithAI(personality: BotPersonality, context: string, favo
 
   const { systemPrompt, userPrompt, lengthConfig } = buildTakePrompt(personality, context, newsContext, favoriteTeam);
 
-  // Try Gemini first
-  if (process.env.GEMINI_API_KEY) {
-    try {
-      const { gemini } = await import("@/lib/ai/gemini");
-      const result = await gemini.generate(userPrompt, systemPrompt, {
-        temperature: 0.9,
-        maxTokens: lengthConfig.maxTokens,
-      });
-      const content = cleanAIContent(result.content, lengthConfig.maxChars);
-      if (content.length > 10) {
-        console.log(`[BOT] Gemini generated take (${lengthConfig.tier}, ${content.length} chars): "${content.slice(0, 80)}..."`);
-        return content;
-      }
-    } catch (error) {
-      console.error("[BOT] Gemini failed:", error instanceof Error ? error.message : error);
-    }
-  }
-
-  // Fallback to DeepSeek
+  // Try DeepSeek first (primary)
   if (process.env.DEEPSEEK_API_KEY) {
     try {
       const { deepseek } = await import("@/lib/ai/deepseek");
@@ -307,6 +289,24 @@ async function generateWithAI(personality: BotPersonality, context: string, favo
       }
     } catch (error) {
       console.error("[BOT] DeepSeek failed:", error instanceof Error ? error.message : error);
+    }
+  }
+
+  // Fallback to Gemini
+  if (process.env.GEMINI_API_KEY) {
+    try {
+      const { gemini } = await import("@/lib/ai/gemini");
+      const result = await gemini.generate(userPrompt, systemPrompt, {
+        temperature: 0.9,
+        maxTokens: lengthConfig.maxTokens,
+      });
+      const content = cleanAIContent(result.content, lengthConfig.maxChars);
+      if (content.length > 10) {
+        console.log(`[BOT] Gemini generated take (${lengthConfig.tier}, ${content.length} chars): "${content.slice(0, 80)}..."`);
+        return content;
+      }
+    } catch (error) {
+      console.error("[BOT] Gemini failed:", error instanceof Error ? error.message : error);
     }
   }
 
@@ -328,26 +328,26 @@ RULES:
 
   const userPrompt = `Reply to this take: "${originalContent}"`;
 
-  // Try Gemini first
-  if (process.env.GEMINI_API_KEY) {
+  // Try DeepSeek first (primary)
+  if (process.env.DEEPSEEK_API_KEY) {
     try {
-      const { gemini } = await import("@/lib/ai/gemini");
-      const result = await gemini.generate(userPrompt, systemPrompt, {
+      const { deepseek } = await import("@/lib/ai/deepseek");
+      const result = await deepseek.generate(userPrompt, systemPrompt, {
         temperature: 0.9,
         maxTokens: lengthConfig.maxTokens,
       });
       const content = cleanAIContent(result.content, lengthConfig.maxChars);
       if (content.length > 5) return content;
     } catch {
-      // Fall through to DeepSeek
+      // Fall through to Gemini
     }
   }
 
-  // Fallback to DeepSeek
-  if (process.env.DEEPSEEK_API_KEY) {
+  // Fallback to Gemini
+  if (process.env.GEMINI_API_KEY) {
     try {
-      const { deepseek } = await import("@/lib/ai/deepseek");
-      const result = await deepseek.generate(userPrompt, systemPrompt, {
+      const { gemini } = await import("@/lib/ai/gemini");
+      const result = await gemini.generate(userPrompt, systemPrompt, {
         temperature: 0.9,
         maxTokens: lengthConfig.maxTokens,
       });
