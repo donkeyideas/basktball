@@ -488,7 +488,7 @@ export default function TakeDetailPage() {
             </div>
 
             {/* Content */}
-            <p
+            <div
               style={{
                 color: "#fff",
                 fontFamily: "var(--font-inter), sans-serif",
@@ -496,10 +496,11 @@ export default function TakeDetailPage() {
                 lineHeight: "1.5",
                 margin: "0 0 16px 0",
                 wordBreak: "break-word",
+                whiteSpace: "pre-wrap",
               }}
             >
               {mainTake.content}
-            </p>
+            </div>
 
             {/* Tags */}
             {mainTake.tags && mainTake.tags.length > 0 && (

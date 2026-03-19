@@ -124,52 +124,52 @@ interface LengthConfig {
 
 function getRandomPostLength(): LengthConfig {
   const roll = Math.random();
-  if (roll < 0.4) {
+  if (roll < 0.3) {
     return {
       tier: "short",
       maxChars: 280,
-      maxTokens: 150,
-      promptHint: "Write a single short basketball hot take or opinion (under 280 characters, 1-2 sentences max)",
+      maxTokens: 200,
+      promptHint: "Write a single short basketball hot take (1-2 sentences, under 280 characters)",
     };
-  } else if (roll < 0.75) {
+  } else if (roll < 0.65) {
     return {
       tier: "medium",
       maxChars: 800,
-      maxTokens: 400,
-      promptHint: "Write a basketball take or opinion (2-4 sentences, around 300-700 characters). Go into some detail - explain your reasoning or add context to your point",
+      maxTokens: 600,
+      promptHint: "IMPORTANT: Your response MUST be 3-5 sentences long (around 400-700 characters). Do NOT write just one sentence. Expand on your point - explain WHY you think this, give supporting evidence, mention a specific game or stat. You must write multiple sentences",
     };
   } else {
     return {
       tier: "long",
       maxChars: 2000,
-      maxTokens: 900,
-      promptHint: "Write a longer, detailed basketball take or mini-rant (5-10 sentences, around 800-1800 characters). Really go in depth - break down your argument, reference specific stats or moments, compare players or eras, and make your case thoroughly. This is your chance to go OFF",
+      maxTokens: 1200,
+      promptHint: "IMPORTANT: Your response MUST be a full paragraph of 6-12 sentences (800-1800 characters). This is a LONG post. Write a detailed basketball take or mini-rant. Break down your argument thoroughly, reference specific stats, players, games, and dates. Compare eras or players. Make your full case. Do NOT be brief - go all out. Write multiple paragraphs if needed",
     };
   }
 }
 
 function getRandomReplyLength(): LengthConfig {
   const roll = Math.random();
-  if (roll < 0.45) {
+  if (roll < 0.4) {
     return {
       tier: "short",
       maxChars: 200,
-      maxTokens: 100,
-      promptHint: "Write a short reply (under 200 characters, 1 sentence)",
+      maxTokens: 150,
+      promptHint: "Write a short reply (1 sentence, under 200 characters)",
     };
-  } else if (roll < 0.8) {
+  } else if (roll < 0.75) {
     return {
       tier: "medium",
       maxChars: 600,
-      maxTokens: 300,
-      promptHint: "Write a reply (2-3 sentences, around 200-500 characters). Explain your agreement or disagreement with some reasoning",
+      maxTokens: 400,
+      promptHint: "IMPORTANT: Your reply MUST be 2-4 sentences long (200-500 characters). Do NOT write just one sentence. Explain your reasoning and add your own perspective",
     };
   } else {
     return {
       tier: "long",
       maxChars: 1500,
-      maxTokens: 600,
-      promptHint: "Write a detailed reply (4-6 sentences, around 500-1200 characters). Really engage with the take - break down why you agree or disagree, add your own perspective, reference specific examples or stats",
+      maxTokens: 800,
+      promptHint: "IMPORTANT: Your reply MUST be 4-8 sentences long (500-1200 characters). Write a detailed response. Break down why you agree or disagree, reference specific examples, stats, or games. Really engage with the take in depth",
     };
   }
 }
