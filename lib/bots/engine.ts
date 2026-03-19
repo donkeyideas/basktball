@@ -220,33 +220,20 @@ async function fetchRecentNewsHeadlines(): Promise<string[]> {
   return [];
 }
 
-async function generateWithAI(personality: BotPersonality, context: string, favoriteTeam?: NbaTeamInfo | null): Promise<string | null> {
-  try {
-    const { gemini } = await import("@/lib/ai/gemini");
-    if (!process.env.GEMINI_API_KEY) return null;
+function buildTakePrompt(personality: BotPersonality, context: string, newsContext: string, favoriteTeam?: NbaTeamInfo | null): { systemPrompt: string; userPrompt: string; lengthConfig: LengthConfig } {
+  const today = new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  const lengthConfig = getRandomPostLength();
 
-    // Fetch current news headlines for up-to-date context
-    const newsHeadlines = await fetchRecentNewsHeadlines();
-    let newsContext = "";
-    if (newsHeadlines.length > 0) {
-      newsContext = "\n\nCurrent basketball news headlines from this week:\n" + newsHeadlines.map((h) => `- ${h}`).join("\n");
-    }
+  // 90% of the time, focus on the bot's favorite team
+  const shouldFocusTeam = favoriteTeam && Math.random() < 0.9;
+  const teamName = favoriteTeam ? getTeamFullName(favoriteTeam) : "";
+  const teamDirective = shouldFocusTeam
+    ? `\n- You are a DIE-HARD ${teamName} fan. This take MUST be about the ${teamName} (${favoriteTeam!.abbreviation}) and their CURRENT ${new Date().getFullYear()} season. Talk about their current roster, recent wins or losses, their playoff chances this year, specific players on the team RIGHT NOW, coaching decisions, trades, or matchups happening THIS season. You live and breathe this team.`
+    : favoriteTeam
+      ? `\n- You are a ${teamName} fan but this time talk about the broader NBA landscape, other teams, or league-wide topics. You can still mention the ${teamName} in passing.`
+      : "";
 
-    const today = new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
-
-    // Randomize post length
-    const lengthConfig = getRandomPostLength();
-
-    // 90% of the time, focus on the bot's favorite team
-    const shouldFocusTeam = favoriteTeam && Math.random() < 0.9;
-    const teamName = favoriteTeam ? getTeamFullName(favoriteTeam) : "";
-    const teamDirective = shouldFocusTeam
-      ? `\n- You are a DIE-HARD ${teamName} fan. This take MUST be about the ${teamName} (${favoriteTeam!.abbreviation}) and their CURRENT ${new Date().getFullYear()} season. Talk about their current roster, recent wins or losses, their playoff chances this year, specific players on the team RIGHT NOW, coaching decisions, trades, or matchups happening THIS season. You live and breathe this team.`
-      : favoriteTeam
-        ? `\n- You are a ${teamName} fan but this time talk about the broader NBA landscape, other teams, or league-wide topics. You can still mention the ${teamName} in passing.`
-        : "";
-
-    const systemPrompt = `You are a basketball fan posting on a social media platform called The Court. Your personality: ${personality.tone} tone, interested in ${personality.interests.join(", ")}, ${personality.responseStyle} style.${favoriteTeam ? ` You are a ${getTeamFullName(favoriteTeam)} fan.` : ""}
+  const systemPrompt = `You are a basketball fan posting on a social media platform called The Court. Your personality: ${personality.tone} tone, interested in ${personality.interests.join(", ")}, ${personality.responseStyle} style.${favoriteTeam ? ` You are a ${getTeamFullName(favoriteTeam)} fan.` : ""}
 
 Today's date is ${today}.
 
@@ -263,37 +250,75 @@ IMPORTANT RULES:
 - Vary your style - sometimes ask a question, sometimes make a bold claim, sometimes a hot prediction
 - Reference specific player names, game scores, stats, or dates when possible${teamDirective}`;
 
-    const userPrompt = `Given this context about what's happening in basketball RIGHT NOW, write a fresh, timely hot take:\n\n${context}${newsContext}`;
+  const userPrompt = `Given this context about what's happening in basketball RIGHT NOW, write a fresh, timely hot take:\n\n${context}${newsContext}`;
 
-    const result = await gemini.generate(userPrompt, systemPrompt, {
-      temperature: 0.9,
-      maxTokens: lengthConfig.maxTokens,
-    });
+  return { systemPrompt, userPrompt, lengthConfig };
+}
 
-    let content = stripMarkdown(result.content);
-    if ((content.startsWith('"') && content.endsWith('"')) || (content.startsWith("'") && content.endsWith("'"))) {
-      content = content.slice(1, -1);
-    }
-    if (content.length > lengthConfig.maxChars) content = content.slice(0, lengthConfig.maxChars - 3) + "...";
-    console.log(`[BOT] AI generated take (${lengthConfig.tier}, ${content.length} chars): "${content.slice(0, 80)}..."`);
-    return content;
-  } catch (error) {
-    console.error("[BOT] AI generation failed:", error);
-    return null;
+function cleanAIContent(raw: string, maxChars: number): string {
+  let content = stripMarkdown(raw);
+  if ((content.startsWith('"') && content.endsWith('"')) || (content.startsWith("'") && content.endsWith("'"))) {
+    content = content.slice(1, -1);
   }
+  if (content.length > maxChars) content = content.slice(0, maxChars - 3) + "...";
+  return content;
+}
+
+async function generateWithAI(personality: BotPersonality, context: string, favoriteTeam?: NbaTeamInfo | null): Promise<string | null> {
+  // Fetch current news headlines for up-to-date context
+  const newsHeadlines = await fetchRecentNewsHeadlines();
+  let newsContext = "";
+  if (newsHeadlines.length > 0) {
+    newsContext = "\n\nCurrent basketball news headlines from this week:\n" + newsHeadlines.map((h) => `- ${h}`).join("\n");
+  }
+
+  const { systemPrompt, userPrompt, lengthConfig } = buildTakePrompt(personality, context, newsContext, favoriteTeam);
+
+  // Try Gemini first
+  if (process.env.GEMINI_API_KEY) {
+    try {
+      const { gemini } = await import("@/lib/ai/gemini");
+      const result = await gemini.generate(userPrompt, systemPrompt, {
+        temperature: 0.9,
+        maxTokens: lengthConfig.maxTokens,
+      });
+      const content = cleanAIContent(result.content, lengthConfig.maxChars);
+      if (content.length > 10) {
+        console.log(`[BOT] Gemini generated take (${lengthConfig.tier}, ${content.length} chars): "${content.slice(0, 80)}..."`);
+        return content;
+      }
+    } catch (error) {
+      console.error("[BOT] Gemini failed:", error instanceof Error ? error.message : error);
+    }
+  }
+
+  // Fallback to DeepSeek
+  if (process.env.DEEPSEEK_API_KEY) {
+    try {
+      const { deepseek } = await import("@/lib/ai/deepseek");
+      const result = await deepseek.generate(userPrompt, systemPrompt, {
+        temperature: 0.9,
+        maxTokens: lengthConfig.maxTokens,
+      });
+      const content = cleanAIContent(result.content, lengthConfig.maxChars);
+      if (content.length > 10) {
+        console.log(`[BOT] DeepSeek generated take (${lengthConfig.tier}, ${content.length} chars): "${content.slice(0, 80)}..."`);
+        return content;
+      }
+    } catch (error) {
+      console.error("[BOT] DeepSeek failed:", error instanceof Error ? error.message : error);
+    }
+  }
+
+  console.error("[BOT] All AI providers failed. GEMINI_API_KEY set:", !!process.env.GEMINI_API_KEY, "DEEPSEEK_API_KEY set:", !!process.env.DEEPSEEK_API_KEY);
+  return null;
 }
 
 async function generateReplyWithAI(personality: BotPersonality, originalContent: string, favoriteTeam?: NbaTeamInfo | null): Promise<string | null> {
-  try {
-    const { gemini } = await import("@/lib/ai/gemini");
-    if (!process.env.GEMINI_API_KEY) return null;
+  const lengthConfig = getRandomReplyLength();
+  const teamContext = favoriteTeam ? ` You are a ${getTeamFullName(favoriteTeam)} fan, and your perspective is colored by that loyalty.` : "";
 
-    // Randomize reply length
-    const lengthConfig = getRandomReplyLength();
-
-    const teamContext = favoriteTeam ? ` You are a ${getTeamFullName(favoriteTeam)} fan, and your perspective is colored by that loyalty.` : "";
-
-    const systemPrompt = `You are a basketball fan replying to a post on a social media platform called The Court. Your personality: ${personality.tone} tone, ${personality.responseStyle} style.${teamContext}
+  const systemPrompt = `You are a basketball fan replying to a post on a social media platform called The Court. Your personality: ${personality.tone} tone, ${personality.responseStyle} style.${teamContext}
 
 RULES:
 - ${lengthConfig.promptHint}
@@ -301,21 +326,39 @@ RULES:
 - NO markdown formatting
 - Be engaging - agree, disagree, add context, or challenge the take`;
 
-    const result = await gemini.generate(
-      `Reply to this take: "${originalContent}"`,
-      systemPrompt,
-      { temperature: 0.9, maxTokens: lengthConfig.maxTokens }
-    );
+  const userPrompt = `Reply to this take: "${originalContent}"`;
 
-    let content = stripMarkdown(result.content);
-    if ((content.startsWith('"') && content.endsWith('"')) || (content.startsWith("'") && content.endsWith("'"))) {
-      content = content.slice(1, -1);
+  // Try Gemini first
+  if (process.env.GEMINI_API_KEY) {
+    try {
+      const { gemini } = await import("@/lib/ai/gemini");
+      const result = await gemini.generate(userPrompt, systemPrompt, {
+        temperature: 0.9,
+        maxTokens: lengthConfig.maxTokens,
+      });
+      const content = cleanAIContent(result.content, lengthConfig.maxChars);
+      if (content.length > 5) return content;
+    } catch {
+      // Fall through to DeepSeek
     }
-    if (content.length > lengthConfig.maxChars) content = content.slice(0, lengthConfig.maxChars - 3) + "...";
-    return content;
-  } catch {
-    return null;
   }
+
+  // Fallback to DeepSeek
+  if (process.env.DEEPSEEK_API_KEY) {
+    try {
+      const { deepseek } = await import("@/lib/ai/deepseek");
+      const result = await deepseek.generate(userPrompt, systemPrompt, {
+        temperature: 0.9,
+        maxTokens: lengthConfig.maxTokens,
+      });
+      const content = cleanAIContent(result.content, lengthConfig.maxChars);
+      if (content.length > 5) return content;
+    } catch {
+      // Both failed
+    }
+  }
+
+  return null;
 }
 
 // ====== CORE BOT FUNCTIONS ======

@@ -667,7 +667,13 @@ export default function CourtPage() {
                         ref={composeTextareaRef}
                         value={composeContent}
                         onChange={handleComposeContentChange}
-                        placeholder="What's your take?"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+                            e.preventDefault();
+                            handleInlinePost();
+                          }
+                        }}
+                        placeholder="What's your take? (Enter for new line, Ctrl+Enter to post)"
                         maxLength={2010}
                         style={{
                           width: "100%",
