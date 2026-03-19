@@ -237,12 +237,13 @@ async function generateWithAI(personality: BotPersonality, context: string, favo
     // Randomize post length
     const lengthConfig = getRandomPostLength();
 
-    // 80% of the time, focus on the bot's favorite team
-    const shouldFocusTeam = favoriteTeam && Math.random() < 0.8;
+    // 90% of the time, focus on the bot's favorite team
+    const shouldFocusTeam = favoriteTeam && Math.random() < 0.9;
+    const teamName = favoriteTeam ? getTeamFullName(favoriteTeam) : "";
     const teamDirective = shouldFocusTeam
-      ? `\n- You are a DIE-HARD ${getTeamFullName(favoriteTeam)} fan. This take MUST be about the ${getTeamFullName(favoriteTeam)} (${favoriteTeam.abbreviation}) - their players, recent games, trades, or matchups. Show your passion for this team.`
+      ? `\n- You are a DIE-HARD ${teamName} fan. This take MUST be about the ${teamName} (${favoriteTeam!.abbreviation}) and their CURRENT ${new Date().getFullYear()} season. Talk about their current roster, recent wins or losses, their playoff chances this year, specific players on the team RIGHT NOW, coaching decisions, trades, or matchups happening THIS season. You live and breathe this team.`
       : favoriteTeam
-        ? `\n- You are a ${getTeamFullName(favoriteTeam)} fan but this time talk about the broader NBA landscape, other teams, or league-wide topics.`
+        ? `\n- You are a ${teamName} fan but this time talk about the broader NBA landscape, other teams, or league-wide topics. You can still mention the ${teamName} in passing.`
         : "";
 
     const systemPrompt = `You are a basketball fan posting on a social media platform called The Court. Your personality: ${personality.tone} tone, interested in ${personality.interests.join(", ")}, ${personality.responseStyle} style.${favoriteTeam ? ` You are a ${getTeamFullName(favoriteTeam)} fan.` : ""}
@@ -255,9 +256,12 @@ IMPORTANT RULES:
 - NO markdown formatting (no **, ##, *, backticks, bullet points)
 - NO hashtags unless natural
 - Be opinionated and engaging
-- You MUST reference current events, recent games, or recent news from this week
+- You MUST reference current events, recent games, or recent news from the current NBA season
 - DO NOT write generic basketball opinions - be specific about players, teams, and recent happenings
-- Vary your style - sometimes ask a question, sometimes make a bold claim, sometimes a hot prediction${teamDirective}`;
+- NEVER repeat or paraphrase something already posted on the timeline (listed below)
+- Your take must be UNIQUE and ORIGINAL - not something anyone else has said
+- Vary your style - sometimes ask a question, sometimes make a bold claim, sometimes a hot prediction
+- Reference specific player names, game scores, stats, or dates when possible${teamDirective}`;
 
     const userPrompt = `Given this context about what's happening in basketball RIGHT NOW, write a fresh, timely hot take:\n\n${context}${newsContext}`;
 
@@ -333,9 +337,17 @@ export async function generateBotTake(botUserId: string): Promise<string | null>
     personality = { tone: "casual", interests: ["basketball"], responseStyle: "concise" };
   }
 
-  // Gather context - recent takes, live games, and recent completed games
+  // Gather context - recent takes (from others AND this bot) to avoid duplicates
   const recentTakes = await prisma.take.findMany({
     where: { isDeleted: false, parentId: null, authorId: { not: botUserId } },
+    orderBy: { createdAt: "desc" },
+    take: 10,
+    select: { content: true },
+  });
+
+  // Fetch this bot's own recent takes to prevent duplicates
+  const ownRecentTakes = await prisma.take.findMany({
+    where: { isDeleted: false, parentId: null, authorId: botUserId },
     orderBy: { createdAt: "desc" },
     take: 10,
     select: { content: true },
@@ -365,7 +377,10 @@ export async function generateBotTake(botUserId: string): Promise<string | null>
 
   let context = "";
   if (recentTakes.length > 0) {
-    context += "Recent takes on the timeline (DO NOT repeat these):\n" + recentTakes.map((t) => `- ${t.content.slice(0, 100)}`).join("\n");
+    context += "Recent takes on the timeline (DO NOT repeat or paraphrase any of these):\n" + recentTakes.map((t) => `- ${t.content.slice(0, 150)}`).join("\n");
+  }
+  if (ownRecentTakes.length > 0) {
+    context += "\n\nYour own previous takes (you MUST NOT repeat or rephrase these - say something completely NEW and DIFFERENT):\n" + ownRecentTakes.map((t) => `- ${t.content.slice(0, 150)}`).join("\n");
   }
   if (liveGames.length > 0) {
     context += "\n\nLive games right now:\n" + liveGames.map((g) => `- ${g.awayTeam.name} ${g.awayScore || 0} @ ${g.homeTeam.name} ${g.homeScore || 0} (${g.quarter || "Q1"} ${g.clock || ""})`).join("\n");
@@ -377,9 +392,31 @@ export async function generateBotTake(botUserId: string): Promise<string | null>
   // Look up bot's favorite team from hardcoded NBA teams
   const favoriteTeam = bot.favoriteTeamId ? getNbaTeam(bot.favoriteTeamId) || null : null;
 
+  // Collect all existing content for duplicate checking
+  const allExistingContent = [...recentTakes, ...ownRecentTakes].map((t) => t.content.toLowerCase().trim());
+
   // Try AI first, fallback to pre-written content
   const aiContent = await generateWithAI(personality, context, favoriteTeam);
-  return aiContent || getFallbackTake(personality);
+  if (aiContent) {
+    // Check if AI generated a duplicate
+    const isDuplicate = allExistingContent.some(
+      (existing) => existing === aiContent.toLowerCase().trim() || existing.includes(aiContent.toLowerCase().trim().slice(0, 80))
+    );
+    if (!isDuplicate) return aiContent;
+    // If duplicate, try once more
+    const retry = await generateWithAI(personality, context, favoriteTeam);
+    if (retry) return retry;
+  }
+
+  // Fallback: pick one that hasn't been posted recently
+  const fallback = getFallbackTake(personality);
+  const fallbackIsDuplicate = allExistingContent.some((existing) => existing === fallback.toLowerCase().trim());
+  if (!fallbackIsDuplicate) return fallback;
+
+  // All fallbacks used, try a different category
+  const allFallbacks = Object.values(FALLBACK_TAKES).flat();
+  const unused = allFallbacks.filter((f) => !allExistingContent.some((e) => e === f.toLowerCase().trim()));
+  return unused.length > 0 ? pickRandom(unused) : fallback;
 }
 
 export async function postBotTake(botUserId: string): Promise<string | null> {
