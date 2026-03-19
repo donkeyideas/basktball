@@ -46,8 +46,8 @@ export default function TabLayout() {
         name="court"
         options={{
           title: 'Court',
-          tabBarIcon: ({ color, focused }) => (
-            <LetterIcon letter="C" color={color} focused={focused} />
+          tabBarIcon: ({ focused }) => (
+            <LetterIcon letter="C" color={Colors.orange} focused={focused || true} />
           ),
         }}
       />

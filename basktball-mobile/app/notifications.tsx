@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Colors, Fonts } from '@/constants/Colors';
-import { useAuth } from '@/lib/auth/AuthContext';
+import { api } from '@/lib/api/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 interface Notification {
@@ -46,15 +46,13 @@ const NOTIF_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
 };
 
 export default function NotificationsScreen() {
-  const { api } = useAuth();
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ['notifications'],
     queryFn: async () => {
-      const res = await api.get('/mobile/notifications?limit=50');
-      return res.data;
+      return await api.get<{ notifications: Notification[] }>('/mobile/notifications?limit=50');
     },
     staleTime: 30000,
   });
@@ -70,7 +68,7 @@ export default function NotificationsScreen() {
   const handleNotifPress = async (notif: Notification) => {
     // Mark as read
     if (!notif.read) {
-      api.patch('/mobile/notifications', { notificationId: notif.id }).catch(() => {});
+      api.patch('/mobile/notifications', { notificationId: notif.id } as unknown).catch(() => {});
       queryClient.setQueryData(['notifications'], (old: { notifications: Notification[] } | undefined) => {
         if (!old) return old;
         return {
@@ -89,7 +87,7 @@ export default function NotificationsScreen() {
   };
 
   const handleMarkAllRead = async () => {
-    await api.patch('/mobile/notifications', { markAllRead: true });
+    await api.patch('/mobile/notifications', { markAllRead: true } as unknown);
     queryClient.invalidateQueries({ queryKey: ['notifications'] });
   };
 

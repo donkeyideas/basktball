@@ -101,6 +101,8 @@ export default function CourtScreen() {
   const [showPoll, setShowPoll] = useState(false);
   const [pollOptions, setPollOptions] = useState<string[]>(['', '']);
   const [pollDuration, setPollDuration] = useState(24);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   // Themed alert modal state
   const [alertConfig, setAlertConfig] = useState<{
@@ -191,6 +193,18 @@ export default function CourtScreen() {
     }, [selectedSegment])
   );
 
+  function mapTakes(raw: any[]): Take[] {
+    return raw.map((t: any) => ({
+      ...t,
+      userFired: t.userReaction === 'FIRE',
+      userBricked: t.userReaction === 'BRICK',
+      poll: t.poll ? {
+        ...t.poll,
+        userVotedOptionId: t.poll.votes?.[0]?.optionId || null,
+      } : null,
+    }));
+  }
+
   async function fetchFeed() {
     if (!refreshing) setLoading(true);
     try {
@@ -200,27 +214,40 @@ export default function CourtScreen() {
         'LIVE': 'live',
       };
       const type = typeMap[selectedSegment] || 'foryou';
-      // Use api client to send JWT token so server can return user-specific data
-      // Cache-bust to ensure fresh data (polls, new takes)
-      const data = await api.get<{ takes: any[] }>(`/court/feed?type=${type}&limit=20&_t=${Date.now()}`);
+      const data = await api.get<{ takes: any[]; nextCursor: string | null }>(`/court/feed?type=${type}&limit=20&_t=${Date.now()}`);
       if (data.takes) {
-        // Map userReaction and poll vote data
-        const mapped = data.takes.map((t: any) => ({
-          ...t,
-          userFired: t.userReaction === 'FIRE',
-          userBricked: t.userReaction === 'BRICK',
-          poll: t.poll ? {
-            ...t.poll,
-            userVotedOptionId: t.poll.votes?.[0]?.optionId || null,
-          } : null,
-        }));
-        setTakes(mapped);
+        setTakes(mapTakes(data.takes));
+        setNextCursor(data.nextCursor || null);
       }
     } catch (err) {
       console.warn('Failed to fetch feed:', err);
     } finally {
       setLoading(false);
       setRefreshing(false);
+    }
+  }
+
+  async function loadMore() {
+    if (!nextCursor || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const typeMap: Record<string, string> = {
+        'FOR YOU': 'foryou',
+        'FOLLOWING': 'following',
+        'LIVE': 'live',
+      };
+      const type = typeMap[selectedSegment] || 'foryou';
+      const data = await api.get<{ takes: any[]; nextCursor: string | null }>(`/court/feed?type=${type}&limit=20&cursor=${nextCursor}`);
+      if (data.takes && data.takes.length > 0) {
+        setTakes(prev => [...prev, ...mapTakes(data.takes)]);
+        setNextCursor(data.nextCursor || null);
+      } else {
+        setNextCursor(null);
+      }
+    } catch (err) {
+      console.warn('Failed to load more:', err);
+    } finally {
+      setLoadingMore(false);
     }
   }
 
@@ -647,10 +674,19 @@ export default function CourtScreen() {
           renderItem={renderTake}
           contentContainerStyle={styles.feedList}
           showsVerticalScrollIndicator={false}
+          onEndReached={loadMore}
+          onEndReachedThreshold={0.5}
           ListEmptyComponent={
             <Text style={styles.emptyText}>
               {selectedSegment === 'LIVE' ? 'No live game takes right now' : 'No takes yet — be the first!'}
             </Text>
+          }
+          ListFooterComponent={
+            loadingMore ? (
+              <View style={{ paddingVertical: 20, alignItems: 'center' }}>
+                <ActivityIndicator color={Colors.orange} />
+              </View>
+            ) : null
           }
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.orange} colors={[Colors.orange]} />
