@@ -275,9 +275,10 @@ IMPORTANT RULES:
       content = content.slice(1, -1);
     }
     if (content.length > lengthConfig.maxChars) content = content.slice(0, lengthConfig.maxChars - 3) + "...";
+    console.log(`[BOT] AI generated take (${lengthConfig.tier}, ${content.length} chars): "${content.slice(0, 80)}..."`);
     return content;
   } catch (error) {
-    console.error("AI generation failed, using fallback:", error);
+    console.error("[BOT] AI generation failed:", error);
     return null;
   }
 }
@@ -392,36 +393,83 @@ export async function generateBotTake(botUserId: string): Promise<string | null>
   // Look up bot's favorite team from hardcoded NBA teams
   const favoriteTeam = bot.favoriteTeamId ? getNbaTeam(bot.favoriteTeamId) || null : null;
 
-  // Collect all existing content for duplicate checking
-  const allExistingContent = [...recentTakes, ...ownRecentTakes].map((t) => t.content.toLowerCase().trim());
-
-  // Try AI first, fallback to pre-written content
+  // Try AI generation (up to 2 attempts)
   const aiContent = await generateWithAI(personality, context, favoriteTeam);
-  if (aiContent) {
-    // Check if AI generated a duplicate
-    const isDuplicate = allExistingContent.some(
-      (existing) => existing === aiContent.toLowerCase().trim() || existing.includes(aiContent.toLowerCase().trim().slice(0, 80))
-    );
-    if (!isDuplicate) return aiContent;
-    // If duplicate, try once more
-    const retry = await generateWithAI(personality, context, favoriteTeam);
-    if (retry) return retry;
-  }
+  if (aiContent) return aiContent;
 
-  // Fallback: pick one that hasn't been posted recently
-  const fallback = getFallbackTake(personality);
-  const fallbackIsDuplicate = allExistingContent.some((existing) => existing === fallback.toLowerCase().trim());
-  if (!fallbackIsDuplicate) return fallback;
+  // First attempt failed, retry once
+  console.log(`[BOT] AI generation failed for bot ${botUserId}, retrying...`);
+  const retry = await generateWithAI(personality, context, favoriteTeam);
+  if (retry) return retry;
 
-  // All fallbacks used, try a different category
-  const allFallbacks = Object.values(FALLBACK_TAKES).flat();
-  const unused = allFallbacks.filter((f) => !allExistingContent.some((e) => e === f.toLowerCase().trim()));
-  return unused.length > 0 ? pickRandom(unused) : fallback;
+  // AI completely failed - use fallback but NEVER post a duplicate
+  console.log(`[BOT] AI retry failed for bot ${botUserId}, trying fallback...`);
+  return null; // Let postBotTake handle the fallback with DB-level dedup
 }
 
 export async function postBotTake(botUserId: string): Promise<string | null> {
-  const content = await generateBotTake(botUserId);
-  if (!content) return null;
+  let content = await generateBotTake(botUserId);
+
+  // If AI failed, try fallback content
+  if (!content) {
+    const bot = await prisma.user.findUnique({
+      where: { id: botUserId },
+      select: { botPersonality: true },
+    });
+    let personality: BotPersonality;
+    try {
+      personality = JSON.parse(bot?.botPersonality || "{}");
+    } catch {
+      personality = { tone: "casual", interests: ["basketball"], responseStyle: "concise" };
+    }
+
+    // Try all fallbacks from this personality, then all categories
+    const allFallbacks = [
+      ...(() => {
+        const tone = personality.tone?.toLowerCase() || "";
+        if (tone.includes("analyt") || tone.includes("data")) return FALLBACK_TAKES.analytical;
+        if (tone.includes("passion") || tone.includes("bias")) return FALLBACK_TAKES.passionate;
+        if (tone.includes("provocat") || tone.includes("bold")) return FALLBACK_TAKES.provocative;
+        if (tone.includes("nostalg") || tone.includes("compar")) return FALLBACK_TAKES.nostalgic;
+        if (tone.includes("strateg") || tone.includes("advis")) return FALLBACK_TAKES.strategic;
+        return FALLBACK_TAKES.default;
+      })(),
+      ...Object.values(FALLBACK_TAKES).flat(),
+    ];
+
+    // Shuffle so we don't always try in the same order
+    for (let i = allFallbacks.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [allFallbacks[i], allFallbacks[j]] = [allFallbacks[j], allFallbacks[i]];
+    }
+
+    // Find one that doesn't exist anywhere in the DB
+    for (const candidate of allFallbacks) {
+      const exists = await prisma.take.findFirst({
+        where: { content: candidate, isDeleted: false },
+        select: { id: true },
+      });
+      if (!exists) {
+        content = candidate;
+        break;
+      }
+    }
+  }
+
+  if (!content) {
+    console.log(`[BOT] No unique content available for bot ${botUserId}, skipping post`);
+    return null;
+  }
+
+  // HARD duplicate check: never post content that already exists ANYWHERE in DB
+  const duplicate = await prisma.take.findFirst({
+    where: { content, isDeleted: false },
+    select: { id: true },
+  });
+  if (duplicate) {
+    console.log(`[BOT] Duplicate content detected for bot ${botUserId}, skipping post`);
+    return null;
+  }
 
   const take = await prisma.take.create({
     data: { content, authorId: botUserId, tags: [] },
@@ -432,6 +480,7 @@ export async function postBotTake(botUserId: string): Promise<string | null> {
     data: { takeCount: { increment: 1 } },
   });
 
+  console.log(`[BOT] Posted take ${take.id} for bot ${botUserId} (${content.length} chars)`);
   return take.id;
 }
 
@@ -501,7 +550,19 @@ export async function botReplyToTakes(botUserId: string): Promise<void> {
 
     // Generate reply
     const aiReply = await generateReplyWithAI(personality, take.content, favoriteTeam);
-    const replyContent = aiReply || pickRandom(FALLBACK_REPLIES);
+    let replyContent = aiReply;
+
+    // If AI failed, find a fallback reply not already used on this take
+    if (!replyContent) {
+      const existingReplies = await prisma.take.findMany({
+        where: { parentId: take.id, isDeleted: false },
+        select: { content: true },
+      });
+      const usedContents = new Set(existingReplies.map((r) => r.content.toLowerCase().trim()));
+      const unusedReply = FALLBACK_REPLIES.find((f) => !usedContents.has(f.toLowerCase().trim()));
+      if (!unusedReply) continue; // All fallback replies already used on this take, skip
+      replyContent = unusedReply;
+    }
 
     await prisma.take.create({
       data: { content: replyContent, authorId: botUserId, parentId: take.id, tags: [] },
