@@ -28,6 +28,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
+      url: `${BASE_URL}/scores`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/standings`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.8,
+    },
+    {
+      url: `${BASE_URL}/schedule`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.8,
+    },
+    {
       url: `${BASE_URL}/stats`,
       lastModified: new Date(),
       changeFrequency: "daily",
@@ -39,23 +57,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 0.8,
     },
-    {
-      url: `${BASE_URL}/players`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
   ];
 
-  // Tools pages
+  // Tools pages (only live, non-WIP tools)
   const toolPages: MetadataRoute.Sitemap = [
     "tools",
-    "tools/shot-chart",
     "tools/compare",
-    "tools/advanced-metrics",
+    "tools/metrics",
     "tools/predictor",
     "tools/fantasy",
-    "tools/betting",
+    "tools/team-analytics",
+    "tools/draft",
   ].map((path) => ({
     url: `${BASE_URL}/${path}`,
     lastModified: new Date(),
