@@ -222,7 +222,7 @@ select option {
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('https://images.unsplash.com/photo-1546519638-68e109498ffc?w=1920') center/cover;
+  background: url('https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&q=50&fm=webp') center/cover;
   animation: parallaxZoom 30s ease-in-out infinite alternate;
 }
 

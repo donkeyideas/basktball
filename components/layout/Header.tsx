@@ -79,6 +79,7 @@ export function Header() {
             alt="Basktball"
             width={50}
             height={50}
+            priority
             style={{ borderRadius: "8px" }}
           />
           <span className="logo-text" style={{

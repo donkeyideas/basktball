@@ -83,6 +83,13 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${anton.variable} ${barlowCondensed.variable} ${inter.variable} ${robotoMono.variable}`}>
       <head>
+        {/* Preload hero background image for faster LCP */}
+        <link
+          rel="preload"
+          as="image"
+          href="https://images.unsplash.com/photo-1546519638-68e109498ffc?w=800&q=50&fm=webp"
+          type="image/webp"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

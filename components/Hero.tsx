@@ -36,7 +36,7 @@ export function Hero() {
         }}>
           {GOOGLE_PLAY_URL && (
             <a href={GOOGLE_PLAY_URL} target="_blank" rel="noopener noreferrer" style={{ transition: "transform 0.2s" }}>
-              <Image src="/images/google-play-badge.svg" alt="Get it on Google Play" width={150} height={45} />
+              <Image src="/images/google-play-badge.svg" alt="Get it on Google Play" width={150} height={45} loading="eager" />
             </a>
           )}
           {APP_STORE_URL && (
