@@ -851,6 +851,7 @@ export default function TakeDetailPage() {
                   onPollVote={handlePollVote}
                   onStatCheck={handleStatCheck}
                   statCheckLoading={statCheckLoading}
+                  onReply={(replyId) => { window.location.href = `/court/take/${replyId}`; }}
                 />
               ))
             )}

@@ -104,7 +104,7 @@ function leagueBadgeColor(league: string): string {
 }
 
 export default function HomeScreen() {
-  const { colors } = useTheme();
+  const { colors, isDark, toggleTheme } = useTheme();
   const styles = React.useMemo(() => makeStyles(colors), [colors]);
   const [newsArticles, setNewsArticles] = useState<NewsArticle[]>([]);
   const [newsLoading, setNewsLoading] = useState(true);
@@ -221,7 +221,23 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerLogo}>BASKTBALL</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <Text style={styles.headerLogo}>BASKTBALL</Text>
+          <TouchableOpacity
+            onPress={toggleTheme}
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: 16,
+              backgroundColor: colors.surface,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            activeOpacity={0.7}
+          >
+            <Ionicons name={isDark ? 'sunny-outline' : 'moon-outline'} size={18} color={colors.text} />
+          </TouchableOpacity>
+        </View>
         <TouchableOpacity style={styles.notifButton} onPress={() => router.push('/notifications')}>
           <Ionicons name="notifications-outline" size={22} color={colors.text} />
           <View style={styles.notifDot} />

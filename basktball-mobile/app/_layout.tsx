@@ -26,6 +26,17 @@ if (!isExpoGo) {
       shouldSetBadge: true,
     }),
   });
+
+  // Android requires a notification channel to display push notifications
+  if (Platform.OS === 'android') {
+    Notifications!.setNotificationChannelAsync('default', {
+      name: 'BASKTBALL',
+      importance: Notifications!.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: '#FF6B35',
+      sound: 'default',
+    });
+  }
 }
 
 export { ErrorBoundary } from 'expo-router';
@@ -178,7 +189,10 @@ function PushNotificationRegistrar() {
         }
         if (finalStatus !== 'granted') return;
 
-        const tokenData = await Notifications!.getExpoPushTokenAsync();
+        const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+        const tokenData = await Notifications!.getExpoPushTokenAsync({
+          projectId: projectId || 'f155a87c-d074-43c1-ac99-7a8a10c64c81',
+        });
         const platform = Platform.OS === 'ios' ? 'ios' : 'android';
 
         await api.post('/mobile/notifications/register-device', {

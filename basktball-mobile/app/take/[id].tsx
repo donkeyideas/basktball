@@ -291,7 +291,11 @@ export default function TakeDetailScreen() {
             <Ionicons name="square-outline" size={isMainTake ? 20 : 16} color={colors.textTertiary} />
             <Text style={styles.reactionCount}>{formatCount(item.brickCount)}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.reactionItem} activeOpacity={0.7}>
+          <TouchableOpacity style={styles.reactionItem} activeOpacity={0.7} onPress={() => {
+            if (!isMainTake) {
+              router.push(`/take/${item.id}`);
+            }
+          }}>
             <Ionicons name="chatbubble-outline" size={isMainTake ? 20 : 16} color={colors.textTertiary} />
             <Text style={styles.reactionCount}>{formatCount(item.replyCount)}</Text>
           </TouchableOpacity>

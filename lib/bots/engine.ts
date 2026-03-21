@@ -243,6 +243,7 @@ IMPORTANT RULES:
 - NO markdown formatting (no **, ##, *, backticks, bullet points)
 - NO hashtags unless natural
 - Be opinionated and engaging
+- NEVER start your post with the word "Alright" in any form. Also banned: "I'm looking at", "Let me tell you", "Here's the thing", "Look,", "Listen,". The FIRST WORD of your post must NOT be "Alright". Start with a player name, team name, stat, bold claim, question, or opinion instead.
 - You MUST reference current events, recent games, or recent news from the current NBA season
 - DO NOT write generic basketball opinions - be specific about players, teams, and recent happenings
 - NEVER repeat or paraphrase something already posted on the timeline (listed below)
@@ -257,9 +258,45 @@ IMPORTANT RULES:
 
 function cleanAIContent(raw: string, maxChars: number): string {
   let content = stripMarkdown(raw);
+
+  // Strip wrapping quotes
   if ((content.startsWith('"') && content.endsWith('"')) || (content.startsWith("'") && content.endsWith("'"))) {
     content = content.slice(1, -1);
   }
+
+  // STEP 1: "Alright" — drop the ENTIRE first sentence.
+  // DeepSeek always starts with "Alright, let's <blah blah>." and the
+  // first sentence is pure filler. Dropping it leaves real content.
+  if (/^alright\b/i.test(content)) {
+    const sentenceEnd = content.match(/[.!?]\s+(?=[A-Z])/);
+    if (sentenceEnd && sentenceEnd.index !== undefined) {
+      content = content.slice(sentenceEnd.index + sentenceEnd[0].length);
+    } else {
+      // Entire post is one filler sentence — return empty so caller retries
+      content = "";
+    }
+  }
+
+  // STEP 2: Filler words at the very start — just strip the word + punctuation.
+  // "Look, nobody…" → "Nobody…"   "Listen, the Knicks…" → "The Knicks…"
+  content = content.replace(/^(look|listen|okay|ok|so|honestly|frankly|real talk)[,;:.]?\s+/i, "");
+
+  // STEP 3: Filler phrases — strip phrase, keep the substance after it.
+  // "I'm looking at our Blazers…" → "Our Blazers…"
+  content = content.replace(/^I['']m looking at\s+/i, "");
+  content = content.replace(/^let['']s talk about\s+/i, "");
+  content = content.replace(/^let me tell you\s+/i, "");
+  content = content.replace(/^here['']s the thing[,:.!]?\s*/i, "");
+  content = content.replace(/^can we talk about\s+/i, "");
+  content = content.replace(/^let['']s\s+(shift focus to|get real about|be honest about|be real about|get into|break down)\s+/i, "");
+
+  content = content.trim();
+
+  // STEP 4: Capitalize the first letter
+  if (content.length > 0) {
+    content = content.charAt(0).toUpperCase() + content.slice(1);
+  }
+
   if (content.length > maxChars) content = content.slice(0, maxChars - 3) + "...";
   return content;
 }
@@ -324,6 +361,7 @@ RULES:
 - ${lengthConfig.promptHint}
 - Sound natural - like a real person commenting
 - NO markdown formatting
+- NEVER start your reply with the word "Alright". Also banned: "I'm looking at", "Let me tell you", "Here's the thing", "Look,", "Listen,". Start differently every time
 - Be engaging - agree, disagree, add context, or challenge the take`;
 
   const userPrompt = `Reply to this take: "${originalContent}"`;

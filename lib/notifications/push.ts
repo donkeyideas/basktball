@@ -6,6 +6,7 @@ interface PushMessage {
   body: string;
   data?: Record<string, string>;
   sound?: string;
+  channelId?: string;
 }
 
 export async function sendPushNotification(
@@ -17,7 +18,7 @@ export async function sendPushNotification(
   try {
     const tokens = await prisma.deviceToken.findMany({
       where: { userId },
-      select: { token: true },
+      select: { token: true, platform: true },
     });
 
     if (tokens.length === 0) return;
@@ -28,6 +29,8 @@ export async function sendPushNotification(
       body,
       data,
       sound: "default",
+      // Android requires channelId to match the channel created on the client
+      ...(t.platform === "android" ? { channelId: "default" } : {}),
     }));
 
     const response = await fetch("https://exp.host/--/api/v2/push/send", {
