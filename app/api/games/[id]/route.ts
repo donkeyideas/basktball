@@ -65,6 +65,10 @@ interface EspnGameSummary {
         linescores?: Array<{ displayValue: string }>;
         record?: Array<{ displayValue: string; type?: string }>;
       }>;
+      broadcasts?: Array<{
+        market: string;
+        names: string[];
+      }>;
       status: {
         type: {
           state: string;
@@ -176,6 +180,13 @@ export async function GET(
     const homeScore = parseInt(homeTeamData?.score || "0");
     const awayScore = parseInt(awayTeamData?.score || "0");
 
+    // Extract broadcast info
+    const broadcasts = competition.broadcasts || [];
+    const broadcastNames = broadcasts
+      .flatMap(b => b.names || [])
+      .filter(Boolean);
+    const broadcast = broadcastNames.length > 0 ? broadcastNames.join(", ") : undefined;
+
     const gameInfo = {
       id,
       date: competition.date,
@@ -187,6 +198,7 @@ export async function GET(
       location: data.gameInfo?.venue?.address
         ? `${data.gameInfo.venue.address.city}, ${data.gameInfo.venue.address.state}`
         : undefined,
+      broadcast,
       homeTeam: {
         id: homeTeamData?.team.id,
         name: homeTeamData?.team.displayName,

@@ -25,6 +25,7 @@ export interface Game {
   quarter?: string;
   clock?: string;
   stats: GameStat[];
+  broadcast?: string;
 }
 
 interface UseGamesOptions {
@@ -62,6 +63,7 @@ function transformGame(apiGame: {
   quarter?: string;
   clock?: string;
   gameDate?: string;
+  broadcast?: string;
 }): Game {
   const stats = [];
 
@@ -122,6 +124,7 @@ function transformGame(apiGame: {
     quarter: apiGame.quarter,
     clock: apiGame.clock,
     stats,
+    broadcast: apiGame.broadcast,
   };
 }
 

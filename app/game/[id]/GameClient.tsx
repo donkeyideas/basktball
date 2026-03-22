@@ -90,6 +90,7 @@ interface GameData {
   clock: string;
   venue?: string;
   location?: string;
+  broadcast?: string;
   homeTeam: Team;
   awayTeam: Team;
 }
@@ -1026,6 +1027,29 @@ function GamePageContent({ params }: { params: Promise<{ id: string }> }) {
                     {game.venue}
                     {game.location && ` • ${game.location}`}
                   </p>
+                )}
+                {game.broadcast && (
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    marginTop: "8px",
+                  }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="7" width="20" height="15" rx="2" ry="2" />
+                      <polyline points="17 2 12 7 7 2" />
+                    </svg>
+                    <span style={{
+                      fontFamily: "var(--font-roboto-mono), monospace",
+                      fontSize: "14px",
+                      color: "var(--orange)",
+                      letterSpacing: "0.5px",
+                      fontWeight: 600,
+                    }}>
+                      {game.broadcast}
+                    </span>
+                  </div>
                 )}
                 {data.seasonSeries && (
                   <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "12px", marginTop: "6px" }}>

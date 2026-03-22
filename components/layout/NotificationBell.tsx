@@ -24,24 +24,43 @@ function timeAgo(dateStr: string): string {
   return `${days}d`;
 }
 
-function getNotifIcon(type: string): string {
-  const icons: Record<string, string> = {
-    FIRE: "\uD83D\uDD25",
-    BRICK: "\uD83E\uDDF1",
-    REPLY: "\uD83D\uDCAC",
-    REPOST: "\uD83D\uDD01",
-    FOLLOW: "\uD83D\uDC64",
-    CHALLENGE: "\uD83C\uDFF3\uFE0F",
-    CHALLENGE_ACCEPT: "\u2694\uFE0F",
-    CHALLENGE_VOTE: "\uD83D\uDDF3\uFE0F",
-    CHALLENGE_RESULT: "\uD83C\uDFC6",
-    PREDICTION_RESOLVED: "\uD83C\uDFB0",
-    AGING_RESURFACED: "\u23F0",
-    STAT_CHECK: "\uD83D\uDD0D",
-    MENTION: "@",
-    POLL_ENDED: "\uD83D\uDCCA",
-  };
-  return icons[type] || "\uD83D\uDD14";
+function NotifIcon({ type, read }: { type: string; read: boolean }) {
+  const color = read ? "rgba(255,255,255,0.4)" : "#FF6B35";
+  const size = 16;
+  const props = { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: color, strokeWidth: 2, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+
+  switch (type) {
+    case "FIRE":
+      return <svg {...props}><path d="M12 12c0-3 2.5-5 2.5-8C8 7 6 11 6 14a6 6 0 0 0 12 0c0-1.5-.5-3-2-4.5-1 1-2 2-4 2.5z" fill={color} stroke="none" /></svg>;
+    case "BRICK":
+      return <svg {...props}><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="3" y1="9" x2="21" y2="9" /><line x1="3" y1="15" x2="21" y2="15" /><line x1="9" y1="3" x2="9" y2="9" /><line x1="15" y1="9" x2="15" y2="15" /><line x1="9" y1="15" x2="9" y2="21" /></svg>;
+    case "REPLY":
+      return <svg {...props}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>;
+    case "REPOST":
+      return <svg {...props}><polyline points="17 1 21 5 17 9" /><path d="M3 11V9a4 4 0 0 1 4-4h14" /><polyline points="7 23 3 19 7 15" /><path d="M21 13v2a4 4 0 0 1-4 4H3" /></svg>;
+    case "FOLLOW":
+      return <svg {...props}><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="8.5" cy="7" r="4" /><line x1="20" y1="8" x2="20" y2="14" /><line x1="23" y1="11" x2="17" y2="11" /></svg>;
+    case "CHALLENGE":
+      return <svg {...props}><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><line x1="4" y1="22" x2="4" y2="15" /></svg>;
+    case "CHALLENGE_ACCEPT":
+      return <svg {...props}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>;
+    case "CHALLENGE_VOTE":
+      return <svg {...props}><path d="M14 9V5a3 3 0 0 0-6 0v4" /><rect x="2" y="9" width="20" height="12" rx="2" /><circle cx="12" cy="15" r="1" /></svg>;
+    case "CHALLENGE_RESULT":
+      return <svg {...props}><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 7 7 7 7" /><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 17 7 17 7" /><path d="M4 22h16" /><path d="M10 14.66V22" /><path d="M14 14.66V22" /><path d="M8 9h8a4 4 0 0 0 0-8H8a4 4 0 0 0 0 8z" /></svg>;
+    case "PREDICTION_RESOLVED":
+      return <svg {...props}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>;
+    case "AGING_RESURFACED":
+      return <svg {...props}><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>;
+    case "STAT_CHECK":
+      return <svg {...props}><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>;
+    case "MENTION":
+      return <svg {...props}><circle cx="12" cy="12" r="4" /><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94" /></svg>;
+    case "POLL_ENDED":
+      return <svg {...props}><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg>;
+    default:
+      return <svg {...props}><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>;
+  }
 }
 
 function getNotifLink(notif: Notification): string | null {
@@ -224,9 +243,19 @@ export function NotificationBell() {
                   onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = notif.read ? "transparent" : "rgba(255,107,53,0.05)"; }}
                 >
-                  <span style={{ fontSize: "18px", flexShrink: 0, marginTop: "2px" }}>
-                    {getNotifIcon(notif.type)}
-                  </span>
+                  <div style={{
+                    width: "32px",
+                    height: "32px",
+                    borderRadius: "50%",
+                    background: notif.read ? "rgba(255,255,255,0.06)" : "rgba(255,107,53,0.15)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexShrink: 0,
+                    marginTop: "2px",
+                  }}>
+                    <NotifIcon type={notif.type} read={notif.read} />
+                  </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{
                       fontFamily: "var(--font-inter)",

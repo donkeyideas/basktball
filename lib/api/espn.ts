@@ -40,6 +40,11 @@ interface EspnStatus {
   };
 }
 
+interface EspnBroadcast {
+  market: string;
+  names: string[];
+}
+
 interface EspnEvent {
   id: string;
   uid: string;
@@ -51,6 +56,7 @@ interface EspnEvent {
     date: string;
     competitors: EspnCompetitor[];
     status: EspnStatus;
+    broadcasts?: EspnBroadcast[];
     venue?: {
       fullName: string;
       address?: {
@@ -191,6 +197,13 @@ function normalizeEspnGame(event: EspnEvent): NormalizedGame | null {
     gameStatus = "scheduled";
   }
 
+  // Extract broadcast network names
+  const broadcasts = competition.broadcasts || [];
+  const broadcastNames = broadcasts
+    .flatMap(b => b.names || [])
+    .filter(Boolean);
+  const broadcast = broadcastNames.length > 0 ? broadcastNames.join(", ") : undefined;
+
   return {
     id: event.id,
     homeTeam: normalizeEspnTeam(homeComp.team),
@@ -202,6 +215,7 @@ function normalizeEspnGame(event: EspnEvent): NormalizedGame | null {
     clock: status.displayClock || undefined,
     gameDate: new Date(event.date),
     isPlayoffs: false,
+    broadcast,
   };
 }
 

@@ -24,6 +24,7 @@ interface Game {
   quarter?: string;
   clock?: string;
   gameDate: string;
+  broadcast?: string;
 }
 
 const leagueTabs: { id: League; name: string }[] = [
@@ -248,6 +249,31 @@ function GameCard({ game, league }: { game: Game; league: string }) {
             {isScheduled ? "-" : game.homeScore}
           </span>
         </div>
+
+        {/* Broadcast Info */}
+        {game.broadcast && (
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            marginTop: "8px",
+            paddingTop: "8px",
+            borderTop: "1px solid rgba(255,255,255,0.06)",
+          }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="7" width="20" height="15" rx="2" ry="2" />
+              <polyline points="17 2 12 7 7 2" />
+            </svg>
+            <span style={{
+              fontFamily: "var(--font-roboto-mono), monospace",
+              fontSize: "11px",
+              color: "rgba(255,255,255,0.4)",
+              letterSpacing: "0.5px",
+            }}>
+              {game.broadcast}
+            </span>
+          </div>
+        )}
       </div>
     </Link>
   );

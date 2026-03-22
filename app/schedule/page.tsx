@@ -24,6 +24,7 @@ interface Game {
   quarter?: string;
   clock?: string;
   gameDate: string;
+  broadcast?: string;
 }
 
 interface DayGames {
@@ -662,6 +663,29 @@ function GameSlot({ game, league }: { game: Game; league: string }) {
           </span>
         )}
       </div>
+
+      {/* Broadcast Info */}
+      {game.broadcast && (
+        <div style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "4px",
+          marginTop: "4px",
+        }}>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="7" width="20" height="15" rx="2" ry="2" />
+            <polyline points="17 2 12 7 7 2" />
+          </svg>
+          <span style={{
+            fontFamily: "var(--font-roboto-mono), monospace",
+            fontSize: "10px",
+            color: "rgba(255,255,255,0.35)",
+            letterSpacing: "0.3px",
+          }}>
+            {game.broadcast}
+          </span>
+        </div>
+      )}
 
       {/* Pulse animation for live dot */}
       {isLive && (

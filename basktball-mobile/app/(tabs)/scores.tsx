@@ -63,6 +63,7 @@ interface GameDisplay {
   status: string;
   isLive: boolean;
   gameDate: string;
+  broadcast?: string;
 }
 
 interface StandingTeam {
@@ -132,6 +133,7 @@ export default function ScoresScreen() {
             status,
             isLive,
             gameDate: g.gameDate,
+            broadcast: g.broadcast || undefined,
           };
         });
         setGames(mapped);
@@ -254,6 +256,9 @@ export default function ScoresScreen() {
               {item.status}
             </Text>
           )}
+          {item.broadcast ? (
+            <Text style={styles.broadcastText}>{item.broadcast}</Text>
+          ) : null}
         </View>
       </TouchableOpacity>
     );
@@ -409,6 +414,9 @@ export default function ScoresScreen() {
                   </Text>
                   <Text style={styles.scheduleTeam}>{game.home}</Text>
                 </View>
+                {game.broadcast ? (
+                  <Text style={styles.broadcastText}>{game.broadcast}</Text>
+                ) : null}
               </TouchableOpacity>
             );
           })
@@ -889,6 +897,13 @@ function makeStyles(colors: any) {
     fontFamily: Fonts.barlow,
     fontSize: 14,
     color: colors.textTertiary,
+  },
+  broadcastText: {
+    fontFamily: Fonts.mono,
+    fontSize: 10,
+    color: colors.textTertiary,
+    marginTop: 4,
+    letterSpacing: 0.3,
   },
   });
 }

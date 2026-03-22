@@ -21,6 +21,7 @@ interface Game {
   statusText?: string;
   quarter?: string;
   time?: string;
+  broadcast?: string;
 }
 
 interface GameCardProps {
@@ -59,6 +60,10 @@ export function GameCard({ game, onPress }: GameCardProps) {
 
       {statusText && status === 'scheduled' ? (
         <Text style={styles.scheduledTime}>{statusText}</Text>
+      ) : null}
+
+      {game.broadcast ? (
+        <Text style={styles.broadcastLabel}>{game.broadcast}</Text>
       ) : null}
     </TouchableOpacity>
   );
@@ -247,5 +252,13 @@ const styles = StyleSheet.create({
     color: Colors.textTertiary,
     textAlign: 'center',
     marginTop: 6,
+  },
+  broadcastLabel: {
+    fontFamily: Fonts.mono,
+    fontSize: 9,
+    color: Colors.textTertiary,
+    textAlign: 'center',
+    marginTop: 6,
+    letterSpacing: 0.3,
   },
 });
