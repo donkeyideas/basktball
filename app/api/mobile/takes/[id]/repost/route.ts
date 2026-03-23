@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { requireMobileUser } from "@/lib/mobile-auth";
+import { createNotification } from "@/lib/notifications/service";
 
 export async function POST(
   request: Request,
@@ -24,15 +25,26 @@ export async function POST(
       ]);
       return NextResponse.json({ action: "removed" });
     } else {
-      await prisma.$transaction([
+      const [, updatedTake] = await prisma.$transaction([
         prisma.repost.create({
           data: { takeId, userId: user.id },
         }),
         prisma.take.update({
           where: { id: takeId },
           data: { repostCount: { increment: 1 } },
+          select: { authorId: true, content: true },
         }),
       ]);
+
+      createNotification({
+        userId: updatedTake.authorId,
+        type: "REPOST",
+        title: "Your take was reposted!",
+        body: updatedTake.content.slice(0, 100),
+        data: { takeId },
+        actorId: user.id,
+      }).catch(() => {});
+
       return NextResponse.json({ action: "reposted" });
     }
   } catch (error: unknown) {

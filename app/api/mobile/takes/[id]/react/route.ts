@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { requireMobileUser } from "@/lib/mobile-auth";
+import { createNotification } from "@/lib/notifications/service";
 
 // POST /api/mobile/takes/[id]/react - Toggle fire/brick reaction
 export async function POST(
@@ -31,14 +32,27 @@ export async function POST(
       return NextResponse.json({ action: "removed", type });
     } else {
       // Add reaction
-      await prisma.takeReaction.create({
-        data: { takeId, userId: user.id, type },
-      });
-      const field = type === "FIRE" ? "fireCount" : "brickCount";
-      await prisma.take.update({
-        where: { id: takeId },
-        data: { [field]: { increment: 1 } },
-      });
+      const [, updatedTake] = await Promise.all([
+        prisma.takeReaction.create({
+          data: { takeId, userId: user.id, type },
+        }),
+        prisma.take.update({
+          where: { id: takeId },
+          data: { [type === "FIRE" ? "fireCount" : "brickCount"]: { increment: 1 } },
+          select: { authorId: true, content: true },
+        }),
+      ]);
+
+      // Notify take author
+      createNotification({
+        userId: updatedTake.authorId,
+        type: type === "FIRE" ? "FIRE" : "BRICK",
+        title: type === "FIRE" ? "Your take got a Fire!" : "Your take got a Brick",
+        body: updatedTake.content.slice(0, 100),
+        data: { takeId },
+        actorId: user.id,
+      }).catch(() => {});
+
       return NextResponse.json({ action: "added", type });
     }
   } catch (error: unknown) {
