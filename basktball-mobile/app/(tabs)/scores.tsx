@@ -529,6 +529,7 @@ function makeStyles(colors: any) {
   },
   headerTitle: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 24,
     color: colors.text,
     letterSpacing: 2,
@@ -552,6 +553,7 @@ function makeStyles(colors: any) {
   },
   segmentText: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 13,
     color: colors.textSecondary,
     letterSpacing: 1,
@@ -579,6 +581,7 @@ function makeStyles(colors: any) {
   },
   leagueTabText: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 13,
     color: colors.textSecondary,
     letterSpacing: 0.5,
@@ -608,7 +611,8 @@ function makeStyles(colors: any) {
   },
   dateLabel: {
     fontFamily: Fonts.barlowSemiBold,
-    fontSize: 11,
+    fontWeight: '600',
+    fontSize: 12,
     color: colors.textTertiary,
     letterSpacing: 0.5,
     marginBottom: 2,
@@ -618,6 +622,7 @@ function makeStyles(colors: any) {
   },
   dateDay: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 18,
     color: colors.text,
   },
@@ -659,6 +664,7 @@ function makeStyles(colors: any) {
   },
   teamAbbr: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 16,
     color: colors.text,
   },
@@ -689,12 +695,13 @@ function makeStyles(colors: any) {
   },
   liveText: {
     fontFamily: Fonts.mono,
-    fontSize: 10,
+    fontSize: 12,
     color: Colors.red,
     letterSpacing: 0.5,
   },
   statusText: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 13,
     color: colors.textSecondary,
   },
@@ -714,6 +721,7 @@ function makeStyles(colors: any) {
   },
   confSectionTitle: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 14,
     color: Colors.orange,
     letterSpacing: 1,
@@ -745,7 +753,8 @@ function makeStyles(colors: any) {
   },
   confTabText: {
     fontFamily: Fonts.barlowSemiBold,
-    fontSize: 12,
+    fontWeight: '600',
+    fontSize: 13,
     color: colors.textSecondary,
     letterSpacing: 1,
   },
@@ -763,7 +772,8 @@ function makeStyles(colors: any) {
   },
   standingsHeaderText: {
     fontFamily: Fonts.barlowSemiBold,
-    fontSize: 10,
+    fontWeight: '600',
+    fontSize: 12,
     color: colors.textTertiary,
     letterSpacing: 0.5,
   },
@@ -804,7 +814,7 @@ function makeStyles(colors: any) {
   },
   rankText: {
     fontFamily: Fonts.mono,
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textTertiary,
     width: 22,
   },
@@ -815,18 +825,19 @@ function makeStyles(colors: any) {
   },
   standingsTeamAbbr: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 14,
     color: colors.text,
     width: 38,
   },
   standingsTeamName: {
     fontFamily: Fonts.barlow,
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textSecondary,
   },
   statText: {
     fontFamily: Fonts.mono,
-    fontSize: 12,
+    fontSize: 13,
     color: colors.text,
   },
   streakWin: {
@@ -853,7 +864,7 @@ function makeStyles(colors: any) {
   },
   legendText: {
     fontFamily: Fonts.barlow,
-    fontSize: 11,
+    fontSize: 12,
     color: colors.textTertiary,
   },
   // Schedule
@@ -890,6 +901,7 @@ function makeStyles(colors: any) {
   },
   scheduleTeam: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 18,
     color: colors.text,
   },
@@ -900,7 +912,7 @@ function makeStyles(colors: any) {
   },
   broadcastText: {
     fontFamily: Fonts.mono,
-    fontSize: 10,
+    fontSize: 12,
     color: colors.textTertiary,
     marginTop: 4,
     letterSpacing: 0.3,

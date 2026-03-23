@@ -321,7 +321,7 @@ export default function TakeDetailScreen() {
           {isMainTake && (
             <View style={styles.reactionItem}>
               <Ionicons name="eye-outline" size={16} color={colors.textTertiary} />
-              <Text style={[styles.reactionCount, { fontSize: 11 }]}>{formatCount(item.viewCount ?? 0)}</Text>
+              <Text style={[styles.reactionCount, { fontSize: 12 }]}>{formatCount(item.viewCount ?? 0)}</Text>
             </View>
           )}
         </View>
@@ -435,6 +435,7 @@ function makeStyles(colors: any) {
   },
   headerTitle: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700' as const,
     fontSize: 20,
     color: colors.text,
     letterSpacing: 2,
@@ -462,6 +463,7 @@ function makeStyles(colors: any) {
   },
   retryText: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700' as const,
     fontSize: 14,
     color: '#FFFFFF',
   },
@@ -517,7 +519,8 @@ function makeStyles(colors: any) {
   },
   takeAvatarText: {
     fontFamily: Fonts.barlowBold,
-    fontSize: 12,
+    fontWeight: '700' as const,
+    fontSize: 13,
     color: colors.textSecondary,
   },
   mainTakeAvatarText: {
@@ -529,6 +532,7 @@ function makeStyles(colors: any) {
   },
   takeAuthorName: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700' as const,
     fontSize: 14,
     color: colors.text,
   },
@@ -537,7 +541,7 @@ function makeStyles(colors: any) {
   },
   takeHandle: {
     fontFamily: Fonts.barlow,
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textTertiary,
   },
   takeText: {
@@ -560,6 +564,7 @@ function makeStyles(colors: any) {
   },
   tag: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600' as const,
     fontSize: 13,
     color: Colors.orange,
   },
@@ -598,7 +603,7 @@ function makeStyles(colors: any) {
   },
   pollOptionPct: {
     fontFamily: Fonts.mono,
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textSecondary,
     marginLeft: 8,
   },
@@ -608,7 +613,7 @@ function makeStyles(colors: any) {
   },
   pollFooterText: {
     fontFamily: Fonts.barlow,
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textTertiary,
   },
   // Reactions
@@ -624,7 +629,7 @@ function makeStyles(colors: any) {
   },
   reactionCount: {
     fontFamily: Fonts.mono,
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textTertiary,
   },
   fireCount: {
@@ -652,6 +657,7 @@ function makeStyles(colors: any) {
   },
   repliesTitle: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700' as const,
     fontSize: 14,
     color: Colors.orange,
     letterSpacing: 2,
@@ -704,6 +710,7 @@ function makeStyles(colors: any) {
   },
   replyButtonText: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700' as const,
     fontSize: 14,
     color: '#FFFFFF',
     letterSpacing: 0.5,

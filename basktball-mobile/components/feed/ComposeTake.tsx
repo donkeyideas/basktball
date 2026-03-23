@@ -276,6 +276,7 @@ const styles = StyleSheet.create({
   },
   cancelText: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 16,
     color: Colors.textSecondary,
   },
@@ -290,6 +291,7 @@ const styles = StyleSheet.create({
   },
   postButtonText: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 14,
     color: Colors.white,
     letterSpacing: 1,
@@ -315,6 +317,7 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 16,
     color: Colors.white,
     letterSpacing: 0.5,
@@ -345,7 +348,8 @@ const styles = StyleSheet.create({
   },
   attachIcon: {
     fontFamily: Fonts.barlowSemiBold,
-    fontSize: 12,
+    fontWeight: '600',
+    fontSize: 13,
     color: Colors.orange,
     letterSpacing: 0.5,
     marginRight: 16,
@@ -393,6 +397,7 @@ const pollCreateStyles = StyleSheet.create({
   },
   title: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 13,
     color: Colors.orange,
     letterSpacing: 0.5,
@@ -435,7 +440,8 @@ const pollCreateStyles = StyleSheet.create({
   },
   addBtnText: {
     fontFamily: Fonts.barlowSemiBold,
-    fontSize: 12,
+    fontWeight: '600',
+    fontSize: 13,
     color: Colors.orange,
     letterSpacing: 0.3,
   },
@@ -446,7 +452,7 @@ const pollCreateStyles = StyleSheet.create({
   },
   durationText: {
     fontFamily: Fonts.barlow,
-    fontSize: 12,
+    fontSize: 13,
     color: Colors.textSecondary,
   },
   durationPicker: {
@@ -469,5 +475,6 @@ const pollCreateStyles = StyleSheet.create({
   durationOptionTextActive: {
     color: Colors.orange,
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
   },
 });

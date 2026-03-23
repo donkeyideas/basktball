@@ -280,6 +280,7 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 28,
     color: Colors.orange,
     textAlign: 'center',
@@ -300,6 +301,7 @@ const styles = StyleSheet.create({
   },
   appleButtonText: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 16,
     color: '#fff',
   },
@@ -315,6 +317,7 @@ const styles = StyleSheet.create({
   },
   googleButtonText: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 16,
     color: '#333',
   },
@@ -330,7 +333,8 @@ const styles = StyleSheet.create({
   },
   dividerText: {
     fontFamily: Fonts.barlowSemiBold,
-    fontSize: 12,
+    fontWeight: '600',
+    fontSize: 13,
     color: Colors.textTertiary,
     marginHorizontal: 16,
     letterSpacing: 1,
@@ -379,6 +383,7 @@ const styles = StyleSheet.create({
   },
   signInButtonText: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 18,
     color: Colors.white,
     letterSpacing: 2,
@@ -395,6 +400,7 @@ const styles = StyleSheet.create({
   },
   bottomLink: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 14,
     color: Colors.orange,
   },

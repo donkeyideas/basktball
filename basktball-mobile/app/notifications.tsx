@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: Fonts.barlowBold, fontSize: 20,
+    fontFamily: Fonts.barlowBold, fontWeight: '700' as const, fontSize: 20,
     color: Colors.white, letterSpacing: 2,
   },
   list: { paddingHorizontal: 16 },
@@ -191,14 +191,14 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary, lineHeight: 20,
   },
   notifTextUnread: {
-    fontFamily: Fonts.barlowSemiBold, color: Colors.white,
+    fontFamily: Fonts.barlowSemiBold, fontWeight: '600' as const, color: Colors.white,
   },
   notifBody: {
-    fontFamily: Fonts.barlow, fontSize: 12,
+    fontFamily: Fonts.barlow, fontSize: 13,
     color: Colors.textTertiary, marginTop: 2,
   },
   notifTime: {
-    fontFamily: Fonts.mono, fontSize: 11,
+    fontFamily: Fonts.mono, fontSize: 12,
     color: Colors.textTertiary, marginTop: 2,
   },
   unreadDot: {

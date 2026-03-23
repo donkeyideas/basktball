@@ -134,6 +134,48 @@ export default function CourtScreen() {
   const [challengeModal, setChallengeModal] = useState<{ takeId: string; authorId: string; topic: string } | null>(null);
   const [statCheckLoading, setStatCheckLoading] = useState<string | null>(null);
 
+  // Report & Block state
+  const [reportModal, setReportModal] = useState<{ takeId: string; authorName: string } | null>(null);
+
+  const REPORT_REASONS = [
+    { key: 'SPAM', label: 'Spam' },
+    { key: 'HARASSMENT', label: 'Harassment or Bullying' },
+    { key: 'OFFENSIVE', label: 'Offensive Content' },
+    { key: 'MISINFORMATION', label: 'Misinformation' },
+    { key: 'OTHER', label: 'Other' },
+  ];
+
+  async function handleReport(takeId: string, reason: string) {
+    setReportModal(null);
+    try {
+      await api.post(`/mobile/takes/${takeId}/report`, { reason });
+      showAlert('Reported', 'Thank you for reporting. We will review this content.');
+    } catch (err: any) {
+      showAlert('Error', err?.message || 'Failed to submit report.');
+    }
+  }
+
+  async function handleBlockUser(userId: string, userName: string) {
+    if (!requireAuth()) return;
+    showAlert(`Block ${userName}?`, 'They won\'t be able to see your content and you won\'t see theirs. They won\'t be notified.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Block',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await api.post(`/mobile/users/${userId}/block`, {});
+            // Remove blocked user's takes from feed
+            setTakes(prev => prev.filter(t => t.author?.id !== userId));
+            showAlert('Blocked', `${userName} has been blocked.`);
+          } catch (err: any) {
+            showAlert('Error', err?.message || 'Failed to block user.');
+          }
+        },
+      },
+    ]);
+  }
+
   async function handleStatCheck(takeId: string) {
     setStatCheckLoading(takeId);
     try {
@@ -456,13 +498,13 @@ export default function CourtScreen() {
               {item.author?.streakType === 'HOT' && (item.author?.streakCount ?? 0) > 0 && (
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, marginLeft: 4 }}>
                   <Ionicons name="flame" size={14} color={Colors.orange} />
-                  <Text style={{ fontSize: 11, fontWeight: '700', color: Colors.orange, fontFamily: 'RobotoMono_400Regular' }}>{item.author.streakCount}</Text>
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: Colors.orange, fontFamily: 'RobotoMono_400Regular' }}>{item.author.streakCount}</Text>
                 </View>
               )}
               {item.author?.streakType === 'COLD' && (item.author?.streakCount ?? 0) > 0 && (
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, marginLeft: 4 }}>
                   <Ionicons name="snow" size={14} color="#3B82F6" />
-                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#3B82F6', fontFamily: 'RobotoMono_400Regular' }}>{item.author.streakCount}</Text>
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: '#3B82F6', fontFamily: 'RobotoMono_400Regular' }}>{item.author.streakCount}</Text>
                 </View>
               )}
             </View>
@@ -470,10 +512,10 @@ export default function CourtScreen() {
               <Text style={styles.takeHandle}>{timeAgo(item.createdAt)}</Text>
               {item.statCheck && item.statCheck.overallStatus !== 'PENDING' && (
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginLeft: 2 }}>
-                  <Text style={{ fontSize: 10, color: colors.textTertiary }}>&#183;</Text>
+                  <Text style={{ fontSize: 12, color: colors.textTertiary }}>&#183;</Text>
                   <Ionicons name="search" size={11} color={item.statCheck.overallStatus === 'VERIFIED' ? '#22C55E' : item.statCheck.overallStatus === 'FALSE' ? '#EF4444' : '#9CA3AF'} />
                   <Text style={{
-                    fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5,
+                    fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5,
                     color: item.statCheck.overallStatus === 'VERIFIED' ? '#22C55E' : item.statCheck.overallStatus === 'FALSE' ? '#EF4444' : '#9CA3AF',
                   }}>
                     {item.statCheck.overallStatus === 'VERIFIED' ? 'Verified' : item.statCheck.overallStatus === 'FALSE' ? 'False' : 'Unverifiable'}
@@ -482,14 +524,14 @@ export default function CourtScreen() {
               )}
               {item.prediction && (
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginLeft: 2 }}>
-                  <Text style={{ fontSize: 10, color: colors.textTertiary }}>&#183;</Text>
+                  <Text style={{ fontSize: 12, color: colors.textTertiary }}>&#183;</Text>
                   <Ionicons
                     name={item.prediction.status === 'RECEIPT' ? 'checkmark-circle' : item.prediction.status === 'BUST' ? 'close-circle' : 'time'}
                     size={11}
                     color={item.prediction.status === 'RECEIPT' ? '#22C55E' : item.prediction.status === 'BUST' ? '#EF4444' : '#FBBF24'}
                   />
                   <Text style={{
-                    fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5,
+                    fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5,
                     color: item.prediction.status === 'RECEIPT' ? '#22C55E' : item.prediction.status === 'BUST' ? '#EF4444' : '#FBBF24',
                   }}>
                     {item.prediction.status === 'RECEIPT' ? 'Receipt' : item.prediction.status === 'BUST' ? 'Bust' : 'Prediction'}
@@ -498,10 +540,10 @@ export default function CourtScreen() {
               )}
               {item.agingTake && (
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginLeft: 2 }}>
-                  <Text style={{ fontSize: 10, color: colors.textTertiary }}>&#183;</Text>
+                  <Text style={{ fontSize: 12, color: colors.textTertiary }}>&#183;</Text>
                   <Ionicons name="hourglass" size={11} color={item.agingTake.status === 'AGED' ? '#A855F7' : '#FBBF24'} />
                   <Text style={{
-                    fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5,
+                    fontSize: 12, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.5,
                     color: item.agingTake.status === 'AGED' ? '#A855F7' : '#FBBF24',
                   }}>
                     {item.agingTake.status === 'AGED' ? 'Aged' : (() => {
@@ -513,9 +555,9 @@ export default function CourtScreen() {
               )}
               {item.gameClock && (
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginLeft: 2 }}>
-                  <Text style={{ fontSize: 10, color: colors.textTertiary }}>&#183;</Text>
+                  <Text style={{ fontSize: 12, color: colors.textTertiary }}>&#183;</Text>
                   <Ionicons name="timer" size={11} color="#3B82F6" />
-                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#3B82F6', fontFamily: 'RobotoMono_400Regular' }}>
+                  <Text style={{ fontSize: 12, fontWeight: '700', color: '#3B82F6', fontFamily: 'RobotoMono_400Regular' }}>
                     {item.quarter ? `Q${item.quarter} ` : ''}{item.gameClock}
                   </Text>
                 </View>
@@ -528,7 +570,16 @@ export default function CourtScreen() {
             if (isOwner) {
               btns.push({ text: 'Delete', style: 'destructive', onPress: () => handleDelete(item.id) });
             } else {
-              btns.push({ text: 'Report', style: 'destructive', onPress: () => showAlert('Reported', 'Thank you for reporting.') });
+              btns.push({
+                text: 'Report',
+                style: 'destructive',
+                onPress: () => setReportModal({ takeId: item.id, authorName: item.author?.displayName || item.author?.name || 'this user' }),
+              });
+              btns.push({
+                text: 'Block User',
+                style: 'destructive',
+                onPress: () => handleBlockUser(item.author.id!, item.author?.displayName || item.author?.name || 'this user'),
+              });
             }
             btns.push({ text: 'Cancel', style: 'cancel' });
             showAlert('Options', undefined, btns);
@@ -638,7 +689,7 @@ export default function CourtScreen() {
           )}
           <View style={styles.takeAction}>
             <Ionicons name="eye-outline" size={14} color={colors.textTertiary} />
-            <Text style={[styles.takeActionCount, { color: colors.textTertiary, fontSize: 11 }]}>{item.viewCount ?? 0}</Text>
+            <Text style={[styles.takeActionCount, { color: colors.textTertiary, fontSize: 12 }]}>{item.viewCount ?? 0}</Text>
           </View>
         </View>
       </TouchableOpacity>
@@ -862,6 +913,31 @@ export default function CourtScreen() {
         </View>
       </Modal>
 
+      {/* Report Modal */}
+      <Modal visible={!!reportModal} animationType="fade" transparent>
+        <View style={styles.alertOverlay}>
+          <View style={styles.alertBox}>
+            <Text style={styles.alertTitle}>REPORT CONTENT</Text>
+            <Text style={styles.alertMessage}>Why are you reporting this take?</Text>
+            {REPORT_REASONS.map((r) => (
+              <TouchableOpacity
+                key={r.key}
+                style={{ paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: colors.border }}
+                onPress={() => reportModal && handleReport(reportModal.takeId, r.key)}
+              >
+                <Text style={{ fontFamily: Fonts.barlow, fontSize: 15, color: colors.text }}>{r.label}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity
+              style={[styles.alertButton, styles.alertButtonCancel, { marginTop: 16, alignSelf: 'center', paddingHorizontal: 32 }]}
+              onPress={() => setReportModal(null)}
+            >
+              <Text style={[styles.alertButtonText, styles.alertButtonTextCancel]}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       {/* Themed Alert Modal */}
       <Modal visible={alertConfig.visible} animationType="fade" transparent>
         <TouchableOpacity
@@ -912,11 +988,11 @@ function makeStyles(colors: any) {
   return StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
   header: { paddingHorizontal: 16, paddingVertical: 12 },
-  headerTitle: { fontFamily: Fonts.barlowBold, fontSize: 24, color: colors.text, letterSpacing: 2 },
+  headerTitle: { fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 24, color: colors.text, letterSpacing: 2 },
   segmentRow: { flexDirection: 'row', marginHorizontal: 16, backgroundColor: colors.surface, borderRadius: 10, padding: 3, marginBottom: 12 },
   segment: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 8 },
   segmentActive: { backgroundColor: Colors.orange },
-  segmentText: { fontFamily: Fonts.barlowSemiBold, fontSize: 13, color: colors.textSecondary, letterSpacing: 1 },
+  segmentText: { fontFamily: Fonts.barlowSemiBold, fontWeight: '600', fontSize: 13, color: colors.textSecondary, letterSpacing: 1 },
   segmentTextActive: { color: '#FFFFFF' },
   emptyText: { fontFamily: Fonts.barlow, fontSize: 14, color: colors.textTertiary, textAlign: 'center', marginTop: 40 },
   feedList: { paddingBottom: 100 },
@@ -924,70 +1000,70 @@ function makeStyles(colors: any) {
   takeHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
   takeAvatarImg: { width: 40, height: 40, borderRadius: 20, marginRight: 10, backgroundColor: colors.surface },
   takeAvatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,107,53,0.2)', alignItems: 'center', justifyContent: 'center', marginRight: 10 },
-  takeAvatarText: { fontFamily: Fonts.barlowBold, fontSize: 18, color: Colors.orange },
+  takeAvatarText: { fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 18, color: Colors.orange },
   takeUserInfo: { flex: 1 },
   takeNameRow: { flexDirection: 'row', alignItems: 'center' },
-  takeUser: { fontFamily: Fonts.barlowBold, fontSize: 15, color: colors.text },
+  takeUser: { fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 15, color: colors.text },
   verifiedIcon: { marginLeft: 4 },
-  takeHandle: { fontFamily: Fonts.barlow, fontSize: 12, color: colors.textSecondary, marginTop: 1 },
+  takeHandle: { fontFamily: Fonts.barlow, fontSize: 13, color: colors.textSecondary, marginTop: 1 },
   moreButton: { padding: 4 },
   takeText: { fontFamily: Fonts.barlow, fontSize: 15, color: colors.text, lineHeight: 22, marginBottom: 8 },
   tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 },
-  tag: { fontFamily: Fonts.barlowSemiBold, fontSize: 13, color: Colors.orange },
+  tag: { fontFamily: Fonts.barlowSemiBold, fontWeight: '600', fontSize: 13, color: Colors.orange },
   pollContainer: { borderWidth: 1, borderColor: colors.border, borderRadius: 10, overflow: 'hidden', marginBottom: 10 },
   pollOption: { position: 'relative', borderBottomWidth: 1, borderBottomColor: colors.borderLight },
   pollBar: { position: 'absolute', top: 0, left: 0, bottom: 0, backgroundColor: colors.borderLight },
   pollOptionContent: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 10 },
   pollOptionText: { fontFamily: Fonts.barlow, fontSize: 13, color: colors.textSecondary, flex: 1 },
-  pollOptionPct: { fontFamily: Fonts.mono, fontSize: 12, color: colors.textSecondary, marginLeft: 8 },
+  pollOptionPct: { fontFamily: Fonts.mono, fontSize: 13, color: colors.textSecondary, marginLeft: 8 },
   pollOptionVoted: { borderLeftWidth: 3, borderLeftColor: Colors.orange },
   pollBarVoted: { backgroundColor: 'rgba(255,107,53,0.2)' },
-  pollOptionTextVoted: { color: Colors.orange, fontFamily: Fonts.barlowSemiBold },
+  pollOptionTextVoted: { color: Colors.orange, fontFamily: Fonts.barlowSemiBold, fontWeight: '600' },
   pollOptionTappable: { borderBottomWidth: 1, borderBottomColor: colors.border, paddingHorizontal: 14, paddingVertical: 12 },
   pollOptionTappableText: { fontFamily: Fonts.barlow, fontSize: 14, color: colors.text },
   pollFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 8 },
-  pollFooterText: { fontFamily: Fonts.barlow, fontSize: 12, color: colors.textTertiary },
+  pollFooterText: { fontFamily: Fonts.barlow, fontSize: 13, color: colors.textTertiary },
   takeActions: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 10 },
   takeAction: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  takeActionCount: { fontFamily: Fonts.mono, fontSize: 12, color: colors.textSecondary },
+  takeActionCount: { fontFamily: Fonts.mono, fontSize: 13, color: colors.textSecondary },
   fireCount: { color: Colors.orange },
   fab: { position: 'absolute', bottom: 24, right: 20, width: 56, height: 56, borderRadius: 28, backgroundColor: Colors.orange, alignItems: 'center', justifyContent: 'center', elevation: 8, shadowColor: Colors.orange, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.4, shadowRadius: 8 },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'flex-end' },
   composeContainer: { backgroundColor: colors.surface, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, minHeight: 280, maxHeight: '85%' },
   composeHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
   composeCancel: { fontFamily: Fonts.barlow, fontSize: 16, color: colors.textSecondary },
-  composeTitle: { fontFamily: Fonts.barlowBold, fontSize: 18, color: colors.text, letterSpacing: 1 },
+  composeTitle: { fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 18, color: colors.text, letterSpacing: 1 },
   composePostBtn: { backgroundColor: Colors.orange, borderRadius: 20, paddingVertical: 8, paddingHorizontal: 20 },
   composePostBtnDisabled: { opacity: 0.4 },
-  composePostText: { fontFamily: Fonts.barlowBold, fontSize: 14, color: '#FFFFFF' },
+  composePostText: { fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 14, color: '#FFFFFF' },
   composeInput: { fontFamily: Fonts.barlow, fontSize: 17, color: colors.text, minHeight: 120, textAlignVertical: 'top' },
-  charCount: { fontFamily: Fonts.mono, fontSize: 12, color: colors.textTertiary, textAlign: 'right', marginTop: 8 },
+  charCount: { fontFamily: Fonts.mono, fontSize: 13, color: colors.textTertiary, textAlign: 'right', marginTop: 8 },
   pollToggle: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 12, paddingVertical: 8 },
-  pollToggleText: { fontFamily: Fonts.barlowSemiBold, fontSize: 14, color: Colors.orange },
+  pollToggleText: { fontFamily: Fonts.barlowSemiBold, fontWeight: '600', fontSize: 14, color: Colors.orange },
   pollBuilder: { marginTop: 12, borderWidth: 1, borderColor: colors.border, borderRadius: 12, padding: 12 },
   pollBuilderHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  pollBuilderTitle: { fontFamily: Fonts.barlowBold, fontSize: 12, color: colors.textSecondary, letterSpacing: 1 },
+  pollBuilderTitle: { fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 13, color: colors.textSecondary, letterSpacing: 1 },
   pollOptionInput: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 8 },
   pollOptionField: { flex: 1, fontFamily: Fonts.barlow, fontSize: 15, color: colors.text, borderWidth: 1, borderColor: colors.border, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10 },
   addOptionBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6 },
-  addOptionText: { fontFamily: Fonts.barlowSemiBold, fontSize: 13, color: Colors.orange },
+  addOptionText: { fontFamily: Fonts.barlowSemiBold, fontWeight: '600', fontSize: 13, color: Colors.orange },
   pollDurationRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 },
-  pollDurationLabel: { fontFamily: Fonts.barlow, fontSize: 12, color: colors.textSecondary },
+  pollDurationLabel: { fontFamily: Fonts.barlow, fontSize: 13, color: colors.textSecondary },
   durationChip: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 14, borderWidth: 1, borderColor: colors.border },
   durationChipActive: { backgroundColor: Colors.orange, borderColor: Colors.orange },
-  durationChipText: { fontFamily: Fonts.barlowSemiBold, fontSize: 12, color: colors.textSecondary },
+  durationChipText: { fontFamily: Fonts.barlowSemiBold, fontWeight: '600', fontSize: 13, color: colors.textSecondary },
   durationChipTextActive: { color: '#FFFFFF' },
   // Themed alert modal
   alertOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', alignItems: 'center', padding: 32 },
   alertBox: { backgroundColor: colors.surface, borderRadius: 16, padding: 24, width: '100%', maxWidth: 320, borderWidth: 1, borderColor: colors.border },
-  alertTitle: { fontFamily: Fonts.barlowBold, fontSize: 18, color: colors.text, textAlign: 'center', letterSpacing: 0.5, marginBottom: 8 },
+  alertTitle: { fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 18, color: colors.text, textAlign: 'center', letterSpacing: 0.5, marginBottom: 8 },
   alertMessage: { fontFamily: Fonts.barlow, fontSize: 14, color: colors.textSecondary, textAlign: 'center', lineHeight: 20, marginBottom: 20 },
   alertButtons: { gap: 8, marginTop: 4 },
   alertButton: { paddingVertical: 14, paddingHorizontal: 16, borderRadius: 10, alignItems: 'center', justifyContent: 'center', minHeight: 48 },
   alertButtonDefault: { backgroundColor: Colors.orange },
   alertButtonDestructive: { backgroundColor: '#EF4444' },
   alertButtonCancel: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.border },
-  alertButtonText: { fontFamily: Fonts.barlowBold, fontSize: 15, color: '#FFFFFF' },
+  alertButtonText: { fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 15, color: '#FFFFFF' },
   alertButtonTextDestructive: { color: '#FFFFFF' },
   alertButtonTextCancel: { color: colors.textSecondary },
   });

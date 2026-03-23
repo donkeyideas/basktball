@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { Platform, StyleSheet, Text } from 'react-native';
-import { Colors } from '@/constants/Colors';
+import { Colors, Fonts } from '@/constants/Colors';
 import { useTheme } from '@/lib/theme/ThemeContext';
 
 function LetterIcon({ letter, color, focused }: { letter: string; color: string; focused: boolean }) {
@@ -83,13 +83,15 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   tabLabel: {
-    fontSize: 10,
-    fontFamily: 'BarlowCondensed-SemiBold',
+    fontSize: 12,
+    fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     letterSpacing: 0.5,
   },
   letterIcon: {
     fontSize: 22,
-    fontFamily: 'BarlowCondensed-Bold',
+    fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     textAlign: 'center',
   },
 });

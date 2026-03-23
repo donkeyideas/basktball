@@ -29,6 +29,27 @@ export async function GET(request: NextRequest) {
       parentId: null,
     };
 
+    // Filter out blocked users' content (both directions)
+    if (user) {
+      const blocks = await prisma.userBlock.findMany({
+        where: {
+          OR: [
+            { blockerId: user.id },
+            { blockedId: user.id },
+          ],
+        },
+        select: { blockerId: true, blockedId: true },
+      });
+      const blockedIds = [
+        ...new Set(
+          blocks.map((b) => (b.blockerId === user!.id ? b.blockedId : b.blockerId))
+        ),
+      ];
+      if (blockedIds.length > 0) {
+        where.authorId = { notIn: blockedIds };
+      }
+    }
+
     if (type === "following" && user) {
       const following = await prisma.follow.findMany({
         where: { followerId: user.id },
@@ -36,7 +57,11 @@ export async function GET(request: NextRequest) {
       });
       const followIds = following.map((f) => f.followingId);
       followIds.push(user.id);
-      where.authorId = { in: followIds };
+      // Merge with existing authorId filter (blocked users)
+      const existingNotIn = (where.authorId as any)?.notIn || [];
+      where.authorId = {
+        in: followIds.filter((id) => !existingNotIn.includes(id)),
+      };
     } else if (type === "live") {
       where.gameId = { not: null };
     }

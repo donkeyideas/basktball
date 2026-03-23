@@ -562,6 +562,9 @@ model User {
   bannedUntil DateTime?
   bannedBy    String?
 
+  // Terms acceptance
+  termsAcceptedAt DateTime?
+
   // Timestamps
   lastActiveAt DateTime?
   createdAt    DateTime  @default(now())
@@ -588,6 +591,11 @@ model User {
   following         Follow[]       @relation("Followers")
   deviceTokens      DeviceToken[]
   pollVotes         PollVote[]
+
+  // Blocking
+  blockedUsers      UserBlock[]   @relation("BlockerUser")
+  blockedByUsers    UserBlock[]   @relation("BlockedUser")
+  takeReports       TakeReport[]
 
   // Social stats (denormalized)
   takeCount      Int @default(0)
@@ -984,6 +992,9 @@ model Take {
   bookmarks   Bookmark[]
   poll        Poll?
 
+  // Reports
+  reports     TakeReport[]
+
   // Novel feature relations
   prediction  Prediction?
   statCheck   StatCheck?
@@ -1229,4 +1240,40 @@ model Notification {
   @@index([userId, read])
   @@index([userId, createdAt])
   @@index([createdAt])
+}
+
+// =============================================================================
+// USER SAFETY (Block & Report)
+// =============================================================================
+
+model UserBlock {
+  id        String   @id @default(cuid())
+  blockerId String
+  blockedId String
+  createdAt DateTime @default(now())
+
+  blocker   User     @relation("BlockerUser", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked   User     @relation("BlockedUser", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  @@unique([blockerId, blockedId])
+  @@index([blockerId])
+  @@index([blockedId])
+}
+
+model TakeReport {
+  id         String       @id @default(cuid())
+  takeId     String
+  reporterId String
+  reason     ReportReason
+  details    String?      @db.Text
+  status     ReportStatus @default(PENDING)
+  createdAt  DateTime     @default(now())
+
+  take       Take         @relation(fields: [takeId], references: [id], onDelete: Cascade)
+  reporter   User         @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@unique([takeId, reporterId])
+  @@index([takeId])
+  @@index([reporterId])
+  @@index([status])
 }

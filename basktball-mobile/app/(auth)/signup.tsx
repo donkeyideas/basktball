@@ -40,8 +40,13 @@ export default function SignupScreen() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [appleLoading, setAppleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   async function handleGoogleSignup() {
+    if (!acceptedTerms) {
+      Alert.alert('Terms Required', 'Please agree to the Terms of Service and Privacy Policy to continue.');
+      return;
+    }
     setGoogleLoading(true);
     try {
       const sid = generateSessionId();
@@ -68,6 +73,10 @@ export default function SignupScreen() {
   }
 
   async function handleAppleSignup() {
+    if (!acceptedTerms) {
+      Alert.alert('Terms Required', 'Please agree to the Terms of Service and Privacy Policy to continue.');
+      return;
+    }
     setAppleLoading(true);
     try {
       const credential = await AppleAuthentication.signInAsync({
@@ -110,6 +119,10 @@ export default function SignupScreen() {
   }
 
   async function handleSignup() {
+    if (!acceptedTerms) {
+      Alert.alert('Terms Required', 'Please agree to the Terms of Service and Privacy Policy to continue.');
+      return;
+    }
     if (!displayName.trim() || !email.trim() || !password.trim()) {
       Alert.alert('Error', 'Please fill in all fields.');
       return;
@@ -261,11 +274,32 @@ export default function SignupScreen() {
             />
           </View>
 
+          {/* Terms Agreement */}
+          <TouchableOpacity
+            style={styles.termsRow}
+            activeOpacity={0.7}
+            onPress={() => setAcceptedTerms(!acceptedTerms)}
+          >
+            <View style={[styles.checkbox, acceptedTerms && styles.checkboxChecked]}>
+              {acceptedTerms && <Ionicons name="checkmark" size={14} color="#fff" />}
+            </View>
+            <Text style={styles.termsText}>
+              I agree to the{' '}
+              <Text style={styles.termsLink} onPress={() => router.push('/legal/terms')}>
+                Terms of Service
+              </Text>
+              {' '}and{' '}
+              <Text style={styles.termsLink} onPress={() => router.push('/legal/privacy')}>
+                Privacy Policy
+              </Text>
+            </Text>
+          </TouchableOpacity>
+
           {/* Create Account Button */}
           <TouchableOpacity
-            style={[styles.createButton, isLoading && styles.createButtonDisabled]}
+            style={[styles.createButton, (isLoading || !acceptedTerms) && styles.createButtonDisabled]}
             onPress={handleSignup}
-            disabled={isLoading}
+            disabled={isLoading || !acceptedTerms}
             activeOpacity={0.8}
           >
             {isLoading ? (
@@ -323,6 +357,7 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 28,
     color: Colors.orange,
     textAlign: 'center',
@@ -343,6 +378,7 @@ const styles = StyleSheet.create({
   },
   appleButtonText: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 16,
     color: '#fff',
   },
@@ -358,6 +394,7 @@ const styles = StyleSheet.create({
   },
   googleButtonText: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 16,
     color: '#333',
   },
@@ -373,7 +410,8 @@ const styles = StyleSheet.create({
   },
   dividerText: {
     fontFamily: Fonts.barlowSemiBold,
-    fontSize: 12,
+    fontWeight: '600',
+    fontSize: 13,
     color: Colors.textTertiary,
     marginHorizontal: 16,
     letterSpacing: 1,
@@ -401,6 +439,39 @@ const styles = StyleSheet.create({
   eyeIcon: {
     padding: 4,
   },
+  termsRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginTop: 16,
+    marginBottom: 4,
+    gap: 10,
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: Colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 1,
+  },
+  checkboxChecked: {
+    backgroundColor: Colors.orange,
+    borderColor: Colors.orange,
+  },
+  termsText: {
+    flex: 1,
+    fontFamily: Fonts.barlow,
+    fontSize: 13,
+    color: Colors.textSecondary,
+    lineHeight: 20,
+  },
+  termsLink: {
+    color: Colors.orange,
+    fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
+  },
   createButton: {
     backgroundColor: Colors.orange,
     borderRadius: 12,
@@ -414,6 +485,7 @@ const styles = StyleSheet.create({
   },
   createButtonText: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 18,
     color: Colors.white,
     letterSpacing: 2,
@@ -430,6 +502,7 @@ const styles = StyleSheet.create({
   },
   bottomLink: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 14,
     color: Colors.orange,
   },

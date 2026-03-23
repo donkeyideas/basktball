@@ -342,8 +342,8 @@ export default function ProfileScreen() {
             challenges.map((c: any) => (
               <TouchableOpacity key={c.id} style={styles.takeCard} activeOpacity={0.7} onPress={() => router.push(`/challenge/${c.id}` as never)}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <Text style={{ fontFamily: Fonts.barlowBold, fontSize: 11, color: c.status === 'COMPLETED' ? '#22C55E' : Colors.orange, textTransform: 'uppercase' }}>{c.status}</Text>
-                  <Text style={{ fontFamily: Fonts.mono, fontSize: 11, color: colors.textTertiary }}>{timeAgo(c.createdAt)}</Text>
+                  <Text style={{ fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 12, color: c.status === 'COMPLETED' ? '#22C55E' : Colors.orange, textTransform: 'uppercase' }}>{c.status}</Text>
+                  <Text style={{ fontFamily: Fonts.mono, fontSize: 12, color: colors.textTertiary }}>{timeAgo(c.createdAt)}</Text>
                 </View>
                 <Text style={styles.takeText}>{c.topic}</Text>
                 <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: colors.textSecondary }}>
@@ -359,10 +359,10 @@ export default function ProfileScreen() {
             predictions.map((p: any) => (
               <TouchableOpacity key={p.id} style={styles.takeCard} activeOpacity={0.7} onPress={() => p.take && router.push(`/take/${p.take.id}`)}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <Text style={{ fontFamily: Fonts.barlowBold, fontSize: 11, color: p.status === 'RECEIPT' ? '#22C55E' : p.status === 'BUST' ? '#EF4444' : colors.textSecondary, textTransform: 'uppercase' }}>{p.status}</Text>
+                  <Text style={{ fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 12, color: p.status === 'RECEIPT' ? '#22C55E' : p.status === 'BUST' ? '#EF4444' : colors.textSecondary, textTransform: 'uppercase' }}>{p.status}</Text>
                 </View>
                 <Text style={styles.takeText}>{p.claim}</Text>
-                {p.result && <Text style={{ fontFamily: Fonts.barlow, fontSize: 12, color: colors.textTertiary }}>{p.result}</Text>}
+                {p.result && <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: colors.textTertiary }}>{p.result}</Text>}
               </TouchableOpacity>
             ))
           )
@@ -373,10 +373,10 @@ export default function ProfileScreen() {
             agingTakes.map((at: any) => (
               <TouchableOpacity key={at.id} style={styles.takeCard} activeOpacity={0.7} onPress={() => router.push(`/take/${at.take?.id}`)}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <Text style={{ fontFamily: Fonts.barlowBold, fontSize: 11, color: at.status === 'AGED' ? '#EAB308' : at.status === 'AGING' ? '#3B82F6' : colors.textTertiary, textTransform: 'uppercase' }}>{at.status}</Text>
+                  <Text style={{ fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 12, color: at.status === 'AGED' ? '#EAB308' : at.status === 'AGING' ? '#3B82F6' : colors.textTertiary, textTransform: 'uppercase' }}>{at.status}</Text>
                 </View>
                 <Text style={styles.takeText}>{at.take?.content}</Text>
-                <Text style={{ fontFamily: Fonts.barlow, fontSize: 12, color: colors.textTertiary }}>
+                <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: colors.textTertiary }}>
                   Revisit: {new Date(at.revisitDate).toLocaleDateString()}
                 </Text>
               </TouchableOpacity>
@@ -477,6 +477,7 @@ function makeStyles(colors: any) {
   },
   headerTitle: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 24,
     color: colors.text,
     letterSpacing: 2,
@@ -511,11 +512,13 @@ function makeStyles(colors: any) {
   },
   avatarText: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 28,
     color: Colors.orange,
   },
   profileName: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 22,
     color: colors.text,
     marginBottom: 2,
@@ -546,12 +549,13 @@ function makeStyles(colors: any) {
   },
   statValue: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 20,
     color: colors.text,
   },
   statLabel: {
     fontFamily: Fonts.barlow,
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textSecondary,
     marginTop: 2,
   },
@@ -570,6 +574,7 @@ function makeStyles(colors: any) {
   },
   editButtonText: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 14,
     color: colors.text,
     letterSpacing: 1,
@@ -586,6 +591,7 @@ function makeStyles(colors: any) {
   },
   adminButtonText: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 14,
     color: '#FFFFFF',
     letterSpacing: 1,
@@ -608,6 +614,7 @@ function makeStyles(colors: any) {
   },
   segmentText: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 14,
     color: colors.textSecondary,
     letterSpacing: 1,
@@ -651,7 +658,7 @@ function makeStyles(colors: any) {
   },
   takeActionCount: {
     fontFamily: Fonts.mono,
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textSecondary,
   },
   fireCount: {
@@ -659,7 +666,7 @@ function makeStyles(colors: any) {
   },
   takeTime: {
     fontFamily: Fonts.mono,
-    fontSize: 11,
+    fontSize: 12,
     color: colors.textTertiary,
   },
   logoutButton: {
@@ -677,6 +684,7 @@ function makeStyles(colors: any) {
   },
   logoutText: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 15,
     color: Colors.red,
     letterSpacing: 0.5,
@@ -692,6 +700,7 @@ function makeStyles(colors: any) {
   },
   loginPromptTitle: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 22,
     color: colors.text,
     marginTop: 20,
@@ -715,6 +724,7 @@ function makeStyles(colors: any) {
   },
   loginButtonText: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 18,
     color: '#FFFFFF',
     letterSpacing: 2,
@@ -749,12 +759,14 @@ function makeStyles(colors: any) {
   },
   editTitle: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 18,
     color: colors.text,
     letterSpacing: 1,
   },
   editSave: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 16,
     color: Colors.orange,
   },
@@ -763,6 +775,7 @@ function makeStyles(colors: any) {
   },
   editLabel: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 13,
     color: colors.textSecondary,
     marginBottom: 6,
@@ -799,6 +812,7 @@ function makeStyles(colors: any) {
   },
   editAvatarInitials: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 28,
     color: Colors.orange,
   },

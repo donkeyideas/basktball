@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 13,
     letterSpacing: 0.5,
   },

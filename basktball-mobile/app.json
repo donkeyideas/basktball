@@ -23,11 +23,11 @@
         },
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "5"
+      "buildNumber": "6"
     },
     "android": {
       "package": "com.basktball.app",
-      "versionCode": 14,
+      "versionCode": 15,
       "softwareKeyboardLayoutMode": "adjustResize",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -39,8 +39,15 @@
         "RECEIVE_BOOT_COMPLETED",
         "VIBRATE",
         "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "INTERNET",
         "ACCESS_NETWORK_STATE"
-      ]
+      ],
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
     },
     "web": {
       "bundler": "metro",
@@ -68,6 +75,9 @@
       "eas": {
         "projectId": "f155a87c-d074-43c1-ac99-7a8a10c64c81"
       }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/f155a87c-d074-43c1-ac99-7a8a10c64c81"
     }
   }
 }

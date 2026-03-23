@@ -89,6 +89,7 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 18,
     color: Colors.orange,
     letterSpacing: 0.5,
@@ -103,7 +104,8 @@ const styles = StyleSheet.create({
   },
   teamName: {
     fontFamily: Fonts.barlowSemiBold,
-    fontSize: 11,
+    fontWeight: '600',
+    fontSize: 12,
     color: Colors.orange,
     textAlign: 'center',
     letterSpacing: 0.5,
@@ -126,7 +128,8 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontFamily: Fonts.barlowSemiBold,
-    fontSize: 9,
+    fontWeight: '600',
+    fontSize: 12,
     color: Colors.textTertiary,
     letterSpacing: 1,
     marginTop: 1,

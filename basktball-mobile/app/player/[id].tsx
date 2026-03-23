@@ -255,6 +255,7 @@ function makeStyles(colors: any) {
   },
   headerTitle: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 20,
     color: colors.text,
     letterSpacing: 2,
@@ -283,6 +284,7 @@ function makeStyles(colors: any) {
   },
   retryText: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 14,
     color: '#FFFFFF',
   },
@@ -327,6 +329,7 @@ function makeStyles(colors: any) {
   },
   playerTeam: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 14,
     color: Colors.orange,
     letterSpacing: 1,
@@ -339,6 +342,7 @@ function makeStyles(colors: any) {
   },
   playerPosition: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 14,
     color: colors.textSecondary,
   },
@@ -388,7 +392,8 @@ function makeStyles(colors: any) {
   },
   statCardLabel: {
     fontFamily: Fonts.barlowSemiBold,
-    fontSize: 10,
+    fontWeight: '600',
+    fontSize: 12,
     color: colors.textTertiary,
     letterSpacing: 0.5,
     marginTop: 2,
@@ -400,6 +405,7 @@ function makeStyles(colors: any) {
   },
   sectionTitle: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 14,
     color: Colors.orange,
     letterSpacing: 2,
@@ -420,7 +426,8 @@ function makeStyles(colors: any) {
   },
   effLabel: {
     fontFamily: Fonts.barlowBold,
-    fontSize: 12,
+    fontWeight: '700',
+    fontSize: 13,
     color: colors.textSecondary,
     width: 40,
   },

@@ -11,7 +11,7 @@ export async function GET(
     const { id } = await params;
     const viewer = await getMobileUser(request);
 
-    const [user, isFollowing] = await Promise.all([
+    const [user, isFollowing, isBlocked] = await Promise.all([
       prisma.user.findUnique({
         where: { id },
         select: {
@@ -39,6 +39,17 @@ export async function GET(
             select: { id: true },
           })
         : Promise.resolve(null),
+      viewer && viewer.id !== id
+        ? prisma.userBlock.findUnique({
+            where: {
+              blockerId_blockedId: {
+                blockerId: viewer.id,
+                blockedId: id,
+              },
+            },
+            select: { id: true },
+          })
+        : Promise.resolve(null),
     ]);
 
     if (!user) {
@@ -48,6 +59,7 @@ export async function GET(
     return NextResponse.json({
       user,
       isFollowing: !!isFollowing,
+      isBlocked: !!isBlocked,
       isSelf: viewer?.id === id,
     });
   } catch (error) {

@@ -528,6 +528,7 @@ function makeStyles(colors: any) {
   },
   liveBarText: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 13,
     color: Colors.red,
     letterSpacing: 1,
@@ -552,7 +553,8 @@ function makeStyles(colors: any) {
   },
   leagueTabText: {
     fontFamily: Fonts.barlowBold,
-    fontSize: 12,
+    fontWeight: '700',
+    fontSize: 13,
     color: colors.textSecondary,
     letterSpacing: 1,
   },
@@ -570,12 +572,14 @@ function makeStyles(colors: any) {
   },
   sectionTitle: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 16,
     color: colors.text,
     letterSpacing: 1.5,
   },
   seeAll: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 13,
     color: Colors.orange,
   },
@@ -601,7 +605,7 @@ function makeStyles(colors: any) {
   },
   gameStatus: {
     fontFamily: Fonts.mono,
-    fontSize: 10,
+    fontSize: 12,
     letterSpacing: 0.5,
   },
   gameLive: {
@@ -630,6 +634,7 @@ function makeStyles(colors: any) {
   },
   teamAbbr: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 15,
     color: colors.text,
     flex: 1,
@@ -670,11 +675,13 @@ function makeStyles(colors: any) {
   },
   playerInitials: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 18,
     color: Colors.orange,
   },
   playerName: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 13,
     color: colors.text,
     textAlign: 'center',
@@ -682,7 +689,7 @@ function makeStyles(colors: any) {
   },
   playerTeam: {
     fontFamily: Fonts.barlow,
-    fontSize: 11,
+    fontSize: 12,
     color: colors.textSecondary,
     marginBottom: 10,
   },
@@ -701,7 +708,7 @@ function makeStyles(colors: any) {
   },
   playerStatLabel: {
     fontFamily: Fonts.mono,
-    fontSize: 9,
+    fontSize: 12,
     color: colors.textTertiary,
     letterSpacing: 0.5,
   },
@@ -738,6 +745,7 @@ function makeStyles(colors: any) {
   },
   takeAvatarText: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 16,
     color: Colors.orange,
   },
@@ -746,12 +754,13 @@ function makeStyles(colors: any) {
   },
   takeUser: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 14,
     color: colors.text,
   },
   takeHandle: {
     fontFamily: Fonts.barlow,
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textSecondary,
   },
   takeText: {
@@ -773,7 +782,7 @@ function makeStyles(colors: any) {
   },
   takeActionCount: {
     fontFamily: Fonts.mono,
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textSecondary,
   },
   // News Items
@@ -812,12 +821,13 @@ function makeStyles(colors: any) {
   },
   newsBadgeText: {
     fontFamily: Fonts.monoBold,
-    fontSize: 9,
+    fontSize: 12,
     color: '#FFFFFF',
     letterSpacing: 0.5,
   },
   newsTitle: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 14,
     color: colors.text,
     lineHeight: 20,
@@ -825,7 +835,7 @@ function makeStyles(colors: any) {
   },
   newsMeta: {
     fontFamily: Fonts.barlow,
-    fontSize: 11,
+    fontSize: 12,
     color: colors.textTertiary,
   },
   emptyText: {

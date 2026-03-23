@@ -79,6 +79,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 13,
     color: Colors.white,
     letterSpacing: 1.5,

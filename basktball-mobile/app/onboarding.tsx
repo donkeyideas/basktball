@@ -329,6 +329,7 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.3)',
     fontSize: 14,
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600' as const,
     letterSpacing: 0.5,
   },
   pageLabel: {
@@ -337,8 +338,9 @@ const styles = StyleSheet.create({
     left: 20,
     zIndex: 10,
     color: 'rgba(255,255,255,0.2)',
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600' as const,
   },
   page: {
     width,
@@ -369,6 +371,7 @@ const styles = StyleSheet.create({
   tagText: {
     fontSize: 13,
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700' as const,
     letterSpacing: 2,
   },
   title: {
@@ -404,6 +407,7 @@ const styles = StyleSheet.create({
   leaguePillText: {
     fontSize: 13,
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700' as const,
     letterSpacing: 1,
   },
   statsRow: {
@@ -425,11 +429,13 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 22,
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700' as const,
   },
   statLabel: {
     color: 'rgba(255,255,255,0.3)',
-    fontSize: 12,
+    fontSize: 13,
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600' as const,
     letterSpacing: 1,
     marginTop: 2,
   },
@@ -460,6 +466,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 16,
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700' as const,
     letterSpacing: 0.3,
   },
   featureDesc: {
@@ -506,6 +513,7 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: 16,
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700' as const,
     letterSpacing: 1.5,
   },
 });

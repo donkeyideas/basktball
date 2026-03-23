@@ -172,6 +172,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 20,
     color: Colors.white,
     letterSpacing: 2,
@@ -189,6 +190,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 16,
     color: Colors.orange,
     letterSpacing: 0.5,
@@ -225,7 +227,7 @@ const styles = StyleSheet.create({
   },
   updatedText: {
     fontFamily: Fonts.mono,
-    fontSize: 11,
+    fontSize: 12,
     color: Colors.textTertiary,
     letterSpacing: 0.5,
   },

@@ -74,7 +74,8 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: Fonts.barlowBold,
-    fontSize: 11,
+    fontWeight: '700',
+    fontSize: 12,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
   },

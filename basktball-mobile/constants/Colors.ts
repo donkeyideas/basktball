@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 export const Colors = {
   orange: '#FF6B35',
   orangeBright: '#FF8C5A',
@@ -19,15 +21,18 @@ export const Colors = {
   textMuted: 'rgba(255,255,255,0.15)',
 } as const;
 
+// System font: SF Pro on iOS, Roboto on Android (same as Twitter/Instagram/Facebook)
+const systemFont = Platform.select({ ios: 'System', default: 'sans-serif' })!;
+
 export const Fonts = {
   anton: 'Anton',
-  barlow: 'BarlowCondensed',
-  barlowMedium: 'BarlowCondensed-Medium',
-  barlowSemiBold: 'BarlowCondensed-SemiBold',
-  barlowBold: 'BarlowCondensed-Bold',
+  barlow: systemFont,
+  barlowMedium: systemFont,
+  barlowSemiBold: systemFont,
+  barlowBold: systemFont,
   mono: 'RobotoMono',
   monoBold: 'RobotoMono-Bold',
-} as const;
+};
 
 export const Spacing = {
   xs: 4,

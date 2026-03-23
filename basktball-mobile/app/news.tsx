@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
   },
   headerTitle: {
-    fontFamily: Fonts.barlowBold, fontSize: 20,
+    fontFamily: Fonts.barlowBold, fontWeight: '700' as const, fontSize: 20,
     color: Colors.white, letterSpacing: 2,
   },
   list: { paddingHorizontal: 16, paddingBottom: 20 },
@@ -158,14 +158,14 @@ const styles = StyleSheet.create({
     borderRadius: 4, marginBottom: 4,
   },
   newsBadgeText: {
-    fontFamily: Fonts.monoBold, fontSize: 9,
+    fontFamily: Fonts.monoBold, fontSize: 12,
     color: Colors.white, letterSpacing: 0.5,
   },
   newsTitle: {
-    fontFamily: Fonts.barlowSemiBold, fontSize: 14,
+    fontFamily: Fonts.barlowSemiBold, fontWeight: '600' as const, fontSize: 14,
     color: Colors.white, lineHeight: 20, marginBottom: 4,
   },
   newsMeta: {
-    fontFamily: Fonts.barlow, fontSize: 11, color: Colors.textTertiary,
+    fontFamily: Fonts.barlow, fontSize: 12, color: Colors.textTertiary,
   },
 });

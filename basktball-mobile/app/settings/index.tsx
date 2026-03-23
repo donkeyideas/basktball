@@ -57,6 +57,11 @@ export default function SettingsScreen() {
   const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
   const [savingTeams, setSavingTeams] = useState(false);
 
+  // Blocked users state
+  const [showBlockedUsers, setShowBlockedUsers] = useState(false);
+  const [blockedUsers, setBlockedUsers] = useState<{ id: string; name: string; displayName: string | null; avatarUrl: string | null }[]>([]);
+  const [loadingBlocked, setLoadingBlocked] = useState(false);
+
   // Load persisted preferences
   useEffect(() => {
     Promise.all([
@@ -185,6 +190,36 @@ export default function SettingsScreen() {
     }
   }
 
+  async function openBlockedUsers() {
+    setShowBlockedUsers(true);
+    setLoadingBlocked(true);
+    try {
+      const data: any = await api.get('/mobile/users/blocked');
+      setBlockedUsers(data.blockedUsers || []);
+    } catch {
+      Alert.alert('Error', 'Failed to load blocked users');
+    } finally {
+      setLoadingBlocked(false);
+    }
+  }
+
+  async function handleUnblock(userId: string, name: string) {
+    Alert.alert(`Unblock ${name}?`, 'You will be able to see their content again.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Unblock',
+        onPress: async () => {
+          try {
+            await api.post(`/mobile/users/${userId}/block`, {});
+            setBlockedUsers(prev => prev.filter(u => u.id !== userId));
+          } catch {
+            Alert.alert('Error', 'Failed to unblock user');
+          }
+        },
+      },
+    ]);
+  }
+
   function handleRateApp() {
     Linking.openURL('https://play.google.com/store/apps/details?id=com.basktball.app');
   }
@@ -266,6 +301,7 @@ export default function SettingsScreen() {
           {renderMenuItem('person-outline', 'Edit Profile', () => router.push('/(tabs)/profile?edit=true'))}
           {renderMenuItem('lock-closed-outline', 'Change Password', () => setShowChangePassword(true))}
           {renderMenuItem('link-outline', 'Linked Accounts', () => setShowLinkedAccounts(true))}
+          {renderMenuItem('ban-outline' as IoniconsName, 'Blocked Users', openBlockedUsers)}
         </View>
 
         {/* Preferences Section */}
@@ -403,6 +439,46 @@ export default function SettingsScreen() {
         </View>
       </Modal>
 
+      {/* Blocked Users Modal */}
+      <Modal visible={showBlockedUsers} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContainer, { maxHeight: '70%' }]}>
+            <View style={styles.modalHeader}>
+              <TouchableOpacity onPress={() => setShowBlockedUsers(false)}>
+                <Text style={styles.modalCancel}>Close</Text>
+              </TouchableOpacity>
+              <Text style={styles.modalTitle}>Blocked Users</Text>
+              <View style={{ width: 50 }} />
+            </View>
+            {loadingBlocked ? (
+              <ActivityIndicator color={Colors.orange} style={{ marginTop: 20 }} />
+            ) : blockedUsers.length === 0 ? (
+              <Text style={styles.emptyText}>No blocked users</Text>
+            ) : (
+              <FlatList
+                data={blockedUsers}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <View style={styles.linkedItem}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.linkedText}>{item.displayName || item.name}</Text>
+                      <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: Colors.textTertiary }}>@{item.name}</Text>
+                    </View>
+                    <TouchableOpacity
+                      onPress={() => handleUnblock(item.id, item.displayName || item.name)}
+                      style={{ backgroundColor: 'rgba(255,107,53,0.15)', paddingHorizontal: 14, paddingVertical: 6, borderRadius: 14 }}
+                    >
+                      <Text style={{ fontFamily: Fonts.barlowSemiBold, fontWeight: '600', fontSize: 13, color: Colors.orange }}>Unblock</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+                showsVerticalScrollIndicator={false}
+              />
+            )}
+          </View>
+        </View>
+      </Modal>
+
       {/* Favorite Teams Modal */}
       <Modal visible={showFavoriteTeams} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
@@ -483,6 +559,7 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 20,
     color: Colors.white,
     letterSpacing: 2,
@@ -492,7 +569,8 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontFamily: Fonts.barlowBold,
-    fontSize: 12,
+    fontWeight: '700',
+    fontSize: 13,
     color: Colors.textTertiary,
     letterSpacing: 1.5,
     paddingHorizontal: 16,
@@ -537,7 +615,7 @@ const styles = StyleSheet.create({
   },
   versionText: {
     fontFamily: Fonts.mono,
-    fontSize: 11,
+    fontSize: 12,
     color: Colors.textTertiary,
     letterSpacing: 0.5,
   },
@@ -567,12 +645,14 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 18,
     color: Colors.white,
     letterSpacing: 1,
   },
   modalSave: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 16,
     color: Colors.orange,
   },
@@ -581,6 +661,7 @@ const styles = StyleSheet.create({
   },
   modalLabel: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 13,
     color: Colors.textSecondary,
     marginBottom: 6,
@@ -615,13 +696,14 @@ const styles = StyleSheet.create({
   },
   linkedText: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 16,
     color: Colors.white,
     flex: 1,
   },
   linkedHint: {
     fontFamily: Fonts.barlow,
-    fontSize: 12,
+    fontSize: 13,
     color: Colors.textTertiary,
     marginTop: 16,
     textAlign: 'center',
@@ -652,12 +734,13 @@ const styles = StyleSheet.create({
   },
   teamItemName: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 15,
     color: Colors.white,
   },
   teamItemAbbr: {
     fontFamily: Fonts.mono,
-    fontSize: 11,
+    fontSize: 12,
     color: Colors.textTertiary,
   },
 });

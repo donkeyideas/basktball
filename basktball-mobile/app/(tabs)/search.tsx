@@ -358,6 +358,7 @@ function makeStyles(colors: any) {
   },
   headerTitle: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 24,
     color: colors.text,
     letterSpacing: 2,
@@ -398,6 +399,7 @@ function makeStyles(colors: any) {
   },
   sectionTitle: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 15,
     color: colors.text,
     letterSpacing: 1.5,
@@ -438,6 +440,7 @@ function makeStyles(colors: any) {
   },
   newsTitle: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 14,
     color: colors.text,
     lineHeight: 19,
@@ -450,12 +453,13 @@ function makeStyles(colors: any) {
   },
   newsSource: {
     fontFamily: Fonts.barlowSemiBold,
-    fontSize: 11,
+    fontWeight: '600',
+    fontSize: 12,
     color: Colors.orange,
   },
   newsTime: {
     fontFamily: Fonts.barlow,
-    fontSize: 11,
+    fontSize: 12,
     color: colors.textTertiary,
   },
   // Horizontal user cards
@@ -491,11 +495,13 @@ function makeStyles(colors: any) {
   },
   userInitials: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 18,
     color: Colors.orange,
   },
   userName: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 13,
     color: colors.text,
     textAlign: 'center',
@@ -503,7 +509,7 @@ function makeStyles(colors: any) {
   },
   userMeta: {
     fontFamily: Fonts.barlow,
-    fontSize: 11,
+    fontSize: 12,
     color: colors.textSecondary,
   },
   // Search results
@@ -533,6 +539,7 @@ function makeStyles(colors: any) {
   },
   resultInitial: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 16,
     color: Colors.orange,
   },
@@ -541,12 +548,13 @@ function makeStyles(colors: any) {
   },
   resultName: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 15,
     color: colors.text,
   },
   resultSub: {
     fontFamily: Fonts.barlow,
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textSecondary,
     marginTop: 2,
   },
@@ -559,6 +567,7 @@ function makeStyles(colors: any) {
   },
   takeAuthor: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 13,
     color: Colors.orange,
     marginBottom: 4,

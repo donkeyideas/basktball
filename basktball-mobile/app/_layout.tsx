@@ -66,10 +66,6 @@ function getNavTheme(isDark: boolean) {
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
     Anton: require('../assets/fonts/Anton-Regular.ttf'),
-    BarlowCondensed: require('../assets/fonts/BarlowCondensed-Regular.ttf'),
-    'BarlowCondensed-Medium': require('../assets/fonts/BarlowCondensed-Medium.ttf'),
-    'BarlowCondensed-SemiBold': require('../assets/fonts/BarlowCondensed-SemiBold.ttf'),
-    'BarlowCondensed-Bold': require('../assets/fonts/BarlowCondensed-Bold.ttf'),
     RobotoMono: require('../assets/fonts/RobotoMono-Regular.ttf'),
     'RobotoMono-Bold': require('../assets/fonts/RobotoMono-Bold.ttf'),
   });

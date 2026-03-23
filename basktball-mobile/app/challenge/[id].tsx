@@ -316,7 +316,7 @@ export default function ChallengeDetailScreen() {
             {/* Winner Banner */}
             {challenge.status === 'COMPLETED' && challenge.winner && (
               <View style={[styles.card, { backgroundColor: 'rgba(34,197,94,0.1)', borderColor: 'rgba(34,197,94,0.2)' }]}>
-                <Text style={{ color: '#22C55E', fontFamily: Fonts.barlowBold, fontSize: 16, textAlign: 'center' }}>
+                <Text style={{ color: '#22C55E', fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 16, textAlign: 'center' }}>
                   Winner: {challenge.winner.displayName || challenge.winner.name}
                 </Text>
               </View>
@@ -331,7 +331,7 @@ export default function ChallengeDetailScreen() {
                     style={[styles.linkedTake, { backgroundColor: 'rgba(255,107,53,0.08)', borderColor: 'rgba(255,107,53,0.15)' }]}
                     onPress={() => router.push(`/take/${challenge.challengerTake!.id}` as never)}
                   >
-                    <Text style={{ color: Colors.orange, fontFamily: Fonts.barlowBold, fontSize: 12, marginBottom: 4 }}>
+                    <Text style={{ color: Colors.orange, fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 13, marginBottom: 4 }}>
                       {challenge.challengerTake.author.displayName || challenge.challengerTake.author.name}
                     </Text>
                     <Text style={{ color: 'rgba(255,255,255,0.8)', fontFamily: Fonts.barlow, fontSize: 14, lineHeight: 20 }}>
@@ -344,7 +344,7 @@ export default function ChallengeDetailScreen() {
                     style={[styles.linkedTake, { backgroundColor: 'rgba(59,130,246,0.08)', borderColor: 'rgba(59,130,246,0.15)', marginTop: 8 }]}
                     onPress={() => router.push(`/take/${challenge.challengedTake!.id}` as never)}
                   >
-                    <Text style={{ color: Colors.blue, fontFamily: Fonts.barlowBold, fontSize: 12, marginBottom: 4 }}>
+                    <Text style={{ color: Colors.blue, fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 13, marginBottom: 4 }}>
                       {challenge.challengedTake.author.displayName || challenge.challengedTake.author.name}
                     </Text>
                     <Text style={{ color: 'rgba(255,255,255,0.8)', fontFamily: Fonts.barlow, fontSize: 14, lineHeight: 20 }}>
@@ -570,7 +570,8 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontFamily: Fonts.barlowBold,
-    fontSize: 11,
+    fontWeight: '700',
+    fontSize: 12,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
   },
@@ -604,12 +605,13 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 14,
     textAlign: 'center',
   },
   record: {
     fontFamily: Fonts.barlow,
-    fontSize: 12,
+    fontSize: 13,
     color: 'rgba(255,255,255,0.4)',
   },
   vsBadge: {
@@ -634,6 +636,7 @@ const styles = StyleSheet.create({
   },
   votePct: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 14,
     color: Colors.orange,
   },
@@ -654,7 +657,7 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontFamily: Fonts.anton,
-    fontSize: 12,
+    fontSize: 13,
     color: 'rgba(255,255,255,0.5)',
     letterSpacing: 1,
     marginBottom: 10,
@@ -676,6 +679,7 @@ const styles = StyleSheet.create({
   },
   actionBtnText: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 15,
     color: '#fff',
   },

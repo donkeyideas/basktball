@@ -12,7 +12,7 @@ import FeedTabs from "@/components/court/FeedTabs";
 import type { FeedTab } from "@/components/court/FeedTabs";
 
 const GOOGLE_PLAY_URL = "https://play.google.com/store/apps/details?id=com.basktball.app";
-const APP_STORE_URL = ""; // Add when available
+const APP_STORE_URL = "https://apps.apple.com/us/app/basktball/id6760516741";
 
 function feedTabToApiType(tab: FeedTab): string {
   if (tab === "FOR YOU") return "foryou";

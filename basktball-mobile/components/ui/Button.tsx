@@ -90,6 +90,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 15,
     letterSpacing: 1,
     textTransform: 'uppercase',

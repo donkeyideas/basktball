@@ -83,6 +83,7 @@ const styles = StyleSheet.create({
   },
   initials: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     color: Colors.orange,
   },
 });

@@ -469,6 +469,7 @@ function makeStyles(colors: any) {
   },
   headerTitle: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 20,
     color: colors.text,
     letterSpacing: 2,
@@ -497,6 +498,7 @@ function makeStyles(colors: any) {
   },
   retryText: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 14,
     color: '#FFFFFF',
   },
@@ -510,7 +512,7 @@ function makeStyles(colors: any) {
   // Venue
   venueText: {
     fontFamily: Fonts.barlow,
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textTertiary,
     textAlign: 'center',
     marginBottom: 4,
@@ -545,19 +547,21 @@ function makeStyles(colors: any) {
   },
   teamCircleText: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 16,
     color: colors.text,
     letterSpacing: 1,
   },
   scoreTeamName: {
     fontFamily: Fonts.barlowSemiBold,
-    fontSize: 11,
+    fontWeight: '600',
+    fontSize: 12,
     color: colors.textSecondary,
     textAlign: 'center',
   },
   scoreTeamRecord: {
     fontFamily: Fonts.mono,
-    fontSize: 10,
+    fontSize: 12,
     color: colors.textTertiary,
     marginTop: 2,
   },
@@ -594,12 +598,13 @@ function makeStyles(colors: any) {
   },
   liveStatus: {
     fontFamily: Fonts.mono,
-    fontSize: 12,
+    fontSize: 13,
     color: Colors.red,
     letterSpacing: 0.5,
   },
   finalStatus: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 13,
     color: colors.textTertiary,
     marginTop: 4,
@@ -622,7 +627,8 @@ function makeStyles(colors: any) {
   },
   quarterLabel: {
     fontFamily: Fonts.barlowSemiBold,
-    fontSize: 11,
+    fontWeight: '600',
+    fontSize: 12,
     color: colors.textTertiary,
     letterSpacing: 0.5,
   },
@@ -655,7 +661,8 @@ function makeStyles(colors: any) {
   },
   tabText: {
     fontFamily: Fonts.barlowSemiBold,
-    fontSize: 11,
+    fontWeight: '600',
+    fontSize: 12,
     color: colors.textSecondary,
     letterSpacing: 0.5,
   },
@@ -690,6 +697,7 @@ function makeStyles(colors: any) {
   },
   teamBoxName: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 14,
     color: colors.text,
     letterSpacing: 0.5,
@@ -702,7 +710,8 @@ function makeStyles(colors: any) {
   },
   boxHeaderCell: {
     fontFamily: Fonts.barlowBold,
-    fontSize: 10,
+    fontWeight: '700',
+    fontSize: 12,
     color: colors.textTertiary,
     width: 50,
     textAlign: 'center',
@@ -726,13 +735,14 @@ function makeStyles(colors: any) {
   },
   boxPlayerName: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 13,
     color: colors.text,
     textAlign: 'left',
   },
   boxStatMono: {
     fontFamily: Fonts.mono,
-    fontSize: 12,
+    fontSize: 13,
     color: colors.textSecondary,
   },
   boxStatBold: {
@@ -741,7 +751,7 @@ function makeStyles(colors: any) {
   },
   dnpText: {
     fontFamily: Fonts.barlow,
-    fontSize: 11,
+    fontSize: 12,
     color: colors.textTertiary,
     flex: 1,
   },
@@ -757,6 +767,7 @@ function makeStyles(colors: any) {
   },
   statsTeamLabel: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 14,
     color: Colors.orange,
     letterSpacing: 1,
@@ -784,6 +795,7 @@ function makeStyles(colors: any) {
   },
   statLabel: {
     fontFamily: Fonts.barlowSemiBold,
+    fontWeight: '600',
     fontSize: 13,
     color: colors.textTertiary,
     textAlign: 'center',
@@ -798,7 +810,8 @@ function makeStyles(colors: any) {
   },
   wpTitle: {
     fontFamily: Fonts.barlowBold,
-    fontSize: 12,
+    fontWeight: '700',
+    fontSize: 13,
     color: colors.textTertiary,
     letterSpacing: 1,
     marginBottom: 12,
@@ -824,7 +837,7 @@ function makeStyles(colors: any) {
   },
   wpLabel: {
     fontFamily: Fonts.mono,
-    fontSize: 11,
+    fontSize: 12,
     color: colors.textSecondary,
   },
   // Momentum
@@ -836,13 +849,15 @@ function makeStyles(colors: any) {
   },
   momentumTitle: {
     fontFamily: Fonts.barlowBold,
-    fontSize: 12,
+    fontWeight: '700',
+    fontSize: 13,
     color: colors.textTertiary,
     letterSpacing: 1,
     marginBottom: 6,
   },
   momentumLabel: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 16,
     color: colors.text,
     marginBottom: 8,

@@ -70,6 +70,7 @@ export async function POST(request: Request) {
         name: trimmedName,
         displayName: trimmedName,
         role: "USER",
+        termsAcceptedAt: new Date(),
       },
     });
 

@@ -45,6 +45,7 @@ const styles = StyleSheet.create({
   },
   linkText: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700' as const,
     fontSize: 14,
     color: Colors.white,
   },

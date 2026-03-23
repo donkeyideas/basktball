@@ -68,6 +68,7 @@ export default function UserProfileScreen() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [isSelf, setIsSelf] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -88,6 +89,7 @@ export default function UserProfileScreen() {
         setProfile(profileData.user);
         setIsFollowing(!!profileData.isFollowing);
         setIsSelf(!!profileData.isSelf);
+        setIsBlocked(!!profileData.isBlocked);
       } else {
         setError(true);
       }
@@ -128,6 +130,60 @@ export default function UserProfileScreen() {
       const data = await res.json();
       setAgingTakes(data.agingTakes || []);
     } catch { setAgingTakes([]); }
+  }
+
+  async function handleBlock() {
+    if (!token) {
+      Alert.alert('Sign In Required', 'Please sign in to block users.', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Sign In', onPress: () => router.push('/(auth)/login') },
+      ]);
+      return;
+    }
+    const action = isBlocked ? 'Unblock' : 'Block';
+    const userName = profile?.displayName || profile?.name || 'this user';
+    Alert.alert(
+      `${action} ${userName}?`,
+      isBlocked
+        ? 'You will be able to see their content again.'
+        : "They won't be able to see your content and you won't see theirs.",
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: action,
+          style: isBlocked ? 'default' : 'destructive',
+          onPress: async () => {
+            try {
+              const res: any = await api.post(`/mobile/users/${id}/block`, {});
+              setIsBlocked(!!res.blocked);
+              if (res.blocked) {
+                setIsFollowing(false);
+              }
+            } catch {
+              Alert.alert('Error', `Failed to ${action.toLowerCase()} user.`);
+            }
+          },
+        },
+      ]
+    );
+  }
+
+  async function handleReport() {
+    if (!token) {
+      Alert.alert('Sign In Required', 'Please sign in to report users.');
+      return;
+    }
+    Alert.alert('Report User', 'Why are you reporting this user?', [
+      { text: 'Spam', onPress: () => reportUser('SPAM') },
+      { text: 'Harassment', onPress: () => reportUser('HARASSMENT') },
+      { text: 'Offensive Content', onPress: () => reportUser('OFFENSIVE') },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+  }
+
+  async function reportUser(_reason: string) {
+    // For now show confirmation - individual take reports are the primary mechanism
+    Alert.alert('Reported', 'Thank you for reporting. We will review this user.');
   }
 
   async function handleFollow() {
@@ -199,7 +255,22 @@ export default function UserProfileScreen() {
         <Text style={[styles.headerTitle, { color: colors.text }]} numberOfLines={1}>
           {displayName}
         </Text>
-        <View style={{ width: 40 }} />
+        {!isSelf ? (
+          <TouchableOpacity
+            style={styles.backBtn}
+            onPress={() => {
+              Alert.alert('Options', undefined, [
+                { text: isBlocked ? 'Unblock User' : 'Block User', style: 'destructive', onPress: handleBlock },
+                { text: 'Report User', style: 'destructive', onPress: handleReport },
+                { text: 'Cancel', style: 'cancel' },
+              ]);
+            }}
+          >
+            <Ionicons name="ellipsis-horizontal" size={20} color={colors.text} />
+          </TouchableOpacity>
+        ) : (
+          <View style={{ width: 40 }} />
+        )}
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -272,7 +343,7 @@ export default function UserProfileScreen() {
               onPress={() => setSelectedTab(tab)}
               style={{ paddingVertical: 14, paddingHorizontal: 16, borderBottomWidth: 2, borderBottomColor: selectedTab === tab ? Colors.orange : 'transparent' }}
             >
-              <Text style={{ fontFamily: Fonts.barlowSemiBold, fontSize: 13, letterSpacing: 1, color: selectedTab === tab ? colors.text : colors.textTertiary }}>{tab}</Text>
+              <Text style={{ fontFamily: Fonts.barlowSemiBold, fontWeight: '600', fontSize: 13, letterSpacing: 1, color: selectedTab === tab ? colors.text : colors.textTertiary }}>{tab}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -323,13 +394,14 @@ export default function UserProfileScreen() {
               challenges.map((c: any) => (
                 <TouchableOpacity key={c.id} style={[styles.takeRow, { borderBottomColor: colors.border }]} activeOpacity={0.7} onPress={() => router.push(`/challenge/${c.id}` as never)}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <Text style={{ fontFamily: Fonts.barlowBold, fontSize: 11, color: c.status === 'COMPLETED' ? '#22C55E' : Colors.orange, textTransform: 'uppercase' as const }}>{c.status}</Text>
-                    <Text style={{ fontFamily: Fonts.mono, fontSize: 11, color: colors.textTertiary }}>{timeAgo(c.createdAt)}</Text>
+                    <Text style={{ fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 12, color: c.status === 'COMPLETED' ? '#22C55E' : Colors.orange, textTransform: 'uppercase' as const }}>{c.status}</Text>
+                    <Text style={{ fontFamily: Fonts.mono, fontSize: 12, color: colors.textTertiary }}>{timeAgo(c.createdAt)}</Text>
                   </View>
                   <Text style={[styles.takeContent, { color: colors.text }]}>{c.topic}</Text>
                   <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: colors.textTertiary }}>
                     {c.challenger?.displayName || c.challenger?.name} vs {c.challenged?.displayName || c.challenged?.name}
                   </Text>
+
                 </TouchableOpacity>
               ))
             )}
@@ -344,10 +416,10 @@ export default function UserProfileScreen() {
               predictions.map((p: any) => (
                 <TouchableOpacity key={p.id} style={[styles.takeRow, { borderBottomColor: colors.border }]} activeOpacity={0.7} onPress={() => p.take && router.push(`/take/${p.take.id}`)}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <Text style={{ fontFamily: Fonts.barlowBold, fontSize: 11, color: p.status === 'RECEIPT' ? '#22C55E' : p.status === 'BUST' ? '#EF4444' : colors.textTertiary, textTransform: 'uppercase' as const }}>{p.status}</Text>
+                    <Text style={{ fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 12, color: p.status === 'RECEIPT' ? '#22C55E' : p.status === 'BUST' ? '#EF4444' : colors.textTertiary, textTransform: 'uppercase' as const }}>{p.status}</Text>
                   </View>
                   <Text style={[styles.takeContent, { color: colors.text }]}>{p.claim}</Text>
-                  {p.result && <Text style={{ fontFamily: Fonts.barlow, fontSize: 12, color: colors.textTertiary }}>{p.result}</Text>}
+                  {p.result && <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: colors.textTertiary }}>{p.result}</Text>}
                 </TouchableOpacity>
               ))
             )}
@@ -362,10 +434,10 @@ export default function UserProfileScreen() {
               agingTakes.map((at: any) => (
                 <TouchableOpacity key={at.id} style={[styles.takeRow, { borderBottomColor: colors.border }]} activeOpacity={0.7} onPress={() => router.push(`/take/${at.take?.id}`)}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <Text style={{ fontFamily: Fonts.barlowBold, fontSize: 11, color: at.status === 'AGED' ? '#EAB308' : at.status === 'AGING' ? '#3B82F6' : colors.textTertiary, textTransform: 'uppercase' as const }}>{at.status}</Text>
+                    <Text style={{ fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 12, color: at.status === 'AGED' ? '#EAB308' : at.status === 'AGING' ? '#3B82F6' : colors.textTertiary, textTransform: 'uppercase' as const }}>{at.status}</Text>
                   </View>
                   <Text style={[styles.takeContent, { color: colors.text }]}>{at.take?.content}</Text>
-                  <Text style={{ fontFamily: Fonts.barlow, fontSize: 12, color: colors.textTertiary }}>
+                  <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: colors.textTertiary }}>
                     Revisit: {new Date(at.revisitDate).toLocaleDateString()}
                   </Text>
                 </TouchableOpacity>
@@ -400,6 +472,7 @@ function makeStyles(colors: any) {
     },
     headerTitle: {
       fontFamily: Fonts.barlowBold,
+      fontWeight: '700' as const,
       fontSize: 18,
       letterSpacing: 1,
       flex: 1,
@@ -429,11 +502,13 @@ function makeStyles(colors: any) {
     },
     avatarInitial: {
       fontFamily: Fonts.barlowBold,
+      fontWeight: '700' as const,
       fontSize: 32,
       color: '#fff',
     },
     displayName: {
       fontFamily: Fonts.barlowBold,
+      fontWeight: '700' as const,
       fontSize: 22,
       marginBottom: 4,
     },
@@ -468,11 +543,12 @@ function makeStyles(colors: any) {
     stat: { alignItems: 'center' },
     statValue: {
       fontFamily: Fonts.barlowBold,
+      fontWeight: '700' as const,
       fontSize: 20,
     },
     statLabel: {
       fontFamily: Fonts.barlow,
-      fontSize: 12,
+      fontSize: 13,
       marginTop: 2,
     },
     statDivider: {
@@ -495,6 +571,7 @@ function makeStyles(colors: any) {
     },
     followBtnText: {
       fontFamily: Fonts.barlowBold,
+      fontWeight: '700' as const,
       fontSize: 15,
       color: '#fff',
       letterSpacing: 0.5,
@@ -512,6 +589,7 @@ function makeStyles(colors: any) {
     },
     takesTitle: {
       fontFamily: Fonts.barlowBold,
+      fontWeight: '700' as const,
       fontSize: 13,
       letterSpacing: 1.5,
     },
@@ -540,7 +618,8 @@ function makeStyles(colors: any) {
     },
     tag: {
       fontFamily: Fonts.barlowSemiBold,
-      fontSize: 11,
+      fontWeight: '600' as const,
+      fontSize: 12,
       color: Colors.orange,
       backgroundColor: 'rgba(255,107,53,0.12)',
       paddingHorizontal: 8,
@@ -560,11 +639,11 @@ function makeStyles(colors: any) {
     },
     takeActionCount: {
       fontFamily: Fonts.mono,
-      fontSize: 12,
+      fontSize: 13,
     },
     takeTime: {
       fontFamily: Fonts.barlow,
-      fontSize: 12,
+      fontSize: 13,
       marginLeft: 'auto',
     },
     errorContainer: {

@@ -272,6 +272,7 @@ const styles = StyleSheet.create({
   },
   avatarText: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 14,
     color: Colors.white,
     letterSpacing: 0.5,
@@ -285,6 +286,7 @@ const styles = StyleSheet.create({
   },
   authorName: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     fontSize: 15,
     color: Colors.textPrimary,
     marginRight: 6,
@@ -298,7 +300,7 @@ const styles = StyleSheet.create({
   },
   timestamp: {
     fontFamily: Fonts.barlow,
-    fontSize: 12,
+    fontSize: 13,
     color: Colors.textTertiary,
     marginLeft: 8,
     flexShrink: 0,
@@ -323,7 +325,8 @@ const styles = StyleSheet.create({
   },
   gameTagText: {
     fontFamily: Fonts.barlowSemiBold,
-    fontSize: 11,
+    fontWeight: '600',
+    fontSize: 12,
     color: Colors.orange,
     letterSpacing: 0.5,
   },
@@ -341,14 +344,15 @@ const styles = StyleSheet.create({
   },
   reactionLabel: {
     fontFamily: Fonts.barlowBold,
-    fontSize: 12,
+    fontWeight: '700',
+    fontSize: 13,
     color: Colors.textTertiary,
     marginRight: 4,
     letterSpacing: 0.5,
   },
   reactionCount: {
     fontFamily: Fonts.mono,
-    fontSize: 12,
+    fontSize: 13,
     color: Colors.textSecondary,
   },
 });
@@ -387,11 +391,12 @@ const pollStyles = StyleSheet.create({
   },
   resultTextActive: {
     fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
     color: Colors.orange,
   },
   resultPct: {
     fontFamily: Fonts.mono,
-    fontSize: 12,
+    fontSize: 13,
     color: 'rgba(255,255,255,0.5)',
     marginLeft: 8,
   },
@@ -418,7 +423,7 @@ const pollStyles = StyleSheet.create({
   },
   footerText: {
     fontFamily: Fonts.barlow,
-    fontSize: 12,
+    fontSize: 13,
     color: 'rgba(255,255,255,0.35)',
   },
 });
