@@ -25,8 +25,9 @@ export async function GET(
         status: true,
         location: true,
         favoriteTeamId: true,
-        postCount: true,
-        threadCount: true,
+        takeCount: true,
+        followerCount: true,
+        followingCount: true,
         reputation: true,
         banReason: true,
         bannedUntil: true,
@@ -34,27 +35,16 @@ export async function GET(
         lastActiveAt: true,
         createdAt: true,
         updatedAt: true,
-        posts: {
+        takes: {
           take: 5,
           orderBy: { createdAt: "desc" },
           select: {
             id: true,
             content: true,
             createdAt: true,
-            thread: {
-              select: { id: true, title: true, slug: true },
-            },
-          },
-        },
-        threads: {
-          take: 5,
-          orderBy: { createdAt: "desc" },
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-            createdAt: true,
-            postCount: true,
+            fireCount: true,
+            brickCount: true,
+            replyCount: true,
           },
         },
       },

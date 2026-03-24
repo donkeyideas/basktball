@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Build orderBy
-    const validSortFields = ["createdAt", "name", "email", "role", "status", "postCount", "threadCount", "reputation", "lastActiveAt"];
+    const validSortFields = ["createdAt", "name", "email", "role", "status", "takeCount", "followerCount", "reputation", "lastActiveAt"];
     const sortField = validSortFields.includes(sort) ? sort : "createdAt";
     const orderBy = { [sortField]: order === "asc" ? "asc" : "desc" };
 
@@ -55,9 +55,9 @@ export async function GET(request: NextRequest) {
           image: true,
           role: true,
           status: true,
-          postCount: true,
-          threadCount: true,
-          reputation: true,
+          takeCount: true,
+          followerCount: true,
+          followingCount: true,
           lastActiveAt: true,
           createdAt: true,
         },

@@ -14,8 +14,9 @@ interface UserDetail {
   status: string;
   location: string | null;
   favoriteTeamId: string | null;
-  postCount: number;
-  threadCount: number;
+  takeCount: number;
+  followerCount: number;
+  followingCount: number;
   reputation: number;
   banReason: string | null;
   bannedUntil: string | null;
@@ -23,18 +24,13 @@ interface UserDetail {
   lastActiveAt: string | null;
   createdAt: string;
   updatedAt: string;
-  posts: {
+  takes: {
     id: string;
     content: string;
     createdAt: string;
-    thread: { id: string; title: string; slug: string };
-  }[];
-  threads: {
-    id: string;
-    title: string;
-    slug: string;
-    createdAt: string;
-    postCount: number;
+    fireCount: number;
+    brickCount: number;
+    replyCount: number;
   }[];
 }
 
@@ -310,9 +306,9 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
               borderBottom: "1px solid rgba(255,255,255,0.1)",
             }}>
               {[
-                { label: "Posts", value: user.postCount },
-                { label: "Threads", value: user.threadCount },
-                { label: "Reputation", value: user.reputation },
+                { label: "Takes", value: user.takeCount },
+                { label: "Followers", value: user.followerCount },
+                { label: "Following", value: user.followingCount },
                 { label: "Member Since", value: new Date(user.createdAt).toLocaleDateString() },
                 { label: "Last Active", value: user.lastActiveAt ? new Date(user.lastActiveAt).toLocaleDateString() : "Never" },
               ].map((stat) => (
@@ -508,47 +504,35 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
                 </div>
               </div>
 
-              {/* Recent Activity */}
-              {(user.posts.length > 0 || user.threads.length > 0) && (
+              {/* Recent Takes */}
+              {user.takes.length > 0 && (
                 <div>
                   <label style={{ display: "block", fontSize: "12px", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px", fontWeight: "bold" }}>
-                    Recent Activity
+                    Recent Takes
                   </label>
                   <div style={{ maxHeight: "200px", overflowY: "auto" }}>
-                    {user.threads.slice(0, 3).map((t) => (
+                    {user.takes.map((t) => (
                       <div key={t.id} style={{
                         padding: "8px 12px",
                         borderBottom: "1px solid rgba(255,255,255,0.05)",
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
+                        gap: "12px",
                       }}>
-                        <div>
-                          <span style={{ color: "var(--orange)", fontSize: "10px", fontWeight: "bold", marginRight: "8px" }}>THREAD</span>
-                          <span style={{ color: "rgba(255,255,255,0.8)", fontSize: "13px" }}>{t.title.slice(0, 60)}</span>
-                        </div>
-                        <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "11px", flexShrink: 0 }}>
-                          {new Date(t.createdAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                    ))}
-                    {user.posts.slice(0, 3).map((p) => (
-                      <div key={p.id} style={{
-                        padding: "8px 12px",
-                        borderBottom: "1px solid rgba(255,255,255,0.05)",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}>
-                        <div>
-                          <span style={{ color: "var(--blue, #3B82F6)", fontSize: "10px", fontWeight: "bold", marginRight: "8px" }}>POST</span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <span style={{ color: "var(--orange)", fontSize: "10px", fontWeight: "bold", marginRight: "8px" }}>TAKE</span>
                           <span style={{ color: "rgba(255,255,255,0.8)", fontSize: "13px" }}>
-                            {p.content.slice(0, 60)}{p.content.length > 60 ? "..." : ""}
+                            {t.content.slice(0, 80)}{t.content.length > 80 ? "..." : ""}
                           </span>
                         </div>
-                        <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "11px", flexShrink: 0 }}>
-                          {new Date(p.createdAt).toLocaleDateString()}
-                        </span>
+                        <div style={{ display: "flex", gap: "8px", alignItems: "center", flexShrink: 0 }}>
+                          <span style={{ color: "var(--orange)", fontSize: "11px" }}>{t.fireCount}F</span>
+                          <span style={{ color: "var(--red)", fontSize: "11px" }}>{t.brickCount}B</span>
+                          <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "11px" }}>
+                            {new Date(t.createdAt).toLocaleDateString()}
+                          </span>
+                        </div>
                       </div>
                     ))}
                   </div>

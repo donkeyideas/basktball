@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Image,
   Linking,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -115,12 +116,27 @@ export default function HomeScreen() {
   const [trendingTakes, setTrendingTakes] = useState<TrendingTake[]>([]);
   const [takesLoading, setTakesLoading] = useState(true);
   const [selectedLeague, setSelectedLeague] = useState<League>('nba');
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchNews();
     fetchPerformers();
     fetchTrendingTakes();
   }, []);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        fetchTodayGames(selectedLeague),
+        fetchNews(),
+        fetchPerformers(),
+        fetchTrendingTakes(),
+      ]);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [selectedLeague]);
 
   useEffect(() => {
     setGamesLoading(true);
@@ -244,7 +260,13 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.orange} colors={[Colors.orange]} />
+        }
+      >
         {/* Live Bar */}
         {liveGames.some(g => g.isLive) && (
           <View style={styles.liveBar}>

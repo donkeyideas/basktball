@@ -7,6 +7,7 @@ import {
   StyleSheet,
   FlatList,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -107,6 +108,7 @@ export default function ScoresScreen() {
   const [selectedLeague, setSelectedLeague] = useState<League>('nba');
 
   // Live data state
+  const [refreshing, setRefreshing] = useState(false);
   const [games, setGames] = useState<GameDisplay[]>([]);
   const [gamesLoading, setGamesLoading] = useState(true);
   const [eastStandings, setEastStandings] = useState<StandingTeam[]>([]);
@@ -209,6 +211,18 @@ export default function ScoresScreen() {
     return () => clearInterval(interval);
   }, [selectedSegment, games, selectedDate, selectedLeague, fetchGames]);
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        fetchGames(selectedDate, selectedLeague),
+        fetchStandings(selectedLeague),
+      ]);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [selectedDate, selectedLeague, fetchGames, fetchStandings]);
+
   function renderGameRow({ item }: { item: GameDisplay }) {
     const isUpcoming = item.awayScore === 0 && item.homeScore === 0 && !item.isLive;
     return (
@@ -257,7 +271,7 @@ export default function ScoresScreen() {
             </Text>
           )}
           {item.broadcast ? (
-            <Text style={styles.broadcastText}>{item.broadcast}</Text>
+            <Text style={styles.broadcastText} numberOfLines={1}>{item.broadcast}</Text>
           ) : null}
         </View>
       </TouchableOpacity>
@@ -324,7 +338,13 @@ export default function ScoresScreen() {
         return <Text style={styles.emptyText}>Standings not available</Text>;
       }
       return (
-        <ScrollView style={styles.standingsContainer} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.standingsContainer}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.orange} colors={[Colors.orange]} />
+          }
+        >
           <View style={styles.confRow}>
             <TouchableOpacity
               style={[styles.confTab, selectedConference === 'EAST' && styles.confTabActive]}
@@ -364,7 +384,13 @@ export default function ScoresScreen() {
       return <Text style={styles.emptyText}>Standings not available</Text>;
     }
     return (
-      <ScrollView style={styles.standingsContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.standingsContainer}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.orange} colors={[Colors.orange]} />
+        }
+      >
         {allConferences.map((conf) => (
           <View key={conf.name} style={styles.confSection}>
             <Text style={styles.confSectionTitle}>{conf.name.toUpperCase()}</Text>
@@ -378,7 +404,13 @@ export default function ScoresScreen() {
 
   function renderSchedule() {
     return (
-      <ScrollView style={styles.scheduleContainer} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scheduleContainer}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.orange} colors={[Colors.orange]} />
+        }
+      >
         {renderDateStrip()}
 
         {gamesLoading ? (
@@ -415,7 +447,7 @@ export default function ScoresScreen() {
                   <Text style={styles.scheduleTeam}>{game.home}</Text>
                 </View>
                 {game.broadcast ? (
-                  <Text style={styles.broadcastText}>{game.broadcast}</Text>
+                  <Text style={styles.broadcastText} numberOfLines={1}>{game.broadcast}</Text>
                 ) : null}
               </TouchableOpacity>
             );
@@ -470,6 +502,9 @@ export default function ScoresScreen() {
             contentContainerStyle={styles.gamesList}
             showsVerticalScrollIndicator={false}
             ItemSeparatorComponent={() => <View style={styles.separator} />}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.orange} colors={[Colors.orange]} />
+            }
           />
         )}
       </>
@@ -679,7 +714,7 @@ function makeStyles(colors: any) {
     color: colors.text,
   },
   gameRowRight: {
-    width: 80,
+    width: 90,
     alignItems: 'flex-end',
     marginLeft: 12,
   },

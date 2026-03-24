@@ -10,6 +10,7 @@ import {
   Modal,
   TextInput,
   Alert,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -68,11 +69,24 @@ export default function ProfileScreen() {
   const [editBio, setEditBio] = useState('');
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     if (user?.id) {
       fetchUserTakes();
       refreshProfile();
+    }
+  }, [user?.id]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        fetchUserTakes(),
+        refreshProfile(),
+      ]);
+    } finally {
+      setRefreshing(false);
     }
   }, [user?.id]);
 
@@ -277,7 +291,12 @@ export default function ProfileScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.orange} colors={[Colors.orange]} />
+        }
+      >
         {/* Profile Header */}
         <View style={styles.profileHeader}>
           {user?.avatarUrl || user?.image ? (

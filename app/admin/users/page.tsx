@@ -12,9 +12,9 @@ interface User {
   image: string | null;
   role: string;
   status: string;
-  postCount: number;
-  threadCount: number;
-  reputation: number;
+  takeCount: number;
+  followerCount: number;
+  followingCount: number;
   lastActiveAt: string | null;
   createdAt: string;
 }
@@ -392,14 +392,14 @@ export default function AdminUsersPage() {
                     <th onClick={() => handleSort("status")} style={{ cursor: "pointer" }}>
                       STATUS{sortArrow("status")}
                     </th>
-                    <th onClick={() => handleSort("postCount")} style={{ cursor: "pointer" }}>
-                      POSTS{sortArrow("postCount")}
+                    <th onClick={() => handleSort("takeCount")} style={{ cursor: "pointer" }}>
+                      TAKES{sortArrow("takeCount")}
                     </th>
-                    <th onClick={() => handleSort("threadCount")} style={{ cursor: "pointer" }}>
-                      THREADS{sortArrow("threadCount")}
+                    <th onClick={() => handleSort("followerCount")} style={{ cursor: "pointer" }}>
+                      FOLLOWERS{sortArrow("followerCount")}
                     </th>
-                    <th onClick={() => handleSort("reputation")} style={{ cursor: "pointer" }}>
-                      REP{sortArrow("reputation")}
+                    <th onClick={() => handleSort("followingCount")} style={{ cursor: "pointer" }}>
+                      FOLLOWING{sortArrow("followingCount")}
                     </th>
                     <th onClick={() => handleSort("createdAt")} style={{ cursor: "pointer" }}>
                       JOINED{sortArrow("createdAt")}
@@ -473,13 +473,13 @@ export default function AdminUsersPage() {
                             </span>
                           </td>
                           <td style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "14px" }}>
-                            {user.postCount}
+                            {user.takeCount}
                           </td>
                           <td style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "14px" }}>
-                            {user.threadCount}
+                            {user.followerCount}
                           </td>
                           <td style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "14px" }}>
-                            {user.reputation}
+                            {user.followingCount}
                           </td>
                           <td style={{ fontSize: "13px", color: "rgba(255,255,255,0.6)" }}>
                             {new Date(user.createdAt).toLocaleDateString()}
