@@ -467,7 +467,7 @@ export default function HomeScreen() {
               key={`${article.id}-${index}`}
               style={styles.newsItem}
               activeOpacity={0.7}
-              onPress={() => Linking.openURL(article.link)}
+              onPress={() => router.push(`/article/${article.id}` as never)}
             >
               {article.imageUrl ? (
                 <Image source={{ uri: article.imageUrl }} style={styles.newsImage} />

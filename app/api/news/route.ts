@@ -1,24 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import { type NewsArticle, getCachedArticles, setCachedArticles } from "@/lib/news/cache";
 
-export const dynamic = "force-dynamic";
+// Cache at Vercel CDN level — revalidate every 5 minutes
+export const revalidate = 300;
 
 interface FeedSource {
   name: string;
   url: string;
   defaultLeague: string;
   logo?: string;
-}
-
-interface NewsArticle {
-  id: string;
-  title: string;
-  link: string;
-  description: string;
-  pubDate: string;
-  source: string;
-  sourceLogo?: string;
-  league: string;
-  imageUrl?: string;
 }
 
 // RSS feeds — defaultLeague is only used as fallback when content analysis can't determine league
@@ -215,6 +205,11 @@ function parseRssXml(xml: string, source: FeedSource): NewsArticle[] {
     const cleanTitle = cleanHtml(title);
     const cleanDesc = cleanHtml(description || "").substring(0, 300);
 
+    // Extract longer content from content:encoded if available
+    const cleanContent = contentEncoded
+      ? cleanHtml(contentEncoded).substring(0, 2000)
+      : undefined;
+
     // Detect league from article content — NOT from the feed source
     const league = detectLeague(cleanTitle, cleanDesc, source.defaultLeague);
 
@@ -225,6 +220,7 @@ function parseRssXml(xml: string, source: FeedSource): NewsArticle[] {
       title: cleanTitle,
       link,
       description: cleanDesc,
+      content: cleanContent && cleanContent.length > cleanDesc.length ? cleanContent : undefined,
       pubDate: pubDate || new Date().toISOString(),
       source: source.name,
       sourceLogo: source.logo,
@@ -296,7 +292,7 @@ const LOGO_PATTERNS = [
 async function fetchOgImage(url: string): Promise<string | null> {
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 4000);
+    const timeout = setTimeout(() => controller.abort(), 2500);
 
     const res = await fetch(url, {
       headers: { "User-Agent": "Basktball/1.0", "Accept": "text/html" },
@@ -357,27 +353,23 @@ async function fetchFeed(source: FeedSource): Promise<NewsArticle[]> {
 }
 
 // =============================================================================
-// CACHE
-// =============================================================================
-let cachedArticles: { articles: NewsArticle[]; timestamp: number } | null = null;
-const CACHE_TTL = 300000; // 5 minutes
-
-// =============================================================================
 // API HANDLER
 // =============================================================================
 export async function GET(request: NextRequest) {
-  const headers = { "Cache-Control": "no-store, max-age=0" };
+  // Cache 5 min at CDN, serve stale up to 10 min while revalidating
+  const headers = { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" };
 
   try {
     const { searchParams } = new URL(request.url);
     const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 50);
 
     // Serve from cache if fresh
-    if (cachedArticles && Date.now() - cachedArticles.timestamp < CACHE_TTL) {
+    const cached = getCachedArticles();
+    if (cached) {
       return NextResponse.json({
         success: true,
-        articles: cachedArticles.articles.slice(0, limit),
-        total: cachedArticles.articles.length,
+        articles: cached.slice(0, limit),
+        total: cached.length,
       }, { headers });
     }
 
@@ -411,8 +403,8 @@ export async function GET(request: NextRequest) {
       return true;
     });
 
-    // Enrich missing images with og:image
-    const needImages = allArticles.filter(a => !a.imageUrl).slice(0, 12);
+    // Enrich missing images with og:image (limit to 5 to reduce egress)
+    const needImages = allArticles.filter(a => !a.imageUrl).slice(0, 5);
     if (needImages.length > 0) {
       await Promise.allSettled(
         needImages.map(async (article) => {
@@ -423,7 +415,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Cache all articles
-    cachedArticles = { articles: allArticles, timestamp: Date.now() };
+    setCachedArticles(allArticles);
 
     return NextResponse.json({
       success: true,

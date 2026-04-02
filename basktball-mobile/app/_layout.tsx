@@ -164,6 +164,10 @@ function ThemedStack() {
             name="news"
             options={{ headerShown: false }}
           />
+          <Stack.Screen
+            name="article/[id]"
+            options={{ headerShown: false }}
+          />
         </Stack>
     </NavThemeProvider>
   );
@@ -202,6 +206,15 @@ function PushNotificationRegistrar() {
 
     registerPush();
   }, [user]);
+
+  // Handle notification received in foreground
+  useEffect(() => {
+    if (!Notifications) return;
+    const subscription = Notifications.addNotificationReceivedListener((notification) => {
+      console.log('Push notification received:', notification.request.content.title);
+    });
+    return () => subscription.remove();
+  }, []);
 
   // Handle notification tap
   useEffect(() => {

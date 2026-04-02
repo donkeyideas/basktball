@@ -162,11 +162,9 @@ export function LatestNews() {
           gap: "25px"
         }}>
           {articles.map(article => (
-            <a
+            <Link
               key={article.id}
-              href={article.link}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={`/news/${article.id}`}
               style={{ textDecoration: "none", color: "inherit" }}
             >
               <article style={{
@@ -310,7 +308,7 @@ export function LatestNews() {
                 </div>
                 </div>
               </article>
-            </a>
+            </Link>
           ))}
         </div>
       </div>

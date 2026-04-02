@@ -46,11 +46,13 @@ export async function createNotification({
       notificationId: notification.id,
       type,
       ...data,
-    }).then(() => {
-      prisma.notification.update({
-        where: { id: notification.id },
-        data: { pushed: true },
-      }).catch(() => {});
+    }).then((result) => {
+      if (result.successCount > 0) {
+        prisma.notification.update({
+          where: { id: notification.id },
+          data: { pushed: true },
+        }).catch(() => {});
+      }
     }).catch(() => {});
   } catch (error) {
     console.error("Failed to create notification:", error);

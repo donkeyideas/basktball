@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Header, Footer } from "@/components";
 
 interface NewsArticle {
@@ -51,7 +52,7 @@ export default function NewsPage() {
   const [page, setPage] = useState(1);
 
   useEffect(() => {
-    fetch("/api/news?limit=50", { cache: "no-store" })
+    fetch("/api/news?limit=50")
       .then(r => r.json())
       .then(data => {
         if (data.success) setArticles(data.articles);
@@ -121,11 +122,9 @@ export default function NewsPage() {
             <>
               <div key={`page-${page}`} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))", gap: "30px" }}>
                 {paged.map(article => (
-                  <a
+                  <Link
                     key={article.id}
-                    href={article.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href={`/news/${article.id}`}
                     style={{ textDecoration: "none", color: "inherit" }}
                   >
                     <article
@@ -219,7 +218,7 @@ export default function NewsPage() {
                         </div>
                       </div>
                     </article>
-                  </a>
+                  </Link>
                 ))}
               </div>
 

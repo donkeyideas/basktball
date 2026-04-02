@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Linking, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -95,7 +95,7 @@ export default function NewsScreen() {
           <TouchableOpacity
             style={styles.newsItem}
             activeOpacity={0.7}
-            onPress={() => Linking.openURL(item.link)}
+            onPress={() => router.push(`/article/${item.id}` as never)}
           >
             {item.imageUrl ? (
               <Image source={{ uri: item.imageUrl }} style={styles.newsImage} />
