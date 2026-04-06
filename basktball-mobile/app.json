@@ -17,6 +17,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.basktball.app",
       "usesAppleSignIn": true,
+      "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
@@ -27,7 +28,8 @@
     },
     "android": {
       "package": "com.basktball.app",
-      "versionCode": 18,
+      "versionCode": 19,
+      "googleServicesFile": "./google-services.json",
       "softwareKeyboardLayoutMode": "adjustResize",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -36,10 +38,7 @@
         "backgroundColor": "#0D0D0D"
       },
       "permissions": [
-        "RECEIVE_BOOT_COMPLETED",
-        "VIBRATE",
-        "INTERNET",
-        "ACCESS_NETWORK_STATE",
+        "android.permission.POST_NOTIFICATIONS",
         "RECEIVE_BOOT_COMPLETED",
         "VIBRATE",
         "INTERNET",

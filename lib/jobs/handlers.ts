@@ -5,6 +5,7 @@ import { JobResult } from "./runner";
 import { basketballApi } from "@/lib/api";
 import { gamesCache, CacheTTL, CacheKeys } from "@/lib/cache";
 import { prisma } from "@/lib/db/prisma";
+import { notifyGameLive, notifyGameFinal } from "@/lib/notifications/game-notifications";
 
 // =============================================================================
 // FETCH LIVE SCORES
@@ -77,6 +78,14 @@ export async function fetchLiveScores(): Promise<JobResult> {
           },
         });
 
+        // Check existing status before upsert for transition detection
+        const existingGame = await prisma.game.findUnique({
+          where: { id: game.id },
+          select: { status: true },
+        });
+        const oldStatus = existingGame?.status;
+        const newStatus = game.status.toUpperCase() as "SCHEDULED" | "LIVE" | "FINAL";
+
         // Now upsert the game
         await prisma.game.upsert({
           where: { id: game.id },
@@ -85,7 +94,7 @@ export async function fetchLiveScores(): Promise<JobResult> {
             homeTeamId: game.homeTeam.id,
             awayTeamId: game.awayTeam.id,
             gameDate: game.gameDate,
-            status: game.status.toUpperCase() as "SCHEDULED" | "LIVE" | "FINAL",
+            status: newStatus,
             homeScore: game.homeScore,
             awayScore: game.awayScore,
             quarter: game.quarter,
@@ -94,13 +103,39 @@ export async function fetchLiveScores(): Promise<JobResult> {
             isPlayoffs: game.isPlayoffs,
           },
           update: {
-            status: game.status.toUpperCase() as "SCHEDULED" | "LIVE" | "FINAL",
+            status: newStatus,
             homeScore: game.homeScore,
             awayScore: game.awayScore,
             quarter: game.quarter,
             clock: game.clock,
           },
         });
+
+        // Detect game status transitions and send notifications
+        if (oldStatus && oldStatus !== newStatus) {
+          const transitionData = {
+            gameId: game.id,
+            homeTeamId: game.homeTeam.id,
+            awayTeamId: game.awayTeam.id,
+            homeTeamName: game.homeTeam.name,
+            awayTeamName: game.awayTeam.name,
+            homeScore: game.homeScore,
+            awayScore: game.awayScore,
+            league: league.toUpperCase(),
+          };
+
+          if (newStatus === "LIVE" && oldStatus === "SCHEDULED") {
+            notifyGameLive(transitionData).catch((err) =>
+              console.error("Game live notification error:", err)
+            );
+          }
+
+          if (newStatus === "FINAL" && (oldStatus === "LIVE" || oldStatus === "SCHEDULED")) {
+            notifyGameFinal(transitionData).catch((err) =>
+              console.error("Game final notification error:", err)
+            );
+          }
+        }
       }
     }
 

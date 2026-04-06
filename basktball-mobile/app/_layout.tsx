@@ -189,14 +189,13 @@ function PushNotificationRegistrar() {
         }
         if (finalStatus !== 'granted') return;
 
-        const projectId = Constants.expoConfig?.extra?.eas?.projectId;
-        const tokenData = await Notifications!.getExpoPushTokenAsync({
-          projectId: projectId || 'f155a87c-d074-43c1-ac99-7a8a10c64c81',
-        });
+        // Use native FCM/APNs token (not Expo Push token)
+        const tokenData = await Notifications!.getDevicePushTokenAsync();
+        const pushToken = tokenData.data as string;
         const platform = Platform.OS === 'ios' ? 'ios' : 'android';
 
         await api.post('/mobile/notifications/register-device', {
-          token: tokenData.data,
+          token: pushToken,
           platform,
         });
       } catch (err) {

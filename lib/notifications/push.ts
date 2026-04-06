@@ -1,13 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
-
-interface PushMessage {
-  to: string;
-  title: string;
-  body: string;
-  data?: Record<string, string>;
-  sound?: string;
-  channelId?: string;
-}
+import { getMessagingInstance } from "@/lib/firebase/admin";
 
 interface PushResult {
   successCount: number;
@@ -21,6 +13,12 @@ export async function sendPushNotification(
   data?: Record<string, string>
 ): Promise<PushResult> {
   try {
+    const messaging = await getMessagingInstance();
+    if (!messaging) {
+      console.error("FCM not configured — skipping push");
+      return { successCount: 0, failureCount: 0 };
+    }
+
     const tokens = await prisma.deviceToken.findMany({
       where: { userId },
       select: { token: true, platform: true },
@@ -28,54 +26,52 @@ export async function sendPushNotification(
 
     if (tokens.length === 0) return { successCount: 0, failureCount: 0 };
 
-    const messages: PushMessage[] = tokens.map((t) => ({
-      to: t.token,
-      title,
-      body,
-      data,
-      sound: "default",
-      // Android requires channelId to match the channel created on the client
-      ...(t.platform === "android" ? { channelId: "default" } : {}),
-    }));
-
-    const response = await fetch("https://exp.host/--/api/v2/push/send", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(messages),
-    });
-
-    if (!response.ok) {
-      console.error("Expo push HTTP error:", response.status, await response.text());
-      return { successCount: 0, failureCount: messages.length };
+    // FCM data values must all be strings
+    const dataPayload: Record<string, string> = {};
+    if (data) {
+      for (const [k, v] of Object.entries(data)) {
+        if (v != null) dataPayload[k] = String(v);
+      }
     }
 
-    const result = await response.json();
     let successCount = 0;
     let failureCount = 0;
 
-    if (result.data && Array.isArray(result.data)) {
-      for (let i = 0; i < result.data.length; i++) {
-        const ticket = result.data[i];
-        if (ticket.status === "ok") {
-          successCount++;
-        } else {
-          failureCount++;
-          const errorType = ticket.details?.error;
-          if (errorType === "DeviceNotRegistered") {
-            await prisma.deviceToken.delete({
-              where: { token: messages[i].to },
-            }).catch(() => {});
-          }
-          console.error(
-            `Push ticket error [${errorType}]:`,
-            ticket.message,
-            "token:",
-            messages[i].to
-          );
+    for (const t of tokens) {
+      try {
+        await messaging.send({
+          token: t.token,
+          notification: { title, body },
+          data: dataPayload,
+          android: {
+            priority: "high",
+            notification: { channelId: "default", sound: "default" },
+          },
+          apns: {
+            payload: {
+              aps: {
+                alert: { title, body },
+                sound: "default",
+              },
+            },
+          },
+        });
+        successCount++;
+      } catch (error: unknown) {
+        failureCount++;
+        const err = error as { code?: string; message?: string };
+
+        // Clean up invalid tokens
+        if (
+          err.code === "messaging/invalid-registration-token" ||
+          err.code === "messaging/registration-token-not-registered"
+        ) {
+          await prisma.deviceToken
+            .delete({ where: { token: t.token } })
+            .catch(() => {});
         }
+
+        console.error(`FCM push error [${err.code}]:`, err.message, "token:", t.token);
       }
     }
 

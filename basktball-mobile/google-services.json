@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "818441073299",
+    "project_id": "basktball-13cf5",
+    "storage_bucket": "basktball-13cf5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:818441073299:android:63335deb1b169b74791366",
+        "android_client_info": {
+          "package_name": "com.basktball.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "818441073299-leufa5kub5rb79p75prpkfu243ul99jn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDADie9xMurvlRMUK3gZQlOVybvBRPj7K8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "818441073299-leufa5kub5rb79p75prpkfu243ul99jn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
