@@ -10,6 +10,7 @@ import Constants from 'expo-constants';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from '@/lib/auth/AuthContext';
 import { ThemeProvider, useTheme } from '@/lib/theme/ThemeContext';
+import { api } from '@/lib/api/client';
 
 const queryClient = new QueryClient();
 
@@ -174,7 +175,7 @@ function ThemedStack() {
 }
 
 function PushNotificationRegistrar() {
-  const { user, api } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (!user || !Notifications) return;
