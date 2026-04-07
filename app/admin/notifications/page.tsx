@@ -116,6 +116,10 @@ export default function AdminNotificationsPage() {
   const [isSending, setIsSending] = useState(false);
   const [broadcastResult, setBroadcastResult] = useState<string | null>(null);
 
+  // Generate dropdown
+  const [generateType, setGenerateType] = useState<"news" | "encouragement">("news");
+  const [isGenerating, setIsGenerating] = useState(false);
+
   // Active tab
   const [activeTab, setActiveTab] = useState<"history" | "broadcasts" | "games">("history");
 
@@ -213,6 +217,42 @@ export default function AdminNotificationsPage() {
       setBroadcastResult("Failed to send broadcast");
     } finally {
       setIsSending(false);
+    }
+  }
+
+  const ENCOURAGEMENT_MESSAGES = [
+    { title: "Don't miss the action!", body: "Games are heating up — open Basktball to check scores, make predictions, and challenge your friends!" },
+    { title: "Your takes are waiting", body: "Got a hot take? Drop a post on Basktball and see if the community agrees. Fire or brick — you decide!" },
+    { title: "Check today's games", body: "The schedule is loaded with matchups today. Open Basktball to follow along live and never miss a highlight!" },
+    { title: "Challenge your friends!", body: "Think you know hoops? Send a challenge on Basktball and prove it. Bragging rights are on the line." },
+    { title: "Stay in the loop", body: "Trade rumors, game recaps, and hot takes — it's all happening on Basktball right now. Come see what you're missing!" },
+    { title: "Predictions are open!", body: "Lock in your picks before tip-off. Head to Basktball and put your basketball IQ to the test." },
+    { title: "The timeline is buzzing", body: "The basketball community is going off right now. Open Basktball to join the conversation!" },
+    { title: "New content just dropped", body: "Fresh posts, bold takes, and live game updates are waiting for you on Basktball. Don't sleep on it!" },
+  ];
+
+  async function handleGenerate() {
+    setIsGenerating(true);
+    try {
+      if (generateType === "news") {
+        const res = await fetch("/api/news?limit=5");
+        const data = await res.json();
+        if (data.success && data.articles?.length > 0) {
+          const article = data.articles[0];
+          setBroadcastTitle(article.title);
+          setBroadcastBody(article.description || article.content || "Check out the latest basketball news on Basktball!");
+        } else {
+          setBroadcastResult("Error: Could not fetch news articles");
+        }
+      } else {
+        const msg = ENCOURAGEMENT_MESSAGES[Math.floor(Math.random() * ENCOURAGEMENT_MESSAGES.length)];
+        setBroadcastTitle(msg.title);
+        setBroadcastBody(msg.body);
+      }
+    } catch {
+      setBroadcastResult("Error: Failed to generate notification");
+    } finally {
+      setIsGenerating(false);
     }
   }
 
@@ -392,6 +432,57 @@ export default function AdminNotificationsPage() {
             <div className="section" style={{ marginBottom: "30px" }}>
               <div className="section-title">Send System Broadcast</div>
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                {/* Generate Controls */}
+                <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                  <select
+                    value={generateType}
+                    onChange={(e) => setGenerateType(e.target.value as "news" | "encouragement")}
+                    style={{
+                      padding: "10px 14px",
+                      background: "rgba(0,0,0,0.3)",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      color: "#fff",
+                      fontSize: "14px",
+                      outline: "none",
+                    }}
+                  >
+                    <option value="news">From Latest News</option>
+                    <option value="encouragement">Encouragement Message</option>
+                  </select>
+                  <button
+                    onClick={handleGenerate}
+                    disabled={isGenerating}
+                    style={{
+                      padding: "10px 20px",
+                      background: isGenerating ? "rgba(139,92,246,0.4)" : "linear-gradient(135deg, #8B5CF6, #6D28D9)",
+                      border: "none",
+                      color: "#fff",
+                      fontSize: "14px",
+                      fontWeight: "600",
+                      cursor: isGenerating ? "not-allowed" : "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {isGenerating ? (
+                      <>
+                        <span style={{ display: "inline-block", width: "14px", height: "14px", border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.6s linear infinite" }} />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                          <path d="M2 17l10 5 10-5" />
+                          <path d="M2 12l10 5 10-5" />
+                        </svg>
+                        Generate
+                      </>
+                    )}
+                  </button>
+                </div>
                 <input
                   type="text"
                   value={broadcastTitle}
