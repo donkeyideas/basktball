@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
 import PlayerClient from "./PlayerClient";
 
@@ -83,6 +84,13 @@ export default async function PlayerPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+
+  // Check if player exists — return 404 if not
+  const exists = await prisma.player.findUnique({
+    where: { id },
+    select: { id: true },
+  });
+  if (!exists) notFound();
 
   // Build JSON-LD structured data
   let personJsonLd: Record<string, unknown> | null = null;

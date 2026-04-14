@@ -190,10 +190,19 @@ function PushNotificationRegistrar() {
         }
         if (finalStatus !== 'granted') return;
 
-        // Use native FCM/APNs token (not Expo Push token)
-        const tokenData = await Notifications!.getDevicePushTokenAsync();
-        const pushToken = tokenData.data as string;
+        let pushToken: string;
         const platform = Platform.OS === 'ios' ? 'ios' : 'android';
+
+        if (Platform.OS === 'ios') {
+          // iOS: use @react-native-firebase/messaging to get FCM token
+          // (getDevicePushTokenAsync returns raw APNs token which FCM can't use)
+          const messaging = (await import('@react-native-firebase/messaging')).default;
+          pushToken = await messaging().getToken();
+        } else {
+          // Android: getDevicePushTokenAsync already returns FCM token
+          const tokenData = await Notifications!.getDevicePushTokenAsync();
+          pushToken = tokenData.data as string;
+        }
 
         await api.post('/mobile/notifications/register-device', {
           token: pushToken,

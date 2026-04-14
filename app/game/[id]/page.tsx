@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import Script from "next/script";
 import { prisma } from "@/lib/db/prisma";
 import GameClient from "./GameClient";
@@ -50,6 +51,13 @@ export default async function GamePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+
+  // Check if game exists — return 404 if not
+  const exists = await prisma.game.findUnique({
+    where: { id },
+    select: { id: true },
+  });
+  if (!exists) notFound();
 
   // Fetch game data for JSON-LD structured data
   let jsonLd: object | null = null;

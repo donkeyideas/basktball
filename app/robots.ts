@@ -6,9 +6,30 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
+        userAgent: "Googlebot",
+        allow: "/",
+        disallow: ["/admin/", "/api/", "/forum/", "/login", "/register", "/profile", "/mobile-auth"],
+      },
+      {
+        userAgent: "Bingbot",
+        allow: "/",
+        disallow: ["/admin/", "/api/", "/forum/", "/login", "/register", "/profile", "/mobile-auth"],
+      },
+      {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin/", "/api/"],
+        disallow: [
+          "/admin/",
+          "/api/",
+          "/forum/",
+          "/login",
+          "/register",
+          "/profile",
+          "/mobile-auth",
+          "/*?*sort=",
+          "/*?*filter=",
+          "/*?*page=",
+        ],
       },
     ],
     sitemap: `${BASE_URL}/sitemap.xml`,

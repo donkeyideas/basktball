@@ -24,11 +24,11 @@
         },
         "ITSAppUsesNonExemptEncryption": false
       },
-      "buildNumber": "10"
+      "buildNumber": "12"
     },
     "android": {
       "package": "com.basktball.app",
-      "versionCode": 19,
+      "versionCode": 21,
       "googleServicesFile": "./google-services.json",
       "softwareKeyboardLayoutMode": "adjustResize",
       "adaptiveIcon": {
@@ -63,7 +63,9 @@
           "icon": "./assets/images/notification-icon.png",
           "color": "#FF6B35"
         }
-      ]
+      ],
+      "@react-native-firebase/app",
+      "@react-native-firebase/messaging"
     ],
     "experiments": {
       "typedRoutes": true

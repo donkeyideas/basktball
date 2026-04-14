@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
 import TeamClient from "./TeamClient";
 
@@ -85,6 +86,13 @@ export default async function TeamPage({
   params: Promise<{ league: string; id: string }>;
 }) {
   const { league, id } = await params;
+
+  // Check if team exists — return 404 if not
+  const exists = await prisma.team.findUnique({
+    where: { id },
+    select: { id: true },
+  });
+  if (!exists) notFound();
 
   let sportsTeamJsonLd: Record<string, unknown> | null = null;
   try {
