@@ -1,0 +1,97 @@
+name: Build iOS (IPA)
+
+# Local EAS build on a free macOS runner — does NOT consume EAS Build credits.
+# iOS signing certificates and provisioning profiles are pulled from EAS using
+# EXPO_TOKEN, so we don't need to manage Apple secrets in GitHub.
+#
+# Note: macOS runner minutes count 10x against your free monthly quota.
+# Each iOS build takes ~25–40 minutes.
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: "EAS build profile"
+        required: true
+        default: "production"
+        type: choice
+        options:
+          - production
+          - preview
+      submit:
+        description: "Auto-submit to TestFlight after build"
+        required: true
+        default: true
+        type: boolean
+
+defaults:
+  run:
+    working-directory: basktball-mobile
+
+jobs:
+  build:
+    name: Build iOS ${{ github.event.inputs.profile }}
+    runs-on: macos-14
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: basktball-mobile/package-lock.json
+
+      - name: Select Xcode 16
+        run: sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Run EAS local build
+        env:
+          # Required so EAS can fetch your remote iOS credentials
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          mkdir -p build
+          eas build \
+            --local \
+            --non-interactive \
+            --platform ios \
+            --profile ${{ github.event.inputs.profile }} \
+            --output ./build/basktball-${{ github.event.inputs.profile }}.ipa
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: basktball-ios-${{ github.event.inputs.profile }}-${{ github.run_number }}
+          path: basktball-mobile/build/*.ipa
+          retention-days: 14
+
+      - name: Decode App Store Connect API key
+        if: ${{ github.event.inputs.submit == 'true' }}
+        env:
+          APPLE_ASC_KEY_P8_BASE64: ${{ secrets.APPLE_ASC_KEY_P8_BASE64 }}
+        run: |
+          if [ -z "$APPLE_ASC_KEY_P8_BASE64" ]; then
+            echo "::error::Missing secret APPLE_ASC_KEY_P8_BASE64"
+            exit 1
+          fi
+          echo "$APPLE_ASC_KEY_P8_BASE64" | base64 --decode > asc-api-key.p8
+
+      - name: Submit to TestFlight
+        if: ${{ github.event.inputs.submit == 'true' }}
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          eas submit \
+            --non-interactive \
+            --platform ios \
+            --profile ${{ github.event.inputs.profile }} \
+            --path ./build/basktball-${{ github.event.inputs.profile }}.ipa

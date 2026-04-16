@@ -491,7 +491,8 @@ function makeStyles(colors: any) {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingLeft: 72,
+    paddingRight: 16,
     paddingVertical: 12,
   },
   headerTitle: {

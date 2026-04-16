@@ -7,6 +7,7 @@ import {
   dailyDataSync,
   updateStandings,
   cleanupCache,
+  dailyGameSummary,
 } from "./handlers";
 
 // Job definitions with cron schedules
@@ -38,6 +39,15 @@ export const jobs: JobDefinition[] = [
     schedule: "0 */6 * * *", // Every 6 hours
     enabled: true,
     handler: cleanupCache,
+  },
+  {
+    name: "daily-game-summary",
+    description: "Send a single daily push notification listing all games today",
+    // 13:00 UTC ≈ 9 AM ET / 6 AM PT — early enough that users see the
+    // summary before games tip off but after morning game schedule updates.
+    schedule: "0 13 * * *",
+    enabled: true,
+    handler: dailyGameSummary,
   },
 ];
 

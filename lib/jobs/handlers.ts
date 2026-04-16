@@ -5,7 +5,7 @@ import { JobResult } from "./runner";
 import { basketballApi } from "@/lib/api";
 import { gamesCache, CacheTTL, CacheKeys } from "@/lib/cache";
 import { prisma } from "@/lib/db/prisma";
-import { notifyGameLive, notifyGameFinal } from "@/lib/notifications/game-notifications";
+import { sendDailyGameSummary } from "@/lib/notifications/daily-game-summary";
 
 // =============================================================================
 // FETCH LIVE SCORES
@@ -78,15 +78,10 @@ export async function fetchLiveScores(): Promise<JobResult> {
           },
         });
 
-        // Check existing status before upsert for transition detection
-        const existingGame = await prisma.game.findUnique({
-          where: { id: game.id },
-          select: { status: true },
-        });
-        const oldStatus = existingGame?.status;
         const newStatus = game.status.toUpperCase() as "SCHEDULED" | "LIVE" | "FINAL";
 
-        // Now upsert the game
+        // Upsert the game. Per-game LIVE/FINAL push notifications were
+        // removed in favor of a single daily summary (see daily-summary job).
         await prisma.game.upsert({
           where: { id: game.id },
           create: {
@@ -110,32 +105,6 @@ export async function fetchLiveScores(): Promise<JobResult> {
             clock: game.clock,
           },
         });
-
-        // Detect game status transitions and send notifications
-        if (oldStatus && oldStatus !== newStatus) {
-          const transitionData = {
-            gameId: game.id,
-            homeTeamId: game.homeTeam.id,
-            awayTeamId: game.awayTeam.id,
-            homeTeamName: game.homeTeam.name,
-            awayTeamName: game.awayTeam.name,
-            homeScore: game.homeScore,
-            awayScore: game.awayScore,
-            league: league.toUpperCase(),
-          };
-
-          if (newStatus === "LIVE" && oldStatus === "SCHEDULED") {
-            notifyGameLive(transitionData).catch((err) =>
-              console.error("Game live notification error:", err)
-            );
-          }
-
-          if (newStatus === "FINAL" && (oldStatus === "LIVE" || oldStatus === "SCHEDULED")) {
-            notifyGameFinal(transitionData).catch((err) =>
-              console.error("Game final notification error:", err)
-            );
-          }
-        }
       }
     }
 
@@ -283,6 +252,36 @@ export async function updateStandings(): Promise<JobResult> {
       success: true,
       itemsProcessed: 0,
       message: "Standings update placeholder",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+// =============================================================================
+// DAILY GAME SUMMARY
+// Sends a single push notification per day listing every game scheduled
+// today across all leagues. Replaces per-game LIVE/FINAL pushes.
+// =============================================================================
+export async function dailyGameSummary(): Promise<JobResult> {
+  try {
+    const result = await sendDailyGameSummary();
+    if (result.skipped) {
+      return {
+        success: true,
+        itemsProcessed: 0,
+        message: result.reason || "Skipped",
+        metadata: { ...result },
+      };
+    }
+    return {
+      success: true,
+      itemsProcessed: result.successCount,
+      message: `Summarized ${result.totalGames} games to ${result.totalRecipients} users (push: ${result.successCount} ok / ${result.failureCount} failed)`,
+      metadata: { ...result },
     };
   } catch (error) {
     return {

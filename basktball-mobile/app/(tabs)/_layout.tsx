@@ -18,9 +18,10 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        // Bottom tab bar replaced by global FloatingMenu (top-left).
+        tabBarStyle: { display: 'none' },
         tabBarActiveTintColor: colors.orange,
         tabBarInactiveTintColor: isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)',
-        tabBarStyle: [styles.tabBar, { backgroundColor: colors.surfaceAlt, borderTopColor: colors.border }],
         tabBarLabelStyle: styles.tabLabel,
       }}
     >

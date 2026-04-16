@@ -559,7 +559,8 @@ function makeStyles(colors: any) {
     backgroundColor: colors.background,
   },
   header: {
-    paddingHorizontal: 16,
+    paddingLeft: 72,
+    paddingRight: 16,
     paddingVertical: 12,
   },
   headerTitle: {

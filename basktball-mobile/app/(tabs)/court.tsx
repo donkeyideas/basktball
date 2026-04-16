@@ -987,7 +987,7 @@ export default function CourtScreen() {
 function makeStyles(colors: any) {
   return StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  header: { paddingHorizontal: 16, paddingVertical: 12 },
+  header: { paddingLeft: 72, paddingRight: 16, paddingVertical: 12 },
   headerTitle: { fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 24, color: colors.text, letterSpacing: 2 },
   segmentRow: { flexDirection: 'row', marginHorizontal: 16, backgroundColor: colors.surface, borderRadius: 10, padding: 3, marginBottom: 12 },
   segment: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 8 },

@@ -11,6 +11,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from '@/lib/auth/AuthContext';
 import { ThemeProvider, useTheme } from '@/lib/theme/ThemeContext';
 import { api } from '@/lib/api/client';
+import ComposeFAB from '@/components/ComposeFAB';
+import FloatingMenu from '@/components/FloatingMenu';
+import ThemeToggleFAB from '@/components/ThemeToggleFAB';
 
 const queryClient = new QueryClient();
 
@@ -182,34 +185,65 @@ function PushNotificationRegistrar() {
 
     async function registerPush() {
       try {
-        const { status: existingStatus } = await Notifications!.getPermissionsAsync();
-        let finalStatus = existingStatus;
-        if (existingStatus !== 'granted') {
-          const { status } = await Notifications!.requestPermissionsAsync();
-          finalStatus = status;
-        }
-        if (finalStatus !== 'granted') return;
-
         let pushToken: string;
         const platform = Platform.OS === 'ios' ? 'ios' : 'android';
 
         if (Platform.OS === 'ios') {
-          // iOS: use @react-native-firebase/messaging to get FCM token
-          // (getDevicePushTokenAsync returns raw APNs token which FCM can't use)
-          const messaging = (await import('@react-native-firebase/messaging')).default;
+          // iOS: use @react-native-firebase/messaging end-to-end so APNs is
+          // properly registered before requesting an FCM token. The expo
+          // permission API does NOT register the device for remote messages.
+          const messagingModule = await import('@react-native-firebase/messaging');
+          const messaging = messagingModule.default;
+
+          // 1. Request iOS notification permission via the native FCM bridge
+          const authStatus = await messaging().requestPermission();
+          const enabled =
+            authStatus === messagingModule.AuthorizationStatus.AUTHORIZED ||
+            authStatus === messagingModule.AuthorizationStatus.PROVISIONAL;
+          if (!enabled) {
+            console.log('[Push] iOS permission not granted:', authStatus);
+            return;
+          }
+
+          // 2. Ensure APNs registration. Without this getToken() can return
+          //    null on a fresh install before the APNs token is delivered.
+          if (!messaging().isDeviceRegisteredForRemoteMessages) {
+            await messaging().registerDeviceForRemoteMessages();
+          }
+
+          // 3. Now safe to fetch the FCM token
           pushToken = await messaging().getToken();
+          if (!pushToken) {
+            console.log('[Push] iOS: messaging().getToken() returned empty');
+            return;
+          }
         } else {
-          // Android: getDevicePushTokenAsync already returns FCM token
+          // Android: standard expo permission flow + FCM device token
+          const { status: existingStatus } = await Notifications!.getPermissionsAsync();
+          let finalStatus = existingStatus;
+          if (existingStatus !== 'granted') {
+            const { status } = await Notifications!.requestPermissionsAsync();
+            finalStatus = status;
+          }
+          if (finalStatus !== 'granted') {
+            console.log('[Push] Android permission not granted:', finalStatus);
+            return;
+          }
           const tokenData = await Notifications!.getDevicePushTokenAsync();
           pushToken = tokenData.data as string;
+          if (!pushToken) {
+            console.log('[Push] Android: getDevicePushTokenAsync returned empty');
+            return;
+          }
         }
 
         await api.post('/mobile/notifications/register-device', {
           token: pushToken,
           platform,
         });
+        console.log('[Push] Device registered successfully:', platform);
       } catch (err) {
-        console.log('Push registration failed:', err);
+        console.log('[Push] Registration failed:', err);
       }
     }
 
@@ -247,6 +281,9 @@ function RootLayoutNav() {
         <ThemeProvider>
           <PushNotificationRegistrar />
           <ThemedStack />
+          <ComposeFAB />
+          <FloatingMenu />
+          <ThemeToggleFAB />
         </ThemeProvider>
       </AuthProvider>
     </QueryClientProvider>
