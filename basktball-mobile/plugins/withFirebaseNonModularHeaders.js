@@ -1,37 +1,43 @@
-// Expo config plugin: allow non-modular header includes in framework modules.
+// Expo config plugin: enable modular headers for @react-native-firebase pods.
 //
-// Required because @react-native-firebase pods (RNFBApp, etc.) are built as
-// framework modules when `useFrameworks: "static"` is set, but they
-// `#import <React/...>` from the non-modular React-Core pod. Without this
-// flag, Xcode 16 fails the archive with:
-//   include of non-modular header inside framework module 'RNFBApp.*'
-//   [-Werror,-Wnon-modular-include-in-framework-module]
+// @react-native-firebase v22+ pulls in Firebase Swift pods (e.g.
+// FirebaseCoreInternal) that depend on Obj-C pods like GoogleUtilities.
+// Without module maps, pod install fails with:
+//
+//   The Swift pod `FirebaseCoreInternal` depends upon `GoogleUtilities`,
+//   which does not define modules.
+//
+// `use_modular_headers!` makes every Obj-C pod generate a module map so
+// Swift pods can `@import` them. We avoid `use_frameworks! :linkage => :static`
+// because it triggers a separate set of Xcode 16 compile errors in
+// RNFBMessaging (RCTPromiseRejectBlock / RCT_EXPORT_MODULE not visible).
 const { withDangerousMod } = require("@expo/config-plugins");
 const fs = require("fs");
 const path = require("path");
 
-const MARKER = "# >>> firebase-non-modular-headers";
+const MARKER = "# >>> firebase-modular-headers";
 
 function patchPodfile(contents) {
   if (contents.includes(MARKER)) return contents;
 
-  const snippet = `
-    ${MARKER}
-    installer.pods_project.targets.each do |target|
-      target.build_configurations.each do |bc|
-        bc.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
-      end
-    end
-    # <<< firebase-non-modular-headers
-`;
+  // Inject `use_modular_headers!` right after `prepare_react_native_project!`
+  // so it applies to every target (including the `BASKTBALL` app target).
+  const inject = `\n${MARKER}\nuse_modular_headers!\n# <<< firebase-modular-headers\n`;
 
-  if (/post_install do \|installer\|/.test(contents)) {
+  if (/prepare_react_native_project!\s*\n/.test(contents)) {
     return contents.replace(
-      /post_install do \|installer\|/,
-      `post_install do |installer|\n${snippet}`
+      /(prepare_react_native_project!\s*\n)/,
+      `$1${inject}`
     );
   }
-  return `${contents}\npost_install do |installer|\n${snippet}end\n`;
+
+  // Fallback: prepend before the first `target ... do` block.
+  if (/^target\s+['"]/m.test(contents)) {
+    return contents.replace(/(^target\s+['"])/m, `${inject}\n$1`);
+  }
+
+  // Last resort: append.
+  return `${contents}${inject}`;
 }
 
 module.exports = function withFirebaseNonModularHeaders(config) {
