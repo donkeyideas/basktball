@@ -1,43 +1,50 @@
-// Expo config plugin: enable modular headers for @react-native-firebase pods.
+// Expo config plugin: enable modular headers for the Obj-C Firebase pods
+// that Swift Firebase pods depend on.
 //
-// @react-native-firebase v22+ pulls in Firebase Swift pods (e.g.
-// FirebaseCoreInternal) that depend on Obj-C pods like GoogleUtilities.
-// Without module maps, pod install fails with:
+// @react-native-firebase v22+ pulls in Swift pods (e.g. FirebaseCoreInternal)
+// that depend on Obj-C pods like GoogleUtilities. Without module maps, pod
+// install fails with:
 //
 //   The Swift pod `FirebaseCoreInternal` depends upon `GoogleUtilities`,
 //   which does not define modules.
 //
-// `use_modular_headers!` makes every Obj-C pod generate a module map so
-// Swift pods can `@import` them. We avoid `use_frameworks! :linkage => :static`
-// because it triggers a separate set of Xcode 16 compile errors in
-// RNFBMessaging (RCTPromiseRejectBlock / RCT_EXPORT_MODULE not visible).
+// We must NOT use `use_modular_headers!` globally — it breaks ExpoModulesCore's
+// Swift 6 / `static_framework = true` configuration. Likewise, we avoid
+// `useFrameworks: "static"` in expo-build-properties because it creates
+// strict module-boundary errors in @react-native-firebase Obj-C code under
+// Xcode 16. Instead we add modular_headers selectively to the Obj-C pods
+// the Swift Firebase code needs to import.
 const { withDangerousMod } = require("@expo/config-plugins");
 const fs = require("fs");
 const path = require("path");
 
 const MARKER = "# >>> firebase-modular-headers";
+const POD_NAMES = [
+  "GoogleUtilities",
+  "FirebaseCore",
+  "FirebaseCoreExtension",
+  "FirebaseInstallations",
+  "GoogleDataTransport",
+  "nanopb",
+];
 
 function patchPodfile(contents) {
   if (contents.includes(MARKER)) return contents;
 
-  // Inject `use_modular_headers!` right after `prepare_react_native_project!`
-  // so it applies to every target (including the `BASKTBALL` app target).
-  const inject = `\n${MARKER}\nuse_modular_headers!\n# <<< firebase-modular-headers\n`;
+  const podLines = POD_NAMES.map(
+    (name) => `  pod '${name}', :modular_headers => true`
+  ).join("\n");
+  const inject = `\n  ${MARKER}\n${podLines}\n  # <<< firebase-modular-headers\n`;
 
-  if (/prepare_react_native_project!\s*\n/.test(contents)) {
-    return contents.replace(
-      /(prepare_react_native_project!\s*\n)/,
-      `$1${inject}`
+  // Inject inside the main app target. Expo generates `target 'AppName' do`.
+  const targetMatch = contents.match(/(target\s+['"][^'"]+['"]\s+do\s*\n)/);
+  if (!targetMatch) {
+    throw new Error(
+      "withFirebaseNonModularHeaders: could not find a `target ... do` block in Podfile"
     );
   }
 
-  // Fallback: prepend before the first `target ... do` block.
-  if (/^target\s+['"]/m.test(contents)) {
-    return contents.replace(/(^target\s+['"])/m, `${inject}\n$1`);
-  }
-
-  // Last resort: append.
-  return `${contents}${inject}`;
+  return contents.replace(targetMatch[1], `${targetMatch[1]}${inject}`);
 }
 
 module.exports = function withFirebaseNonModularHeaders(config) {
