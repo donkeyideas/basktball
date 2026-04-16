@@ -31,9 +31,11 @@ defaults:
 jobs:
   build:
     name: Build iOS ${{ github.event.inputs.profile }}
-    # macos-15 ships Xcode 16.x, required by Expo SDK 55 / React Native 0.83.
-    # macos-14 only has Xcode 15.4 which is too old.
-    runs-on: macos-15
+    # Expo SDK 55 / expo-modules-core uses Swift 6.2 syntax (e.g.
+    # `extension UIView: @MainActor AnyArgument`) which only Xcode 26
+    # (Swift 6.2) can parse. macos-15 only ships Xcode 16.x (Swift 6.0)
+    # which fails compilation with `unknown attribute 'MainActor'`.
+    runs-on: macos-26
     timeout-minutes: 90
 
     steps:
@@ -47,13 +49,12 @@ jobs:
           cache: npm
           cache-dependency-path: basktball-mobile/package-lock.json
 
-      - name: Pin Xcode 16
-        # Pick the highest installed Xcode 16.x and make it the active toolchain
-        # so React Native's >=16.1 check in pod install succeeds.
+      - name: Pin Xcode 26
+        # Pick the highest installed Xcode 26.x and make it the active toolchain.
         run: |
-          XCODE_PATH=$(ls -d /Applications/Xcode_16*.app 2>/dev/null | sort -V | tail -n 1)
+          XCODE_PATH=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -n 1)
           if [ -z "$XCODE_PATH" ]; then
-            echo "::error::No Xcode 16.x found on runner"
+            echo "::error::No Xcode 26.x found on runner"
             ls /Applications | grep -i xcode || true
             exit 1
           fi
