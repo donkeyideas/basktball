@@ -30,7 +30,7 @@
       "package": "com.basktball.app",
       "versionCode": 21,
       "googleServicesFile": "./google-services.json",
-      "softwareKeyboardLayoutMode": "adjustResize",
+      "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",

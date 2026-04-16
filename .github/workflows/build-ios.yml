@@ -31,7 +31,9 @@ defaults:
 jobs:
   build:
     name: Build iOS ${{ github.event.inputs.profile }}
-    runs-on: macos-14
+    # macos-15 ships Xcode 16.x, required by Expo SDK 55 / React Native 0.83.
+    # macos-14 only has Xcode 15.4 which is too old.
+    runs-on: macos-15
     timeout-minutes: 90
 
     steps:
@@ -45,10 +47,19 @@ jobs:
           cache: npm
           cache-dependency-path: basktball-mobile/package-lock.json
 
-      - name: Show available Xcode versions (debug)
+      - name: Pin Xcode 16
+        # Pick the highest installed Xcode 16.x and make it the active toolchain
+        # so React Native's >=16.1 check in pod install succeeds.
         run: |
-          ls /Applications | grep -i xcode || true
-          xcodebuild -version || true
+          XCODE_PATH=$(ls -d /Applications/Xcode_16*.app 2>/dev/null | sort -V | tail -n 1)
+          if [ -z "$XCODE_PATH" ]; then
+            echo "::error::No Xcode 16.x found on runner"
+            ls /Applications | grep -i xcode || true
+            exit 1
+          fi
+          echo "Using $XCODE_PATH"
+          sudo xcode-select -s "$XCODE_PATH/Contents/Developer"
+          xcodebuild -version
 
       - name: Install npm dependencies
         run: npm ci
