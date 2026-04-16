@@ -45,8 +45,10 @@ jobs:
           cache: npm
           cache-dependency-path: basktball-mobile/package-lock.json
 
-      - name: Select Xcode 16
-        run: sudo xcode-select -s /Applications/Xcode_16.app/Contents/Developer
+      - name: Show available Xcode versions (debug)
+        run: |
+          ls /Applications | grep -i xcode || true
+          xcodebuild -version || true
 
       - name: Install npm dependencies
         run: npm ci
