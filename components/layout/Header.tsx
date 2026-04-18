@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { NotificationBell } from "./NotificationBell";
+import { ThemeToggle } from "../ThemeProvider";
 
 const GOOGLE_PLAY_URL = "https://play.google.com/store/apps/details?id=com.basktball.app";
 const APP_STORE_URL = "https://apps.apple.com/us/app/basktball/id6760516741";
@@ -36,7 +37,7 @@ export function Header() {
   const handleLinkClick = () => setMenuOpen(false);
 
   return (
-    <header style={{ position: "sticky", top: 0, zIndex: 50, boxShadow: "0 20px 0 0 #0D0D0D" }}>
+    <header style={{ position: "sticky", top: 0, zIndex: 50, boxShadow: "0 20px 0 0 var(--bg-primary)" }}>
       {/* Top Bar */}
       <div className="top-bar">
         <div className="live-indicator">
@@ -64,8 +65,8 @@ export function Header() {
         justifyContent: "space-between",
         alignItems: "center",
         padding: "20px 40px",
-        background: "var(--dark-gray)",
-        borderBottom: "1px solid rgba(255,255,255,0.1)",
+        background: "var(--bg-secondary)",
+        borderBottom: "1px solid var(--border-color)",
         position: "relative",
       }}>
         <Link href="/" style={{
@@ -85,7 +86,7 @@ export function Header() {
           <span className="logo-text" style={{
             fontFamily: "var(--font-anton), Anton, sans-serif",
             fontSize: "36px",
-            color: "var(--white)",
+            color: "var(--text-primary)",
             textShadow: "3px 3px 0 var(--orange)"
           }}>
             BASKTBALL
@@ -102,7 +103,7 @@ export function Header() {
             display: "block",
             width: "24px",
             height: "2px",
-            background: "var(--white)",
+            background: "var(--text-primary)",
             transition: "all 0.3s ease",
             transform: menuOpen ? "rotate(45deg) translate(5px, 5px)" : "none",
           }} />
@@ -110,7 +111,7 @@ export function Header() {
             display: "block",
             width: "24px",
             height: "2px",
-            background: "var(--white)",
+            background: "var(--text-primary)",
             transition: "all 0.3s ease",
             opacity: menuOpen ? 0 : 1,
           }} />
@@ -118,7 +119,7 @@ export function Header() {
             display: "block",
             width: "24px",
             height: "2px",
-            background: "var(--white)",
+            background: "var(--text-primary)",
             transition: "all 0.3s ease",
             transform: menuOpen ? "rotate(-45deg) translate(5px, -5px)" : "none",
           }} />
@@ -139,13 +140,14 @@ export function Header() {
 
         {/* User auth section */}
         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginLeft: "16px" }}>
-          <Link href="/search" style={{ display: "flex", alignItems: "center", padding: "6px", borderRadius: "8px", color: "rgba(255,255,255,0.6)" }} title="Search">
+          <Link href="/search" style={{ display: "flex", alignItems: "center", padding: "6px", borderRadius: "8px", color: "var(--text-muted)" }} title="Search">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
           </Link>
           {session?.user && <NotificationBell />}
+          <ThemeToggle />
           {session?.user ? (
             <div style={{ position: "relative" }}>
               <button
@@ -155,11 +157,11 @@ export function Header() {
                   alignItems: "center",
                   gap: "8px",
                   background: "none",
-                  border: "1px solid rgba(255,255,255,0.15)",
+                  border: "1px solid var(--border-color)",
                   borderRadius: "8px",
                   padding: "6px 12px",
                   cursor: "pointer",
-                  color: "#fff",
+                  color: "var(--text-primary)",
                   fontSize: "13px",
                   fontFamily: "var(--font-inter)",
                 }}
@@ -190,8 +192,8 @@ export function Header() {
                   top: "100%",
                   right: 0,
                   marginTop: "4px",
-                  background: "#1A1A1A",
-                  border: "1px solid #333",
+                  background: "var(--dropdown-bg)",
+                  border: "1px solid var(--border-color)",
                   borderRadius: "8px",
                   padding: "8px 0",
                   minWidth: "150px",
@@ -204,7 +206,7 @@ export function Header() {
                       display: "block",
                       width: "100%",
                       padding: "8px 16px",
-                      color: "rgba(255,255,255,0.8)",
+                      color: "var(--text-secondary)",
                       fontSize: "13px",
                       textDecoration: "none",
                       fontFamily: "var(--font-inter)",
@@ -220,7 +222,7 @@ export function Header() {
                       display: "block",
                       width: "100%",
                       padding: "8px 16px",
-                      color: "rgba(255,255,255,0.8)",
+                      color: "var(--text-secondary)",
                       fontSize: "13px",
                       textDecoration: "none",
                       fontFamily: "var(--font-inter)",
@@ -229,7 +231,7 @@ export function Header() {
                   >
                     Edit Profile
                   </Link>
-                  <div style={{ height: "1px", background: "rgba(255,255,255,0.08)", margin: "4px 0" }} />
+                  <div style={{ height: "1px", background: "var(--border-subtle)", margin: "4px 0" }} />
                   <button
                     onClick={() => { signOut({ callbackUrl: "/" }); setUserMenuOpen(false); }}
                     style={{

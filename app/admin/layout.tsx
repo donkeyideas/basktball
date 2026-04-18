@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
+import { ThemeToggle } from "@/components/ThemeProvider";
 
 const navItems = [
   {
@@ -275,13 +276,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <h4>{userName}</h4>
             <span>Administrator</span>
           </div>
+          <ThemeToggle />
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
             style={{
               marginLeft: "auto",
               background: "none",
               border: "none",
-              color: "rgba(255,255,255,0.5)",
+              color: "var(--text-muted)",
               cursor: "pointer",
               padding: "5px"
             }}

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Anton, Barlow_Condensed, Inter, Roboto_Mono } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import Script from "next/script";
 import { auth } from "@/lib/auth";
 import "./globals.css";
@@ -83,6 +84,12 @@ export default async function RootLayout({
   return (
     <html lang="en" className={`${anton.variable} ${barlowCondensed.variable} ${inter.variable} ${robotoMono.variable}`}>
       <head>
+        {/* Prevent flash of wrong theme */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('basktball-theme');if(t)document.documentElement.setAttribute('data-theme',t)}catch(e){}})()`,
+          }}
+        />
         {/* Preload hero background image for faster LCP */}
         <link
           rel="preload"
@@ -159,13 +166,15 @@ export default async function RootLayout({
       </head>
       <body>
         <SessionProvider session={session}>
-          {/* Court Background Pattern */}
-          <div className="court-bg">
-            <div className="court-accent"></div>
-            <div className="court-accent"></div>
-            <div className="court-accent"></div>
-          </div>
-          {children}
+          <ThemeProvider>
+            {/* Court Background Pattern */}
+            <div className="court-bg">
+              <div className="court-accent"></div>
+              <div className="court-accent"></div>
+              <div className="court-accent"></div>
+            </div>
+            {children}
+          </ThemeProvider>
         </SessionProvider>
       </body>
     </html>

@@ -25,7 +25,7 @@ function timeAgo(dateStr: string): string {
 }
 
 function NotifIcon({ type, read }: { type: string; read: boolean }) {
-  const color = read ? "rgba(255,255,255,0.4)" : "#FF6B35";
+  const color = read ? "var(--text-faint)" : "#FF6B35";
   const size = 16;
   const props = { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: color, strokeWidth: 2, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
 
@@ -138,7 +138,7 @@ export function NotificationBell() {
           cursor: "pointer",
           padding: "6px",
           position: "relative",
-          color: "#fff",
+          color: "var(--text-primary)",
         }}
         title="Notifications"
       >
@@ -173,21 +173,21 @@ export function NotificationBell() {
           top: "100%",
           right: 0,
           marginTop: "8px",
-          background: "#1A1A1A",
-          border: "1px solid #333",
+          background: "var(--dropdown-bg)",
+          border: "1px solid var(--border-color)",
           borderRadius: "12px",
           width: "340px",
           maxHeight: "420px",
           overflowY: "auto",
           zIndex: 200,
-          boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+          boxShadow: "0 8px 32px var(--shadow-color)",
         }}>
           <div style={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             padding: "12px 16px",
-            borderBottom: "1px solid #2a2a2a",
+            borderBottom: "1px solid var(--border-color)",
           }}>
             <span style={{
               fontFamily: "var(--font-anton)",
@@ -216,11 +216,11 @@ export function NotificationBell() {
           </div>
 
           {loading ? (
-            <div style={{ padding: "24px", textAlign: "center", color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-inter)" }}>
+            <div style={{ padding: "24px", textAlign: "center", color: "var(--text-faint)", fontFamily: "var(--font-inter)" }}>
               Loading...
             </div>
           ) : notifications.length === 0 ? (
-            <div style={{ padding: "24px", textAlign: "center", color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-inter)" }}>
+            <div style={{ padding: "24px", textAlign: "center", color: "var(--text-faint)", fontFamily: "var(--font-inter)" }}>
               No notifications yet
             </div>
           ) : (
@@ -237,7 +237,7 @@ export function NotificationBell() {
                     padding: "10px 16px",
                     cursor: "pointer",
                     background: notif.read ? "transparent" : "rgba(255,107,53,0.05)",
-                    borderBottom: "1px solid rgba(255,255,255,0.05)",
+                    borderBottom: "1px solid var(--border-subtle)",
                     transition: "background 0.15s",
                   }}
                   onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
@@ -260,7 +260,7 @@ export function NotificationBell() {
                     <div style={{
                       fontFamily: "var(--font-inter)",
                       fontSize: "13px",
-                      color: notif.read ? "rgba(255,255,255,0.5)" : "#fff",
+                      color: notif.read ? "var(--text-muted)" : "var(--text-primary)",
                       fontWeight: notif.read ? 400 : 600,
                       lineHeight: "18px",
                     }}>
@@ -270,7 +270,7 @@ export function NotificationBell() {
                       <div style={{
                         fontFamily: "var(--font-inter)",
                         fontSize: "12px",
-                        color: "rgba(255,255,255,0.3)",
+                        color: "var(--text-faint)",
                         marginTop: "2px",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
@@ -282,7 +282,7 @@ export function NotificationBell() {
                     <div style={{
                       fontFamily: "var(--font-mono, monospace)",
                       fontSize: "11px",
-                      color: "rgba(255,255,255,0.25)",
+                      color: "var(--text-faint)",
                       marginTop: "2px",
                     }}>
                       {timeAgo(notif.createdAt)}
