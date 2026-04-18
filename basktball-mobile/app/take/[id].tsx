@@ -19,6 +19,8 @@ import { Colors, Fonts } from '@/constants/Colors';
 import { useTheme } from '@/lib/theme/ThemeContext';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { api } from '@/lib/api/client';
+import { LinkPreview, extractFirstUrl, stripFirstUrl } from '@/components/content/LinkPreview';
+import { LinkifiedText } from '@/components/content/LinkifiedText';
 
 const API_BASE = 'https://www.basktball.com';
 
@@ -247,9 +249,13 @@ export default function TakeDetailScreen() {
         </TouchableOpacity>
 
         {/* Take Text */}
-        <Text style={[styles.takeText, isMainTake && styles.mainTakeText]}>
-          {item.content}
-        </Text>
+        <LinkifiedText
+          text={extractFirstUrl(item.content) ? stripFirstUrl(item.content) : item.content}
+          style={isMainTake ? styles.mainTakeText : styles.takeText}
+        />
+
+        {/* Link Preview */}
+        <LinkPreview content={item.content} />
 
         {/* Tags */}
         {item.tags && item.tags.length > 0 && (

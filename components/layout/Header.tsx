@@ -139,6 +139,12 @@ export function Header() {
 
         {/* User auth section */}
         <div style={{ display: "flex", alignItems: "center", gap: "12px", marginLeft: "16px" }}>
+          <Link href="/search" style={{ display: "flex", alignItems: "center", padding: "6px", borderRadius: "8px", color: "rgba(255,255,255,0.6)" }} title="Search">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </Link>
           {session?.user && <NotificationBell />}
           {session?.user ? (
             <div style={{ position: "relative" }}>

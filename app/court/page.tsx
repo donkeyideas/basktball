@@ -8,6 +8,8 @@ import { Header, Footer } from "@/components";
 import TakeCard from "@/components/court/TakeCard";
 import type { Take } from "@/components/court/TakeCard";
 import ComposeTake from "@/components/court/ComposeTake";
+import MentionAutocomplete from "@/components/court/MentionAutocomplete";
+import GifPicker from "@/components/court/GifPicker";
 import FeedTabs from "@/components/court/FeedTabs";
 import type { FeedTab } from "@/components/court/FeedTabs";
 
@@ -53,6 +55,10 @@ export default function CourtPage() {
   const [composePollOptions, setComposePollOptions] = useState<string[]>(["", ""]);
   const [composePollDuration, setComposePollDuration] = useState(24);
   const [composeSubmitting, setComposeSubmitting] = useState(false);
+  const [composeMentionQuery, setComposeMentionQuery] = useState("");
+  const [composeShowMentions, setComposeShowMentions] = useState(false);
+  const [composeShowGif, setComposeShowGif] = useState(false);
+  const [composeMediaUrl, setComposeMediaUrl] = useState<string | null>(null);
   const composeTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Modal state for Age and Challenge
@@ -355,11 +361,41 @@ export default function CourtPage() {
 
   // Inline compose handlers
   const handleComposeContentChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setComposeContent(e.target.value);
+    const val = e.target.value;
+    setComposeContent(val);
     const ta = e.target;
     ta.style.height = "auto";
     ta.style.height = ta.scrollHeight + "px";
+
+    // Detect @mention trigger
+    const cursorPos = ta.selectionStart;
+    const textBeforeCursor = val.slice(0, cursorPos);
+    const mentionMatch = textBeforeCursor.match(/@([a-zA-Z0-9_]*)$/);
+    if (mentionMatch) {
+      setComposeMentionQuery(mentionMatch[1]);
+      setComposeShowMentions(true);
+    } else {
+      setComposeShowMentions(false);
+    }
   }, []);
+
+  const handleComposeMentionSelect = useCallback((handle: string) => {
+    if (!composeTextareaRef.current) return;
+    const ta = composeTextareaRef.current;
+    const cursorPos = ta.selectionStart;
+    const textBefore = composeContent.slice(0, cursorPos);
+    const textAfter = composeContent.slice(cursorPos);
+    const atIndex = textBefore.lastIndexOf("@");
+    if (atIndex === -1) return;
+    const newContent = textBefore.slice(0, atIndex) + `@${handle} ` + textAfter;
+    setComposeContent(newContent);
+    setComposeShowMentions(false);
+    setTimeout(() => {
+      const newPos = atIndex + handle.length + 2;
+      ta.setSelectionRange(newPos, newPos);
+      ta.focus();
+    }, 0);
+  }, [composeContent]);
 
   const handleComposeTagKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -392,6 +428,9 @@ export default function CourtPage() {
         body.pollOptions = composeValidPollOptions.map((o) => o.trim());
         body.pollDuration = composePollDuration;
       }
+      if (composeMediaUrl) {
+        body.mediaUrl = composeMediaUrl;
+      }
       const res = await fetch("/api/court/takes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -407,6 +446,8 @@ export default function CourtPage() {
         setComposeTagInput("");
         setComposeShowPoll(false);
         setComposePollOptions(["", ""]);
+        setComposeMediaUrl(null);
+        setComposeShowGif(false);
         if (composeTextareaRef.current) {
           composeTextareaRef.current.style.height = "auto";
         }
@@ -416,7 +457,7 @@ export default function CourtPage() {
     } finally {
       setComposeSubmitting(false);
     }
-  }, [composeCanPost, composeContent, composeTags, activeTab, liveGames, composeShowPoll, composeValidPollOptions, composePollDuration]);
+  }, [composeCanPost, composeContent, composeTags, activeTab, liveGames, composeShowPoll, composeValidPollOptions, composePollDuration, composeMediaUrl]);
 
   const handleFollow = useCallback(async (targetUserId: string) => {
     if (!session?.user) return;
@@ -640,6 +681,7 @@ export default function CourtPage() {
                   border: "1px solid #2a2a2a",
                   borderTop: "none",
                   padding: "16px",
+                  position: "relative",
                 }}>
                   <div style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
                     <div style={{
@@ -692,6 +734,64 @@ export default function CourtPage() {
                       />
                     </div>
                   </div>
+
+                  {/* Mention Autocomplete */}
+                  <MentionAutocomplete
+                    query={composeMentionQuery}
+                    onSelect={handleComposeMentionSelect}
+                    onClose={() => setComposeShowMentions(false)}
+                    visible={composeShowMentions}
+                  />
+
+                  {/* GIF Picker */}
+                  {composeShowGif && (
+                    <GifPicker
+                      onSelect={(gifUrl) => {
+                        setComposeMediaUrl(gifUrl);
+                        setComposeShowGif(false);
+                      }}
+                      onClose={() => setComposeShowGif(false)}
+                    />
+                  )}
+
+                  {/* GIF Preview */}
+                  {composeMediaUrl && (
+                    <div style={{ padding: "8px 0 0 52px", position: "relative", display: "inline-block" }}>
+                      <img
+                        src={composeMediaUrl}
+                        alt="GIF"
+                        style={{
+                          maxWidth: "200px",
+                          maxHeight: "150px",
+                          borderRadius: "8px",
+                          border: "1px solid rgba(255,255,255,0.1)",
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setComposeMediaUrl(null)}
+                        style={{
+                          position: "absolute",
+                          top: "12px",
+                          right: "4px",
+                          width: "20px",
+                          height: "20px",
+                          borderRadius: "50%",
+                          background: "rgba(0,0,0,0.7)",
+                          color: "#fff",
+                          border: "none",
+                          cursor: "pointer",
+                          fontSize: "12px",
+                          lineHeight: 1,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                        }}
+                      >
+                        &times;
+                      </button>
+                    </div>
+                  )}
 
                   {/* Poll Creation UI */}
                   {composeShowPoll && (
@@ -919,6 +1019,26 @@ export default function CourtPage() {
                         + Poll
                       </button>
                     )}
+                    <button
+                      type="button"
+                      onClick={() => setComposeShowGif(!composeShowGif)}
+                      style={{
+                        background: composeShowGif ? "rgba(255,107,53,0.15)" : "none",
+                        border: "1px solid rgba(255,107,53,0.3)",
+                        color: "#FF6B35",
+                        cursor: "pointer",
+                        fontSize: "11px",
+                        fontFamily: FONT,
+                        fontWeight: 700,
+                        padding: "3px 10px",
+                        borderRadius: "6px",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.3px",
+                        flexShrink: 0,
+                      }}
+                    >
+                      GIF
+                    </button>
                     <span style={{
                       fontFamily: "var(--font-mono), monospace",
                       fontSize: "12px",

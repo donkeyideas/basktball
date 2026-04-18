@@ -133,17 +133,17 @@ export const authConfig: NextAuthConfig = {
   ],
 
   callbacks: {
-    async jwt({ token, user, trigger }) {
+    async jwt({ token, user }) {
       if (user) {
         token.role = (user as { role?: string }).role;
         token.userId = user.id;
         token.picture = user.image;
       }
-      // On session update, refresh role and avatar from DB
-      if (trigger === "update" && token.userId) {
+      // Always refresh avatar/name/role from DB to stay in sync
+      if (token.userId) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.userId as string },
-          select: { role: true, status: true, displayName: true, name: true, avatarUrl: true, image: true },
+          select: { role: true, displayName: true, name: true, avatarUrl: true, image: true },
         });
         if (dbUser) {
           token.role = dbUser.role;

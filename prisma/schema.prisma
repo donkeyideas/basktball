@@ -538,6 +538,7 @@ model User {
   status        UserStatus @default(ACTIVE)
 
   // Profile
+  handle          String?    @unique
   displayName     String?
   bio             String?    @db.Text
   avatarUrl       String?
@@ -971,6 +972,7 @@ model Take {
   parentId    String?
   tags        String[]
   mediaUrl    String?
+  linkPreview Json?
 
   // Denormalized counts
   fireCount   Int         @default(0)

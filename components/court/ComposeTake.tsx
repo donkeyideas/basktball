@@ -2,12 +2,14 @@
 
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import MentionAutocomplete from "./MentionAutocomplete";
+import GifPicker from "./GifPicker";
 
 // --- Types ---
 
 interface ComposeTakeProps {
   onClose: () => void;
-  onSubmit: (take: { content: string; tags: string[]; parentId?: string; gameId?: string; pollOptions?: string[]; pollDuration?: number }) => void;
+  onSubmit: (take: { content: string; tags: string[]; parentId?: string; gameId?: string; pollOptions?: string[]; pollDuration?: number; mediaUrl?: string }) => void;
   parentId?: string;
   gameId?: string;
 }
@@ -31,6 +33,10 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
   const [showPoll, setShowPoll] = useState(false);
   const [pollOptions, setPollOptions] = useState<string[]>(["", ""]);
   const [pollDuration, setPollDuration] = useState(24);
+  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
+  const [showGifPicker, setShowGifPicker] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState("");
+  const [showMentions, setShowMentions] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const charCount = content.length;
@@ -49,12 +55,24 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
     }
   }, []);
 
-  // Auto-grow textarea
+  // Auto-grow textarea + detect @mentions
   const handleContentChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setContent(e.target.value);
+    const val = e.target.value;
+    setContent(val);
     const ta = e.target;
     ta.style.height = "auto";
     ta.style.height = ta.scrollHeight + "px";
+
+    // Detect @mention trigger
+    const cursorPos = ta.selectionStart;
+    const textBeforeCursor = val.slice(0, cursorPos);
+    const mentionMatch = textBeforeCursor.match(/@([a-zA-Z0-9_]*)$/);
+    if (mentionMatch) {
+      setMentionQuery(mentionMatch[1]);
+      setShowMentions(true);
+    } else {
+      setShowMentions(false);
+    }
   }, []);
 
   // Tag input: add tag on Enter or comma
@@ -94,6 +112,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
         body.pollOptions = validPollOptions.map((o) => o.trim());
         body.pollDuration = pollDuration;
       }
+      if (mediaUrl) body.mediaUrl = mediaUrl;
 
       const res = await fetch("/api/court/takes", {
         method: "POST",
@@ -117,7 +136,26 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
     } finally {
       setSubmitting(false);
     }
-  }, [canPost, content, tags, parentId, gameId, showPoll, validPollOptions, pollDuration, onSubmit, onClose]);
+  }, [canPost, content, tags, parentId, gameId, showPoll, validPollOptions, pollDuration, mediaUrl, onSubmit, onClose]);
+
+  // Handle @mention selection
+  const handleMentionSelect = useCallback((handle: string) => {
+    if (!textareaRef.current) return;
+    const ta = textareaRef.current;
+    const cursorPos = ta.selectionStart;
+    const textBefore = content.slice(0, cursorPos);
+    const textAfter = content.slice(cursorPos);
+    const atIndex = textBefore.lastIndexOf("@");
+    if (atIndex === -1) return;
+    const newContent = textBefore.slice(0, atIndex) + `@${handle} ` + textAfter;
+    setContent(newContent);
+    setShowMentions(false);
+    setTimeout(() => {
+      const newPos = atIndex + handle.length + 2;
+      ta.setSelectionRange(newPos, newPos);
+      ta.focus();
+    }, 0);
+  }, [content]);
 
   // Close on Escape
   useEffect(() => {
@@ -355,6 +393,35 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
           />
         </div>
 
+        {/* GIF preview */}
+        {mediaUrl && (
+          <div style={{ padding: "0 16px 8px", position: "relative" }}>
+            <img src={mediaUrl} alt="Selected GIF" style={{ width: "100%", maxHeight: "200px", objectFit: "contain", borderRadius: "10px" }} />
+            <button
+              type="button"
+              onClick={() => setMediaUrl(null)}
+              style={{
+                position: "absolute",
+                top: "8px",
+                right: "24px",
+                width: "24px",
+                height: "24px",
+                borderRadius: "50%",
+                backgroundColor: "rgba(0,0,0,0.7)",
+                color: "#fff",
+                border: "none",
+                cursor: "pointer",
+                fontSize: "14px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              &times;
+            </button>
+          </div>
+        )}
+
         {/* Poll Creation UI */}
         {showPoll && (
           <div style={{
@@ -496,8 +563,27 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
           </div>
         )}
 
-        {/* Footer: tags + char count */}
-        <div style={footerStyle}>
+        {/* Footer: tags + char count + action buttons */}
+        <div style={{ ...footerStyle, position: "relative" }}>
+          {/* Mention autocomplete dropdown */}
+          <MentionAutocomplete
+            query={mentionQuery}
+            onSelect={handleMentionSelect}
+            onClose={() => setShowMentions(false)}
+            visible={showMentions}
+          />
+
+          {/* GIF picker dropdown */}
+          {showGifPicker && (
+            <GifPicker
+              onSelect={(gifUrl) => {
+                setMediaUrl(gifUrl);
+                setShowGifPicker(false);
+              }}
+              onClose={() => setShowGifPicker(false)}
+            />
+          )}
+
           <div style={tagAreaStyle}>
             {tags.map((tag) => (
               <span key={tag} style={tagPillStyle}>
@@ -523,6 +609,26 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
               />
             )}
           </div>
+          <button
+            type="button"
+            onClick={() => setShowGifPicker(!showGifPicker)}
+            style={{
+              background: "none",
+              border: "1px solid rgba(255,107,53,0.3)",
+              color: "#FF6B35",
+              cursor: "pointer",
+              fontSize: "11px",
+              fontFamily: "var(--font-inter), sans-serif",
+              fontWeight: 700,
+              padding: "3px 10px",
+              borderRadius: "6px",
+              textTransform: "uppercase",
+              letterSpacing: "0.3px",
+              flexShrink: 0,
+            }}
+          >
+            GIF
+          </button>
           {!showPoll && !parentId && (
             <button
               type="button"

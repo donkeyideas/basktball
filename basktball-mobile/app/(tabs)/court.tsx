@@ -22,6 +22,10 @@ import { Colors, Fonts } from '@/constants/Colors';
 import { useTheme } from '@/lib/theme/ThemeContext';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { api } from '@/lib/api/client';
+import { LinkPreview, extractFirstUrl, stripFirstUrl } from '@/components/content/LinkPreview';
+import { LinkifiedText } from '@/components/content/LinkifiedText';
+import { Image as ExpoImage } from 'expo-image';
+import { GifPicker } from '@/components/feed/GifPicker';
 
 const API_BASE = 'https://www.basktball.com';
 const SEGMENTS = ['FOR YOU', 'FOLLOWING', 'LIVE'];
@@ -51,6 +55,16 @@ interface Take {
   viewCount: number;
   createdAt: string;
   tags: string[];
+  mediaUrl?: string | null;
+  linkPreview?: {
+    url: string;
+    title: string | null;
+    description: string | null;
+    image: string | null;
+    siteName: string | null;
+    videoEmbedUrl: string | null;
+    videoProvider: string | null;
+  } | null;
   gameId: string | null;
   quarter?: string | null;
   gameClock?: string | null;
@@ -98,6 +112,8 @@ export default function CourtScreen() {
   const [showCompose, setShowCompose] = useState(false);
   const [composeText, setComposeText] = useState('');
   const [posting, setPosting] = useState(false);
+  const [composeMediaUrl, setComposeMediaUrl] = useState<string | null>(null);
+  const [showGifPicker, setShowGifPicker] = useState(false);
   const [showPoll, setShowPoll] = useState(false);
   const [pollOptions, setPollOptions] = useState<string[]>(['', '']);
   const [pollDuration, setPollDuration] = useState(24);
@@ -430,6 +446,8 @@ export default function CourtScreen() {
     setShowPoll(false);
     setPollOptions(['', '']);
     setPollDuration(24);
+    setComposeMediaUrl(null);
+    setShowGifPicker(false);
   }
 
   async function handlePost() {
@@ -449,6 +467,9 @@ export default function CourtScreen() {
     setPosting(true);
     try {
       const body: any = { content: composeText.trim() };
+      if (composeMediaUrl) {
+        body.mediaUrl = composeMediaUrl;
+      }
       if (showPoll) {
         body.pollOptions = pollOptions.filter(o => o.trim().length > 0);
         body.pollDuration = pollDuration;
@@ -589,8 +610,20 @@ export default function CourtScreen() {
         </View>
 
         {/* Content */}
-        <Text style={styles.takeText}>{item.content}</Text>
+        <LinkifiedText
+          text={extractFirstUrl(item.content) ? stripFirstUrl(item.content) : item.content}
+          style={styles.takeText}
+        />
 
+        {/* GIF / Media */}
+        {item.mediaUrl && (
+          <View style={{ borderRadius: 10, overflow: 'hidden', marginBottom: 8 }}>
+            <ExpoImage source={{ uri: item.mediaUrl }} style={{ width: '100%', height: 200 }} contentFit="contain" />
+          </View>
+        )}
+
+        {/* Link Preview (client-side) */}
+        <LinkPreview content={item.content} />
 
         {/* Tags */}
         {item.tags && item.tags.length > 0 && (
@@ -782,6 +815,62 @@ export default function CourtScreen() {
             />
             <Text style={styles.charCount}>{composeText.length}/2000</Text>
 
+            {/* GIF Preview */}
+            {composeMediaUrl && (
+              <View style={{ paddingHorizontal: 16, marginBottom: 8 }}>
+                <View style={{ position: 'relative', alignSelf: 'flex-start' }}>
+                  <ExpoImage
+                    source={{ uri: composeMediaUrl }}
+                    style={{ width: 160, height: 120, borderRadius: 8 }}
+                    contentFit="cover"
+                  />
+                  <TouchableOpacity
+                    onPress={() => setComposeMediaUrl(null)}
+                    style={{
+                      position: 'absolute', top: 4, right: 4,
+                      width: 22, height: 22, borderRadius: 11,
+                      backgroundColor: 'rgba(0,0,0,0.7)',
+                      alignItems: 'center', justifyContent: 'center',
+                    }}
+                  >
+                    <Ionicons name="close" size={14} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
+            {/* GIF / Poll Toolbar */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, gap: 10, marginBottom: 8 }}>
+              <TouchableOpacity
+                onPress={() => setShowGifPicker(!showGifPicker)}
+                style={{
+                  paddingHorizontal: 10, paddingVertical: 5,
+                  borderWidth: 1,
+                  borderColor: showGifPicker ? Colors.orange : 'rgba(255,107,53,0.3)',
+                  borderRadius: 6,
+                  backgroundColor: showGifPicker ? 'rgba(255,107,53,0.15)' : 'transparent',
+                }}
+              >
+                <Text style={{ fontFamily: Fonts.barlowSemiBold, fontSize: 13, color: Colors.orange, fontWeight: '600' }}>GIF</Text>
+              </TouchableOpacity>
+
+              {!showPoll && (
+                <TouchableOpacity
+                  onPress={() => setShowPoll(true)}
+                  style={{
+                    flexDirection: 'row', alignItems: 'center', gap: 4,
+                    paddingHorizontal: 10, paddingVertical: 5,
+                    borderWidth: 1,
+                    borderColor: 'rgba(255,107,53,0.3)',
+                    borderRadius: 6,
+                  }}
+                >
+                  <Ionicons name="bar-chart-outline" size={14} color={Colors.orange} />
+                  <Text style={{ fontFamily: Fonts.barlowSemiBold, fontSize: 13, color: Colors.orange, fontWeight: '600' }}>Poll</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
             {/* Poll Toggle & Builder */}
             {showPoll ? (
               <View style={styles.pollBuilder}>
@@ -833,13 +922,19 @@ export default function CourtScreen() {
                   ))}
                 </View>
               </View>
-            ) : (
-              <TouchableOpacity style={styles.pollToggle} onPress={() => setShowPoll(true)}>
-                <Ionicons name="bar-chart-outline" size={18} color={Colors.orange} />
-                <Text style={styles.pollToggleText}>Add Poll</Text>
-              </TouchableOpacity>
-            )}
+            ) : null}
             </ScrollView>
+
+            {/* GIF Picker */}
+            {showGifPicker && (
+              <GifPicker
+                onSelect={(gifUrl) => {
+                  setComposeMediaUrl(gifUrl);
+                  setShowGifPicker(false);
+                }}
+                onClose={() => setShowGifPicker(false)}
+              />
+            )}
           </View>
         </KeyboardAvoidingView>
       </Modal>

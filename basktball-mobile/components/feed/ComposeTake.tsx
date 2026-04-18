@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,8 +7,11 @@ import {
   StyleSheet,
   ScrollView,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Fonts } from '@/constants/Colors';
+import { GifPicker } from './GifPicker';
+import { MentionAutocomplete } from './MentionAutocomplete';
 
 const MAX_CHARS = 280;
 const DURATION_OPTIONS = [
@@ -25,9 +28,11 @@ interface ComposeTakeProps {
     content: string;
     pollOptions?: string[];
     pollDuration?: number;
+    mediaUrl?: string;
   }) => void;
   onCancel: () => void;
   userName?: string;
+  apiBase?: string;
 }
 
 function getInitials(name: string): string {
@@ -39,12 +44,17 @@ function getInitials(name: string): string {
     .slice(0, 2);
 }
 
-export function ComposeTake({ onSubmit, onCancel, userName }: ComposeTakeProps) {
+export function ComposeTake({ onSubmit, onCancel, userName, apiBase = 'https://www.basktball.com' }: ComposeTakeProps) {
   const [content, setContent] = useState('');
   const [showPoll, setShowPoll] = useState(false);
   const [pollOptions, setPollOptions] = useState<string[]>(['', '']);
   const [pollDuration, setPollDuration] = useState(24);
   const [showDurationPicker, setShowDurationPicker] = useState(false);
+  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
+  const [showGifPicker, setShowGifPicker] = useState(false);
+  const [mentionQuery, setMentionQuery] = useState('');
+  const [showMentions, setShowMentions] = useState(false);
+  const inputRef = useRef<TextInput>(null);
 
   const charCount = content.length;
   const isOverLimit = charCount > MAX_CHARS;
@@ -58,14 +68,35 @@ export function ComposeTake({ onSubmit, onCancel, userName }: ComposeTakeProps) 
 
   const handleSubmit = () => {
     if (!canSubmit) return;
-    const data: { content: string; pollOptions?: string[]; pollDuration?: number } = {
+    const data: { content: string; pollOptions?: string[]; pollDuration?: number; mediaUrl?: string } = {
       content: content.trim(),
     };
     if (showPoll && validPollOptions.length >= 2) {
       data.pollOptions = validPollOptions.map((o) => o.trim());
       data.pollDuration = pollDuration;
     }
+    if (mediaUrl) data.mediaUrl = mediaUrl;
     onSubmit(data);
+  };
+
+  const handleContentChange = (val: string) => {
+    setContent(val);
+    // Detect @mention trigger
+    const mentionMatch = val.match(/@([a-zA-Z0-9_]*)$/);
+    if (mentionMatch) {
+      setMentionQuery(mentionMatch[1]);
+      setShowMentions(true);
+    } else {
+      setShowMentions(false);
+    }
+  };
+
+  const handleMentionSelect = (handle: string) => {
+    const atIndex = content.lastIndexOf('@');
+    if (atIndex === -1) return;
+    const newContent = content.slice(0, atIndex) + `@${handle} `;
+    setContent(newContent);
+    setShowMentions(false);
   };
 
   const updateOption = (index: number, value: string) => {
@@ -114,18 +145,40 @@ export function ComposeTake({ onSubmit, onCancel, userName }: ComposeTakeProps) 
 
           <View style={styles.inputWrapper}>
             <TextInput
+              ref={inputRef}
               style={styles.input}
               placeholder="What's your take?"
               placeholderTextColor={Colors.textTertiary}
               multiline
               maxLength={MAX_CHARS + 20}
               value={content}
-              onChangeText={setContent}
+              onChangeText={handleContentChange}
               textAlignVertical="top"
               autoFocus
             />
           </View>
         </View>
+
+        {/* GIF preview */}
+        {mediaUrl && (
+          <View style={{ marginHorizontal: 16, marginBottom: 8, position: 'relative' }}>
+            <Image source={{ uri: mediaUrl }} style={{ width: '100%', height: 180, borderRadius: 10 }} contentFit="contain" />
+            <TouchableOpacity
+              onPress={() => setMediaUrl(null)}
+              style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(0,0,0,0.7)', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Text style={{ color: '#fff', fontSize: 16 }}>✕</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Mention autocomplete */}
+        <MentionAutocomplete
+          query={mentionQuery}
+          onSelect={handleMentionSelect}
+          visible={showMentions}
+          apiBase={apiBase}
+        />
 
         {/* Poll Creation UI */}
         {showPoll && (
@@ -222,9 +275,22 @@ export function ComposeTake({ onSubmit, onCancel, userName }: ComposeTakeProps) 
         )}
       </ScrollView>
 
+      {/* GIF Picker */}
+      {showGifPicker && (
+        <GifPicker
+          onSelect={(gifUrl) => {
+            setMediaUrl(gifUrl);
+            setShowGifPicker(false);
+          }}
+          onClose={() => setShowGifPicker(false)}
+        />
+      )}
+
       <View style={styles.bottomBar}>
         <View style={styles.attachments}>
-          <Text style={styles.attachIcon}>GIF</Text>
+          <TouchableOpacity onPress={() => setShowGifPicker(!showGifPicker)} activeOpacity={0.7}>
+            <Text style={[styles.attachIcon, showGifPicker && styles.attachIconActive]}>GIF</Text>
+          </TouchableOpacity>
           <Text style={styles.attachIcon}>IMG</Text>
           <TouchableOpacity
             onPress={() => {

@@ -3,6 +3,9 @@
 import React, { useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import LinkifiedText from "./LinkifiedText";
+import LinkPreviewCard from "./LinkPreviewCard";
+import { extractFirstUrl, detectVideoProvider } from "@/lib/content/url-parser";
 
 // --- Types ---
 
@@ -67,6 +70,16 @@ export interface Take {
   userReaction: "FIRE" | "BRICK" | null;
   userBookmarked: boolean;
   userReposted: boolean;
+  mediaUrl?: string | null;
+  linkPreview?: {
+    url: string;
+    title: string | null;
+    description: string | null;
+    image: string | null;
+    siteName: string | null;
+    videoEmbedUrl: string | null;
+    videoProvider: string | null;
+  } | null;
   poll?: TakePoll | null;
   prediction?: TakePrediction | null;
   statCheck?: TakeStatCheck | null;
@@ -639,8 +652,49 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
         )}
       </div>
 
-      {/* Content */}
-      <div style={contentStyle}>{take.content}</div>
+      {/* Content — strip the previewed URL from display text */}
+      <LinkifiedText
+        text={(() => {
+          if (take.linkPreview) return take.content.replace(take.linkPreview.url, "").trim();
+          const firstUrl = extractFirstUrl(take.content);
+          if (firstUrl) return take.content.replace(firstUrl, "").trim();
+          return take.content;
+        })()}
+        style={contentStyle}
+      />
+
+      {/* GIF / Media */}
+      {take.mediaUrl && (
+        <div style={{ margin: "8px 0", borderRadius: "12px", overflow: "hidden" }} onClick={(e) => e.stopPropagation()}>
+          <img src={take.mediaUrl} alt="" style={{ width: "100%", maxHeight: "300px", objectFit: "contain", display: "block", borderRadius: "12px" }} />
+        </div>
+      )}
+
+      {/* Link Preview — server-side data or client-side video detection fallback */}
+      {take.linkPreview ? (
+        <LinkPreviewCard preview={take.linkPreview} />
+      ) : (() => {
+        const url = extractFirstUrl(take.content);
+        if (!url) return null;
+        const video = detectVideoProvider(url);
+        if (video) {
+          const providerNames: Record<string, string> = { youtube: "YouTube", twitch: "Twitch", tiktok: "TikTok", instagram: "Instagram" };
+          return (
+            <LinkPreviewCard
+              preview={{
+                url,
+                title: `${providerNames[video.provider] || video.provider} Video`,
+                description: null,
+                image: null,
+                siteName: providerNames[video.provider] || video.provider,
+                videoEmbedUrl: video.embedUrl,
+                videoProvider: video.provider,
+              }}
+            />
+          );
+        }
+        return null;
+      })()}
 
       {/* Stat Check Claims Detail */}
       {showStatCheckDetails && take.statCheck && Array.isArray(take.statCheck.claims) && take.statCheck.claims.length > 0 && (

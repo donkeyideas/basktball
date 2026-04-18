@@ -8,6 +8,9 @@ import { Header, Footer } from "@/components";
 import TakeCard from "@/components/court/TakeCard";
 import type { Take } from "@/components/court/TakeCard";
 import ComposeTake from "@/components/court/ComposeTake";
+import LinkifiedText from "@/components/court/LinkifiedText";
+import LinkPreviewCard from "@/components/court/LinkPreviewCard";
+import { extractFirstUrl, detectVideoProvider } from "@/lib/content/url-parser";
 
 export default function TakeDetailPage() {
   const { data: session } = useSession();
@@ -51,6 +54,8 @@ export default function TakeDetailPage() {
           userReposted: (t.reposts?.length || 0) > 0,
           poll: t.poll || null,
           statCheck: t.statCheck || null,
+          mediaUrl: t.mediaUrl || null,
+          linkPreview: t.linkPreview || null,
         });
         setReplies(
           (t.replies || []).map((r: Record<string, unknown>) => ({
@@ -68,6 +73,8 @@ export default function TakeDetailPage() {
             userReaction: ((r.reactions as { type: string }[])?.[0]?.type as string) || null,
             userBookmarked: ((r.bookmarks as unknown[])?.length || 0) > 0,
             userReposted: false,
+            mediaUrl: (r.mediaUrl as string) || null,
+            linkPreview: (r.linkPreview as Record<string, unknown>) || null,
           }))
         );
       })
@@ -499,8 +506,49 @@ export default function TakeDetailPage() {
                 whiteSpace: "pre-wrap",
               }}
             >
-              {mainTake.content}
+              <LinkifiedText
+                text={(() => {
+                  if (mainTake.linkPreview) return mainTake.content.replace((mainTake.linkPreview as { url?: string }).url || "", "").trim();
+                  const firstUrl = extractFirstUrl(mainTake.content);
+                  if (firstUrl) return mainTake.content.replace(firstUrl, "").trim();
+                  return mainTake.content;
+                })()}
+                style={{
+                  fontSize: "20px",
+                  lineHeight: "1.5",
+                }}
+              />
             </div>
+
+            {/* GIF */}
+            {mainTake.mediaUrl && (
+              <div style={{ marginBottom: "16px" }}>
+                <img src={mainTake.mediaUrl} alt="" style={{ width: "100%", maxHeight: "400px", objectFit: "contain", display: "block", borderRadius: "12px" }} />
+              </div>
+            )}
+
+            {/* Link Preview — server-side or client-side video fallback */}
+            {(() => {
+              if (mainTake.linkPreview) {
+                return (
+                  <div style={{ marginBottom: "16px" }}>
+                    <LinkPreviewCard preview={mainTake.linkPreview as { url: string; title: string | null; description: string | null; image: string | null; siteName: string | null; videoEmbedUrl: string | null; videoProvider: string | null }} />
+                  </div>
+                );
+              }
+              const url = extractFirstUrl(mainTake.content);
+              if (!url) return null;
+              const video = detectVideoProvider(url);
+              if (video) {
+                const names: Record<string, string> = { youtube: "YouTube", twitch: "Twitch", tiktok: "TikTok", instagram: "Instagram" };
+                return (
+                  <div style={{ marginBottom: "16px" }}>
+                    <LinkPreviewCard preview={{ url, title: `${names[video.provider] || video.provider} Video`, description: null, image: null, siteName: names[video.provider] || video.provider, videoEmbedUrl: video.embedUrl, videoProvider: video.provider }} />
+                  </div>
+                );
+              }
+              return null;
+            })()}
 
             {/* Tags */}
             {mainTake.tags && mainTake.tags.length > 0 && (

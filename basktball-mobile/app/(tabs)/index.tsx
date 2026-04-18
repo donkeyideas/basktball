@@ -6,15 +6,17 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
-  Linking,
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { Image as ExpoImage } from 'expo-image';
 import { Colors, Fonts } from '@/constants/Colors';
 import { useTheme } from '@/lib/theme/ThemeContext';
+import { LinkifiedText } from '@/components/content/LinkifiedText';
+import { LinkPreview, extractFirstUrl, stripFirstUrl } from '@/components/content/LinkPreview';
 
 const API_BASE = 'https://www.basktball.com';
 
@@ -61,6 +63,16 @@ interface TrendingTake {
   fireCount: number;
   replyCount: number;
   createdAt: string;
+  mediaUrl?: string | null;
+  linkPreview?: {
+    url: string;
+    title: string | null;
+    description: string | null;
+    image: string | null;
+    siteName: string | null;
+    videoEmbedUrl: string | null;
+    videoProvider: string | null;
+  } | null;
   author: {
     id: string;
     name: string | null;
@@ -409,7 +421,19 @@ export default function HomeScreen() {
                     <Text style={styles.takeHandle}>{timeAgo(take.createdAt)}</Text>
                   </View>
                 </View>
-                <Text style={styles.takeText}>{take.content}</Text>
+                <LinkifiedText
+                  text={extractFirstUrl(take.content) ? stripFirstUrl(take.content) : take.content}
+                  style={styles.takeText}
+                />
+                {take.mediaUrl && (
+                  <ExpoImage
+                    source={{ uri: take.mediaUrl }}
+                    style={{ width: '100%', height: 200, borderRadius: 8, marginTop: 8 }}
+                    contentFit="contain"
+                  />
+                )}
+                {/* Link Preview (same component used on court page) */}
+                <LinkPreview content={take.content} />
                 <View style={styles.takeActions}>
                   <View style={styles.takeAction}>
                     <Ionicons name="flame-outline" size={16} color={Colors.orange} />

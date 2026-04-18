@@ -4,6 +4,9 @@ import { auth } from "@/lib/auth";
 import { getCourtUser } from "@/lib/court/auth";
 import { detectPrediction } from "@/lib/court/prediction-detector";
 import { createNotification } from "@/lib/notifications/service";
+import { extractFirstUrl } from "@/lib/content/url-parser";
+import { unfurlUrl } from "@/lib/content/unfurl";
+import { extractMentions, resolveMentionedUserIds } from "@/lib/content/mention-parser";
 
 export async function POST(request: Request) {
   try {
@@ -13,7 +16,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Authentication required" }, { status: 401 });
     }
 
-    const { content, tags, parentId, gameId, pollOptions, pollDuration, quarter, gameClock } = await request.json();
+    const { content, tags, parentId, gameId, pollOptions, pollDuration, quarter, gameClock, mediaUrl } = await request.json();
 
     if (!content || content.trim().length === 0) {
       return NextResponse.json({ message: "Content is required" }, { status: 400 });
@@ -31,6 +34,7 @@ export async function POST(request: Request) {
         gameId: gameId || null,
         quarter: quarter || null,
         gameClock: gameClock || null,
+        mediaUrl: mediaUrl || null,
       },
       include: {
         author: {
@@ -92,6 +96,38 @@ export async function POST(request: Request) {
 
     // Fire-and-forget: detect if this take is a prediction
     detectPrediction(take.id, content.trim(), user.id, gameId || null).catch(() => {});
+
+    // Fire-and-forget: unfurl first URL for link preview
+    const firstUrl = extractFirstUrl(content);
+    if (firstUrl) {
+      unfurlUrl(firstUrl).then(async (preview) => {
+        if (preview) {
+          await prisma.take.update({
+            where: { id: take.id },
+            data: { linkPreview: JSON.parse(JSON.stringify(preview)) },
+          });
+        }
+      }).catch(() => {});
+    }
+
+    // Fire-and-forget: send mention notifications
+    const mentionHandles = extractMentions(content);
+    if (mentionHandles.length > 0) {
+      resolveMentionedUserIds(mentionHandles).then(async (userIds) => {
+        for (const mentionedUserId of userIds) {
+          if (mentionedUserId !== user.id) {
+            createNotification({
+              userId: mentionedUserId,
+              type: "MENTION",
+              title: `${take.author.displayName || take.author.name || "Someone"} mentioned you`,
+              body: content.trim().slice(0, 100),
+              data: { takeId: take.id },
+              actorId: user.id,
+            }).catch(() => {});
+          }
+        }
+      }).catch(() => {});
+    }
 
     return NextResponse.json({ take }, { status: 201 });
   } catch (error) {

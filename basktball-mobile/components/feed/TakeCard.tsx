@@ -5,7 +5,10 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { Colors, Fonts } from '@/constants/Colors';
+import { LinkifiedText } from '@/components/content/LinkifiedText';
+import { LinkPreviewCard } from '@/components/content/LinkPreviewCard';
 
 interface Author {
   name: string;
@@ -38,6 +41,16 @@ export interface Take {
   replyCount: number;
   repostCount: number;
   createdAt: string;
+  mediaUrl?: string | null;
+  linkPreview?: {
+    url: string;
+    title: string | null;
+    description: string | null;
+    image: string | null;
+    siteName: string | null;
+    videoEmbedUrl: string | null;
+    videoProvider: string | null;
+  } | null;
   poll?: TakePoll | null;
 }
 
@@ -201,7 +214,18 @@ export function TakeCard({ take, onPress, onFire, onBrick, onPollVote }: TakeCar
         <Text style={styles.timestamp}>{createdAt}</Text>
       </View>
 
-      <Text style={styles.body}>{content}</Text>
+      <LinkifiedText
+        text={take.linkPreview ? content.replace(take.linkPreview.url, '').trim() : content}
+        style={styles.body}
+      />
+
+      {take.mediaUrl && (
+        <View style={{ borderRadius: 10, overflow: 'hidden', marginBottom: 8 }}>
+          <Image source={{ uri: take.mediaUrl }} style={{ width: '100%', height: 200 }} contentFit="contain" />
+        </View>
+      )}
+
+      {take.linkPreview && <LinkPreviewCard preview={take.linkPreview} />}
 
       {gameTag ? (
         <View style={styles.gameTagRow}>
