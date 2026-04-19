@@ -74,6 +74,8 @@
       "@react-native-firebase/app",
       "@react-native-firebase/messaging",
       "./plugins/withFirebaseNonModularHeaders",
+      "./plugins/withSwiftConcurrencyMinimal",
+      "./plugins/withRealpathFix",
       "expo-image",
       "expo-web-browser"
     ],

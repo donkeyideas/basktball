@@ -31,16 +31,41 @@ defaults:
 jobs:
   build:
     name: Build iOS ${{ github.event.inputs.profile }}
-    # Expo SDK 55 / expo-modules-core uses Swift 6.2 syntax (e.g.
-    # `extension UIView: @MainActor AnyArgument`) which only Xcode 26
-    # (Swift 6.2) can parse. macos-15 only ships Xcode 16.x (Swift 6.0)
-    # which fails compilation with `unknown attribute 'MainActor'`.
-    runs-on: macos-26
+    # Use macos-15 with stable Xcode 16.x (App Store approved).
+    # Custom plugins (withSwiftConcurrencyMinimal, withRealpathFix)
+    # handle Expo SDK 55 compatibility with Xcode 16.x.
+    runs-on: macos-15
     timeout-minutes: 90
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: List available Xcode versions
+        run: ls -d /Applications/Xcode*.app 2>/dev/null || true
+
+      - name: Select best available Xcode
+        # Prefer Xcode 26 GM if available, otherwise use the default
+        # stable Xcode on macos-15 (16.x). Custom config plugins ensure
+        # Expo SDK 55 builds correctly on either version.
+        run: |
+          for ver in 26.3 26.2 26.1.1 26.1 26.0.1 26.0; do
+            if [ -d "/Applications/Xcode_${ver}.app" ]; then
+              echo "Using Xcode ${ver}"
+              sudo xcode-select -s "/Applications/Xcode_${ver}.app/Contents/Developer"
+              break
+            fi
+          done
+          xcodebuild -version
+          swift --version
+
+      - name: Resolve TMPDIR symlink
+        # Fix /var vs /private/var mismatch for EAS local builds
+        run: |
+          REAL_TMPDIR=$(python3 -c "import os, tempfile; print(os.path.realpath(tempfile.gettempdir()))")
+          echo "TMPDIR=$REAL_TMPDIR" >> $GITHUB_ENV
+          echo "Resolved TMPDIR: $REAL_TMPDIR"
+        working-directory: .
 
       - name: Set up Node 20
         uses: actions/setup-node@v4
@@ -48,31 +73,6 @@ jobs:
           node-version: 20
           cache: npm
           cache-dependency-path: basktball-mobile/package-lock.json
-
-      - name: Pin Xcode 26
-        # Pick the highest installed Xcode 26.x and make it the active toolchain.
-        run: |
-          XCODE_PATH=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -n 1)
-          if [ -z "$XCODE_PATH" ]; then
-            echo "::error::No Xcode 26.x found on runner"
-            ls /Applications | grep -i xcode || true
-            exit 1
-          fi
-          echo "Using $XCODE_PATH"
-          sudo xcode-select -s "$XCODE_PATH/Contents/Developer"
-          xcodebuild -version
-
-      - name: Install iOS platform
-        # Xcode 26 beta on macos-26 runners may not have the matching iOS
-        # platform pre-installed. Always run downloadPlatform to ensure the
-        # correct version is available (it's a no-op if already installed).
-        run: |
-          echo "Available SDKs before download:"
-          xcodebuild -showsdks 2>/dev/null | grep -i iphone || echo "  (none)"
-          echo "Downloading iOS platform for active Xcode..."
-          xcodebuild -downloadPlatform iOS
-          echo "Available SDKs after download:"
-          xcodebuild -showsdks | grep -i iphone
 
       - name: Install npm dependencies
         run: npm ci
