@@ -73,11 +73,11 @@ export default function PredictorScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 8, borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={10}>
-          <Ionicons name="arrow-back" size={24} color={Colors.white} />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>GAME PREDICTOR</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>GAME PREDICTOR</Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -87,10 +87,10 @@ export default function PredictorScreen() {
           {LEAGUES.map((l) => (
             <TouchableOpacity
               key={l.key}
-              style={[styles.leagueChip, league === l.key && styles.leagueChipActive]}
+              style={[styles.leagueChip, { backgroundColor: colors.surface, borderColor: colors.border }, league === l.key && styles.leagueChipActive]}
               onPress={() => setLeague(l.key)}
             >
-              <Text style={[styles.leagueText, league === l.key && styles.leagueTextActive]}>{l.label}</Text>
+              <Text style={[styles.leagueText, { color: colors.textSecondary }, league === l.key && styles.leagueTextActive]}>{l.label}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -101,34 +101,34 @@ export default function PredictorScreen() {
           <>
             {/* Team Selectors */}
             <View style={styles.matchup}>
-              <TouchableOpacity style={styles.teamBox} onPress={() => { setShowAwayPicker(!showAwayPicker); setShowHomePicker(false); }}>
+              <TouchableOpacity style={[styles.teamBox, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => { setShowAwayPicker(!showAwayPicker); setShowHomePicker(false); }}>
                 {awayTeam ? (
                   <>
                     <Image source={{ uri: getLogoUri(awayTeam) }} style={styles.logo} />
-                    <Text style={styles.teamName}>{awayTeam.abbreviation}</Text>
-                    <Text style={styles.teamRole}>AWAY</Text>
+                    <Text style={[styles.teamName, { color: colors.text }]}>{awayTeam.abbreviation}</Text>
+                    <Text style={[styles.teamRole, { color: colors.textTertiary }]}>AWAY</Text>
                   </>
                 ) : (
                   <>
-                    <Ionicons name="basketball-outline" size={32} color={Colors.textTertiary} />
-                    <Text style={styles.teamPlaceholder}>Select Away</Text>
+                    <Ionicons name="basketball-outline" size={32} color={colors.textTertiary} />
+                    <Text style={[styles.teamPlaceholder, { color: colors.textTertiary }]}>Select Away</Text>
                   </>
                 )}
               </TouchableOpacity>
 
-              <Text style={styles.atText}>@</Text>
+              <Text style={[styles.atText, { color: colors.textTertiary }]}>@</Text>
 
-              <TouchableOpacity style={styles.teamBox} onPress={() => { setShowHomePicker(!showHomePicker); setShowAwayPicker(false); }}>
+              <TouchableOpacity style={[styles.teamBox, { backgroundColor: colors.surface, borderColor: colors.border }]} onPress={() => { setShowHomePicker(!showHomePicker); setShowAwayPicker(false); }}>
                 {homeTeam ? (
                   <>
                     <Image source={{ uri: getLogoUri(homeTeam) }} style={styles.logo} />
-                    <Text style={styles.teamName}>{homeTeam.abbreviation}</Text>
-                    <Text style={styles.teamRole}>HOME</Text>
+                    <Text style={[styles.teamName, { color: colors.text }]}>{homeTeam.abbreviation}</Text>
+                    <Text style={[styles.teamRole, { color: colors.textTertiary }]}>HOME</Text>
                   </>
                 ) : (
                   <>
-                    <Ionicons name="basketball-outline" size={32} color={Colors.textTertiary} />
-                    <Text style={styles.teamPlaceholder}>Select Home</Text>
+                    <Ionicons name="basketball-outline" size={32} color={colors.textTertiary} />
+                    <Text style={[styles.teamPlaceholder, { color: colors.textTertiary }]}>Select Home</Text>
                   </>
                 )}
               </TouchableOpacity>
@@ -136,11 +136,11 @@ export default function PredictorScreen() {
 
             {/* Pickers */}
             {(showHomePicker || showAwayPicker) && (
-              <ScrollView style={styles.pickerList} nestedScrollEnabled>
+              <ScrollView style={[styles.pickerList, { backgroundColor: colors.surface, borderColor: colors.border }]} nestedScrollEnabled>
                 {teams.map((t) => (
                   <TouchableOpacity
                     key={t.id}
-                    style={styles.pickerItem}
+                    style={[styles.pickerItem, { borderBottomColor: colors.border }]}
                     onPress={() => {
                       if (showHomePicker) { setHomeTeam(t); setShowHomePicker(false); }
                       else { setAwayTeam(t); setShowAwayPicker(false); }
@@ -148,7 +148,7 @@ export default function PredictorScreen() {
                     }}
                   >
                     <Image source={{ uri: getLogoUri(t) }} style={styles.pickerLogo} />
-                    <Text style={styles.pickerName}>{t.name}</Text>
+                    <Text style={[styles.pickerName, { color: colors.text }]}>{t.name}</Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
@@ -175,30 +175,30 @@ export default function PredictorScreen() {
                   <View style={[styles.probFillHome, { flex: prediction.homeWinProb ?? 50 }]} />
                 </View>
                 <View style={styles.probLabels}>
-                  <Text style={styles.probPct}>{Math.round(prediction.awayWinProb ?? 0)}%</Text>
-                  <Text style={styles.probPct}>{Math.round(prediction.homeWinProb ?? 0)}%</Text>
+                  <Text style={[styles.probPct, { color: colors.text }]}>{Math.round(prediction.awayWinProb ?? 0)}%</Text>
+                  <Text style={[styles.probPct, { color: colors.text }]}>{Math.round(prediction.homeWinProb ?? 0)}%</Text>
                 </View>
 
                 {/* Stats Grid */}
                 <View style={styles.statsGrid}>
-                  <View style={styles.statCard}>
-                    <Text style={styles.statCardLabel}>PREDICTED SCORE</Text>
-                    <Text style={styles.statCardVal}>
+                  <View style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    <Text style={[styles.statCardLabel, { color: colors.textTertiary }]}>PREDICTED SCORE</Text>
+                    <Text style={[styles.statCardVal, { color: colors.text }]}>
                       {prediction.predictedAwayScore ?? 0} - {prediction.predictedHomeScore ?? 0}
                     </Text>
                   </View>
-                  <View style={styles.statCard}>
-                    <Text style={styles.statCardLabel}>SPREAD</Text>
-                    <Text style={styles.statCardVal}>
+                  <View style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    <Text style={[styles.statCardLabel, { color: colors.textTertiary }]}>SPREAD</Text>
+                    <Text style={[styles.statCardVal, { color: colors.text }]}>
                       {(prediction.spread ?? 0) > 0 ? '+' : ''}{(prediction.spread ?? 0).toFixed(1)}
                     </Text>
                   </View>
-                  <View style={styles.statCard}>
-                    <Text style={styles.statCardLabel}>TOTAL</Text>
-                    <Text style={styles.statCardVal}>{(prediction.total ?? 0).toFixed(1)}</Text>
+                  <View style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    <Text style={[styles.statCardLabel, { color: colors.textTertiary }]}>TOTAL</Text>
+                    <Text style={[styles.statCardVal, { color: colors.text }]}>{(prediction.total ?? 0).toFixed(1)}</Text>
                   </View>
-                  <View style={styles.statCard}>
-                    <Text style={styles.statCardLabel}>CONFIDENCE</Text>
+                  <View style={[styles.statCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    <Text style={[styles.statCardLabel, { color: colors.textTertiary }]}>CONFIDENCE</Text>
                     <Text style={[
                       styles.statCardVal,
                       (prediction.confidence ?? 0) > 70 ? { color: Colors.green } :
@@ -214,10 +214,10 @@ export default function PredictorScreen() {
                   <>
                     <Text style={styles.resultSectionTitle}>KEY FACTORS</Text>
                     {prediction.factors.map((f, i) => (
-                      <View key={i} style={styles.factorRow}>
+                      <View key={i} style={[styles.factorRow, { borderBottomColor: colors.border }]}>
                         <View style={{ flex: 1 }}>
-                          <Text style={styles.factorName}>{f.name}</Text>
-                          <Text style={styles.factorDesc}>{f.description}</Text>
+                          <Text style={[styles.factorName, { color: colors.text }]}>{f.name}</Text>
+                          <Text style={[styles.factorDesc, { color: colors.textTertiary }]}>{f.description}</Text>
                         </View>
                         <Text style={[styles.factorImpact, (f.impact ?? 0) > 0 ? { color: Colors.green } : { color: Colors.red }]}>
                           {(f.impact ?? 0) > 0 ? '+' : ''}{(f.impact ?? 0).toFixed(1)}
@@ -227,7 +227,7 @@ export default function PredictorScreen() {
                   </>
                 )}
 
-                <Text style={styles.disclaimer}>For entertainment purposes only. Not betting advice.</Text>
+                <Text style={[styles.disclaimer, { color: colors.textTertiary }]}>For entertainment purposes only. Not betting advice.</Text>
               </View>
             )}
           </>

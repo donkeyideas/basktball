@@ -19,7 +19,7 @@ import { useAuth } from '@/lib/auth/AuthContext';
 
 // The menu replaces the bottom tab bar, so only show it on tab routes.
 // Detail/sub-screens already have their own back button for navigation.
-const TAB_ROUTES = ['/', '/scores', '/court', '/search', '/profile'];
+const TAB_ROUTES = ['/', '/scores', '/court', '/search', '/profile', '/features', '/tools'];
 
 function shouldShowOnRoute(pathname: string | null): boolean {
   if (!pathname) return false;

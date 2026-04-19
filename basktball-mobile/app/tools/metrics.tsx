@@ -54,11 +54,11 @@ export default function MetricsScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={0}
     >
-      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 8, borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={10}>
-          <Ionicons name="arrow-back" size={24} color={Colors.white} />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>ADVANCED METRICS</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>ADVANCED METRICS</Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -72,69 +72,69 @@ export default function MetricsScreen() {
           {METRICS.map((m) => (
             <TouchableOpacity
               key={m.key}
-              style={[styles.tab, selectedKey === m.key && styles.tabActive]}
+              style={[styles.tab, { backgroundColor: colors.surface, borderColor: colors.border }, selectedKey === m.key && styles.tabActive]}
               onPress={() => setSelectedKey(m.key)}
             >
-              <Text style={[styles.tabText, selectedKey === m.key && styles.tabTextActive]}>{m.name}</Text>
+              <Text style={[styles.tabText, { color: colors.textSecondary }, selectedKey === m.key && styles.tabTextActive]}>{m.name}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
 
         {/* Selected metric detail */}
-        <View style={styles.metricCard}>
+        <View style={[styles.metricCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           <Text style={styles.metricName}>{selected.name}</Text>
-          <Text style={styles.metricDesc}>{selected.description}</Text>
+          <Text style={[styles.metricDesc, { color: colors.textSecondary }]}>{selected.description}</Text>
 
-          <View style={styles.divider} />
-          <Text style={styles.sectionLabel}>FORMULA</Text>
-          <Text style={styles.formula}>{selected.formula}</Text>
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+          <Text style={[styles.sectionLabel, { color: colors.textTertiary }]}>FORMULA</Text>
+          <Text style={[styles.formula, { color: colors.text }]}>{selected.formula}</Text>
 
-          <View style={styles.divider} />
-          <Text style={styles.sectionLabel}>WHAT'S GOOD?</Text>
-          <Text style={styles.benchmark}>{selected.benchmark}</Text>
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+          <Text style={[styles.sectionLabel, { color: colors.textTertiary }]}>WHAT'S GOOD?</Text>
+          <Text style={[styles.benchmark, { color: colors.textSecondary }]}>{selected.benchmark}</Text>
         </View>
 
         {/* Quick Calculator */}
-        <View style={styles.calcCard}>
+        <View style={[styles.calcCard, { backgroundColor: colors.surface }]}>
           <Text style={styles.calcTitle}>QUICK CALCULATOR</Text>
-          <Text style={styles.calcSubtitle}>Calculate TS% and eFG% with your own numbers</Text>
+          <Text style={[styles.calcSubtitle, { color: colors.textTertiary }]}>Calculate TS% and eFG% with your own numbers</Text>
 
           <View style={styles.inputRow}>
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>PTS</Text>
-              <TextInput style={styles.calcInput} value={pts} onChangeText={setPts} keyboardType="numeric" placeholderTextColor={Colors.textTertiary} placeholder="0" onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)} />
+              <Text style={[styles.inputLabel, { color: colors.textTertiary }]}>PTS</Text>
+              <TextInput style={[styles.calcInput, { color: colors.text, borderColor: colors.border }]} value={pts} onChangeText={setPts} keyboardType="numeric" placeholderTextColor={colors.textTertiary} placeholder="0" onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)} />
             </View>
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>FGA</Text>
-              <TextInput style={styles.calcInput} value={fga} onChangeText={setFga} keyboardType="numeric" placeholderTextColor={Colors.textTertiary} placeholder="0" onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)} />
+              <Text style={[styles.inputLabel, { color: colors.textTertiary }]}>FGA</Text>
+              <TextInput style={[styles.calcInput, { color: colors.text, borderColor: colors.border }]} value={fga} onChangeText={setFga} keyboardType="numeric" placeholderTextColor={colors.textTertiary} placeholder="0" onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)} />
             </View>
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>FTA</Text>
-              <TextInput style={styles.calcInput} value={fta} onChangeText={setFta} keyboardType="numeric" placeholderTextColor={Colors.textTertiary} placeholder="0" onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)} />
+              <Text style={[styles.inputLabel, { color: colors.textTertiary }]}>FTA</Text>
+              <TextInput style={[styles.calcInput, { color: colors.text, borderColor: colors.border }]} value={fta} onChangeText={setFta} keyboardType="numeric" placeholderTextColor={colors.textTertiary} placeholder="0" onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)} />
             </View>
           </View>
           <View style={styles.inputRow}>
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>FTM</Text>
-              <TextInput style={styles.calcInput} value={ftm} onChangeText={setFtm} keyboardType="numeric" placeholderTextColor={Colors.textTertiary} placeholder="0" onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)} />
+              <Text style={[styles.inputLabel, { color: colors.textTertiary }]}>FTM</Text>
+              <TextInput style={[styles.calcInput, { color: colors.text, borderColor: colors.border }]} value={ftm} onChangeText={setFtm} keyboardType="numeric" placeholderTextColor={colors.textTertiary} placeholder="0" onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)} />
             </View>
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>3PM</Text>
-              <TextInput style={styles.calcInput} value={threes} onChangeText={setThrees} keyboardType="numeric" placeholderTextColor={Colors.textTertiary} placeholder="0" onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)} />
+              <Text style={[styles.inputLabel, { color: colors.textTertiary }]}>3PM</Text>
+              <TextInput style={[styles.calcInput, { color: colors.text, borderColor: colors.border }]} value={threes} onChangeText={setThrees} keyboardType="numeric" placeholderTextColor={colors.textTertiary} placeholder="0" onFocus={() => setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 300)} />
             </View>
             <View style={{ flex: 1 }} />
           </View>
 
           <View style={styles.resultRow}>
-            <View style={styles.resultBox}>
-              <Text style={styles.resultLabel}>TS%</Text>
-              <Text style={[styles.resultVal, tsResult && parseFloat(tsResult) > 0.55 ? styles.resultGood : null]}>
+            <View style={[styles.resultBox, { borderColor: colors.border }]}>
+              <Text style={[styles.resultLabel, { color: colors.textTertiary }]}>TS%</Text>
+              <Text style={[styles.resultVal, { color: colors.text }, tsResult && parseFloat(tsResult) > 0.55 ? styles.resultGood : null]}>
                 {tsResult ? `${(parseFloat(tsResult) * 100).toFixed(1)}%` : '—'}
               </Text>
             </View>
-            <View style={styles.resultBox}>
-              <Text style={styles.resultLabel}>eFG%</Text>
-              <Text style={[styles.resultVal, efgResult && parseFloat(efgResult) > 0.50 ? styles.resultGood : null]}>
+            <View style={[styles.resultBox, { borderColor: colors.border }]}>
+              <Text style={[styles.resultLabel, { color: colors.textTertiary }]}>eFG%</Text>
+              <Text style={[styles.resultVal, { color: colors.text }, efgResult && parseFloat(efgResult) > 0.50 ? styles.resultGood : null]}>
                 {efgResult ? `${(parseFloat(efgResult) * 100).toFixed(1)}%` : '—'}
               </Text>
             </View>

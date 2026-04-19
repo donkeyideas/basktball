@@ -41,80 +41,81 @@ export default function FeatureGuideScreen() {
   }), [screenWidth]);
 
   function renderVariantHeader(guide: FeatureGuide) {
+    const cardBase = { backgroundColor: colors.surface, borderColor: colors.border };
     switch (guide.variant) {
       case 'court':
         return (
-          <View style={styles.headerCardCourt}>
-            <Text style={styles.cardTitle}>{guide.title}</Text>
-            <Text style={styles.cardDesc}>{guide.description}</Text>
+          <View style={[styles.headerCardCourt, cardBase]}>
+            <Text style={[styles.cardTitle, { color: colors.text }]}>{guide.title}</Text>
+            <Text style={[styles.cardDesc, { color: colors.textSecondary }]}>{guide.description}</Text>
           </View>
         );
       case 'fire':
         return (
-          <View style={styles.headerCardFire}>
+          <View style={[styles.headerCardFire, cardBase]}>
             <View style={styles.fireHeader}>
               <Text style={styles.fireLabel}>FEATURE</Text>
               <Text style={styles.fireTitle}>{guide.title}</Text>
             </View>
             <View style={styles.cardBody}>
-              <Text style={styles.cardDesc}>{guide.description}</Text>
+              <Text style={[styles.cardDesc, { color: colors.textSecondary }]}>{guide.description}</Text>
             </View>
           </View>
         );
       case 'challenge':
         return (
-          <View style={styles.headerCardChallenge}>
+          <View style={[styles.headerCardChallenge, { backgroundColor: colors.surface }]}>
             <View style={styles.challengeHeader}>
               <Text style={styles.challengeLabel}>HEAD-TO-HEAD</Text>
             </View>
             <View style={styles.cardBody}>
               <Text style={[styles.cardTitle, { color: Colors.courtWood }]}>{guide.title}</Text>
-              <Text style={styles.cardDesc}>{guide.description}</Text>
+              <Text style={[styles.cardDesc, { color: colors.textSecondary }]}>{guide.description}</Text>
             </View>
           </View>
         );
       case 'poll':
         return (
-          <View style={styles.headerCardPoll}>
+          <View style={[styles.headerCardPoll, { backgroundColor: colors.surface }]}>
             <View style={styles.pollHeader}>
               <Text style={styles.pollLabel}>{guide.title}</Text>
               <Text style={styles.pollTag}>VOTE</Text>
             </View>
             <View style={styles.cardBody}>
-              <Text style={styles.cardDesc}>{guide.description}</Text>
+              <Text style={[styles.cardDesc, { color: colors.textSecondary }]}>{guide.description}</Text>
             </View>
           </View>
         );
       case 'score':
         return (
-          <View style={styles.headerCardScore}>
-            <View style={styles.scoreHeader}>
+          <View style={[styles.headerCardScore, cardBase]}>
+            <View style={[styles.scoreHeader, { backgroundColor: colors.surfaceAlt, borderBottomColor: colors.border }]}>
               <Text style={styles.scoreTitle}>{guide.title}</Text>
             </View>
             <View style={styles.cardBody}>
-              <Text style={styles.cardDesc}>{guide.description}</Text>
+              <Text style={[styles.cardDesc, { color: colors.textSecondary }]}>{guide.description}</Text>
             </View>
           </View>
         );
       case 'tool':
         return (
-          <View style={styles.headerCardTool}>
+          <View style={[styles.headerCardTool, { backgroundColor: colors.surface }]}>
             <View style={styles.toolHeader}>
               <Ionicons name="build-outline" size={14} color={Colors.courtWood} />
               <Text style={styles.toolLabel}>TOOL</Text>
             </View>
             <View style={styles.cardBody}>
-              <Text style={styles.cardTitle}>{guide.title}</Text>
-              <Text style={styles.cardDesc}>{guide.description}</Text>
+              <Text style={[styles.cardTitle, { color: colors.text }]}>{guide.title}</Text>
+              <Text style={[styles.cardDesc, { color: colors.textSecondary }]}>{guide.description}</Text>
             </View>
           </View>
         );
       case 'standard':
       default:
         return (
-          <View style={styles.headerCardStandard}>
-            <Text style={styles.cardTitle}>{guide.title}</Text>
-            <Text style={styles.cardDesc}>{guide.description}</Text>
+          <View style={[styles.headerCardStandard, cardBase]}>
+            <Text style={[styles.cardTitle, { color: colors.text }]}>{guide.title}</Text>
+            <Text style={[styles.cardDesc, { color: colors.textSecondary }]}>{guide.description}</Text>
           </View>
         );
     }
@@ -131,35 +132,35 @@ export default function FeatureGuideScreen() {
           {renderVariantHeader(guide)}
 
           {/* Title + tagline */}
-          <Text style={styles.featureTitle}>{guide.title}</Text>
-          <Text style={styles.tagline}>{guide.tagline}</Text>
+          <Text style={[styles.featureTitle, { color: colors.text }]}>{guide.title}</Text>
+          <Text style={[styles.tagline, { color: colors.textSecondary }]}>{guide.tagline}</Text>
 
           {/* How It Works */}
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
           <Text style={styles.sectionTitle}>HOW IT WORKS</Text>
           {guide.howItWorks.map((step, i) => (
             <View key={i} style={styles.stepRow}>
               <Text style={styles.stepNumber}>{i + 1}.</Text>
-              <Text style={styles.stepText}>{step}</Text>
+              <Text style={[styles.stepText, { color: colors.text }]}>{step}</Text>
             </View>
           ))}
 
           {/* Highlights */}
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
           <Text style={styles.sectionTitle}>HIGHLIGHTS</Text>
           {guide.highlights.map((item, i) => (
             <View key={i} style={styles.highlightRow}>
               <Ionicons name="checkmark-circle" size={16} color={Colors.orange} style={{ marginTop: 2 }} />
-              <Text style={styles.highlightText}>{item}</Text>
+              <Text style={[styles.highlightText, { color: colors.text }]}>{item}</Text>
             </View>
           ))}
 
           {/* Example */}
-          <View style={styles.divider} />
-          <View style={styles.exampleCard}>
-            <Text style={styles.exampleLabel}>EXAMPLE</Text>
-            <Text style={styles.exampleTitle}>{guide.exampleTitle}</Text>
-            <Text style={styles.exampleContent}>{guide.exampleContent}</Text>
+          <View style={[styles.divider, { backgroundColor: colors.border }]} />
+          <View style={[styles.exampleCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <Text style={[styles.exampleLabel, { color: colors.textTertiary }]}>EXAMPLE</Text>
+            <Text style={[styles.exampleTitle, { color: colors.text }]}>{guide.exampleTitle}</Text>
+            <Text style={[styles.exampleContent, { color: colors.textSecondary }]}>{guide.exampleContent}</Text>
           </View>
 
           {/* CTA Button */}
@@ -172,13 +173,13 @@ export default function FeatureGuideScreen() {
 
           {/* Swipe hint */}
           {!isLast && !isFirst && (
-            <Text style={styles.swipeHint}>SWIPE FOR MORE</Text>
+            <Text style={[styles.swipeHint, { color: colors.textTertiary }]}>SWIPE FOR MORE</Text>
           )}
           {isFirst && FEATURE_GUIDES.length > 1 && (
-            <Text style={styles.swipeHint}>SWIPE LEFT FOR NEXT</Text>
+            <Text style={[styles.swipeHint, { color: colors.textTertiary }]}>SWIPE LEFT FOR NEXT</Text>
           )}
           {isLast && FEATURE_GUIDES.length > 1 && (
-            <Text style={styles.swipeHint}>SWIPE RIGHT FOR PREVIOUS</Text>
+            <Text style={[styles.swipeHint, { color: colors.textTertiary }]}>SWIPE RIGHT FOR PREVIOUS</Text>
           )}
         </ScrollView>
       </View>
@@ -188,12 +189,12 @@ export default function FeatureGuideScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 8, borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={10}>
-          <Ionicons name="arrow-back" size={24} color={Colors.white} />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>FEATURES</Text>
-        <Text style={styles.pageIndicator}>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>FEATURES</Text>
+        <Text style={[styles.pageIndicator, { color: colors.textTertiary }]}>
           {currentIndex + 1} / {FEATURE_GUIDES.length}
         </Text>
       </View>

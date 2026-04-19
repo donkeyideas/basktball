@@ -95,11 +95,11 @@ export default function FantasyScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 8, borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={10}>
-          <Ionicons name="arrow-back" size={24} color={Colors.white} />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>FANTASY OPTIMIZER</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>FANTASY OPTIMIZER</Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -110,7 +110,7 @@ export default function FantasyScreen() {
             <View style={[styles.capFill, { width: `${Math.min((usedSalary / SALARY_CAP) * 100, 100)}%` }, usedSalary > SALARY_CAP && { backgroundColor: Colors.red }]} />
           </View>
           <View style={styles.capLabels}>
-            <Text style={styles.capText}>${usedSalary.toLocaleString()} / ${SALARY_CAP.toLocaleString()}</Text>
+            <Text style={[styles.capText, { color: colors.textSecondary }]}>${usedSalary.toLocaleString()} / ${SALARY_CAP.toLocaleString()}</Text>
             <View style={styles.projBox}>
               <Text style={styles.projLabel}>PROJ</Text>
               <Text style={styles.projVal}>{projectedPts.toFixed(1)}</Text>
@@ -123,20 +123,20 @@ export default function FantasyScreen() {
           {POSITIONS.map((pos) => {
             const p = lineup[pos];
             return (
-              <View key={pos} style={styles.slotRow}>
+              <View key={pos} style={[styles.slotRow, { borderBottomColor: colors.border }]}>
                 <Text style={styles.slotPos}>{pos}</Text>
                 {p ? (
                   <View style={styles.slotFilled}>
                     <View style={{ flex: 1 }}>
-                      <Text style={styles.slotName}>{p.name}</Text>
-                      <Text style={styles.slotMeta}>{p.team} · ${p.salary.toLocaleString()} · {p.projectedPts.toFixed(1)} pts</Text>
+                      <Text style={[styles.slotName, { color: colors.text }]}>{p.name}</Text>
+                      <Text style={[styles.slotMeta, { color: colors.textTertiary }]}>{p.team} · ${p.salary.toLocaleString()} · {p.projectedPts.toFixed(1)} pts</Text>
                     </View>
                     <TouchableOpacity onPress={() => removePlayer(pos)}>
-                      <Ionicons name="close-circle" size={20} color={Colors.textTertiary} />
+                      <Ionicons name="close-circle" size={20} color={colors.textTertiary} />
                     </TouchableOpacity>
                   </View>
                 ) : (
-                  <Text style={styles.slotEmpty}>Empty</Text>
+                  <Text style={[styles.slotEmpty, { color: colors.textTertiary }]}>Empty</Text>
                 )}
               </View>
             );
@@ -149,8 +149,8 @@ export default function FantasyScreen() {
             <Ionicons name="flash" size={16} color={Colors.white} />
             <Text style={styles.optimizeBtnText}>AUTO-OPTIMIZE</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.clearBtn} onPress={clearLineup}>
-            <Text style={styles.clearBtnText}>CLEAR</Text>
+          <TouchableOpacity style={[styles.clearBtn, { borderColor: colors.border }]} onPress={clearLineup}>
+            <Text style={[styles.clearBtnText, { color: colors.textSecondary }]}>CLEAR</Text>
           </TouchableOpacity>
         </View>
 
@@ -159,15 +159,15 @@ export default function FantasyScreen() {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {['ALL', ...POSITIONS].map((p) => (
               <TouchableOpacity
-                key={p} style={[styles.filterChip, posFilter === p && styles.filterChipActive]}
+                key={p} style={[styles.filterChip, { backgroundColor: colors.surface, borderColor: colors.border }, posFilter === p && styles.filterChipActive]}
                 onPress={() => setPosFilter(p)}
               >
-                <Text style={[styles.filterChipText, posFilter === p && styles.filterChipTextActive]}>{p}</Text>
+                <Text style={[styles.filterChipText, { color: colors.textSecondary }, posFilter === p && styles.filterChipTextActive]}>{p}</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
           <View style={styles.healthRow}>
-            <Text style={styles.healthLabel}>Healthy only</Text>
+            <Text style={[styles.healthLabel, { color: colors.textSecondary }]}>Healthy only</Text>
             <Switch value={healthyOnly} onValueChange={setHealthyOnly} trackColor={{ true: Colors.orange }} thumbColor={Colors.white} />
           </View>
         </View>
@@ -175,24 +175,24 @@ export default function FantasyScreen() {
         {/* Sort */}
         <View style={styles.sortRow}>
           {([['value', 'Value'], ['projectedPts', 'Proj'], ['salary', 'Salary']] as const).map(([key, label]) => (
-            <TouchableOpacity key={key} style={[styles.sortChip, sortBy === key && styles.sortChipActive]} onPress={() => setSortBy(key)}>
-              <Text style={[styles.sortChipText, sortBy === key && styles.sortChipTextActive]}>{label}</Text>
+            <TouchableOpacity key={key} style={[styles.sortChip, { borderColor: colors.border }, sortBy === key && styles.sortChipActive]} onPress={() => setSortBy(key)}>
+              <Text style={[styles.sortChipText, { color: colors.textSecondary }, sortBy === key && styles.sortChipTextActive]}>{label}</Text>
             </TouchableOpacity>
           ))}
         </View>
 
         {/* Player Pool */}
         {filteredPlayers.slice(0, 30).map((p) => (
-          <View key={p.id} style={styles.playerRow}>
+          <View key={p.id} style={[styles.playerRow, { borderBottomColor: colors.border }]}>
             <View style={{ flex: 1 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Text style={styles.pName}>{p.name}</Text>
+                <Text style={[styles.pName, { color: colors.text }]}>{p.name}</Text>
                 <View style={[styles.statusDot, { backgroundColor: statusColor(p.status) }]} />
               </View>
-              <Text style={styles.pMeta}>{p.position} · {p.team} · ${p.salary.toLocaleString()}</Text>
+              <Text style={[styles.pMeta, { color: colors.textTertiary }]}>{p.position} · {p.team} · ${p.salary.toLocaleString()}</Text>
             </View>
             <View style={styles.pStats}>
-              <Text style={styles.pProj}>{p.projectedPts.toFixed(1)}</Text>
+              <Text style={[styles.pProj, { color: colors.text }]}>{p.projectedPts.toFixed(1)}</Text>
               <Text style={styles.pVal}>{p.value.toFixed(1)}x</Text>
             </View>
             <TouchableOpacity

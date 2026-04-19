@@ -55,11 +55,11 @@ export default function DraftScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 8, borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={10}>
-          <Ionicons name="arrow-back" size={24} color={Colors.white} />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>DRAFT ANALYZER</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>DRAFT ANALYZER</Text>
         <View style={{ width: 24 }} />
       </View>
 
@@ -68,9 +68,9 @@ export default function DraftScreen() {
 
         {/* Search */}
         <TextInput
-          style={styles.searchInput}
+          style={[styles.searchInput, { color: colors.text, backgroundColor: colors.surface, borderColor: colors.border }]}
           placeholder="Search prospects..."
-          placeholderTextColor={Colors.textTertiary}
+          placeholderTextColor={colors.textTertiary}
           value={search}
           onChangeText={setSearch}
         />
@@ -80,10 +80,10 @@ export default function DraftScreen() {
           {POSITIONS.map((p) => (
             <TouchableOpacity
               key={p}
-              style={[styles.filterChip, posFilter === p && styles.filterChipActive]}
+              style={[styles.filterChip, { backgroundColor: colors.surface, borderColor: colors.border }, posFilter === p && styles.filterChipActive]}
               onPress={() => setPosFilter(p)}
             >
-              <Text style={[styles.filterText, posFilter === p && styles.filterTextActive]}>{p}</Text>
+              <Text style={[styles.filterText, { color: colors.textSecondary }, posFilter === p && styles.filterTextActive]}>{p}</Text>
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -92,18 +92,18 @@ export default function DraftScreen() {
         {filtered.map((p) => (
           <TouchableOpacity
             key={p.rank}
-            style={[styles.prospectRow, selected?.rank === p.rank && styles.prospectRowActive]}
+            style={[styles.prospectRow, { borderBottomColor: colors.border }, selected?.rank === p.rank && styles.prospectRowActive]}
             onPress={() => setSelected(p)}
           >
-            <View style={[styles.rankBadge, p.rank <= 3 && styles.rankBadgeTop]}>
-              <Text style={[styles.rankText, p.rank <= 3 && styles.rankTextTop]}>{p.rank}</Text>
+            <View style={[styles.rankBadge, { backgroundColor: colors.surface, borderColor: colors.border }, p.rank <= 3 && styles.rankBadgeTop]}>
+              <Text style={[styles.rankText, { color: colors.textSecondary }, p.rank <= 3 && styles.rankTextTop]}>{p.rank}</Text>
             </View>
-            <View style={[styles.prospectHeadshot, styles.initialsCircle]}>
-              <Text style={styles.initials}>{p.name.charAt(0)}</Text>
+            <View style={[styles.prospectHeadshot, styles.initialsCircle, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+              <Text style={[styles.initials, { color: colors.text }]}>{p.name.charAt(0)}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.prospectName}>{p.name}</Text>
-              <Text style={styles.prospectMeta}>{p.position} · {p.school}</Text>
+              <Text style={[styles.prospectName, { color: colors.text }]}>{p.name}</Text>
+              <Text style={[styles.prospectMeta, { color: colors.textTertiary }]}>{p.position} · {p.school}</Text>
             </View>
             <Text style={styles.projPick}>#{p.projectedPick}</Text>
           </TouchableOpacity>
@@ -111,17 +111,17 @@ export default function DraftScreen() {
 
         {/* Selected Prospect Detail */}
         {selected && (
-          <View style={styles.detailCard}>
+          <View style={[styles.detailCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <View style={styles.detailHeader}>
-              <View style={[styles.detailHeadshot, styles.initialsCircle]}>
-                <Text style={[styles.initials, { fontSize: 28 }]}>{selected.name.charAt(0)}</Text>
+              <View style={[styles.detailHeadshot, styles.initialsCircle, { backgroundColor: colors.surfaceAlt, borderColor: colors.border }]}>
+                <Text style={[styles.initials, { fontSize: 28, color: colors.text }]}>{selected.name.charAt(0)}</Text>
               </View>
               <View style={{ flex: 1 }}>
-                <View style={[styles.rankBadge, selected.rank <= 3 && styles.rankBadgeTop, { alignSelf: 'flex-start', marginBottom: 4 }]}>
-                  <Text style={[styles.rankText, selected.rank <= 3 && styles.rankTextTop]}>#{selected.rank}</Text>
+                <View style={[styles.rankBadge, { backgroundColor: colors.surface, borderColor: colors.border }, selected.rank <= 3 && styles.rankBadgeTop, { alignSelf: 'flex-start', marginBottom: 4 }]}>
+                  <Text style={[styles.rankText, { color: colors.textSecondary }, selected.rank <= 3 && styles.rankTextTop]}>#{selected.rank}</Text>
                 </View>
-                <Text style={styles.detailName}>{selected.name}</Text>
-                <Text style={styles.detailSchool}>{selected.position} · {selected.school}</Text>
+                <Text style={[styles.detailName, { color: colors.text }]}>{selected.name}</Text>
+                <Text style={[styles.detailSchool, { color: colors.textSecondary }]}>{selected.position} · {selected.school}</Text>
               </View>
             </View>
 
@@ -133,9 +133,9 @@ export default function DraftScreen() {
                 { label: 'AGE', value: `${selected.age}` },
                 { label: 'PROJECTED', value: `#${selected.projectedPick}` },
               ].map((item) => (
-                <View key={item.label} style={styles.physBox}>
-                  <Text style={styles.physLabel}>{item.label}</Text>
-                  <Text style={styles.physValue}>{item.value}</Text>
+                <View key={item.label} style={[styles.physBox, { borderColor: colors.border }]}>
+                  <Text style={[styles.physLabel, { color: colors.textTertiary }]}>{item.label}</Text>
+                  <Text style={[styles.physValue, { color: colors.text }]}>{item.value}</Text>
                 </View>
               ))}
             </View>
@@ -151,9 +151,9 @@ export default function DraftScreen() {
                 { label: '3P%', value: `${((selected.threePct ?? 0) * 100).toFixed(1)}` },
                 { label: 'FT%', value: `${((selected.ftPct ?? 0) * 100).toFixed(1)}` },
               ].map((s) => (
-                <View key={s.label} style={styles.statBox}>
-                  <Text style={styles.statLabel}>{s.label}</Text>
-                  <Text style={styles.statValue}>{s.value}</Text>
+                <View key={s.label} style={[styles.statBox, { borderColor: colors.border }]}>
+                  <Text style={[styles.statLabel, { color: colors.textTertiary }]}>{s.label}</Text>
+                  <Text style={[styles.statValue, { color: colors.text }]}>{s.value}</Text>
                 </View>
               ))}
             </View>
@@ -162,20 +162,20 @@ export default function DraftScreen() {
             <Text style={styles.sectionLabel}>SCOUTING REPORT</Text>
             <View style={styles.scoutGrid}>
               <View style={styles.scoutCol}>
-                <Text style={styles.scoutHeading}>Strengths</Text>
+                <Text style={[styles.scoutHeading, { color: colors.textSecondary }]}>Strengths</Text>
                 {selected.strengths?.map((s, i) => (
                   <View key={i} style={styles.scoutRow}>
                     <Ionicons name="checkmark-circle" size={14} color={Colors.green} />
-                    <Text style={styles.scoutText}>{s}</Text>
+                    <Text style={[styles.scoutText, { color: colors.text }]}>{s}</Text>
                   </View>
                 ))}
               </View>
               <View style={styles.scoutCol}>
-                <Text style={styles.scoutHeading}>Improve</Text>
+                <Text style={[styles.scoutHeading, { color: colors.textSecondary }]}>Improve</Text>
                 {selected.weaknesses?.map((w, i) => (
                   <View key={i} style={styles.scoutRow}>
                     <Ionicons name="close-circle" size={14} color={Colors.red} />
-                    <Text style={styles.scoutText}>{w}</Text>
+                    <Text style={[styles.scoutText, { color: colors.text }]}>{w}</Text>
                   </View>
                 ))}
               </View>
@@ -184,7 +184,7 @@ export default function DraftScreen() {
             {/* Comparison */}
             {selected.comparison && (
               <View style={styles.compBox}>
-                <Text style={styles.compLabel}>NBA COMPARISON</Text>
+                <Text style={[styles.compLabel, { color: colors.textTertiary }]}>NBA COMPARISON</Text>
                 <Text style={styles.compValue}>{selected.comparison}</Text>
               </View>
             )}
