@@ -23,7 +23,10 @@
           "NSAllowsArbitraryLoads": true
         },
         "ITSAppUsesNonExemptEncryption": false,
-        "UIBackgroundModes": ["remote-notification", "fetch"]
+        "UIBackgroundModes": [
+          "remote-notification",
+          "fetch"
+        ]
       },
       "entitlements": {
         "aps-environment": "production"
@@ -70,7 +73,9 @@
       ],
       "@react-native-firebase/app",
       "@react-native-firebase/messaging",
-      "./plugins/withFirebaseNonModularHeaders"
+      "./plugins/withFirebaseNonModularHeaders",
+      "expo-image",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
