@@ -1,6 +1,7 @@
 import { memo, useEffect, useMemo, useState } from 'react';
 import {
   Linking,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -9,6 +10,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { WebView } from 'react-native-webview';
+import * as WebBrowser from 'expo-web-browser';
 import { Colors, Fonts } from '@/constants/Colors';
 
 interface OgData {
@@ -688,7 +690,15 @@ export const LinkPreview = memo(function LinkPreview({ content }: LinkPreviewPro
       style={styles.card}
       onPress={() => {
         if (videoEmbed) {
-          setPlaying(true);
+          // Instagram, TikTok, and Twitter embeds don't play in iOS WebView —
+          // open them in the in-app browser instead
+          const openInBrowser = Platform.OS === 'ios' &&
+            (videoEmbed.platform === 'instagram' || videoEmbed.platform === 'tiktok' || videoEmbed.platform === 'twitter');
+          if (openInBrowser) {
+            WebBrowser.openBrowserAsync(effectiveOgData.url);
+          } else {
+            setPlaying(true);
+          }
         } else {
           Linking.openURL(effectiveOgData.url);
         }

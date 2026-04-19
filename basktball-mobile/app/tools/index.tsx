@@ -47,18 +47,18 @@ export default function ToolsScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 8, borderBottomColor: colors.border }]}>
         <TouchableOpacity onPress={() => router.back()} hitSlop={10}>
-          <Ionicons name="arrow-back" size={24} color={Colors.white} />
+          <Ionicons name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>TOOLS</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>TOOLS</Text>
         <View style={{ width: 24 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.heroTitle}>POWERFUL TOOLS</Text>
+        <Text style={[styles.heroTitle, { color: colors.text }]}>POWERFUL TOOLS</Text>
         <View style={styles.heroLine} />
-        <Text style={styles.heroSubtitle}>
+        <Text style={[styles.heroSubtitle, { color: colors.textSecondary }]}>
           Free analytics tools for basketball fans. No signup required.
         </Text>
 
@@ -66,17 +66,17 @@ export default function ToolsScreen() {
           {TOOLS.map((tool) => (
             <Pressable
               key={tool.title}
-              style={styles.card}
+              style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}
               onPress={() => router.push(tool.route as never)}
             >
               <View style={styles.cardTop}>
                 <View style={styles.iconBox}>
-                  <Ionicons name={tool.icon} size={20} color={Colors.orange} />
+                  <Ionicons name={tool.icon} size={20} color={colors.orange} />
                 </View>
-                <Text style={styles.cardNumber}>{tool.number}</Text>
+                <Text style={[styles.cardNumber, { color: colors.textMuted }]}>{tool.number}</Text>
               </View>
-              <Text style={styles.cardTitle}>{tool.title}</Text>
-              <Text style={styles.cardDesc}>{tool.description}</Text>
+              <Text style={[styles.cardTitle, { color: colors.text }]}>{tool.title}</Text>
+              <Text style={[styles.cardDesc, { color: colors.textSecondary }]}>{tool.description}</Text>
               <View style={styles.tagRow}>
                 {tool.tags.map((tag) => (
                   <Text key={tag} style={styles.tag}>{tag}</Text>
@@ -99,12 +99,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
   },
   headerTitle: {
     fontFamily: Fonts.anton,
     fontSize: 20,
-    color: Colors.white,
     letterSpacing: 1.5,
   },
   scrollContent: {
@@ -114,7 +112,6 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontFamily: Fonts.anton,
     fontSize: 28,
-    color: Colors.white,
     textAlign: 'center',
     letterSpacing: 2,
     marginTop: 16,
@@ -130,7 +127,6 @@ const styles = StyleSheet.create({
   heroSubtitle: {
     fontFamily: Fonts.barlow,
     fontSize: 14,
-    color: Colors.textSecondary,
     textAlign: 'center',
     marginBottom: 24,
   },
@@ -138,11 +134,9 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   card: {
-    backgroundColor: Colors.darkGray,
     borderRadius: 10,
     padding: 16,
     borderWidth: 1,
-    borderColor: Colors.border,
   },
   cardTop: {
     flexDirection: 'row',
@@ -163,20 +157,17 @@ const styles = StyleSheet.create({
   cardNumber: {
     fontFamily: Fonts.anton,
     fontSize: 32,
-    color: 'rgba(255,255,255,0.06)',
     letterSpacing: 2,
   },
   cardTitle: {
     fontFamily: Fonts.barlowBold,
     fontWeight: '700',
     fontSize: 16,
-    color: Colors.textPrimary,
     marginBottom: 4,
   },
   cardDesc: {
     fontFamily: Fonts.barlow,
     fontSize: 13,
-    color: Colors.textSecondary,
     lineHeight: 18,
     marginBottom: 12,
   },
