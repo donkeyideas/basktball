@@ -8,6 +8,13 @@ type RequestOptions = {
   headers?: Record<string, string>;
 };
 
+// Callback for auto-logout on expired/invalid tokens
+let onAuthExpired: (() => void) | null = null;
+
+export function setOnAuthExpired(callback: () => void) {
+  onAuthExpired = callback;
+}
+
 async function getToken(): Promise<string | null> {
   try {
     return await SecureStore.getItemAsync('auth_token');
@@ -41,6 +48,12 @@ export async function apiClient<T = unknown>(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Request failed' }));
+
+    // Auto-logout on expired/invalid token (401 from authenticated requests)
+    if (response.status === 401 && token) {
+      onAuthExpired?.();
+    }
+
     throw new Error(error.message || `HTTP ${response.status}`);
   }
 

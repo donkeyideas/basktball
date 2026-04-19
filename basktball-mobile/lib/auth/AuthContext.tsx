@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import * as SecureStore from 'expo-secure-store';
+import { Alert } from 'react-native';
 import { api } from '../api/client';
+import { setOnAuthExpired } from '../api/client';
 
 type User = {
   id: string;
@@ -50,9 +52,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const isAdmin = user?.role === 'ADMIN' || user?.role === 'MODERATOR' || user?.role === 'EDITOR';
 
-  useEffect(() => {
-    loadStoredAuth();
+  // Auto-logout when server says token is expired/invalid
+  const handleAuthExpired = useCallback(() => {
+    SecureStore.deleteItemAsync('auth_token');
+    SecureStore.deleteItemAsync('auth_user');
+    setToken(null);
+    setUser(null);
+    Alert.alert('Session Expired', 'Please log in again.');
   }, []);
+
+  useEffect(() => {
+    setOnAuthExpired(handleAuthExpired);
+    loadStoredAuth();
+  }, [handleAuthExpired]);
 
   async function loadStoredAuth() {
     try {
