@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db/prisma";
-import { getTeamAnalytics } from "@/lib/api/live-stats";
+import { getTeamAnalytics, LiveTeamStats } from "@/lib/api/live-stats";
 import { deepseek } from "@/lib/ai";
+import { basketballApi } from "@/lib/api";
 
 interface Prediction {
   homeWinProb: number;
@@ -13,6 +14,29 @@ interface Prediction {
   confidence: number;
   factors: { name: string; impact: number; description: string }[];
   aiAnalysis?: string;
+}
+
+// Find a team in ESPN data by abbreviation or name (fuzzy match)
+function findEspnTeam(
+  espnTeams: LiveTeamStats[],
+  abbreviation: string,
+  name: string
+): LiveTeamStats | undefined {
+  // Try exact abbreviation match first
+  let match = espnTeams.find((t) => t.abbreviation === abbreviation);
+  if (match) return match;
+
+  // Try case-insensitive abbreviation
+  const abbrUpper = abbreviation.toUpperCase();
+  match = espnTeams.find((t) => t.abbreviation.toUpperCase() === abbrUpper);
+  if (match) return match;
+
+  // Try matching by team name (e.g., "Celtics" in "Boston Celtics")
+  const nameLower = name.toLowerCase();
+  match = espnTeams.find((t) => t.name.toLowerCase().includes(nameLower));
+  if (match) return match;
+
+  return undefined;
 }
 
 // POST - Generate prediction for a matchup using live ESPN data
@@ -28,11 +52,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get team data from DB (for names/abbreviations)
-    const [homeTeam, awayTeam] = await Promise.all([
+    // Get team data from DB, fall back to API if not in DB
+    const [dbHome, dbAway] = await Promise.all([
       prisma.team.findUnique({ where: { id: homeTeamId } }),
       prisma.team.findUnique({ where: { id: awayTeamId } }),
     ]);
+
+    // Build team info from DB or API fallback
+    let homeTeam: { id: string; name: string; abbreviation: string } | null =
+      dbHome ? { id: dbHome.id, name: dbHome.name, abbreviation: dbHome.abbreviation } : null;
+    let awayTeam: { id: string; name: string; abbreviation: string } | null =
+      dbAway ? { id: dbAway.id, name: dbAway.name, abbreviation: dbAway.abbreviation } : null;
+
+    if (!homeTeam || !awayTeam) {
+      const [apiHome, apiAway] = await Promise.all([
+        !homeTeam ? basketballApi.getTeam(homeTeamId) : null,
+        !awayTeam ? basketballApi.getTeam(awayTeamId) : null,
+      ]);
+      if (apiHome && !homeTeam) {
+        homeTeam = { id: apiHome.id, name: apiHome.name, abbreviation: apiHome.abbreviation };
+      }
+      if (apiAway && !awayTeam) {
+        awayTeam = { id: apiAway.id, name: apiAway.name, abbreviation: apiAway.abbreviation };
+      }
+    }
 
     if (!homeTeam || !awayTeam) {
       return NextResponse.json(
@@ -43,12 +86,8 @@ export async function POST(request: NextRequest) {
 
     // Fetch real team stats from ESPN
     const espnTeams = await getTeamAnalytics();
-    const espnHome = espnTeams.find(
-      (t) => t.abbreviation === homeTeam.abbreviation
-    );
-    const espnAway = espnTeams.find(
-      (t) => t.abbreviation === awayTeam.abbreviation
-    );
+    const espnHome = findEspnTeam(espnTeams, homeTeam.abbreviation, homeTeam.name);
+    const espnAway = findEspnTeam(espnTeams, awayTeam.abbreviation, awayTeam.name);
 
     // Use real data or sensible per-team fallbacks
     const homePpg = espnHome?.ppg || 110;

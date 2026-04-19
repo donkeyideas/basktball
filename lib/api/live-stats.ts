@@ -254,25 +254,48 @@ export async function getLeagueLeaders(
 // TEAM ANALYTICS (for Team Analytics tool)
 // ============================================================================
 
-interface EspnStandingsGroup {
-  standings?: { $ref: string };
-  children?: Array<{ standings?: { $ref: string } }>;
+// ESPN API uses non-standard abbreviations for some teams.
+// Normalize to the standard 3-letter codes used across the app.
+const ESPN_ABBR_MAP: Record<string, string> = {
+  GS: "GSW",
+  NO: "NOP",
+  NY: "NYK",
+  SA: "SAS",
+  UTAH: "UTA",
+  WSH: "WAS",
+};
+
+function normalizeAbbr(espnAbbr: string): string {
+  return ESPN_ABBR_MAP[espnAbbr] || espnAbbr;
 }
 
-interface EspnStandingsResponse {
-  entries: Array<{
+interface EspnCoreStandingsResponse {
+  standings: Array<{
     team: { $ref: string };
-    stats: Array<{
-      name: string;
-      displayName: string;
-      value: number;
+    records: Array<{
+      stats: Array<{ name: string; value: number }>;
+    }>;
+  }>;
+}
+
+interface EspnTeamsResponse {
+  sports: Array<{
+    leagues: Array<{
+      teams: Array<{
+        team: {
+          id: string;
+          displayName: string;
+          abbreviation: string;
+        };
+      }>;
     }>;
   }>;
 }
 
 /**
  * Fetch real team analytics from ESPN.
- * Uses ESPN site API for standings + basic team stats.
+ * Uses ESPN Core API for standings (works year-round, including offseason)
+ * and ESPN Site API for team names/abbreviations.
  * Cached for 1 hour.
  */
 export async function getTeamAnalytics(): Promise<LiveTeamStats[]> {
@@ -288,72 +311,88 @@ export async function getTeamAnalytics(): Promise<LiveTeamStats[]> {
   }
 
   try {
-    // Use ESPN site API for standings (more structured)
-    const standingsUrl = `${ESPN_SITE}/standings`;
-    const data = await fetchJson<{
-      children: Array<{
-        name: string;
-        standings: {
-          entries: Array<{
-            team: {
-              id: string;
-              displayName: string;
-              abbreviation: string;
-              name: string;
-            };
-            stats: Array<{
-              name: string;
-              value: number;
-              displayValue: string;
-            }>;
-          }>;
-        };
-      }>;
-    }>(standingsUrl);
+    const season = getEspnSeason();
 
-    if (!data?.children) {
-      return [];
+    // Fetch team ID→info map and both conference standings in parallel
+    const [teamsData, eastData, westData] = await Promise.all([
+      fetchJson<EspnTeamsResponse>(`${ESPN_SITE}/teams`),
+      fetchJson<EspnCoreStandingsResponse>(
+        `${ESPN_CORE}/seasons/${season}/types/2/groups/5/standings/0`
+      ),
+      fetchJson<EspnCoreStandingsResponse>(
+        `${ESPN_CORE}/seasons/${season}/types/2/groups/6/standings/0`
+      ),
+    ]);
+
+    // Build ESPN ID → team info map
+    const teamMap = new Map<string, { name: string; abbreviation: string }>();
+    if (teamsData?.sports) {
+      for (const sport of teamsData.sports) {
+        for (const league of sport.leagues) {
+          for (const t of league.teams) {
+            teamMap.set(t.team.id, {
+              name: t.team.displayName,
+              abbreviation: normalizeAbbr(t.team.abbreviation),
+            });
+          }
+        }
+      }
     }
 
     const teams: LiveTeamStats[] = [];
 
-    for (const conference of data.children) {
-      if (!conference.standings?.entries) continue;
+    // Process both conferences
+    const allStandings = [
+      ...(eastData?.standings || []),
+      ...(westData?.standings || []),
+    ];
 
-      for (const entry of conference.standings.entries) {
-        const getStat = (name: string): number => {
-          const stat = entry.stats.find((s) => s.name === name);
-          return stat?.value ?? 0;
-        };
+    for (const entry of allStandings) {
+      // Extract team ID from $ref URL
+      const refUrl = entry.team?.$ref || "";
+      const idMatch = refUrl.match(/\/teams\/(\d+)/);
+      if (!idMatch) continue;
+      const teamId = idMatch[1];
 
-        const wins = getStat("wins");
-        const losses = getStat("losses");
-        const ppg = getStat("pointsFor") / Math.max(wins + losses, 1);
-        const oppPpg = getStat("pointsAgainst") / Math.max(wins + losses, 1);
+      const teamInfo = teamMap.get(teamId);
+      if (!teamInfo) continue;
 
-        // Calculate ratings from available data
-        const avgPossessions = 100; // Approximation
-        const offRtg = ppg > 0 ? (ppg / avgPossessions) * 100 : 110;
-        const defRtg = oppPpg > 0 ? (oppPpg / avgPossessions) * 100 : 110;
+      // Get stats from the first record (overall standings)
+      const stats = entry.records?.[0]?.stats || [];
+      const getStat = (name: string): number => {
+        const s = stats.find((st) => st.name === name);
+        return s?.value ?? 0;
+      };
 
-        teams.push({
-          id: entry.team.id,
-          name: entry.team.displayName,
-          abbreviation: entry.team.abbreviation,
-          wins,
-          losses,
-          ppg: Math.round(ppg * 10) / 10 || 0,
-          oppPpg: Math.round(oppPpg * 10) / 10 || 0,
-          pace: Math.round((getStat("avgPointsFor") + getStat("avgPointsAgainst")) / 2 * 10) / 10 || 100,
-          offRtg: Math.round(offRtg * 10) / 10,
-          defRtg: Math.round(defRtg * 10) / 10,
-          netRtg: Math.round((offRtg - defRtg) * 10) / 10,
-          efgPct: 50, // Not directly available from standings
-          tovPct: 13, // Approximate league average
-          orbPct: 25, // Approximate league average
-          ftRate: 0.22, // Approximate league average
-        });
-      }
+      const wins = getStat("wins");
+      const losses = getStat("losses");
+      const ppg = getStat("avgPointsFor");
+      const oppPpg = getStat("avgPointsAgainst");
+      const gamesPlayed = wins + losses;
+
+      // Offensive/defensive ratings (points per 100 possessions, approximated)
+      const offRtg = ppg > 0 ? ppg : 110;
+      const defRtg = oppPpg > 0 ? oppPpg : 110;
+
+      teams.push({
+        id: teamId,
+        name: teamInfo.name,
+        abbreviation: teamInfo.abbreviation,
+        wins,
+        losses,
+        ppg: Math.round(ppg * 10) / 10 || 0,
+        oppPpg: Math.round(oppPpg * 10) / 10 || 0,
+        pace: gamesPlayed > 0
+          ? Math.round((ppg + oppPpg) / 2 * 10) / 10
+          : 100,
+        offRtg: Math.round(offRtg * 10) / 10,
+        defRtg: Math.round(defRtg * 10) / 10,
+        netRtg: Math.round((offRtg - defRtg) * 10) / 10,
+        efgPct: 50,
+        tovPct: 13,
+        orbPct: 25,
+        ftRate: 0.22,
+      });
     }
 
     // Sort by win percentage
