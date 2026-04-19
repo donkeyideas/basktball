@@ -19,6 +19,17 @@ type JWTPayload = {
   role: string;
 };
 
+type MobileUser = {
+  id: string;
+  email: string | null;
+  name: string | null;
+  displayName: string | null;
+  image: string | null;
+  avatarUrl: string | null;
+  role: string;
+  status: string | null;
+};
+
 function verifyTokenMultiSecret(token: string): JWTPayload | null {
   for (const secret of JWT_VERIFY_SECRETS) {
     try {
@@ -30,19 +41,33 @@ function verifyTokenMultiSecret(token: string): JWTPayload | null {
   return null;
 }
 
-export async function getMobileUser(request: Request) {
+// Detailed auth check with reason (used by requireMobileUser)
+async function authenticateMobileUser(
+  request: Request
+): Promise<{ user: MobileUser | null; reason: string }> {
   const authHeader = request.headers.get("Authorization");
   if (!authHeader?.startsWith("Bearer ")) {
-    return null;
+    return { user: null, reason: "no_token" };
   }
 
   try {
     const token = authHeader.slice(7);
-    const payload = verifyTokenMultiSecret(token);
+    if (!token || token.length < 10) {
+      return { user: null, reason: "empty_token" };
+    }
 
+    // Check if token is expired separately for better error messages
+    const decoded = jwt.decode(token) as (JWTPayload & { exp?: number }) | null;
+    if (!decoded) {
+      return { user: null, reason: "malformed_token" };
+    }
+    if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+      return { user: null, reason: "token_expired" };
+    }
+
+    const payload = verifyTokenMultiSecret(token);
     if (!payload) {
-      console.error("[mobile-auth] JWT verification failed against all secrets");
-      return null;
+      return { user: null, reason: "invalid_signature" };
     }
 
     const user = await prisma.user.findUnique({
@@ -59,21 +84,48 @@ export async function getMobileUser(request: Request) {
       },
     });
 
-    if (!user || user.status === "BANNED") {
-      return null;
+    if (!user) {
+      return { user: null, reason: "user_not_found" };
+    }
+    if (user.status === "BANNED") {
+      return { user: null, reason: "user_banned" };
     }
 
-    return user;
+    return { user, reason: "ok" };
   } catch (err) {
-    console.error("[mobile-auth] Auth error:", err instanceof Error ? err.message : err);
-    return null;
+    console.error(
+      "[mobile-auth] Auth error:",
+      err instanceof Error ? err.message : err
+    );
+    return { user: null, reason: "server_error" };
   }
 }
 
+// Returns user or null (backward-compatible, used by many routes)
+export async function getMobileUser(
+  request: Request
+): Promise<MobileUser | null> {
+  const { user } = await authenticateMobileUser(request);
+  return user;
+}
+
+const AUTH_ERROR_MESSAGES: Record<string, string> = {
+  no_token: "No authentication token provided. Please log in.",
+  empty_token: "Invalid authentication token. Please log in again.",
+  malformed_token: "Corrupted token. Please log in again.",
+  token_expired: "Your session has expired. Please log in again.",
+  invalid_signature: "Invalid token. Please log in again.",
+  user_not_found: "Account not found. Please log in again.",
+  user_banned: "This account has been banned.",
+  server_error: "Authentication error. Please try again.",
+};
+
+// Returns user or throws with descriptive error message
 export async function requireMobileUser(request: Request) {
-  const user = await getMobileUser(request);
+  const { user, reason } = await authenticateMobileUser(request);
   if (!user) {
-    throw new Error("Unauthorized");
+    const message = AUTH_ERROR_MESSAGES[reason] || "Unauthorized";
+    throw new Error(message);
   }
   return user;
 }
