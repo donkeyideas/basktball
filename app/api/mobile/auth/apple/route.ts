@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 import { prisma } from "@/lib/db/prisma";
+import { JWT_SIGN_SECRET } from "@/lib/mobile-auth";
 
-const JWT_SECRET =
-  process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET || "basktball-jwt-secret";
+const JWT_SECRET = JWT_SIGN_SECRET;
 
 // Apple's public key endpoint for verifying identity tokens
 const APPLE_JWKS = createRemoteJWKSet(

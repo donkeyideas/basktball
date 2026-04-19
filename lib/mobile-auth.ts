@@ -1,11 +1,17 @@
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/db/prisma";
 
-const JWT_SECRET =
-  process.env.JWT_SECRET ||
-  process.env.NEXTAUTH_SECRET ||
-  process.env.AUTH_SECRET ||
-  "basktball-jwt-secret";
+// Primary secret for signing NEW tokens
+export const JWT_SIGN_SECRET =
+  process.env.JWT_SECRET || process.env.AUTH_SECRET || "basktball-jwt-secret";
+
+// All secrets to try when VERIFYING tokens (handles secret rotation gracefully)
+const JWT_VERIFY_SECRETS = [
+  process.env.JWT_SECRET,
+  process.env.AUTH_SECRET,
+  process.env.NEXTAUTH_SECRET,
+  "basktball-jwt-secret",
+].filter((s): s is string => !!s);
 
 type JWTPayload = {
   userId: string;
@@ -13,16 +19,31 @@ type JWTPayload = {
   role: string;
 };
 
+function verifyTokenMultiSecret(token: string): JWTPayload | null {
+  for (const secret of JWT_VERIFY_SECRETS) {
+    try {
+      return jwt.verify(token, secret) as JWTPayload;
+    } catch {
+      continue;
+    }
+  }
+  return null;
+}
+
 export async function getMobileUser(request: Request) {
   const authHeader = request.headers.get("Authorization");
   if (!authHeader?.startsWith("Bearer ")) {
-    console.warn("[mobile-auth] Missing or malformed Authorization header");
     return null;
   }
 
   try {
     const token = authHeader.slice(7);
-    const payload = jwt.verify(token, JWT_SECRET) as JWTPayload;
+    const payload = verifyTokenMultiSecret(token);
+
+    if (!payload) {
+      console.error("[mobile-auth] JWT verification failed against all secrets");
+      return null;
+    }
 
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },
@@ -39,13 +60,12 @@ export async function getMobileUser(request: Request) {
     });
 
     if (!user || user.status === "BANNED") {
-      console.warn("[mobile-auth] User not found or banned:", payload.userId);
       return null;
     }
 
     return user;
   } catch (err) {
-    console.error("[mobile-auth] JWT verification failed:", err instanceof Error ? err.message : err);
+    console.error("[mobile-auth] Auth error:", err instanceof Error ? err.message : err);
     return null;
   }
 }

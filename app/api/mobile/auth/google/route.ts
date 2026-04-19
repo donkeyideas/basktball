@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/db/prisma";
+import { JWT_SIGN_SECRET } from "@/lib/mobile-auth";
 
-const JWT_SECRET =
-  process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET || "basktball-jwt-secret";
+const JWT_SECRET = JWT_SIGN_SECRET;
 const FIREBASE_API_KEY = "AIzaSyAc6bTd2eOnMSmltb8B_dSZtX_kEsxVrCQ";
 
 async function verifyFirebaseToken(idToken: string) {

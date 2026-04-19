@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/db/prisma";
+import { JWT_SIGN_SECRET } from "@/lib/mobile-auth";
 
-const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET || "basktball-jwt-secret";
+const JWT_SECRET = JWT_SIGN_SECRET;
 
 export async function POST(request: Request) {
   try {
