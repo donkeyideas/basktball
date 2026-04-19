@@ -62,17 +62,17 @@ jobs:
           sudo xcode-select -s "$XCODE_PATH/Contents/Developer"
           xcodebuild -version
 
-      - name: Install iOS platform if needed
-        # Xcode 26 beta on macos-26 runners may not have the iOS platform
-        # pre-installed. Download it so xcodebuild can find a valid destination.
+      - name: Install iOS platform
+        # Xcode 26 beta on macos-26 runners may not have the matching iOS
+        # platform pre-installed. Always run downloadPlatform to ensure the
+        # correct version is available (it's a no-op if already installed).
         run: |
-          if ! xcodebuild -showsdks 2>/dev/null | grep -q 'iphoneos'; then
-            echo "iOS SDK not found, installing iOS platform..."
-            xcodebuild -downloadPlatform iOS
-          else
-            echo "iOS SDK already available"
-            xcodebuild -showsdks | grep -i iphone
-          fi
+          echo "Available SDKs before download:"
+          xcodebuild -showsdks 2>/dev/null | grep -i iphone || echo "  (none)"
+          echo "Downloading iOS platform for active Xcode..."
+          xcodebuild -downloadPlatform iOS
+          echo "Available SDKs after download:"
+          xcodebuild -showsdks | grep -i iphone
 
       - name: Install npm dependencies
         run: npm ci
