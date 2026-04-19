@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db/prisma";
+import { getTeamAnalytics } from "@/lib/api/live-stats";
 import { deepseek } from "@/lib/ai";
 
 interface Prediction {
@@ -14,7 +15,7 @@ interface Prediction {
   aiAnalysis?: string;
 }
 
-// POST - Generate AI prediction for a matchup
+// POST - Generate prediction for a matchup using live ESPN data
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -27,7 +28,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get team data
+    // Get team data from DB (for names/abbreviations)
     const [homeTeam, awayTeam] = await Promise.all([
       prisma.team.findUnique({ where: { id: homeTeamId } }),
       prisma.team.findUnique({ where: { id: awayTeamId } }),
@@ -40,48 +41,52 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get recent team stats
-    const [homeStats, awayStats] = await Promise.all([
-      prisma.teamStat.findMany({
-        where: { teamId: homeTeamId },
-        orderBy: { game: { gameDate: "desc" } },
-        take: 10,
-        include: { game: true },
-      }),
-      prisma.teamStat.findMany({
-        where: { teamId: awayTeamId },
-        orderBy: { game: { gameDate: "desc" } },
-        take: 10,
-        include: { game: true },
-      }),
-    ]);
+    // Fetch real team stats from ESPN
+    const espnTeams = await getTeamAnalytics();
+    const espnHome = espnTeams.find(
+      (t) => t.abbreviation === homeTeam.abbreviation
+    );
+    const espnAway = espnTeams.find(
+      (t) => t.abbreviation === awayTeam.abbreviation
+    );
 
-    // Calculate averages
-    const calcAvg = (stats: typeof homeStats, field: keyof (typeof homeStats)[0]) => {
-      if (stats.length === 0) return 0;
-      return stats.reduce((sum, s) => sum + (Number(s[field]) || 0), 0) / stats.length;
-    };
+    // Use real data or sensible per-team fallbacks
+    const homePpg = espnHome?.ppg || 110;
+    const awayPpg = espnAway?.ppg || 108;
+    const homeOppPpg = espnHome?.oppPpg || 110;
+    const awayOppPpg = espnAway?.oppPpg || 110;
+    const homeWins = espnHome?.wins || 0;
+    const homeLosses = espnHome?.losses || 0;
+    const awayWins = espnAway?.wins || 0;
+    const awayLosses = espnAway?.losses || 0;
+    const homeOffRtg = espnHome?.offRtg || 110;
+    const homeDefRtg = espnHome?.defRtg || 110;
+    const awayOffRtg = espnAway?.offRtg || 110;
+    const awayDefRtg = espnAway?.defRtg || 110;
 
-    const homePpg = calcAvg(homeStats, "points") || 110;
-    const awayPpg = calcAvg(awayStats, "points") || 108;
-    const homeOffRtg = calcAvg(homeStats, "offensiveRating") || 112;
-    const homeDefRtg = calcAvg(homeStats, "defensiveRating") || 110;
-    const awayOffRtg = calcAvg(awayStats, "offensiveRating") || 111;
-    const awayDefRtg = calcAvg(awayStats, "defensiveRating") || 111;
+    const homeGames = homeWins + homeLosses;
+    const awayGames = awayWins + awayLosses;
+    const homeWinPct = homeGames > 0 ? homeWins / homeGames : 0.5;
+    const awayWinPct = awayGames > 0 ? awayWins / awayGames : 0.5;
 
-    // Calculate predictions
+    // --- Calculate predictions ---
     const homeAdvantage = 3.5;
 
-    // Predict scores based on offensive/defensive ratings
+    // Predict scores: average of team's offense vs opponent's defense
     const predictedHomeScore = Math.round(
-      ((homeOffRtg + awayDefRtg) / 2) * 0.01 * 100 + homeAdvantage
+      (homePpg + awayOppPpg) / 2 + homeAdvantage / 2
     );
     const predictedAwayScore = Math.round(
-      ((awayOffRtg + homeDefRtg) / 2) * 0.01 * 100
+      (awayPpg + homeOppPpg) / 2 - homeAdvantage / 2
     );
 
+    // Win probability from win% differential + home advantage
+    const winPctDiff = (homeWinPct - awayWinPct) * 100;
     const scoreDiff = predictedHomeScore - predictedAwayScore;
-    const homeWinProb = Math.min(85, Math.max(15, 50 + scoreDiff * 3));
+    const homeWinProb = Math.min(
+      85,
+      Math.max(15, 50 + scoreDiff * 2.5 + winPctDiff * 0.3)
+    );
 
     // Calculate factors
     const factors = [
@@ -102,18 +107,19 @@ export async function POST(request: NextRequest) {
       },
       {
         name: "Recent Form",
-        impact: Math.round((homePpg - awayPpg) / 5 * 10) / 10,
-        description: `Last 10 games scoring: ${homeTeam.abbreviation} ${homePpg.toFixed(1)} PPG vs ${awayTeam.abbreviation} ${awayPpg.toFixed(1)} PPG`,
+        impact: Math.round((homeWinPct - awayWinPct) * 50) / 10,
+        description: `${homeTeam.abbreviation} ${homeWins}-${homeLosses} (${(homeWinPct * 100).toFixed(0)}%) vs ${awayTeam.abbreviation} ${awayWins}-${awayLosses} (${(awayWinPct * 100).toFixed(0)}%)`,
       },
       {
-        name: "Sample Size",
-        impact: homeStats.length >= 5 ? 0 : -1,
-        description: `Based on ${Math.min(homeStats.length, awayStats.length)} games of data`,
+        name: "Scoring Pace",
+        impact: Math.round((homePpg - awayPpg) * 10) / 10,
+        description: `${homeTeam.abbreviation} ${homePpg.toFixed(1)} PPG vs ${awayTeam.abbreviation} ${awayPpg.toFixed(1)} PPG`,
       },
     ];
 
-    // Calculate confidence based on data quality
-    const confidence = Math.min(85, 60 + Math.min(homeStats.length, awayStats.length) * 2);
+    // Confidence based on whether we have real data
+    const hasData = espnHome && espnAway && homeGames > 0 && awayGames > 0;
+    const confidence = hasData ? Math.min(85, 65 + Math.min(homeGames, awayGames) * 0.2) : 40;
 
     const prediction: Prediction = {
       homeWinProb: Math.round(homeWinProb),
@@ -122,7 +128,7 @@ export async function POST(request: NextRequest) {
       predictedAwayScore,
       spread: -(predictedHomeScore - predictedAwayScore),
       total: predictedHomeScore + predictedAwayScore,
-      confidence,
+      confidence: Math.round(confidence),
       factors,
     };
 
@@ -131,15 +137,13 @@ export async function POST(request: NextRequest) {
       try {
         const prompt = `Analyze this NBA matchup:
 
-Home Team: ${homeTeam.name} (${homeTeam.abbreviation})
-- Recent PPG: ${homePpg.toFixed(1)}
-- Offensive Rating: ${homeOffRtg.toFixed(1)}
-- Defensive Rating: ${homeDefRtg.toFixed(1)}
+Home Team: ${homeTeam.name} (${homeTeam.abbreviation}) — Record: ${homeWins}-${homeLosses}
+- PPG: ${homePpg.toFixed(1)}, Opp PPG: ${homeOppPpg.toFixed(1)}
+- Offensive Rating: ${homeOffRtg.toFixed(1)}, Defensive Rating: ${homeDefRtg.toFixed(1)}
 
-Away Team: ${awayTeam.name} (${awayTeam.abbreviation})
-- Recent PPG: ${awayPpg.toFixed(1)}
-- Offensive Rating: ${awayOffRtg.toFixed(1)}
-- Defensive Rating: ${awayDefRtg.toFixed(1)}
+Away Team: ${awayTeam.name} (${awayTeam.abbreviation}) — Record: ${awayWins}-${awayLosses}
+- PPG: ${awayPpg.toFixed(1)}, Opp PPG: ${awayOppPpg.toFixed(1)}
+- Offensive Rating: ${awayOffRtg.toFixed(1)}, Defensive Rating: ${awayDefRtg.toFixed(1)}
 
 Predicted Score: ${predictedHomeScore}-${predictedAwayScore}
 
@@ -153,7 +157,6 @@ Provide a brief 2-3 sentence analysis of this matchup focusing on key factors th
         prediction.aiAnalysis = aiResponse.content;
       } catch (aiError) {
         console.error("AI analysis failed:", aiError);
-        // Continue without AI analysis
       }
     }
 
