@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/db/prisma";
 
 const JWT_SECRET =
-  process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || "basktball-jwt-secret";
+  process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET || "basktball-jwt-secret";
 const FIREBASE_API_KEY = "AIzaSyAc6bTd2eOnMSmltb8B_dSZtX_kEsxVrCQ";
 
 async function verifyFirebaseToken(idToken: string) {

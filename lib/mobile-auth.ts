@@ -1,7 +1,11 @@
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/db/prisma";
 
-const JWT_SECRET = process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || "basktball-jwt-secret";
+const JWT_SECRET =
+  process.env.JWT_SECRET ||
+  process.env.NEXTAUTH_SECRET ||
+  process.env.AUTH_SECRET ||
+  "basktball-jwt-secret";
 
 type JWTPayload = {
   userId: string;
@@ -12,6 +16,7 @@ type JWTPayload = {
 export async function getMobileUser(request: Request) {
   const authHeader = request.headers.get("Authorization");
   if (!authHeader?.startsWith("Bearer ")) {
+    console.warn("[mobile-auth] Missing or malformed Authorization header");
     return null;
   }
 
@@ -34,11 +39,13 @@ export async function getMobileUser(request: Request) {
     });
 
     if (!user || user.status === "BANNED") {
+      console.warn("[mobile-auth] User not found or banned:", payload.userId);
       return null;
     }
 
     return user;
-  } catch {
+  } catch (err) {
+    console.error("[mobile-auth] JWT verification failed:", err instanceof Error ? err.message : err);
     return null;
   }
 }

@@ -4,7 +4,7 @@ import { createRemoteJWKSet, jwtVerify } from "jose";
 import { prisma } from "@/lib/db/prisma";
 
 const JWT_SECRET =
-  process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || "basktball-jwt-secret";
+  process.env.JWT_SECRET || process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET || "basktball-jwt-secret";
 
 // Apple's public key endpoint for verifying identity tokens
 const APPLE_JWKS = createRemoteJWKSet(
