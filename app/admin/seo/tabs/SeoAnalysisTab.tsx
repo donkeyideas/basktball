@@ -105,16 +105,16 @@ export default function SeoAnalysisTab({ data }: { data: AnalysisData }) {
             <div style={{ width: "100%", height: 300 }}>
               <ResponsiveContainer>
                 <BarChart data={data.topKeywords.slice(0, 15)} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis type="number" tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }} />
-                  <YAxis dataKey="keyword" type="category" width={120} tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 11 }} />
-                  <Tooltip contentStyle={{ background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px" }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                  <XAxis type="number" tick={{ fill: "var(--text-muted)", fontSize: 10 }} />
+                  <YAxis dataKey="keyword" type="category" width={120} tick={{ fill: "var(--text-secondary)", fontSize: 11 }} />
+                  <Tooltip contentStyle={{ background: "#1a1a2e", border: "1px solid var(--border-color)", borderRadius: "8px" }} />
                   <Bar dataKey="count" fill="#FF6B35" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <p style={{ color: "rgba(255,255,255,0.5)", textAlign: "center", padding: "40px 0" }}>
+            <p style={{ color: "var(--text-muted)", textAlign: "center", padding: "40px 0" }}>
               No keyword data available. Add keywords to your articles.
             </p>
           )}
@@ -141,12 +141,12 @@ export default function SeoAnalysisTab({ data }: { data: AnalysisData }) {
                       <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px" }} />
+                  <Tooltip contentStyle={{ background: "#1a1a2e", border: "1px solid var(--border-color)", borderRadius: "8px" }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <p style={{ color: "rgba(255,255,255,0.5)", textAlign: "center", padding: "40px 0" }}>No articles to analyze</p>
+            <p style={{ color: "var(--text-muted)", textAlign: "center", padding: "40px 0" }}>No articles to analyze</p>
           )}
         </div>
       </div>
@@ -203,7 +203,7 @@ export default function SeoAnalysisTab({ data }: { data: AnalysisData }) {
                 >
                   <td>
                     <div style={{ fontWeight: 600, fontSize: "13px" }}>{page.path}</div>
-                    <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>{page.title}</div>
+                    <div style={{ fontSize: "11px", color: "var(--text-faint)" }}>{page.title}</div>
                   </td>
                   <td style={{ textAlign: "center" }}>
                     <span style={{ color: page.hasMetaTitle ? "var(--green)" : "var(--red)" }}>
@@ -249,12 +249,12 @@ export default function SeoAnalysisTab({ data }: { data: AnalysisData }) {
                 </tr>
                 {expandedRow === page.id && page.issues.length > 0 && (
                   <tr key={`${page.id}-expand`}>
-                    <td colSpan={7} style={{ padding: "12px 20px", background: "rgba(255,255,255,0.02)" }}>
+                    <td colSpan={7} style={{ padding: "12px 20px", background: "var(--border-subtle)" }}>
                       <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                         {page.issues.map((issue, i) => (
                           <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "13px" }}>
                             <span style={{ color: "var(--red)" }}>{"\u2022"}</span>
-                            <span style={{ color: "rgba(255,255,255,0.7)" }}>{issue}</span>
+                            <span style={{ color: "var(--text-secondary)" }}>{issue}</span>
                           </div>
                         ))}
                       </div>

@@ -50,7 +50,7 @@ export default function ContactPage() {
           }}>
             CONTACT US
           </h1>
-          <p style={{ color: "rgba(255,255,255,0.6)", marginBottom: "40px", fontSize: "16px" }}>
+          <p style={{ color: "var(--text-muted)", marginBottom: "40px", fontSize: "16px" }}>
             Have a question, feedback, or partnership inquiry? Send us a message and we&apos;ll get back to you.
           </p>
 
@@ -64,7 +64,7 @@ export default function ContactPage() {
             }}>
               <div style={{ fontSize: "48px", marginBottom: "16px" }}>&#10003;</div>
               <h2 style={{ fontSize: "24px", marginBottom: "8px", color: "#10B981" }}>Message Sent!</h2>
-              <p style={{ color: "rgba(255,255,255,0.6)", marginBottom: "24px" }}>
+              <p style={{ color: "var(--text-muted)", marginBottom: "24px" }}>
                 Thanks for reaching out. We&apos;ll get back to you as soon as possible.
               </p>
               <button
@@ -72,7 +72,7 @@ export default function ContactPage() {
                 style={{
                   padding: "10px 24px",
                   background: "var(--orange)",
-                  color: "#fff",
+                  color: "var(--white)",
                   border: "none",
                   borderRadius: "8px",
                   cursor: "pointer",
@@ -100,7 +100,7 @@ export default function ContactPage() {
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                 <div>
-                  <label style={{ display: "block", marginBottom: "6px", color: "rgba(255,255,255,0.7)", fontSize: "14px", fontWeight: "600" }}>
+                  <label style={{ display: "block", marginBottom: "6px", color: "var(--text-secondary)", fontSize: "14px", fontWeight: "600" }}>
                     Name *
                   </label>
                   <input
@@ -112,17 +112,17 @@ export default function ContactPage() {
                     style={{
                       width: "100%",
                       padding: "12px 16px",
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.15)",
+                      background: "var(--border-subtle)",
+                      border: "1px solid var(--border-color)",
                       borderRadius: "8px",
-                      color: "#fff",
+                      color: "var(--white)",
                       fontSize: "15px",
                       outline: "none",
                     }}
                   />
                 </div>
                 <div>
-                  <label style={{ display: "block", marginBottom: "6px", color: "rgba(255,255,255,0.7)", fontSize: "14px", fontWeight: "600" }}>
+                  <label style={{ display: "block", marginBottom: "6px", color: "var(--text-secondary)", fontSize: "14px", fontWeight: "600" }}>
                     Email *
                   </label>
                   <input
@@ -134,10 +134,10 @@ export default function ContactPage() {
                     style={{
                       width: "100%",
                       padding: "12px 16px",
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.15)",
+                      background: "var(--border-subtle)",
+                      border: "1px solid var(--border-color)",
                       borderRadius: "8px",
-                      color: "#fff",
+                      color: "var(--white)",
                       fontSize: "15px",
                       outline: "none",
                     }}
@@ -146,7 +146,7 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <label style={{ display: "block", marginBottom: "6px", color: "rgba(255,255,255,0.7)", fontSize: "14px", fontWeight: "600" }}>
+                <label style={{ display: "block", marginBottom: "6px", color: "var(--text-secondary)", fontSize: "14px", fontWeight: "600" }}>
                   Subject *
                 </label>
                 <input
@@ -158,10 +158,10 @@ export default function ContactPage() {
                   style={{
                     width: "100%",
                     padding: "12px 16px",
-                    background: "rgba(255,255,255,0.05)",
-                    border: "1px solid rgba(255,255,255,0.15)",
+                    background: "var(--border-subtle)",
+                    border: "1px solid var(--border-color)",
                     borderRadius: "8px",
-                    color: "#fff",
+                    color: "var(--white)",
                     fontSize: "15px",
                     outline: "none",
                   }}
@@ -169,7 +169,7 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <label style={{ display: "block", marginBottom: "6px", color: "rgba(255,255,255,0.7)", fontSize: "14px", fontWeight: "600" }}>
+                <label style={{ display: "block", marginBottom: "6px", color: "var(--text-secondary)", fontSize: "14px", fontWeight: "600" }}>
                   Message *
                 </label>
                 <textarea
@@ -181,10 +181,10 @@ export default function ContactPage() {
                   style={{
                     width: "100%",
                     padding: "12px 16px",
-                    background: "rgba(255,255,255,0.05)",
-                    border: "1px solid rgba(255,255,255,0.15)",
+                    background: "var(--border-subtle)",
+                    border: "1px solid var(--border-color)",
                     borderRadius: "8px",
-                    color: "#fff",
+                    color: "var(--white)",
                     fontSize: "15px",
                     outline: "none",
                     resize: "vertical",
@@ -199,7 +199,7 @@ export default function ContactPage() {
                 style={{
                   padding: "14px 32px",
                   background: submitting ? "rgba(255, 107, 53, 0.5)" : "var(--orange)",
-                  color: "#fff",
+                  color: "var(--white)",
                   border: "none",
                   borderRadius: "8px",
                   cursor: submitting ? "not-allowed" : "pointer",

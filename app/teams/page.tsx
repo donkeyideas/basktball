@@ -143,7 +143,7 @@ export default function TeamsPage() {
           <p
             style={{
               textAlign: "center",
-              color: "rgba(255,255,255,0.6)",
+              color: "var(--text-muted)",
               marginBottom: "30px",
             }}
           >
@@ -178,7 +178,7 @@ export default function TeamsPage() {
                   borderColor:
                     selectedLeague === league.id
                       ? "var(--orange)"
-                      : "rgba(255,255,255,0.1)",
+                      : "var(--border-color)",
                   color: "var(--white)",
                   fontFamily: "var(--font-anton), Anton, sans-serif",
                   fontSize: "18px",
@@ -196,7 +196,7 @@ export default function TeamsPage() {
           <p
             style={{
               textAlign: "center",
-              color: "rgba(255,255,255,0.5)",
+              color: "var(--text-muted)",
               marginBottom: "30px",
               fontSize: "14px",
             }}
@@ -225,7 +225,7 @@ export default function TeamsPage() {
               style={{
                 padding: "12px 20px",
                 background: "var(--dark-gray)",
-                border: "2px solid rgba(255,255,255,0.1)",
+                border: "2px solid var(--border-color)",
                 color: "var(--white)",
                 fontFamily: "var(--font-inter), sans-serif",
                 fontSize: "14px",
@@ -255,7 +255,7 @@ export default function TeamsPage() {
                       borderColor:
                         conferenceFilter === filter.id
                           ? "var(--orange)"
-                          : "rgba(255,255,255,0.2)",
+                          : "var(--text-faint)",
                       color: "var(--white)",
                       fontFamily: "var(--font-inter), sans-serif",
                       fontSize: "13px",
@@ -298,7 +298,7 @@ export default function TeamsPage() {
                         width: "60px",
                         height: "60px",
                         borderRadius: "50%",
-                        background: "rgba(255,255,255,0.1)",
+                        background: "var(--border-color)",
                         animation: "pulse 1.5s ease-in-out infinite",
                       }}
                     />
@@ -307,7 +307,7 @@ export default function TeamsPage() {
                         style={{
                           width: "70%",
                           height: "18px",
-                          background: "rgba(255,255,255,0.1)",
+                          background: "var(--border-color)",
                           marginBottom: "8px",
                           animation: "pulse 1.5s ease-in-out infinite",
                         }}
@@ -316,7 +316,7 @@ export default function TeamsPage() {
                         style={{
                           width: "50%",
                           height: "13px",
-                          background: "rgba(255,255,255,0.05)",
+                          background: "var(--border-subtle)",
                           animation: "pulse 1.5s ease-in-out infinite",
                         }}
                       />
@@ -337,7 +337,7 @@ export default function TeamsPage() {
             </div>
           ) : filteredTeams.length === 0 ? (
             <div style={{ textAlign: "center", padding: "60px" }}>
-              <p style={{ color: "rgba(255,255,255,0.5)" }}>
+              <p style={{ color: "var(--text-muted)" }}>
                 {searchQuery
                   ? `No teams found matching "${searchQuery}"`
                   : `No ${leagueInfo?.name} teams available at this time.`}
@@ -376,7 +376,7 @@ export default function TeamsPage() {
                           width: "60px",
                           height: "60px",
                           borderRadius: "50%",
-                          background: "rgba(255,255,255,0.1)",
+                          background: "var(--border-color)",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -425,7 +425,7 @@ export default function TeamsPage() {
                         {(team.conference || team.division) && (
                           <p
                             style={{
-                              color: "rgba(255,255,255,0.5)",
+                              color: "var(--text-muted)",
                               fontSize: "13px",
                             }}
                           >

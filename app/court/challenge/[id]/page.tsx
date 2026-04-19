@@ -71,9 +71,9 @@ function getStatusColor(status: string) {
     case "ACTIVE": return { bg: "rgba(34,197,94,0.15)", color: "#22C55E" };
     case "VOTING": return { bg: "rgba(234,179,8,0.15)", color: "#EAB308" };
     case "COMPLETED": return { bg: "rgba(34,197,94,0.15)", color: "#22C55E" };
-    case "EXPIRED": return { bg: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.4)" };
+    case "EXPIRED": return { bg: "var(--border-subtle)", color: "var(--text-faint)" };
     case "DECLINED": return { bg: "rgba(239,68,68,0.15)", color: "#EF4444" };
-    default: return { bg: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.5)" };
+    default: return { bg: "var(--border-subtle)", color: "var(--text-muted)" };
   }
 }
 
@@ -94,7 +94,7 @@ function Avatar({ user, size = 48 }: { user: ChallengeUser | ChallengeTake["auth
     <div style={{
       width: size, height: size, borderRadius: "50%",
       background: "#FF6B35", display: "flex", alignItems: "center",
-      justifyContent: "center", color: "#fff", fontWeight: 700,
+      justifyContent: "center", color: "var(--white)", fontWeight: 700,
       fontSize: size * 0.4, fontFamily: FONT,
     }}>
       {(user.displayName || user.name || "?").charAt(0).toUpperCase()}
@@ -250,7 +250,7 @@ export default function ChallengeDetailPage() {
       <Header />
       <main style={{
         minHeight: "100vh",
-        background: "#0D0D0D",
+        background: "var(--black)",
         padding: "100px 20px 60px",
       }}>
         <div style={{ maxWidth: "680px", margin: "0 auto" }}>
@@ -258,7 +258,7 @@ export default function ChallengeDetailPage() {
           <button
             onClick={() => router.back()}
             style={{
-              background: "none", border: "none", color: "rgba(255,255,255,0.5)",
+              background: "none", border: "none", color: "var(--text-muted)",
               fontSize: "14px", cursor: "pointer", padding: "0", marginBottom: "20px",
               fontFamily: FONT, display: "flex", alignItems: "center", gap: "6px",
             }}
@@ -267,7 +267,7 @@ export default function ChallengeDetailPage() {
           </button>
 
           {loading && (
-            <div style={{ textAlign: "center", padding: "60px", color: "rgba(255,255,255,0.4)" }}>
+            <div style={{ textAlign: "center", padding: "60px", color: "var(--text-faint)" }}>
               Loading challenge...
             </div>
           )}
@@ -283,7 +283,7 @@ export default function ChallengeDetailPage() {
 
           {challenge && (
             <div style={{
-              background: "#1A1A1A",
+              background: "var(--dark-gray)",
               borderRadius: "16px",
               border: "1px solid #2a2a2a",
               overflow: "hidden",
@@ -291,7 +291,7 @@ export default function ChallengeDetailPage() {
               {/* Header */}
               <div style={{
                 padding: "24px",
-                borderBottom: "1px solid rgba(255,255,255,0.08)",
+                borderBottom: "1px solid var(--border-subtle)",
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
                   <span style={{
@@ -301,7 +301,7 @@ export default function ChallengeDetailPage() {
                   }}>
                     {challenge.status}
                   </span>
-                  <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.3)", fontFamily: FONT }}>
+                  <span style={{ fontSize: "13px", color: "var(--text-faint)", fontFamily: FONT }}>
                     {timeAgo(challenge.createdAt)}
                   </span>
                 </div>
@@ -309,7 +309,7 @@ export default function ChallengeDetailPage() {
                 <h1 style={{
                   fontFamily: "var(--font-anton), Anton, sans-serif",
                   fontSize: "24px",
-                  color: "#fff",
+                  color: "var(--white)",
                   margin: "0 0 8px 0",
                   lineHeight: "1.2",
                   letterSpacing: "0.5px",
@@ -318,7 +318,7 @@ export default function ChallengeDetailPage() {
                 </h1>
 
                 {challenge.status === "OPEN" && (
-                  <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", fontFamily: FONT, margin: 0 }}>
+                  <p style={{ fontSize: "13px", color: "var(--text-faint)", fontFamily: FONT, margin: 0 }}>
                     Expires {new Date(challenge.expiresAt).toLocaleString()}
                   </p>
                 )}
@@ -330,7 +330,7 @@ export default function ChallengeDetailPage() {
                 display: "flex",
                 alignItems: "center",
                 gap: "16px",
-                borderBottom: "1px solid rgba(255,255,255,0.08)",
+                borderBottom: "1px solid var(--border-subtle)",
               }}>
                 {/* Challenger */}
                 <Link
@@ -340,10 +340,10 @@ export default function ChallengeDetailPage() {
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
                     <Avatar user={challenge.challenger} size={56} />
                     <div>
-                      <div style={{ color: "#fff", fontWeight: 600, fontSize: "14px", fontFamily: FONT }}>
+                      <div style={{ color: "var(--white)", fontWeight: 600, fontSize: "14px", fontFamily: FONT }}>
                         {challenge.challenger.displayName || challenge.challenger.name}
                       </div>
-                      <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px", fontFamily: FONT }}>
+                      <div style={{ color: "var(--text-faint)", fontSize: "12px", fontFamily: FONT }}>
                         {challenge.challenger.challengeWins}W - {challenge.challenger.challengeLosses}L
                       </div>
                     </div>
@@ -376,10 +376,10 @@ export default function ChallengeDetailPage() {
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
                     <Avatar user={challenge.challenged} size={56} />
                     <div>
-                      <div style={{ color: "#fff", fontWeight: 600, fontSize: "14px", fontFamily: FONT }}>
+                      <div style={{ color: "var(--white)", fontWeight: 600, fontSize: "14px", fontFamily: FONT }}>
                         {challenge.challenged.displayName || challenge.challenged.name}
                       </div>
-                      <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px", fontFamily: FONT }}>
+                      <div style={{ color: "var(--text-faint)", fontSize: "12px", fontFamily: FONT }}>
                         {challenge.challenged.challengeWins}W - {challenge.challenged.challengeLosses}L
                       </div>
                     </div>
@@ -389,14 +389,14 @@ export default function ChallengeDetailPage() {
 
               {/* Vote Progress Bar */}
               {totalVotes > 0 && (
-                <div style={{ padding: "20px 24px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                <div style={{ padding: "20px 24px", borderBottom: "1px solid var(--border-subtle)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", fontFamily: FONT, fontSize: "13px" }}>
                     <span style={{ color: "#FF6B35", fontWeight: 600 }}>{challengerPct}%</span>
-                    <span style={{ color: "rgba(255,255,255,0.4)" }}>{totalVotes} vote{totalVotes !== 1 ? "s" : ""}</span>
+                    <span style={{ color: "var(--text-faint)" }}>{totalVotes} vote{totalVotes !== 1 ? "s" : ""}</span>
                     <span style={{ color: "#3B82F6", fontWeight: 600 }}>{challengedPct}%</span>
                   </div>
                   <div style={{
-                    height: "8px", borderRadius: "4px", background: "#333",
+                    height: "8px", borderRadius: "4px", background: "var(--border-color)",
                     overflow: "hidden", display: "flex",
                   }}>
                     <div style={{
@@ -431,10 +431,10 @@ export default function ChallengeDetailPage() {
 
               {/* Linked Takes */}
               {(challenge.challengerTake || challenge.challengedTake) && (
-                <div style={{ padding: "20px 24px", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                <div style={{ padding: "20px 24px", borderBottom: "1px solid var(--border-subtle)" }}>
                   <h3 style={{
                     fontFamily: "var(--font-anton), Anton, sans-serif",
-                    fontSize: "12px", color: "rgba(255,255,255,0.5)",
+                    fontSize: "12px", color: "var(--text-muted)",
                     margin: "0 0 12px 0", letterSpacing: "1px", textTransform: "uppercase",
                   }}>
                     Takes
@@ -451,7 +451,7 @@ export default function ChallengeDetailPage() {
                       <div style={{ fontSize: "12px", color: "#FF6B35", fontWeight: 600, marginBottom: "4px", fontFamily: FONT }}>
                         {challenge.challengerTake.author.displayName || challenge.challengerTake.author.name}
                       </div>
-                      <p style={{ color: "rgba(255,255,255,0.8)", fontSize: "14px", margin: 0, lineHeight: "1.4", fontFamily: FONT }}>
+                      <p style={{ color: "var(--text-secondary)", fontSize: "14px", margin: 0, lineHeight: "1.4", fontFamily: FONT }}>
                         {challenge.challengerTake.content}
                       </p>
                     </Link>
@@ -468,7 +468,7 @@ export default function ChallengeDetailPage() {
                       <div style={{ fontSize: "12px", color: "#3B82F6", fontWeight: 600, marginBottom: "4px", fontFamily: FONT }}>
                         {challenge.challengedTake.author.displayName || challenge.challengedTake.author.name}
                       </div>
-                      <p style={{ color: "rgba(255,255,255,0.8)", fontSize: "14px", margin: 0, lineHeight: "1.4", fontFamily: FONT }}>
+                      <p style={{ color: "var(--text-secondary)", fontSize: "14px", margin: 0, lineHeight: "1.4", fontFamily: FONT }}>
                         {challenge.challengedTake.content}
                       </p>
                     </Link>
@@ -496,7 +496,7 @@ export default function ChallengeDetailPage() {
                       disabled={actionLoading}
                       style={{
                         flex: 1, padding: "14px", borderRadius: "10px", border: "none",
-                        background: "#22C55E", color: "#fff", fontSize: "15px",
+                        background: "#22C55E", color: "var(--white)", fontSize: "15px",
                         fontWeight: 700, cursor: actionLoading ? "not-allowed" : "pointer",
                         fontFamily: FONT, opacity: actionLoading ? 0.6 : 1,
                       }}
@@ -524,7 +524,7 @@ export default function ChallengeDetailPage() {
                   <div style={{
                     textAlign: "center", padding: "12px",
                     background: "rgba(59,130,246,0.08)", borderRadius: "10px",
-                    color: "rgba(255,255,255,0.5)", fontSize: "14px", fontFamily: FONT,
+                    color: "var(--text-muted)", fontSize: "14px", fontFamily: FONT,
                   }}>
                     Waiting for {challenge.challenged.displayName || challenge.challenged.name} to respond...
                   </div>
@@ -553,7 +553,7 @@ export default function ChallengeDetailPage() {
                           style={{
                             width: "100%", minHeight: "80px", padding: "12px",
                             borderRadius: "10px", border: "1px solid #333",
-                            background: "#111", color: "#fff", fontSize: "14px",
+                            background: "var(--black)", color: "var(--white)", fontSize: "14px",
                             fontFamily: FONT, resize: "vertical", outline: "none",
                             boxSizing: "border-box",
                           }}
@@ -565,7 +565,7 @@ export default function ChallengeDetailPage() {
                             width: "100%", padding: "14px", marginTop: "8px",
                             borderRadius: "10px", border: "none",
                             background: responseText.trim() ? "#FF6B35" : "rgba(255,107,53,0.3)",
-                            color: "#fff", fontSize: "15px", fontWeight: 700,
+                            color: "var(--white)", fontSize: "15px", fontWeight: 700,
                             cursor: posting || !responseText.trim() ? "not-allowed" : "pointer",
                             fontFamily: FONT, opacity: posting ? 0.6 : 1,
                           }}
@@ -590,7 +590,7 @@ export default function ChallengeDetailPage() {
                 {canVote && (
                   <div>
                     <p style={{
-                      textAlign: "center", color: "rgba(255,255,255,0.5)",
+                      textAlign: "center", color: "var(--text-muted)",
                       fontSize: "13px", margin: "0 0 12px 0", fontFamily: FONT,
                     }}>
                       Cast your vote
@@ -631,10 +631,10 @@ export default function ChallengeDetailPage() {
                   <div style={{
                     textAlign: "center", padding: "12px",
                     background: "rgba(255,255,255,0.05)", borderRadius: "10px",
-                    color: "rgba(255,255,255,0.4)", fontSize: "14px", fontFamily: FONT,
+                    color: "var(--text-faint)", fontSize: "14px", fontFamily: FONT,
                   }}>
                     You voted for{" "}
-                    <span style={{ color: "#fff", fontWeight: 600 }}>
+                    <span style={{ color: "var(--white)", fontWeight: 600 }}>
                       {challenge.userVote.votedForId === challenge.challenger.id
                         ? challenge.challenger.displayName || challenge.challenger.name
                         : challenge.challenged.displayName || challenge.challenged.name}
@@ -647,7 +647,7 @@ export default function ChallengeDetailPage() {
                   <div style={{
                     textAlign: "center", padding: "12px",
                     background: "rgba(255,255,255,0.05)", borderRadius: "10px",
-                    color: "rgba(255,255,255,0.4)", fontSize: "14px", fontFamily: FONT,
+                    color: "var(--text-faint)", fontSize: "14px", fontFamily: FONT,
                   }}>
                     <Link href="/login" style={{ color: "#FF6B35", textDecoration: "none" }}>Sign in</Link> to vote on this challenge
                   </div>
@@ -658,7 +658,7 @@ export default function ChallengeDetailPage() {
                   <div style={{
                     textAlign: "center", padding: "12px",
                     background: "rgba(239,68,68,0.08)", borderRadius: "10px",
-                    color: "rgba(255,255,255,0.4)", fontSize: "14px", fontFamily: FONT,
+                    color: "var(--text-faint)", fontSize: "14px", fontFamily: FONT,
                   }}>
                     This challenge was declined
                   </div>
@@ -669,7 +669,7 @@ export default function ChallengeDetailPage() {
                   <div style={{
                     textAlign: "center", padding: "12px",
                     background: "rgba(255,255,255,0.05)", borderRadius: "10px",
-                    color: "rgba(255,255,255,0.4)", fontSize: "14px", fontFamily: FONT,
+                    color: "var(--text-faint)", fontSize: "14px", fontFamily: FONT,
                   }}>
                     This challenge expired without a winner
                   </div>

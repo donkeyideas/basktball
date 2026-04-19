@@ -46,14 +46,14 @@ const statusColors: Record<string, string> = {
   healthy: "var(--green)",
   degraded: "var(--yellow)",
   down: "var(--red)",
-  checking: "rgba(255,255,255,0.4)",
+  checking: "var(--text-faint)",
 };
 
 const statusBg: Record<string, string> = {
   healthy: "rgba(16, 185, 129, 0.15)",
   degraded: "rgba(245, 158, 11, 0.15)",
   down: "rgba(239, 68, 68, 0.15)",
-  checking: "rgba(255,255,255,0.05)",
+  checking: "var(--border-subtle)",
 };
 
 function ResponseTimeBadge({ ms }: { ms: number }) {
@@ -102,7 +102,7 @@ export default function AdminApiHealthPage() {
     return () => clearInterval(interval);
   }, [fetchHealth]);
 
-  const overallColor = data ? statusColors[data.overallStatus] : "rgba(255,255,255,0.4)";
+  const overallColor = data ? statusColors[data.overallStatus] : "var(--text-faint)";
   const overallLabel = data
     ? data.overallStatus === "healthy"
       ? "All Systems Operational"
@@ -123,7 +123,7 @@ export default function AdminApiHealthPage() {
         </h1>
         <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
           {data && (
-            <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)" }}>
+            <span style={{ fontSize: "13px", color: "var(--text-faint)" }}>
               Last checked: {new Date(data.checkedAt).toLocaleTimeString()}
             </span>
           )}
@@ -141,7 +141,7 @@ export default function AdminApiHealthPage() {
       <div className="admin-content">
         {loading ? (
           <div style={{ textAlign: "center", padding: "60px" }}>
-            <p style={{ color: "rgba(255,255,255,0.5)" }}>Running health checks...</p>
+            <p style={{ color: "var(--text-muted)" }}>Running health checks...</p>
           </div>
         ) : error && !data ? (
           <div style={{ textAlign: "center", padding: "60px" }}>
@@ -194,7 +194,7 @@ export default function AdminApiHealthPage() {
                     }}>
                       <div>
                         <div style={{ fontWeight: 600, fontSize: "14px" }}>{svc.name}</div>
-                        <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginTop: "2px" }}>
+                        <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: "2px" }}>
                           {svc.detail}
                         </div>
                       </div>
@@ -232,7 +232,7 @@ export default function AdminApiHealthPage() {
                     }}>
                       <div>
                         <div style={{ fontWeight: 600, fontSize: "14px" }}>{svc.name}</div>
-                        <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginTop: "2px" }}>
+                        <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: "2px" }}>
                           {svc.detail}
                         </div>
                       </div>
@@ -264,17 +264,17 @@ export default function AdminApiHealthPage() {
                 <div style={{ width: "100%", height: 260 }}>
                   <ResponsiveContainer>
                     <BarChart data={data.apiUsage.dailyStats}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
                       <XAxis
                         dataKey="date"
-                        tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }}
+                        tick={{ fill: "var(--text-muted)", fontSize: 10 }}
                         tickFormatter={(v: string) => v.slice(5)}
                       />
-                      <YAxis tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }} />
+                      <YAxis tick={{ fill: "var(--text-muted)", fontSize: 10 }} />
                       <Tooltip
                         contentStyle={{
                           background: "#1a1a2e",
-                          border: "1px solid rgba(255,255,255,0.1)",
+                          border: "1px solid var(--border-color)",
                           borderRadius: "8px",
                         }}
                       />
@@ -291,17 +291,17 @@ export default function AdminApiHealthPage() {
                 <div style={{ width: "100%", height: 260 }}>
                   <ResponsiveContainer>
                     <LineChart data={data.apiUsage.dailyStats}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
                       <XAxis
                         dataKey="date"
-                        tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }}
+                        tick={{ fill: "var(--text-muted)", fontSize: 10 }}
                         tickFormatter={(v: string) => v.slice(5)}
                       />
-                      <YAxis tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }} />
+                      <YAxis tick={{ fill: "var(--text-muted)", fontSize: 10 }} />
                       <Tooltip
                         contentStyle={{
                           background: "#1a1a2e",
-                          border: "1px solid rgba(255,255,255,0.1)",
+                          border: "1px solid var(--border-color)",
                           borderRadius: "8px",
                         }}
                       />
@@ -351,7 +351,7 @@ export default function AdminApiHealthPage() {
                           <td style={{
                             textAlign: "center",
                             fontFamily: "var(--font-roboto-mono), monospace",
-                            color: ep.errors > 0 ? "var(--red)" : "rgba(255,255,255,0.5)",
+                            color: ep.errors > 0 ? "var(--red)" : "var(--text-muted)",
                           }}>
                             {ep.errors}
                           </td>
@@ -388,7 +388,7 @@ export default function AdminApiHealthPage() {
                   </tbody>
                 </table>
               ) : (
-                <p style={{ color: "rgba(255,255,255,0.4)", textAlign: "center", padding: "30px" }}>
+                <p style={{ color: "var(--text-faint)", textAlign: "center", padding: "30px" }}>
                   No API calls logged in the last 24 hours.
                 </p>
               )}

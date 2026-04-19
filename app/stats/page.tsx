@@ -108,7 +108,7 @@ export default function StatsPage() {
                   padding: "12px 24px",
                   background: category === cat.id ? "var(--orange)" : "var(--dark-gray)",
                   border: "2px solid",
-                  borderColor: category === cat.id ? "var(--orange)" : "rgba(255,255,255,0.1)",
+                  borderColor: category === cat.id ? "var(--orange)" : "var(--border-color)",
                   color: "var(--white)",
                   fontFamily: "var(--font-inter), sans-serif",
                   fontSize: "14px",
@@ -131,7 +131,7 @@ export default function StatsPage() {
 
             {isLoading ? (
               <div style={{ textAlign: "center", padding: "40px" }}>
-                <p style={{ color: "rgba(255,255,255,0.5)" }}>Loading stats...</p>
+                <p style={{ color: "var(--text-muted)" }}>Loading stats...</p>
               </div>
             ) : error ? (
               <div style={{ textAlign: "center", padding: "40px" }}>
@@ -139,7 +139,7 @@ export default function StatsPage() {
               </div>
             ) : leaders.length === 0 ? (
               <div style={{ textAlign: "center", padding: "40px" }}>
-                <p style={{ color: "rgba(255,255,255,0.5)" }}>No stats available yet.</p>
+                <p style={{ color: "var(--text-muted)" }}>No stats available yet.</p>
               </div>
             ) : (
               <table className="jobs-table" style={{ width: "100%" }}>
@@ -179,12 +179,12 @@ export default function StatsPage() {
                           {leader.name}
                         </Link>
                       </td>
-                      <td style={{ color: "rgba(255,255,255,0.6)" }}>{leader.teamName}</td>
+                      <td style={{ color: "var(--text-muted)" }}>{leader.teamName}</td>
                       <td style={{
                         fontFamily: "var(--font-roboto-mono), monospace",
-                        color: "rgba(255,255,255,0.5)"
+                        color: "var(--text-muted)"
                       }}>
-                        {leader.gamesPlayed}
+                        {leader.gamesPlayed || "—"}
                       </td>
                       <td style={{
                         fontFamily: "var(--font-roboto-mono), monospace",

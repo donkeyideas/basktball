@@ -16,11 +16,13 @@ export async function GET(request: Request) {
         status: "ACTIVE",
         OR: [
           { handle: { startsWith: q.toLowerCase(), mode: "insensitive" } },
+          { name: { startsWith: q, mode: "insensitive" } },
           { displayName: { contains: q, mode: "insensitive" } },
         ],
       },
       select: {
         id: true,
+        name: true,
         handle: true,
         displayName: true,
         avatarUrl: true,

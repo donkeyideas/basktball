@@ -142,7 +142,7 @@ export default function AdminJobsPage() {
       <div className="admin-content">
         {isLoading ? (
           <div style={{ textAlign: "center", padding: "60px" }}>
-            <p style={{ color: "rgba(255,255,255,0.5)" }}>Loading jobs...</p>
+            <p style={{ color: "var(--text-muted)" }}>Loading jobs...</p>
           </div>
         ) : error ? (
           <div style={{ textAlign: "center", padding: "60px" }}>
@@ -169,7 +169,7 @@ export default function AdminJobsPage() {
                     <tr key={job.id}>
                       <td>
                         <div style={{ fontWeight: "600" }}>{job.name}</div>
-                        <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>
+                        <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>
                           {job.description}
                         </div>
                       </td>
@@ -179,7 +179,7 @@ export default function AdminJobsPage() {
                       <td style={{ fontSize: "14px" }}>
                         {formatDateTime(job.lastRun)}
                         {job.duration && (
-                          <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>
+                          <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>
                             Duration: {formatDuration(job.duration)}
                           </div>
                         )}
@@ -219,7 +219,7 @@ export default function AdminJobsPage() {
               <div className="section-title">Recent Execution History</div>
               <div className="activity-log" style={{ maxHeight: "400px" }}>
                 {history.length === 0 ? (
-                  <p style={{ color: "rgba(255,255,255,0.5)", padding: "20px" }}>
+                  <p style={{ color: "var(--text-muted)", padding: "20px" }}>
                     No job history available.
                   </p>
                 ) : (
@@ -234,7 +234,7 @@ export default function AdminJobsPage() {
                           {item.status.toUpperCase()}
                         </span>
                         {item.duration && (
-                          <span style={{ color: "rgba(255,255,255,0.5)", marginLeft: "10px" }}>
+                          <span style={{ color: "var(--text-muted)", marginLeft: "10px" }}>
                             ({formatDuration(item.duration)})
                           </span>
                         )}

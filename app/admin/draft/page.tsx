@@ -183,158 +183,158 @@ export default function AdminDraftPage() {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "15px", marginBottom: "20px" }}>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>Rank</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>Rank</label>
                 <input
                   type="number"
                   value={formData.rank}
                   onChange={e => setFormData(prev => ({ ...prev, rank: parseInt(e.target.value) || 0 }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>Name</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>Name</label>
                 <input
                   type="text"
                   value={formData.name}
                   onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>Position</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>Position</label>
                 <input
                   type="text"
                   value={formData.position}
                   placeholder="PG, SG, SF, PF, C"
                   onChange={e => setFormData(prev => ({ ...prev, position: e.target.value }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>School</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>School</label>
                 <input
                   type="text"
                   value={formData.school}
                   onChange={e => setFormData(prev => ({ ...prev, school: e.target.value }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>Height</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>Height</label>
                 <input
                   type="text"
                   value={formData.height}
                   placeholder="6'5&quot;"
                   onChange={e => setFormData(prev => ({ ...prev, height: e.target.value }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>Weight (lbs)</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>Weight (lbs)</label>
                 <input
                   type="number"
                   value={formData.weight}
                   onChange={e => setFormData(prev => ({ ...prev, weight: parseInt(e.target.value) || 0 }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>Age</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>Age</label>
                 <input
                   type="number"
                   value={formData.age}
                   onChange={e => setFormData(prev => ({ ...prev, age: parseInt(e.target.value) || 0 }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>Draft Year</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>Draft Year</label>
                 <input
                   type="number"
                   value={formData.draftYear}
                   onChange={e => setFormData(prev => ({ ...prev, draftYear: parseInt(e.target.value) || new Date().getFullYear() }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>Projected Pick</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>Projected Pick</label>
                 <input
                   type="text"
                   value={formData.projectedPick || ""}
                   placeholder="1-5"
                   onChange={e => setFormData(prev => ({ ...prev, projectedPick: e.target.value }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "15px", marginBottom: "20px" }}>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>PPG</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>PPG</label>
                 <input
                   type="number"
                   step="0.1"
                   value={formData.ppg}
                   onChange={e => setFormData(prev => ({ ...prev, ppg: parseFloat(e.target.value) || 0 }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>RPG</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>RPG</label>
                 <input
                   type="number"
                   step="0.1"
                   value={formData.rpg}
                   onChange={e => setFormData(prev => ({ ...prev, rpg: parseFloat(e.target.value) || 0 }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>APG</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>APG</label>
                 <input
                   type="number"
                   step="0.1"
                   value={formData.apg}
                   onChange={e => setFormData(prev => ({ ...prev, apg: parseFloat(e.target.value) || 0 }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>FG%</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>FG%</label>
                 <input
                   type="number"
                   step="0.1"
                   value={formData.fgPct}
                   onChange={e => setFormData(prev => ({ ...prev, fgPct: parseFloat(e.target.value) || 0 }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>3P%</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>3P%</label>
                 <input
                   type="number"
                   step="0.1"
                   value={formData.threePct}
                   onChange={e => setFormData(prev => ({ ...prev, threePct: parseFloat(e.target.value) || 0 }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
             </div>
 
             <div style={{ marginBottom: "20px" }}>
-              <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>Player Comparison</label>
+              <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>Player Comparison</label>
               <input
                 type="text"
                 value={formData.comparison || ""}
                 placeholder="e.g., Jayson Tatum"
                 onChange={e => setFormData(prev => ({ ...prev, comparison: e.target.value }))}
-                style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
               />
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "20px" }}>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>Strengths</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>Strengths</label>
                 <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
                   <input
                     type="text"
@@ -342,7 +342,7 @@ export default function AdminDraftPage() {
                     onChange={e => setStrengthInput(e.target.value)}
                     onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addStrength())}
                     placeholder="Add strength..."
-                    style={{ flex: 1, padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                    style={{ flex: 1, padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                   />
                   <button onClick={addStrength} style={{ padding: "10px 15px", background: "var(--green)", border: "none", color: "var(--white)", cursor: "pointer" }}>+</button>
                 </div>
@@ -354,7 +354,7 @@ export default function AdminDraftPage() {
                 ))}
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>Weaknesses</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>Weaknesses</label>
                 <div style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
                   <input
                     type="text"
@@ -362,7 +362,7 @@ export default function AdminDraftPage() {
                     onChange={e => setWeaknessInput(e.target.value)}
                     onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addWeakness())}
                     placeholder="Add weakness..."
-                    style={{ flex: 1, padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                    style={{ flex: 1, padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                   />
                   <button onClick={addWeakness} style={{ padding: "10px 15px", background: "var(--red)", border: "none", color: "var(--white)", cursor: "pointer" }}>+</button>
                 </div>
@@ -377,7 +377,7 @@ export default function AdminDraftPage() {
 
             <div style={{ display: "flex", gap: "10px" }}>
               <button onClick={saveProspect} className="btn btn-primary">Save Prospect</button>
-              <button onClick={cancelEdit} style={{ padding: "10px 20px", background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "var(--white)", cursor: "pointer" }}>Cancel</button>
+              <button onClick={cancelEdit} style={{ padding: "10px 20px", background: "transparent", border: "1px solid var(--text-faint)", color: "var(--white)", cursor: "pointer" }}>Cancel</button>
             </div>
           </div>
         )}
@@ -385,7 +385,7 @@ export default function AdminDraftPage() {
         {/* Prospects Table */}
         {isLoading ? (
           <div style={{ textAlign: "center", padding: "60px" }}>
-            <p style={{ color: "rgba(255,255,255,0.5)" }}>Loading prospects...</p>
+            <p style={{ color: "var(--text-muted)" }}>Loading prospects...</p>
           </div>
         ) : error ? (
           <div style={{ textAlign: "center", padding: "60px" }}>
@@ -395,7 +395,7 @@ export default function AdminDraftPage() {
         ) : prospects.length === 0 ? (
           <div className="section">
             <div style={{ textAlign: "center", padding: "40px" }}>
-              <p style={{ color: "rgba(255,255,255,0.5)" }}>No draft prospects yet. Add your first prospect!</p>
+              <p style={{ color: "var(--text-muted)" }}>No draft prospects yet. Add your first prospect!</p>
             </div>
           </div>
         ) : (
@@ -419,13 +419,13 @@ export default function AdminDraftPage() {
               </thead>
               <tbody>
                 {prospects.map(prospect => (
-                  <tr key={prospect.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+                  <tr key={prospect.id} style={{ borderBottom: "1px solid var(--border-color)" }}>
                     <td style={{ padding: "12px" }}>
                       <span style={{
                         display: "inline-block",
                         width: "30px",
                         height: "30px",
-                        background: prospect.rank <= 3 ? "var(--orange)" : "rgba(255,255,255,0.1)",
+                        background: prospect.rank <= 3 ? "var(--orange)" : "var(--border-color)",
                         textAlign: "center",
                         lineHeight: "30px",
                         fontWeight: "bold"

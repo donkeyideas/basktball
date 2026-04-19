@@ -175,7 +175,7 @@ export default function SchedulePage() {
                   letterSpacing: "2px",
                   background: league === l.id ? "var(--orange)" : "var(--dark-gray)",
                   color: "var(--white)",
-                  border: league === l.id ? "1px solid var(--orange)" : "1px solid rgba(255,255,255,0.1)",
+                  border: league === l.id ? "1px solid var(--orange)" : "1px solid var(--border-color)",
                   cursor: "pointer",
                   transition: "all 0.2s ease",
                 }}
@@ -201,7 +201,7 @@ export default function SchedulePage() {
               style={{
                 padding: "10px 20px",
                 background: "var(--dark-gray)",
-                border: "1px solid rgba(255,255,255,0.1)",
+                border: "1px solid var(--border-color)",
                 color: "var(--white)",
                 fontFamily: "var(--font-anton), Anton, sans-serif",
                 fontSize: "14px",
@@ -210,7 +210,7 @@ export default function SchedulePage() {
                 transition: "border-color 0.2s",
               }}
               onMouseOver={(e) => (e.currentTarget.style.borderColor = "var(--orange)")}
-              onMouseOut={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)")}
+              onMouseOut={(e) => (e.currentTarget.style.borderColor = "var(--border-color)")}
             >
               &#9664; PREV WEEK
             </button>
@@ -233,7 +233,7 @@ export default function SchedulePage() {
               style={{
                 padding: "10px 20px",
                 background: "var(--dark-gray)",
-                border: "1px solid rgba(255,255,255,0.1)",
+                border: "1px solid var(--border-color)",
                 color: "var(--white)",
                 fontFamily: "var(--font-anton), Anton, sans-serif",
                 fontSize: "14px",
@@ -242,7 +242,7 @@ export default function SchedulePage() {
                 transition: "border-color 0.2s",
               }}
               onMouseOver={(e) => (e.currentTarget.style.borderColor = "var(--orange)")}
-              onMouseOut={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)")}
+              onMouseOut={(e) => (e.currentTarget.style.borderColor = "var(--border-color)")}
             >
               NEXT WEEK &#9654;
             </button>
@@ -289,7 +289,7 @@ export default function SchedulePage() {
                   key={i}
                   style={{
                     background: "var(--dark-gray)",
-                    border: "1px solid rgba(255,255,255,0.1)",
+                    border: "1px solid var(--border-color)",
                     minHeight: "300px",
                     opacity: 0.5,
                   }}
@@ -297,7 +297,7 @@ export default function SchedulePage() {
                   <div
                     style={{
                       padding: "12px",
-                      borderBottom: "1px solid rgba(255,255,255,0.1)",
+                      borderBottom: "1px solid var(--border-color)",
                       textAlign: "center",
                     }}
                   >
@@ -305,7 +305,7 @@ export default function SchedulePage() {
                       style={{
                         height: "16px",
                         width: "60px",
-                        background: "rgba(255,255,255,0.1)",
+                        background: "var(--border-color)",
                         margin: "0 auto 6px",
                       }}
                     />
@@ -313,7 +313,7 @@ export default function SchedulePage() {
                       style={{
                         height: "12px",
                         width: "80px",
-                        background: "rgba(255,255,255,0.06)",
+                        background: "var(--border-subtle)",
                         margin: "0 auto",
                       }}
                     />
@@ -324,7 +324,7 @@ export default function SchedulePage() {
                         key={j}
                         style={{
                           height: "50px",
-                          background: "rgba(255,255,255,0.05)",
+                          background: "var(--input-bg)",
                           marginBottom: "8px",
                         }}
                       />
@@ -354,7 +354,7 @@ export default function SchedulePage() {
                         background: "var(--dark-gray)",
                         border: isToday
                           ? "1px solid var(--orange)"
-                          : "1px solid rgba(255,255,255,0.1)",
+                          : "1px solid var(--border-color)",
                         minHeight: "280px",
                         display: "flex",
                         flexDirection: "column",
@@ -364,11 +364,11 @@ export default function SchedulePage() {
                       <div
                         style={{
                           padding: "12px 10px",
-                          borderBottom: "1px solid rgba(255,255,255,0.1)",
+                          borderBottom: "1px solid var(--border-color)",
                           textAlign: "center",
                           background: isToday
                             ? "rgba(255,107,53,0.15)"
-                            : "rgba(255,255,255,0.02)",
+                            : "var(--input-bg)",
                         }}
                       >
                         <div
@@ -385,7 +385,7 @@ export default function SchedulePage() {
                           style={{
                             fontFamily: "var(--font-roboto-mono), monospace",
                             fontSize: "12px",
-                            color: "rgba(255,255,255,0.5)",
+                            color: "var(--text-muted)",
                             marginTop: "2px",
                           }}
                         >
@@ -403,7 +403,7 @@ export default function SchedulePage() {
                               justifyContent: "center",
                               height: "100%",
                               minHeight: "80px",
-                              color: "rgba(255,255,255,0.2)",
+                              color: "var(--text-faint)",
                               fontSize: "12px",
                               fontFamily: "var(--font-roboto-mono), monospace",
                             }}
@@ -433,7 +433,7 @@ export default function SchedulePage() {
                         background: "var(--dark-gray)",
                         border: isToday
                           ? "1px solid var(--orange)"
-                          : "1px solid rgba(255,255,255,0.1)",
+                          : "1px solid var(--border-color)",
                         marginBottom: "16px",
                       }}
                     >
@@ -441,13 +441,13 @@ export default function SchedulePage() {
                       <div
                         style={{
                           padding: "14px 16px",
-                          borderBottom: "1px solid rgba(255,255,255,0.1)",
+                          borderBottom: "1px solid var(--border-color)",
                           display: "flex",
                           justifyContent: "space-between",
                           alignItems: "center",
                           background: isToday
                             ? "rgba(255,107,53,0.15)"
-                            : "rgba(255,255,255,0.02)",
+                            : "var(--input-bg)",
                         }}
                       >
                         <span
@@ -464,7 +464,7 @@ export default function SchedulePage() {
                           style={{
                             fontFamily: "var(--font-roboto-mono), monospace",
                             fontSize: "13px",
-                            color: "rgba(255,255,255,0.5)",
+                            color: "var(--text-muted)",
                           }}
                         >
                           {formatDayHeader(dateObj)}
@@ -478,7 +478,7 @@ export default function SchedulePage() {
                             style={{
                               padding: "20px",
                               textAlign: "center",
-                              color: "rgba(255,255,255,0.2)",
+                              color: "var(--text-faint)",
                               fontSize: "13px",
                               fontFamily: "var(--font-roboto-mono), monospace",
                             }}
@@ -528,22 +528,22 @@ function GameSlot({ game, league }: { game: Game; league: string }) {
         color: "inherit",
         padding: "8px",
         marginBottom: "6px",
-        background: "rgba(255,255,255,0.03)",
+        background: "var(--input-bg)",
         border: isLive
           ? "1px solid rgba(255,107,53,0.4)"
-          : "1px solid rgba(255,255,255,0.06)",
+          : "1px solid var(--border-subtle)",
         transition: "all 0.2s ease",
         cursor: "pointer",
       }}
       onMouseOver={(e) => {
-        e.currentTarget.style.background = "rgba(255,255,255,0.07)";
+        e.currentTarget.style.background = "var(--border-color)";
         e.currentTarget.style.borderColor = "var(--orange)";
       }}
       onMouseOut={(e) => {
-        e.currentTarget.style.background = "rgba(255,255,255,0.03)";
+        e.currentTarget.style.background = "var(--input-bg)";
         e.currentTarget.style.borderColor = isLive
           ? "rgba(255,107,53,0.4)"
-          : "rgba(255,255,255,0.06)";
+          : "var(--border-subtle)";
       }}
     >
       {/* Matchup Row */}
@@ -581,7 +581,7 @@ function GameSlot({ game, league }: { game: Game; league: string }) {
 
         <span
           style={{
-            color: "rgba(255,255,255,0.3)",
+            color: "var(--text-faint)",
             fontSize: "11px",
             margin: "0 2px",
           }}
@@ -626,7 +626,7 @@ function GameSlot({ game, league }: { game: Game; league: string }) {
       >
         {isFinal && (
           <>
-            <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "10px" }}>
+            <span style={{ color: "var(--text-faint)", fontSize: "10px" }}>
               FINAL
             </span>
             <span style={{ color: "var(--white)" }}>
@@ -651,14 +651,14 @@ function GameSlot({ game, league }: { game: Game; league: string }) {
               {game.awayScore} - {game.homeScore}
             </span>
             {game.quarter && (
-              <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "10px" }}>
+              <span style={{ color: "var(--text-muted)", fontSize: "10px" }}>
                 {game.quarter} {game.clock || ""}
               </span>
             )}
           </>
         )}
         {game.status === "scheduled" && (
-          <span style={{ color: "rgba(255,255,255,0.5)" }}>
+          <span style={{ color: "var(--text-muted)" }}>
             {formatTipoff(game.gameDate)}
           </span>
         )}
@@ -672,14 +672,14 @@ function GameSlot({ game, league }: { game: Game; league: string }) {
           gap: "4px",
           marginTop: "4px",
         }}>
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="2" y="7" width="20" height="15" rx="2" ry="2" />
             <polyline points="17 2 12 7 7 2" />
           </svg>
           <span style={{
             fontFamily: "var(--font-roboto-mono), monospace",
             fontSize: "10px",
-            color: "rgba(255,255,255,0.35)",
+            color: "var(--text-faint)",
             letterSpacing: "0.3px",
           }}>
             {game.broadcast}

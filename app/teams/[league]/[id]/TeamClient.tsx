@@ -176,7 +176,7 @@ export default function TeamClient() {
 
           {isLoading ? (
             <div style={{ textAlign: "center", padding: "60px" }}>
-              <p style={{ color: "rgba(255,255,255,0.5)" }}>Loading team...</p>
+              <p style={{ color: "var(--text-muted)" }}>Loading team...</p>
             </div>
           ) : error ? (
             <div style={{ textAlign: "center", padding: "60px" }}>
@@ -215,7 +215,7 @@ export default function TeamClient() {
                     width: "120px",
                     height: "120px",
                     borderRadius: "50%",
-                    background: "rgba(255,255,255,0.1)",
+                    background: "var(--border-color)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -275,7 +275,7 @@ export default function TeamClient() {
                     {team.name}
                   </h1>
                   {(team.conference || team.division) && (
-                    <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px" }}>
+                    <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>
                       {[team.conference, team.division].filter(Boolean).join(" • ")}
                     </p>
                   )}
@@ -285,7 +285,7 @@ export default function TeamClient() {
                     style={{
                       textAlign: "center",
                       padding: "15px 25px",
-                      background: "rgba(255,255,255,0.05)",
+                      background: "var(--border-subtle)",
                       borderRadius: "8px",
                     }}
                   >
@@ -297,7 +297,7 @@ export default function TeamClient() {
                     >
                       {stats.wins}-{stats.losses}
                     </p>
-                    <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "12px" }}>
+                    <p style={{ color: "var(--text-muted)", fontSize: "12px" }}>
                       {stats.winPct}% WIN
                     </p>
                   </div>
@@ -310,7 +310,7 @@ export default function TeamClient() {
                   display: "flex",
                   gap: "5px",
                   marginBottom: "20px",
-                  borderBottom: "2px solid rgba(255,255,255,0.1)",
+                  borderBottom: "2px solid var(--border-color)",
                   paddingBottom: "0",
                 }}
               >
@@ -329,7 +329,7 @@ export default function TeamClient() {
                       color:
                         activeTab === tab.id
                           ? "var(--white)"
-                          : "rgba(255,255,255,0.5)",
+                          : "var(--text-muted)",
                       fontFamily: "var(--font-inter), sans-serif",
                       fontSize: "14px",
                       fontWeight: "600",
@@ -406,10 +406,10 @@ export default function TeamClient() {
                                 >
                                   {game.result}
                                 </p>
-                                <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.7)" }}>
+                                <p style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
                                   vs {game.opponent}
                                 </p>
-                                <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.5)" }}>
+                                <p style={{ fontSize: "11px", color: "var(--text-muted)" }}>
                                   {game.score}
                                 </p>
                               </div>
@@ -419,7 +419,7 @@ export default function TeamClient() {
                       )}
                     </>
                   ) : (
-                    <p style={{ color: "rgba(255,255,255,0.5)", textAlign: "center" }}>
+                    <p style={{ color: "var(--text-muted)", textAlign: "center" }}>
                       {statsLoaded ? "No stats available for the current season." : "Loading stats..."}
                     </p>
                   )}
@@ -451,7 +451,7 @@ export default function TeamClient() {
                             key={player.id}
                             style={{
                               padding: "15px",
-                              background: "rgba(255,255,255,0.05)",
+                              background: "var(--border-subtle)",
                               borderRadius: "8px",
                               display: "flex",
                               alignItems: "center",
@@ -463,7 +463,7 @@ export default function TeamClient() {
                                 width: "50px",
                                 height: "50px",
                                 borderRadius: "50%",
-                                background: "rgba(255,255,255,0.1)",
+                                background: "var(--border-color)",
                                 overflow: "hidden",
                                 flexShrink: 0,
                               }}
@@ -493,7 +493,7 @@ export default function TeamClient() {
                               <p
                                 style={{
                                   fontSize: "12px",
-                                  color: "rgba(255,255,255,0.5)",
+                                  color: "var(--text-muted)",
                                 }}
                               >
                                 {player.position || "N/A"}
@@ -505,7 +505,7 @@ export default function TeamClient() {
                       </div>
                     </>
                   ) : (
-                    <p style={{ color: "rgba(255,255,255,0.5)", textAlign: "center" }}>
+                    <p style={{ color: "var(--text-muted)", textAlign: "center" }}>
                       No roster data available.
                     </p>
                   )}
@@ -539,7 +539,7 @@ export default function TeamClient() {
                               key={game.id}
                               style={{
                                 padding: "15px 20px",
-                                background: "rgba(255,255,255,0.05)",
+                                background: "var(--border-subtle)",
                                 borderRadius: "8px",
                                 display: "flex",
                                 alignItems: "center",
@@ -549,13 +549,13 @@ export default function TeamClient() {
                               }}
                             >
                               <div style={{ minWidth: "100px" }}>
-                                <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>
+                                <p style={{ fontSize: "12px", color: "var(--text-muted)" }}>
                                   {gameDate.toLocaleDateString("en-US", {
                                     month: "short",
                                     day: "numeric",
                                   })}
                                 </p>
-                                <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)" }}>
+                                <p style={{ fontSize: "11px", color: "var(--text-faint)" }}>
                                   {isHome ? "HOME" : "AWAY"}
                                 </p>
                               </div>
@@ -578,7 +578,7 @@ export default function TeamClient() {
                                 </div>
                               )}
                               {game.status === "scheduled" && (
-                                <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "12px" }}>
+                                <p style={{ color: "var(--text-muted)", fontSize: "12px" }}>
                                   Upcoming
                                 </p>
                               )}
@@ -588,7 +588,7 @@ export default function TeamClient() {
                       </div>
                     </>
                   ) : (
-                    <p style={{ color: "rgba(255,255,255,0.5)", textAlign: "center" }}>
+                    <p style={{ color: "var(--text-muted)", textAlign: "center" }}>
                       No games found.
                     </p>
                   )}
@@ -608,12 +608,12 @@ function StatBox({ label, value }: { label: string; value: string }) {
     <div
       style={{
         padding: "15px",
-        background: "rgba(255,255,255,0.05)",
+        background: "var(--border-subtle)",
         borderRadius: "8px",
         textAlign: "center",
       }}
     >
-      <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "11px", marginBottom: "5px" }}>
+      <p style={{ color: "var(--text-muted)", fontSize: "11px", marginBottom: "5px" }}>
         {label}
       </p>
       <p

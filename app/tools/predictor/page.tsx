@@ -103,7 +103,7 @@ export default function PredictorPage() {
           </h1>
           <p style={{
             textAlign: "center",
-            color: "rgba(255,255,255,0.6)",
+            color: "var(--text-muted)",
             marginBottom: "40px"
           }}>
             AI-powered game predictions using historical data and current form analysis.
@@ -115,19 +115,19 @@ export default function PredictorPage() {
               <div style={{
                 width: "40px",
                 height: "40px",
-                border: "3px solid rgba(255,255,255,0.1)",
+                border: "3px solid var(--border-color)",
                 borderTopColor: "var(--orange)",
                 borderRadius: "50%",
                 margin: "0 auto 20px",
                 animation: "spin 1s linear infinite"
               }} />
-              <p style={{ color: "rgba(255,255,255,0.6)" }}>Loading teams...</p>
+              <p style={{ color: "var(--text-muted)" }}>Loading teams...</p>
               <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
             </div>
           ) : teams.length === 0 ? (
             <div className="section" style={{ textAlign: "center", padding: "60px 20px" }}>
-              <p style={{ color: "rgba(255,255,255,0.6)", marginBottom: "10px" }}>No teams available.</p>
-              <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "14px" }}>Check back later for updated team data.</p>
+              <p style={{ color: "var(--text-muted)", marginBottom: "10px" }}>No teams available.</p>
+              <p style={{ color: "var(--text-faint)", fontSize: "14px" }}>Check back later for updated team data.</p>
             </div>
           ) : (
           <div style={{ display: "grid", gridTemplateColumns: "1fr 100px 1fr", gap: "20px", marginBottom: "40px" }}>
@@ -144,7 +144,7 @@ export default function PredictorPage() {
                   width: "100%",
                   padding: "15px",
                   background: "rgba(0,0,0,0.3)",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  border: "1px solid var(--border-color)",
                   color: "var(--white)",
                   fontSize: "16px"
                 }}
@@ -177,7 +177,7 @@ export default function PredictorPage() {
               <span style={{
                 fontFamily: "var(--font-anton), Anton, sans-serif",
                 fontSize: "36px",
-                color: "rgba(255,255,255,0.3)"
+                color: "var(--text-faint)"
               }}>VS</span>
             </div>
 
@@ -194,7 +194,7 @@ export default function PredictorPage() {
                   width: "100%",
                   padding: "15px",
                   background: "rgba(0,0,0,0.3)",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  border: "1px solid var(--border-color)",
                   color: "var(--white)",
                   fontSize: "16px"
                 }}
@@ -270,7 +270,7 @@ export default function PredictorPage() {
                     }}>
                       {prediction.homeWinProb}%
                     </div>
-                    <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "13px" }}>{homeTeam?.name}</div>
+                    <div style={{ color: "var(--text-muted)", fontSize: "13px" }}>{homeTeam?.name}</div>
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: "flex", height: "30px", borderRadius: "4px", overflow: "hidden" }}>
@@ -303,7 +303,7 @@ export default function PredictorPage() {
                     }}>
                       {prediction.awayWinProb}%
                     </div>
-                    <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "13px" }}>{awayTeam?.name}</div>
+                    <div style={{ color: "var(--text-muted)", fontSize: "13px" }}>{awayTeam?.name}</div>
                   </div>
                 </div>
               </div>
@@ -311,25 +311,25 @@ export default function PredictorPage() {
               {/* Predicted Score & Lines */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px", marginTop: "20px" }}>
                 <div className="stat-card">
-                  <div style={{ color: "rgba(255,255,255,0.5)", marginBottom: "5px" }}>Predicted Score</div>
+                  <div style={{ color: "var(--text-muted)", marginBottom: "5px" }}>Predicted Score</div>
                   <div style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "28px", fontWeight: "bold" }}>
                     {prediction.predictedHomeScore} - {prediction.predictedAwayScore}
                   </div>
                 </div>
                 <div className="stat-card">
-                  <div style={{ color: "rgba(255,255,255,0.5)", marginBottom: "5px" }}>Spread</div>
+                  <div style={{ color: "var(--text-muted)", marginBottom: "5px" }}>Spread</div>
                   <div style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "28px", fontWeight: "bold" }}>
                     {prediction.spread > 0 ? "+" : ""}{prediction.spread.toFixed(1)}
                   </div>
                 </div>
                 <div className="stat-card">
-                  <div style={{ color: "rgba(255,255,255,0.5)", marginBottom: "5px" }}>Total</div>
+                  <div style={{ color: "var(--text-muted)", marginBottom: "5px" }}>Total</div>
                   <div style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "28px", fontWeight: "bold" }}>
                     {prediction.total}
                   </div>
                 </div>
                 <div className="stat-card">
-                  <div style={{ color: "rgba(255,255,255,0.5)", marginBottom: "5px" }}>Confidence</div>
+                  <div style={{ color: "var(--text-muted)", marginBottom: "5px" }}>Confidence</div>
                   <div style={{
                     fontFamily: "var(--font-roboto-mono), monospace",
                     fontSize: "28px",
@@ -355,7 +355,7 @@ export default function PredictorPage() {
                   }}>
                     <div>
                       <div style={{ fontWeight: "bold", marginBottom: "5px" }}>{factor.name}</div>
-                      <div style={{ fontSize: "14px", color: "rgba(255,255,255,0.5)" }}>{factor.description}</div>
+                      <div style={{ fontSize: "14px", color: "var(--text-muted)" }}>{factor.description}</div>
                     </div>
                     <div style={{
                       fontFamily: "var(--font-roboto-mono), monospace",
@@ -372,7 +372,7 @@ export default function PredictorPage() {
               {/* Disclaimer */}
               <p style={{
                 textAlign: "center",
-                color: "rgba(255,255,255,0.35)",
+                color: "var(--text-faint)",
                 fontSize: "12px",
                 marginTop: "30px",
                 fontStyle: "italic"

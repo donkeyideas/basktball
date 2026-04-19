@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { statsCache, CacheTTL } from "@/lib/cache/redis";
+import { getEspnSeason } from "@/lib/api/season";
 
 export const dynamic = "force-dynamic";
 
@@ -60,9 +61,7 @@ export async function GET(_request: NextRequest) {
       // Cache miss
     }
 
-    const season = new Date().getMonth() >= 9
-      ? new Date().getFullYear() + 1
-      : new Date().getFullYear();
+    const season = getEspnSeason();
 
     const res = await fetch(`${ESPN_STANDINGS}?season=${season}`, {
       headers: { Accept: "application/json" },

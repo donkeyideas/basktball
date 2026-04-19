@@ -31,7 +31,7 @@ export default function FeedTabs({ activeTab, onTabChange, hasLiveGames = false 
   const containerStyle: React.CSSProperties = {
     display: "flex",
     alignItems: "stretch",
-    borderBottom: "1px solid rgba(255,255,255,0.08)",
+    borderBottom: "1px solid var(--border-subtle)",
     backgroundColor: "transparent",
     width: "100%",
     overflow: "hidden",
@@ -53,7 +53,7 @@ export default function FeedTabs({ activeTab, onTabChange, hasLiveGames = false 
       fontWeight: 700,
       letterSpacing: "1.2px",
       textTransform: "uppercase",
-      color: isActive ? "#FFFFFF" : isHovered ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.4)",
+      color: isActive ? "var(--white)" : isHovered ? "var(--text-muted)" : "var(--text-faint)",
       backgroundColor: "transparent",
       border: "none",
       borderBottom: isActive ? "2px solid #FF6B35" : "2px solid transparent",

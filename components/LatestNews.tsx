@@ -98,11 +98,11 @@ export function LatestNews() {
                 opacity: 0.5,
                 overflow: "hidden",
               }}>
-                <div style={{ height: "160px", background: "rgba(255,255,255,0.05)" }}></div>
+                <div style={{ height: "160px", background: "var(--input-bg)" }}></div>
                 <div style={{ padding: "20px" }}>
-                  <div style={{ height: "20px", background: "rgba(255,255,255,0.1)", marginBottom: "15px", width: "60px" }}></div>
-                  <div style={{ height: "24px", background: "rgba(255,255,255,0.1)", marginBottom: "10px" }}></div>
-                  <div style={{ height: "40px", background: "rgba(255,255,255,0.05)" }}></div>
+                  <div style={{ height: "20px", background: "var(--border-color)", marginBottom: "15px", width: "60px" }}></div>
+                  <div style={{ height: "24px", background: "var(--border-color)", marginBottom: "10px" }}></div>
+                  <div style={{ height: "40px", background: "var(--input-bg)" }}></div>
                 </div>
               </div>
             ))}
@@ -169,7 +169,7 @@ export function LatestNews() {
             >
               <article style={{
                 background: "var(--dark-gray)",
-                border: "1px solid rgba(255,255,255,0.1)",
+                border: "1px solid var(--border-color)",
                 height: "100%",
                 display: "flex",
                 flexDirection: "column",
@@ -182,7 +182,7 @@ export function LatestNews() {
                 e.currentTarget.style.transform = "translateY(-2px)";
               }}
               onMouseOut={(e) => {
-                e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+                e.currentTarget.style.borderColor = "var(--border-color)";
                 e.currentTarget.style.transform = "translateY(0)";
               }}
               >
@@ -191,7 +191,7 @@ export function LatestNews() {
                   width: "100%",
                   height: "160px",
                   overflow: "hidden",
-                  background: "rgba(255,255,255,0.03)",
+                  background: "var(--input-bg)",
                 }}>
                   {article.imageUrl ? (
                     <img
@@ -209,7 +209,7 @@ export function LatestNews() {
                           parent.style.display = "flex";
                           parent.style.alignItems = "center";
                           parent.style.justifyContent = "center";
-                          parent.innerHTML = `<span style="font-family:Anton,sans-serif;font-size:36px;color:rgba(255,255,255,0.06)">${getLeagueLabel(article.league)}</span>`;
+                          parent.innerHTML = `<span style="font-family:Anton,sans-serif;font-size:36px;color:var(--border-subtle)">${getLeagueLabel(article.league)}</span>`;
                         }
                       }}
                     />
@@ -225,7 +225,7 @@ export function LatestNews() {
                       <span style={{
                         fontFamily: "var(--font-anton), Anton, sans-serif",
                         fontSize: "36px",
-                        color: "rgba(255,255,255,0.06)",
+                        color: "var(--border-subtle)",
                       }}>
                         {getLeagueLabel(article.league)}
                       </span>
@@ -251,7 +251,7 @@ export function LatestNews() {
                     {getLeagueLabel(article.league)}
                   </span>
                   <span style={{
-                    color: "rgba(255,255,255,0.4)",
+                    color: "var(--text-faint)",
                     fontSize: "11px",
                     fontFamily: "var(--font-roboto-mono), monospace"
                   }}>
@@ -271,7 +271,7 @@ export function LatestNews() {
 
                 {/* Description */}
                 <p style={{
-                  color: "rgba(255,255,255,0.6)",
+                  color: "var(--text-muted)",
                   fontSize: "13px",
                   lineHeight: "1.5",
                   flex: 1,
@@ -287,19 +287,19 @@ export function LatestNews() {
                 <div style={{
                   marginTop: "12px",
                   paddingTop: "10px",
-                  borderTop: "1px solid rgba(255,255,255,0.06)",
+                  borderTop: "1px solid var(--border-subtle)",
                   display: "flex",
                   alignItems: "center",
                   gap: "6px"
                 }}>
                   <span style={{
-                    color: "rgba(255,255,255,0.35)",
+                    color: "var(--text-faint)",
                     fontSize: "11px",
                   }}>
                     via
                   </span>
                   <span style={{
-                    color: "rgba(255,255,255,0.5)",
+                    color: "var(--text-muted)",
                     fontSize: "11px",
                     fontWeight: "600",
                   }}>

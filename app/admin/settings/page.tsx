@@ -76,7 +76,7 @@ export default function AdminSettingsPage() {
       <div className="admin-content">
         {isLoading ? (
           <div style={{ textAlign: "center", padding: "60px" }}>
-            <p style={{ color: "rgba(255,255,255,0.5)" }}>Loading settings...</p>
+            <p style={{ color: "var(--text-muted)" }}>Loading settings...</p>
           </div>
         ) : (
           <form onSubmit={saveSettings} className="settings-form">
@@ -202,7 +202,7 @@ export default function AdminSettingsPage() {
                   {settings.maintenanceMode ? "Enabled" : "Disabled"}
                 </span>
               </div>
-              <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px", marginTop: "10px" }}>
+              <p style={{ color: "var(--text-muted)", fontSize: "14px", marginTop: "10px" }}>
                 When enabled, the public site will display a maintenance message.
               </p>
             </div>

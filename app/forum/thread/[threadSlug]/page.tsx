@@ -132,7 +132,7 @@ export default function ThreadPage() {
         <Header />
         <main style={{ minHeight: "100vh", padding: "40px 20px" }}>
           <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-            <div style={{ color: "rgba(255,255,255,0.4)", padding: "40px", textAlign: "center" }}>Loading thread...</div>
+            <div style={{ color: "var(--text-faint)", padding: "40px", textAlign: "center" }}>Loading thread...</div>
           </div>
         </main>
         <Footer />
@@ -146,7 +146,7 @@ export default function ThreadPage() {
         <Header />
         <main style={{ minHeight: "100vh", padding: "40px 20px" }}>
           <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-            <div style={{ color: "rgba(255,255,255,0.4)", padding: "40px", textAlign: "center" }}>Thread not found</div>
+            <div style={{ color: "var(--text-faint)", padding: "40px", textAlign: "center" }}>Thread not found</div>
           </div>
         </main>
         <Footer />
@@ -161,13 +161,13 @@ export default function ThreadPage() {
         <div style={{ maxWidth: "900px", margin: "0 auto" }}>
       {/* Breadcrumb */}
       <div style={{ marginBottom: "20px", fontSize: "13px" }}>
-        <Link href="/forum" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Forum</Link>
-        <span style={{ color: "rgba(255,255,255,0.2)", margin: "0 8px" }}>/</span>
-        <Link href={`/forum/${thread.category.slug}`} style={{ color: thread.category.color || "rgba(255,255,255,0.4)", textDecoration: "none" }}>
+        <Link href="/forum" style={{ color: "var(--text-faint)", textDecoration: "none" }}>Forum</Link>
+        <span style={{ color: "var(--text-faint)", margin: "0 8px" }}>/</span>
+        <Link href={`/forum/${thread.category.slug}`} style={{ color: thread.category.color || "var(--text-faint)", textDecoration: "none" }}>
           {thread.category.name}
         </Link>
-        <span style={{ color: "rgba(255,255,255,0.2)", margin: "0 8px" }}>/</span>
-        <span style={{ color: "rgba(255,255,255,0.6)" }}>{thread.title.slice(0, 50)}</span>
+        <span style={{ color: "var(--text-faint)", margin: "0 8px" }}>/</span>
+        <span style={{ color: "var(--text-muted)" }}>{thread.title.slice(0, 50)}</span>
       </div>
 
       {/* Thread header */}
@@ -180,7 +180,7 @@ export default function ThreadPage() {
             <span style={{ fontSize: "10px", fontWeight: "700", padding: "2px 8px", borderRadius: "4px", background: "rgba(107,114,128,0.2)", color: "#6B7280" }}>LOCKED</span>
           )}
           {thread.tags?.map((tag) => (
-            <span key={tag} style={{ fontSize: "10px", padding: "2px 8px", borderRadius: "4px", background: "#2a2a2a", color: "rgba(255,255,255,0.5)" }}>
+            <span key={tag} style={{ fontSize: "10px", padding: "2px 8px", borderRadius: "4px", background: "#2a2a2a", color: "var(--text-muted)" }}>
               {tag}
             </span>
           ))}
@@ -189,7 +189,7 @@ export default function ThreadPage() {
         <h1 style={{
           fontFamily: "var(--font-anton)",
           fontSize: "28px",
-          color: "#fff",
+          color: "var(--white)",
           margin: "0 0 8px 0",
           letterSpacing: "0.5px",
           lineHeight: "1.2",
@@ -197,7 +197,7 @@ export default function ThreadPage() {
           {thread.title}
         </h1>
 
-        <div style={{ display: "flex", gap: "16px", fontSize: "12px", color: "rgba(255,255,255,0.35)" }}>
+        <div style={{ display: "flex", gap: "16px", fontSize: "12px", color: "var(--text-faint)" }}>
           <span>{thread.postCount} posts</span>
           <span>{thread.viewCount} views</span>
         </div>
@@ -216,7 +216,7 @@ export default function ThreadPage() {
               <div style={{ fontWeight: "700", color: "#8B5CF6", marginBottom: "8px", fontSize: "12px", textTransform: "uppercase", letterSpacing: "1px" }}>
                 AI Thread Summary
               </div>
-              <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "14px", lineHeight: "1.6" }}>{summary}</div>
+              <div style={{ color: "var(--text-secondary)", fontSize: "14px", lineHeight: "1.6" }}>{summary}</div>
             </div>
           ) : (
             <button
@@ -256,17 +256,17 @@ export default function ThreadPage() {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page <= 1}
-            style={{ padding: "8px 16px", borderRadius: "6px", border: "1px solid #333", background: "transparent", color: "#fff", cursor: page > 1 ? "pointer" : "default", opacity: page > 1 ? 1 : 0.3 }}
+            style={{ padding: "8px 16px", borderRadius: "6px", border: "1px solid #333", background: "transparent", color: "var(--white)", cursor: page > 1 ? "pointer" : "default", opacity: page > 1 ? 1 : 0.3 }}
           >
             Prev
           </button>
-          <span style={{ padding: "8px 16px", color: "rgba(255,255,255,0.5)", fontSize: "14px" }}>
+          <span style={{ padding: "8px 16px", color: "var(--text-muted)", fontSize: "14px" }}>
             Page {page} of {totalPages}
           </span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page >= totalPages}
-            style={{ padding: "8px 16px", borderRadius: "6px", border: "1px solid #333", background: "transparent", color: "#fff", cursor: page < totalPages ? "pointer" : "default", opacity: page < totalPages ? 1 : 0.3 }}
+            style={{ padding: "8px 16px", borderRadius: "6px", border: "1px solid #333", background: "transparent", color: "var(--white)", cursor: page < totalPages ? "pointer" : "default", opacity: page < totalPages ? 1 : 0.3 }}
           >
             Next
           </button>
@@ -284,13 +284,13 @@ export default function ThreadPage() {
 
       {!session?.user && (
         <div style={{
-          background: "#1A1A1A",
+          background: "var(--dark-gray)",
           borderRadius: "8px",
           border: "1px solid #2a2a2a",
           padding: "24px",
           textAlign: "center",
         }}>
-          <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: "12px" }}>Sign in to join the discussion</p>
+          <p style={{ color: "var(--text-muted)", marginBottom: "12px" }}>Sign in to join the discussion</p>
           <Link href="/login" style={{ color: "#FF6B35", textDecoration: "none", fontWeight: "600" }}>
             Sign In
           </Link>

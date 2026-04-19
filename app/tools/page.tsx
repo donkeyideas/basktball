@@ -43,7 +43,7 @@ export default function ToolsPage() {
               }}></span>
             </h1>
             <p style={{
-              color: "rgba(255,255,255,0.6)",
+              color: "var(--text-muted)",
               fontSize: "18px",
               maxWidth: "600px",
               margin: "0 auto"
@@ -63,7 +63,7 @@ export default function ToolsPage() {
             maxWidth: "600px",
           }}>
             <p style={{
-              color: "rgba(255,255,255,0.6)",
+              color: "var(--text-muted)",
               fontSize: "16px",
               marginBottom: "20px",
             }}>

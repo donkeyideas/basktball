@@ -88,7 +88,7 @@ export default function AutomationTab() {
   }
 
   if (isLoading) {
-    return <div style={{ textAlign: "center", padding: "40px", color: "rgba(255,255,255,0.5)" }}>Loading...</div>;
+    return <div style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>Loading...</div>;
   }
 
   return (
@@ -119,7 +119,7 @@ export default function AutomationTab() {
               width: "44px",
               height: "24px",
               borderRadius: "12px",
-              background: config.enabled ? "var(--orange)" : "rgba(255,255,255,0.1)",
+              background: config.enabled ? "var(--orange)" : "var(--border-color)",
               position: "relative",
               transition: "background 0.2s",
               cursor: "pointer",
@@ -139,7 +139,7 @@ export default function AutomationTab() {
               }}
             />
           </div>
-          <span style={{ color: "rgba(255,255,255,0.8)" }}>
+          <span style={{ color: "var(--text-secondary)" }}>
             {config.enabled ? "Enabled" : "Disabled"}
           </span>
         </label>
@@ -157,12 +157,12 @@ export default function AutomationTab() {
                 alignItems: "center",
                 gap: "8px",
                 padding: "8px 16px",
-                background: config.platforms.includes(p.id) ? "rgba(255,107,53,0.1)" : "rgba(255,255,255,0.03)",
-                border: `1px solid ${config.platforms.includes(p.id) ? "rgba(255,107,53,0.3)" : "rgba(255,255,255,0.1)"}`,
+                background: config.platforms.includes(p.id) ? "rgba(255,107,53,0.1)" : "var(--border-subtle)",
+                border: `1px solid ${config.platforms.includes(p.id) ? "rgba(255,107,53,0.3)" : "var(--border-color)"}`,
                 borderRadius: "6px",
                 cursor: "pointer",
                 fontSize: "13px",
-                color: config.platforms.includes(p.id) ? "var(--orange)" : "rgba(255,255,255,0.7)",
+                color: config.platforms.includes(p.id) ? "var(--orange)" : "var(--text-secondary)",
               }}
             >
               <input
@@ -186,9 +186,9 @@ export default function AutomationTab() {
           style={{
             padding: "8px 14px",
             background: "rgba(0,0,0,0.3)",
-            border: "1px solid rgba(255,255,255,0.1)",
+            border: "1px solid var(--border-color)",
             borderRadius: "6px",
-            color: "white",
+            color: "var(--white)",
             fontSize: "13px",
           }}
         >
@@ -203,7 +203,7 @@ export default function AutomationTab() {
       {/* Topic Pool */}
       <div className="section" style={{ marginTop: "20px" }}>
         <h3 className="section-title">TOPIC ROTATION POOL</h3>
-        <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginBottom: "8px" }}>
+        <p style={{ fontSize: "12px", color: "var(--text-faint)", marginBottom: "8px" }}>
           One topic per line. The system rotates through these daily.
         </p>
         <textarea
@@ -215,9 +215,9 @@ export default function AutomationTab() {
             width: "100%",
             padding: "10px 14px",
             background: "rgba(0,0,0,0.3)",
-            border: "1px solid rgba(255,255,255,0.1)",
+            border: "1px solid var(--border-color)",
             borderRadius: "8px",
-            color: "white",
+            color: "var(--white)",
             fontSize: "13px",
             resize: "vertical",
             fontFamily: "inherit",
@@ -229,7 +229,7 @@ export default function AutomationTab() {
       <div className="section" style={{ marginTop: "20px" }}>
         <h3 className="section-title">OPTIONS</h3>
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-          <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", fontSize: "13px", color: "rgba(255,255,255,0.8)" }}>
+          <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", fontSize: "13px", color: "var(--text-secondary)" }}>
             <input
               type="checkbox"
               checked={config.includeDebates}
@@ -238,7 +238,7 @@ export default function AutomationTab() {
             />
             Include basketball debate topics
           </label>
-          <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", fontSize: "13px", color: "rgba(255,255,255,0.8)" }}>
+          <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", fontSize: "13px", color: "var(--text-secondary)" }}>
             <input
               type="checkbox"
               checked={config.requireApproval}

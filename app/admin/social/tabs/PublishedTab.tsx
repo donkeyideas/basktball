@@ -53,7 +53,7 @@ export default function PublishedTab() {
   });
 
   if (isLoading) {
-    return <div style={{ textAlign: "center", padding: "40px", color: "rgba(255,255,255,0.5)" }}>Loading...</div>;
+    return <div style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>Loading...</div>;
   }
 
   return (
@@ -76,7 +76,7 @@ export default function PublishedTab() {
 
       {/* Table */}
       {posts.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "40px", color: "rgba(255,255,255,0.4)" }}>
+        <div style={{ textAlign: "center", padding: "40px", color: "var(--text-faint)" }}>
           No published posts yet.
         </div>
       ) : (
@@ -102,10 +102,10 @@ export default function PublishedTab() {
                     {PLATFORM_LABELS[post.platform] || post.platform}
                   </span>
                 </td>
-                <td style={{ fontSize: "12px", fontFamily: "'Roboto Mono', monospace", color: "rgba(255,255,255,0.5)" }}>
+                <td style={{ fontSize: "12px", fontFamily: "'Roboto Mono', monospace", color: "var(--text-muted)" }}>
                   {post.publishedAt ? new Date(post.publishedAt).toLocaleString() : "—"}
                 </td>
-                <td style={{ fontSize: "11px", fontFamily: "'Roboto Mono', monospace", color: "rgba(255,255,255,0.3)" }}>
+                <td style={{ fontSize: "11px", fontFamily: "'Roboto Mono', monospace", color: "var(--text-faint)" }}>
                   {post.externalId || "—"}
                 </td>
               </tr>
@@ -120,7 +120,7 @@ export default function PublishedTab() {
           <button className="btn btn-secondary" disabled={page <= 1} onClick={() => setPage((p) => p - 1)} style={{ fontSize: "13px", padding: "6px 16px" }}>
             Previous
           </button>
-          <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "13px", alignSelf: "center" }}>
+          <span style={{ color: "var(--text-muted)", fontSize: "13px", alignSelf: "center" }}>
             Page {page}
           </span>
           <button className="btn btn-secondary" disabled={page * 20 >= total} onClick={() => setPage((p) => p + 1)} style={{ fontSize: "13px", padding: "6px 16px" }}>

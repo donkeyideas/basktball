@@ -94,10 +94,11 @@ export default function GameDetailScreen() {
     fetchGameDetail();
   }, [id]);
 
-  // Auto-refresh live games every 30s
+  // Auto-refresh live and scheduled games (scheduled may transition to live)
   useEffect(() => {
-    if (!data || data.game.status !== 'live') return;
-    const interval = setInterval(fetchGameDetail, 30000);
+    if (!data) return;
+    if (data.game.status === 'final') return; // no need to refresh finished games
+    const interval = setInterval(fetchGameDetail, data.game.status === 'live' ? 30000 : 60000);
     return () => clearInterval(interval);
   }, [data?.game.status]);
 

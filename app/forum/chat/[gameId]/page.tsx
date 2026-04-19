@@ -15,9 +15,9 @@ export default function GameChatPage() {
         <div style={{ maxWidth: "700px", margin: "0 auto" }}>
           {/* Breadcrumb */}
           <div style={{ marginBottom: "20px", fontSize: "13px" }}>
-            <Link href="/forum" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Forum</Link>
-            <span style={{ color: "rgba(255,255,255,0.2)", margin: "0 8px" }}>/</span>
-            <span style={{ color: "rgba(255,255,255,0.6)" }}>Game Chat</span>
+            <Link href="/forum" style={{ color: "var(--text-faint)", textDecoration: "none" }}>Forum</Link>
+            <span style={{ color: "var(--text-faint)", margin: "0 8px" }}>/</span>
+            <span style={{ color: "var(--text-muted)" }}>Game Chat</span>
           </div>
 
           <h1 style={{

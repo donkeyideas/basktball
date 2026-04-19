@@ -13,9 +13,29 @@ export async function GET(
     const limit = Math.min(Number(searchParams.get("limit")) || 30, 50);
     const includeReplies = searchParams.get("replies") === "true";
 
+    // Support lookup by UUID or by username/handle
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    let authorId = id;
+    if (!isUuid) {
+      const user = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { name: { equals: id, mode: "insensitive" } },
+            { handle: { equals: id, mode: "insensitive" } },
+          ],
+          status: "ACTIVE",
+        },
+        select: { id: true },
+      });
+      if (!user) {
+        return NextResponse.json({ takes: [], nextCursor: null, hasMore: false });
+      }
+      authorId = user.id;
+    }
+
     const takes = await prisma.take.findMany({
       where: {
-        authorId: id,
+        authorId,
         isDeleted: false,
         ...(includeReplies ? {} : { parentId: null }),
       },

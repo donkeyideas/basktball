@@ -45,7 +45,7 @@ const ROLE_COLORS: Record<string, string> = {
   EDITOR: "var(--orange)",
   MODERATOR: "var(--blue, #3B82F6)",
   PREMIUM: "var(--yellow)",
-  USER: "rgba(255,255,255,0.5)",
+  USER: "var(--text-muted)",
 };
 
 const STATUS_COLORS: Record<string, string> = {
@@ -203,7 +203,7 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          backgroundColor: "var(--dark-gray, #1A1A1A)",
+          backgroundColor: "var(--dark-gray, var(--dark-gray))",
           border: "2px solid var(--orange, #FF6B35)",
           maxWidth: "680px",
           width: "90%",
@@ -214,7 +214,7 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
         }}
       >
         {loading ? (
-          <div style={{ padding: "60px", textAlign: "center", color: "rgba(255,255,255,0.5)" }}>
+          <div style={{ padding: "60px", textAlign: "center", color: "var(--text-muted)" }}>
             Loading user data...
           </div>
         ) : !user ? (
@@ -226,7 +226,7 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
             {/* Header */}
             <div style={{
               padding: "24px 32px",
-              borderBottom: "1px solid rgba(255,255,255,0.1)",
+              borderBottom: "1px solid var(--border-color)",
               display: "flex",
               alignItems: "center",
               gap: "16px",
@@ -241,7 +241,7 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
                 justifyContent: "center",
                 fontFamily: "var(--font-anton), sans-serif",
                 fontSize: "20px",
-                color: "#fff",
+                color: "var(--white)",
                 flexShrink: 0,
               }}>
                 {initials}
@@ -255,7 +255,7 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
                 }}>
                   {displayName}
                 </h2>
-                <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px" }}>{user.email}</div>
+                <div style={{ color: "var(--text-muted)", fontSize: "14px" }}>{user.email}</div>
               </div>
               <div style={{ display: "flex", gap: "8px", flexShrink: 0 }}>
                 <span style={{
@@ -284,7 +284,7 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
                 style={{
                   background: "none",
                   border: "none",
-                  color: "rgba(255,255,255,0.5)",
+                  color: "var(--text-muted)",
                   cursor: "pointer",
                   padding: "4px",
                   flexShrink: 0,
@@ -302,8 +302,8 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
               display: "grid",
               gridTemplateColumns: "repeat(5, 1fr)",
               gap: "1px",
-              background: "rgba(255,255,255,0.05)",
-              borderBottom: "1px solid rgba(255,255,255,0.1)",
+              background: "var(--border-subtle)",
+              borderBottom: "1px solid var(--border-color)",
             }}>
               {[
                 { label: "Takes", value: user.takeCount },
@@ -313,7 +313,7 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
                 { label: "Last Active", value: user.lastActiveAt ? new Date(user.lastActiveAt).toLocaleDateString() : "Never" },
               ].map((stat) => (
                 <div key={stat.label} style={{
-                  background: "var(--dark-gray, #1A1A1A)",
+                  background: "var(--dark-gray, var(--dark-gray))",
                   padding: "14px 16px",
                   textAlign: "center",
                 }}>
@@ -325,7 +325,7 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
                   }}>
                     {stat.value}
                   </div>
-                  <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  <div style={{ fontSize: "11px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
                     {stat.label}
                   </div>
                 </div>
@@ -350,7 +350,7 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
             <div style={{ padding: "24px 32px" }}>
               {/* Change Role */}
               <div style={{ marginBottom: "20px" }}>
-                <label style={{ display: "block", fontSize: "12px", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px", fontWeight: "bold" }}>
+                <label style={{ display: "block", fontSize: "12px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px", fontWeight: "bold" }}>
                   Change Role
                 </label>
                 <div style={{ display: "flex", gap: "8px" }}>
@@ -361,8 +361,8 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
                       flex: 1,
                       padding: "8px 12px",
                       background: "rgba(0,0,0,0.3)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: "#fff",
+                      border: "1px solid var(--border-color)",
+                      color: "var(--white)",
                       fontSize: "14px",
                       outline: "none",
                     }}
@@ -376,9 +376,9 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
                     disabled={saving || selectedRole === user.role}
                     style={{
                       padding: "8px 20px",
-                      background: selectedRole !== user.role ? "var(--orange, #FF6B35)" : "rgba(255,255,255,0.1)",
+                      background: selectedRole !== user.role ? "var(--orange, #FF6B35)" : "var(--border-color)",
                       border: "none",
-                      color: "#fff",
+                      color: "var(--white)",
                       fontSize: "13px",
                       fontWeight: "600",
                       cursor: selectedRole !== user.role ? "pointer" : "default",
@@ -391,7 +391,7 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
 
               {/* Change Status */}
               <div style={{ marginBottom: "20px" }}>
-                <label style={{ display: "block", fontSize: "12px", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px", fontWeight: "bold" }}>
+                <label style={{ display: "block", fontSize: "12px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px", fontWeight: "bold" }}>
                   Account Status
                 </label>
                 {(user.status === "BANNED" || user.status === "SUSPENDED") && (
@@ -404,8 +404,8 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
                         width: "100%",
                         padding: "8px 12px",
                         background: "rgba(0,0,0,0.3)",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                        color: "#fff",
+                        border: "1px solid var(--border-color)",
+                        color: "var(--white)",
                         fontSize: "14px",
                         outline: "none",
                         boxSizing: "border-box",
@@ -421,7 +421,7 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
                       padding: "8px 16px",
                       background: user.status !== "ACTIVE" ? "var(--green, #10B981)" : "rgba(16,185,129,0.2)",
                       border: "none",
-                      color: "#fff",
+                      color: "var(--white)",
                       fontSize: "12px",
                       fontWeight: "600",
                       cursor: user.status !== "ACTIVE" ? "pointer" : "default",
@@ -437,7 +437,7 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
                       padding: "8px 16px",
                       background: user.status !== "SUSPENDED" ? "var(--yellow, #F59E0B)" : "rgba(245,158,11,0.2)",
                       border: "none",
-                      color: "#fff",
+                      color: "var(--white)",
                       fontSize: "12px",
                       fontWeight: "600",
                       cursor: user.status !== "SUSPENDED" ? "pointer" : "default",
@@ -453,7 +453,7 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
                       padding: "8px 16px",
                       background: user.status !== "BANNED" ? "var(--red, #EF4444)" : "rgba(239,68,68,0.2)",
                       border: "none",
-                      color: "#fff",
+                      color: "var(--white)",
                       fontSize: "12px",
                       fontWeight: "600",
                       cursor: user.status !== "BANNED" ? "pointer" : "default",
@@ -467,7 +467,7 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
 
               {/* Reset Password */}
               <div style={{ marginBottom: "20px" }}>
-                <label style={{ display: "block", fontSize: "12px", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px", fontWeight: "bold" }}>
+                <label style={{ display: "block", fontSize: "12px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px", fontWeight: "bold" }}>
                   Reset Password
                 </label>
                 <div style={{ display: "flex", gap: "8px" }}>
@@ -480,8 +480,8 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
                       flex: 1,
                       padding: "8px 12px",
                       background: "rgba(0,0,0,0.3)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: "#fff",
+                      border: "1px solid var(--border-color)",
+                      color: "var(--white)",
                       fontSize: "14px",
                       outline: "none",
                     }}
@@ -491,9 +491,9 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
                     disabled={saving || newPassword.length < 8}
                     style={{
                       padding: "8px 20px",
-                      background: newPassword.length >= 8 ? "var(--orange, #FF6B35)" : "rgba(255,255,255,0.1)",
+                      background: newPassword.length >= 8 ? "var(--orange, #FF6B35)" : "var(--border-color)",
                       border: "none",
-                      color: "#fff",
+                      color: "var(--white)",
                       fontSize: "13px",
                       fontWeight: "600",
                       cursor: newPassword.length >= 8 ? "pointer" : "default",
@@ -507,14 +507,14 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
               {/* Recent Takes */}
               {user.takes.length > 0 && (
                 <div>
-                  <label style={{ display: "block", fontSize: "12px", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px", fontWeight: "bold" }}>
+                  <label style={{ display: "block", fontSize: "12px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px", fontWeight: "bold" }}>
                     Recent Takes
                   </label>
                   <div style={{ maxHeight: "200px", overflowY: "auto" }}>
                     {user.takes.map((t) => (
                       <div key={t.id} style={{
                         padding: "8px 12px",
-                        borderBottom: "1px solid rgba(255,255,255,0.05)",
+                        borderBottom: "1px solid var(--border-subtle)",
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
@@ -522,14 +522,14 @@ export function UserModal({ userId, onClose, onUpdate }: UserModalProps) {
                       }}>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <span style={{ color: "var(--orange)", fontSize: "10px", fontWeight: "bold", marginRight: "8px" }}>TAKE</span>
-                          <span style={{ color: "rgba(255,255,255,0.8)", fontSize: "13px" }}>
+                          <span style={{ color: "var(--text-secondary)", fontSize: "13px" }}>
                             {t.content.slice(0, 80)}{t.content.length > 80 ? "..." : ""}
                           </span>
                         </div>
                         <div style={{ display: "flex", gap: "8px", alignItems: "center", flexShrink: 0 }}>
                           <span style={{ color: "var(--orange)", fontSize: "11px" }}>{t.fireCount}F</span>
                           <span style={{ color: "var(--red)", fontSize: "11px" }}>{t.brickCount}B</span>
-                          <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "11px" }}>
+                          <span style={{ color: "var(--text-faint)", fontSize: "11px" }}>
                             {new Date(t.createdAt).toLocaleDateString()}
                           </span>
                         </div>

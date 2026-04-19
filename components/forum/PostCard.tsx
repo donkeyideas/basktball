@@ -82,7 +82,7 @@ export default function PostCard({ post, onReply }: PostCardProps) {
 
   return (
     <div style={{
-      background: "#1A1A1A",
+      background: "var(--dark-gray)",
       borderRadius: "8px",
       border: "1px solid #2a2a2a",
       padding: "20px",
@@ -91,7 +91,7 @@ export default function PostCard({ post, onReply }: PostCardProps) {
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
         <UserBadge user={post.author} />
-        <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)", textAlign: "right" }}>
+        <div style={{ fontSize: "12px", color: "var(--text-faint)", textAlign: "right" }}>
           <span>#{post.postNumber}</span> &middot; <span>{timeAgo}</span>
           {post.isEdited && <span> &middot; edited</span>}
         </div>
@@ -99,7 +99,7 @@ export default function PostCard({ post, onReply }: PostCardProps) {
 
       {/* Content */}
       <div style={{
-        color: "rgba(255,255,255,0.85)",
+        color: "var(--text-secondary)",
         fontSize: "14px",
         lineHeight: "1.7",
         marginBottom: "16px",
@@ -118,7 +118,7 @@ export default function PostCard({ post, onReply }: PostCardProps) {
           padding: "12px",
           marginBottom: "12px",
           fontSize: "13px",
-          color: "rgba(255,255,255,0.7)",
+          color: "var(--text-secondary)",
         }}>
           <div style={{ fontWeight: "700", color: "#3B82F6", marginBottom: "6px", fontSize: "11px", textTransform: "uppercase", letterSpacing: "1px" }}>
             AI Fact Check
@@ -139,7 +139,7 @@ export default function PostCard({ post, onReply }: PostCardProps) {
           {session?.user && onReply && (
             <button
               onClick={() => onReply(post.id)}
-              style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", background: "none", border: "none", cursor: "pointer", padding: "4px 8px" }}
+              style={{ fontSize: "12px", color: "var(--text-faint)", background: "none", border: "none", cursor: "pointer", padding: "4px 8px" }}
             >
               Reply
             </button>
@@ -148,7 +148,7 @@ export default function PostCard({ post, onReply }: PostCardProps) {
             <button
               onClick={handleFactCheck}
               disabled={factCheckLoading}
-              style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", background: "none", border: "none", cursor: "pointer", padding: "4px 8px" }}
+              style={{ fontSize: "12px", color: "var(--text-faint)", background: "none", border: "none", cursor: "pointer", padding: "4px 8px" }}
             >
               {factCheckLoading ? "Checking..." : "Fact Check"}
             </button>
@@ -156,7 +156,7 @@ export default function PostCard({ post, onReply }: PostCardProps) {
           {session?.user && (
             <button
               onClick={() => setShowReport(!showReport)}
-              style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)", background: "none", border: "none", cursor: "pointer", padding: "4px 8px" }}
+              style={{ fontSize: "12px", color: "var(--text-faint)", background: "none", border: "none", cursor: "pointer", padding: "4px 8px" }}
             >
               Report
             </button>
@@ -170,7 +170,7 @@ export default function PostCard({ post, onReply }: PostCardProps) {
           <select
             value={reportReason}
             onChange={(e) => setReportReason(e.target.value)}
-            style={{ padding: "6px", borderRadius: "4px", background: "#222", color: "#fff", border: "1px solid #333", fontSize: "13px" }}
+            style={{ padding: "6px", borderRadius: "4px", background: "#222", color: "var(--white)", border: "1px solid #333", fontSize: "13px" }}
           >
             <option value="SPAM">Spam</option>
             <option value="HARASSMENT">Harassment</option>
@@ -182,13 +182,13 @@ export default function PostCard({ post, onReply }: PostCardProps) {
           <button
             onClick={handleReport}
             disabled={reportLoading}
-            style={{ padding: "6px 12px", borderRadius: "4px", background: "#EF4444", color: "#fff", border: "none", cursor: "pointer", fontSize: "13px" }}
+            style={{ padding: "6px 12px", borderRadius: "4px", background: "#EF4444", color: "var(--white)", border: "none", cursor: "pointer", fontSize: "13px" }}
           >
             Submit
           </button>
           <button
             onClick={() => setShowReport(false)}
-            style={{ padding: "6px 12px", borderRadius: "4px", background: "#333", color: "#fff", border: "none", cursor: "pointer", fontSize: "13px" }}
+            style={{ padding: "6px 12px", borderRadius: "4px", background: "var(--border-color)", color: "var(--white)", border: "none", cursor: "pointer", fontSize: "13px" }}
           >
             Cancel
           </button>

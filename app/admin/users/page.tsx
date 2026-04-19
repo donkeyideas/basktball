@@ -209,7 +209,7 @@ export default function AdminUsersPage() {
       <div className="admin-content">
         {isLoading ? (
           <div style={{ textAlign: "center", padding: "60px" }}>
-            <p style={{ color: "rgba(255,255,255,0.5)" }}>Loading users...</p>
+            <p style={{ color: "var(--text-muted)" }}>Loading users...</p>
           </div>
         ) : error ? (
           <div style={{ textAlign: "center", padding: "60px" }}>
@@ -251,7 +251,7 @@ export default function AdminUsersPage() {
                     >
                       <div style={{
                         fontSize: "10px",
-                        color: "rgba(255,255,255,0.6)",
+                        color: "var(--text-muted)",
                         marginBottom: "4px",
                       }}>
                         {day.count > 0 ? day.count : ""}
@@ -268,7 +268,7 @@ export default function AdminUsersPage() {
                       />
                       <div style={{
                         fontSize: "9px",
-                        color: "rgba(255,255,255,0.3)",
+                        color: "var(--text-faint)",
                         marginTop: "4px",
                         transform: "rotate(-45deg)",
                         whiteSpace: "nowrap",
@@ -294,7 +294,7 @@ export default function AdminUsersPage() {
                       }}>
                         {r.role}
                       </div>
-                      <div style={{ flex: 1, height: "24px", background: "rgba(255,255,255,0.05)", borderRadius: "4px", overflow: "hidden" }}>
+                      <div style={{ flex: 1, height: "24px", background: "var(--border-subtle)", borderRadius: "4px", overflow: "hidden" }}>
                         <div style={{
                           width: `${(r.count / maxRoleCount) * 100}%`,
                           height: "100%",
@@ -336,8 +336,8 @@ export default function AdminUsersPage() {
                     minWidth: "200px",
                     padding: "10px 14px",
                     background: "rgba(0,0,0,0.3)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    color: "#fff",
+                    border: "1px solid var(--border-color)",
+                    color: "var(--white)",
                     fontSize: "14px",
                     outline: "none",
                     fontFamily: "var(--font-inter), sans-serif",
@@ -349,8 +349,8 @@ export default function AdminUsersPage() {
                   style={{
                     padding: "10px 14px",
                     background: "rgba(0,0,0,0.3)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    color: "#fff",
+                    border: "1px solid var(--border-color)",
+                    color: "var(--white)",
                     fontSize: "14px",
                     outline: "none",
                   }}
@@ -366,8 +366,8 @@ export default function AdminUsersPage() {
                   style={{
                     padding: "10px 14px",
                     background: "rgba(0,0,0,0.3)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    color: "#fff",
+                    border: "1px solid var(--border-color)",
+                    color: "var(--white)",
                     fontSize: "14px",
                     outline: "none",
                   }}
@@ -409,7 +409,7 @@ export default function AdminUsersPage() {
                 <tbody>
                   {users.length === 0 ? (
                     <tr>
-                      <td colSpan={7} style={{ textAlign: "center", color: "rgba(255,255,255,0.4)", padding: "30px" }}>
+                      <td colSpan={7} style={{ textAlign: "center", color: "var(--text-faint)", padding: "30px" }}>
                         No users found
                       </td>
                     </tr>
@@ -437,14 +437,14 @@ export default function AdminUsersPage() {
                                 justifyContent: "center",
                                 fontSize: "13px",
                                 fontWeight: "bold",
-                                color: "#fff",
+                                color: "var(--white)",
                                 flexShrink: 0,
                               }}>
                                 {initial}
                               </div>
                               <div>
                                 <div style={{ fontWeight: "600", fontSize: "14px" }}>{displayName}</div>
-                                <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>{user.email}</div>
+                                <div style={{ fontSize: "12px", color: "var(--text-faint)" }}>{user.email}</div>
                               </div>
                             </div>
                           </td>
@@ -481,7 +481,7 @@ export default function AdminUsersPage() {
                           <td style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "14px" }}>
                             {user.followingCount}
                           </td>
-                          <td style={{ fontSize: "13px", color: "rgba(255,255,255,0.6)" }}>
+                          <td style={{ fontSize: "13px", color: "var(--text-muted)" }}>
                             {new Date(user.createdAt).toLocaleDateString()}
                           </td>
                         </tr>
@@ -500,7 +500,7 @@ export default function AdminUsersPage() {
                   marginTop: "20px",
                   padding: "10px 0",
                 }}>
-                  <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "13px" }}>
+                  <div style={{ color: "var(--text-faint)", fontSize: "13px" }}>
                     Showing {(page - 1) * 20 + 1}-{Math.min(page * 20, pagination.total)} of {pagination.total} users
                   </div>
                   <div style={{ display: "flex", gap: "8px" }}>
@@ -509,9 +509,9 @@ export default function AdminUsersPage() {
                       disabled={page <= 1}
                       style={{
                         padding: "6px 14px",
-                        background: page > 1 ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.03)",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                        color: page > 1 ? "#fff" : "rgba(255,255,255,0.3)",
+                        background: page > 1 ? "var(--border-color)" : "var(--border-subtle)",
+                        border: "1px solid var(--border-color)",
+                        color: page > 1 ? "var(--white)" : "var(--text-faint)",
                         fontSize: "13px",
                         cursor: page > 1 ? "pointer" : "default",
                       }}
@@ -521,7 +521,7 @@ export default function AdminUsersPage() {
                     <span style={{
                       padding: "6px 14px",
                       fontSize: "13px",
-                      color: "rgba(255,255,255,0.6)",
+                      color: "var(--text-muted)",
                     }}>
                       Page {page} of {pagination.totalPages}
                     </span>
@@ -530,9 +530,9 @@ export default function AdminUsersPage() {
                       disabled={page >= pagination.totalPages}
                       style={{
                         padding: "6px 14px",
-                        background: page < pagination.totalPages ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.03)",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                        color: page < pagination.totalPages ? "#fff" : "rgba(255,255,255,0.3)",
+                        background: page < pagination.totalPages ? "var(--border-color)" : "var(--border-subtle)",
+                        border: "1px solid var(--border-color)",
+                        color: page < pagination.totalPages ? "var(--white)" : "var(--text-faint)",
                         fontSize: "13px",
                         cursor: page < pagination.totalPages ? "pointer" : "default",
                       }}

@@ -57,7 +57,7 @@ interface PlayerDetailsResponse {
 function StatCard({ label, value, suffix }: { label: string; value: string | number; suffix?: string }) {
   return (
     <div style={{
-      background: "rgba(255,255,255,0.05)",
+      background: "var(--border-subtle)",
       padding: "20px",
       textAlign: "center",
       borderRadius: "8px",
@@ -72,7 +72,7 @@ function StatCard({ label, value, suffix }: { label: string; value: string | num
       </div>
       <div style={{
         fontSize: "12px",
-        color: "rgba(255,255,255,0.5)",
+        color: "var(--text-muted)",
         textTransform: "uppercase",
         letterSpacing: "1px",
       }}>
@@ -93,7 +93,7 @@ function ShootingChart({ fgPct, fg3Pct, ftPct }: { fgPct: number; fg3Pct: number
     <div style={{ marginTop: "20px" }}>
       <h4 style={{
         fontSize: "14px",
-        color: "rgba(255,255,255,0.5)",
+        color: "var(--text-muted)",
         marginBottom: "15px",
         textTransform: "uppercase",
         letterSpacing: "1px",
@@ -113,7 +113,7 @@ function ShootingChart({ fgPct, fg3Pct, ftPct }: { fgPct: number; fg3Pct: number
           </div>
           <div style={{
             height: "8px",
-            background: "rgba(255,255,255,0.1)",
+            background: "var(--border-color)",
             borderRadius: "4px",
             overflow: "hidden",
           }}>
@@ -229,7 +229,7 @@ export default function PlayerClient({ params }: { params: Promise<{ id: string 
         <Header />
         <main style={{ minHeight: "100vh", padding: "40px 20px" }}>
           <div style={{ textAlign: "center", padding: "100px" }}>
-            <p style={{ color: "rgba(255,255,255,0.5)" }}>Loading player data...</p>
+            <p style={{ color: "var(--text-muted)" }}>Loading player data...</p>
           </div>
         </main>
         <Footer />
@@ -282,7 +282,7 @@ export default function PlayerClient({ params }: { params: Promise<{ id: string 
           <Link
             href="/players"
             style={{
-              color: "rgba(255,255,255,0.5)",
+              color: "var(--text-muted)",
               textDecoration: "none",
               display: "inline-flex",
               alignItems: "center",
@@ -309,7 +309,7 @@ export default function PlayerClient({ params }: { params: Promise<{ id: string 
               height: "200px",
               borderRadius: "50%",
               overflow: "hidden",
-              background: "rgba(255,255,255,0.1)",
+              background: "var(--border-color)",
               border: "4px solid var(--orange)",
               flexShrink: 0,
             }}>
@@ -360,7 +360,7 @@ export default function PlayerClient({ params }: { params: Promise<{ id: string 
               }}>
                 {player.team && (
                   <div>
-                    <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px" }}>TEAM</span>
+                    <span style={{ color: "var(--text-muted)", fontSize: "14px" }}>TEAM</span>
                     <p style={{ color: "var(--orange)", fontWeight: "bold", fontSize: "18px" }}>
                       {player.team.name}
                     </p>
@@ -368,19 +368,19 @@ export default function PlayerClient({ params }: { params: Promise<{ id: string 
                 )}
                 {player.position && (
                   <div>
-                    <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px" }}>POSITION</span>
+                    <span style={{ color: "var(--text-muted)", fontSize: "14px" }}>POSITION</span>
                     <p style={{ fontWeight: "bold", fontSize: "18px" }}>{player.position}</p>
                   </div>
                 )}
                 {player.height && (
                   <div>
-                    <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px" }}>HEIGHT</span>
+                    <span style={{ color: "var(--text-muted)", fontSize: "14px" }}>HEIGHT</span>
                     <p style={{ fontWeight: "bold", fontSize: "18px" }}>{player.height}</p>
                   </div>
                 )}
                 {player.weight && (
                   <div>
-                    <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px" }}>WEIGHT</span>
+                    <span style={{ color: "var(--text-muted)", fontSize: "14px" }}>WEIGHT</span>
                     <p style={{ fontWeight: "bold", fontSize: "18px" }}>
                       {typeof player.weight === "number" ? `${player.weight} lbs` : player.weight}
                     </p>
@@ -388,20 +388,20 @@ export default function PlayerClient({ params }: { params: Promise<{ id: string 
                 )}
                 {player.college && (
                   <div>
-                    <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px" }}>COLLEGE</span>
+                    <span style={{ color: "var(--text-muted)", fontSize: "14px" }}>COLLEGE</span>
                     <p style={{ fontWeight: "bold", fontSize: "18px" }}>{player.college}</p>
                   </div>
                 )}
                 {player.country && player.country !== "USA" && (
                   <div>
-                    <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px" }}>COUNTRY</span>
+                    <span style={{ color: "var(--text-muted)", fontSize: "14px" }}>COUNTRY</span>
                     <p style={{ fontWeight: "bold", fontSize: "18px" }}>{player.country}</p>
                   </div>
                 )}
               </div>
 
               {stats.gamesPlayed > 0 && (
-                <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px" }}>
+                <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>
                   {stats.gamesPlayed} games played this season
                 </p>
               )}
@@ -471,41 +471,41 @@ export default function PlayerClient({ params }: { params: Promise<{ id: string 
             }}>
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
-                  <tr style={{ borderBottom: "2px solid rgba(255,255,255,0.1)" }}>
+                  <tr style={{ borderBottom: "2px solid var(--border-color)" }}>
                     <th style={{ padding: "12px", textAlign: "left" }}>Stat</th>
                     <th style={{ padding: "12px", textAlign: "right" }}>Value</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                  <tr style={{ borderBottom: "1px solid var(--border-subtle)" }}>
                     <td style={{ padding: "12px" }}>Points Per Game</td>
                     <td style={{ padding: "12px", textAlign: "right", fontWeight: "bold" }}>{stats.ppg.toFixed(1)}</td>
                   </tr>
-                  <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                  <tr style={{ borderBottom: "1px solid var(--border-subtle)" }}>
                     <td style={{ padding: "12px" }}>Rebounds Per Game</td>
                     <td style={{ padding: "12px", textAlign: "right", fontWeight: "bold" }}>{stats.rpg.toFixed(1)}</td>
                   </tr>
-                  <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                  <tr style={{ borderBottom: "1px solid var(--border-subtle)" }}>
                     <td style={{ padding: "12px" }}>Assists Per Game</td>
                     <td style={{ padding: "12px", textAlign: "right", fontWeight: "bold" }}>{stats.apg.toFixed(1)}</td>
                   </tr>
-                  <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                  <tr style={{ borderBottom: "1px solid var(--border-subtle)" }}>
                     <td style={{ padding: "12px" }}>Steals Per Game</td>
                     <td style={{ padding: "12px", textAlign: "right", fontWeight: "bold" }}>{stats.spg.toFixed(1)}</td>
                   </tr>
-                  <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                  <tr style={{ borderBottom: "1px solid var(--border-subtle)" }}>
                     <td style={{ padding: "12px" }}>Blocks Per Game</td>
                     <td style={{ padding: "12px", textAlign: "right", fontWeight: "bold" }}>{stats.bpg.toFixed(1)}</td>
                   </tr>
-                  <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                  <tr style={{ borderBottom: "1px solid var(--border-subtle)" }}>
                     <td style={{ padding: "12px" }}>Turnovers Per Game</td>
                     <td style={{ padding: "12px", textAlign: "right", fontWeight: "bold" }}>{stats.tov.toFixed(1)}</td>
                   </tr>
-                  <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                  <tr style={{ borderBottom: "1px solid var(--border-subtle)" }}>
                     <td style={{ padding: "12px" }}>Field Goal %</td>
                     <td style={{ padding: "12px", textAlign: "right", fontWeight: "bold" }}>{stats.fgPct.toFixed(1)}%</td>
                   </tr>
-                  <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                  <tr style={{ borderBottom: "1px solid var(--border-subtle)" }}>
                     <td style={{ padding: "12px" }}>3-Point %</td>
                     <td style={{ padding: "12px", textAlign: "right", fontWeight: "bold" }}>{stats.threePct.toFixed(1)}%</td>
                   </tr>

@@ -65,7 +65,7 @@ function GameCard({ game, league }: { game: Game; league: string }) {
           position: "absolute",
           top: "15px",
           right: "15px",
-          background: "rgba(255,255,255,0.2)",
+          background: "var(--text-faint)",
           padding: "5px 15px",
           fontSize: "12px",
           fontWeight: "bold",
@@ -138,7 +138,7 @@ export default function LivePage() {
             </h1>
             <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
               {lastUpdated && (
-                <span style={{ fontSize: "14px", color: "rgba(255,255,255,0.5)" }}>
+                <span style={{ fontSize: "14px", color: "var(--text-muted)" }}>
                   Updated: {lastUpdated.toLocaleTimeString()}
                 </span>
               )}
@@ -163,7 +163,7 @@ export default function LivePage() {
                   padding: "12px 24px",
                   background: selectedLeague === league.id ? "var(--orange)" : "var(--dark-gray)",
                   border: "2px solid",
-                  borderColor: selectedLeague === league.id ? "var(--orange)" : "rgba(255,255,255,0.1)",
+                  borderColor: selectedLeague === league.id ? "var(--orange)" : "var(--border-color)",
                   color: "var(--white)",
                   fontFamily: "var(--font-inter), sans-serif",
                   fontSize: "16px",
@@ -180,7 +180,7 @@ export default function LivePage() {
 
           {isLoading ? (
             <div style={{ textAlign: "center", padding: "60px" }}>
-              <p style={{ color: "rgba(255,255,255,0.5)" }}>Loading games...</p>
+              <p style={{ color: "var(--text-muted)" }}>Loading games...</p>
             </div>
           ) : error ? (
             <div style={{ textAlign: "center", padding: "60px" }}>
@@ -239,7 +239,7 @@ export default function LivePage() {
                     fontFamily: "var(--font-anton), Anton, sans-serif",
                     fontSize: "32px",
                     marginBottom: "30px",
-                    color: "rgba(255,255,255,0.5)"
+                    color: "var(--text-muted)"
                   }}>
                     COMPLETED ({completedGames.length})
                   </h2>
@@ -254,10 +254,10 @@ export default function LivePage() {
               {/* No Games */}
               {games.length === 0 && (
                 <div style={{ textAlign: "center", padding: "60px" }}>
-                  <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "18px" }}>
+                  <p style={{ color: "var(--text-muted)", fontSize: "18px" }}>
                     No games scheduled for {leagues.find(l => l.id === selectedLeague)?.name}.
                   </p>
-                  <p style={{ color: "rgba(255,255,255,0.3)", marginTop: "10px" }}>
+                  <p style={{ color: "var(--text-faint)", marginTop: "10px" }}>
                     Check back soon for upcoming games!
                   </p>
                 </div>

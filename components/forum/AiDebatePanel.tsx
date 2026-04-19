@@ -48,7 +48,7 @@ export default function AiDebatePanel() {
   if (!session?.user) {
     return (
       <div style={{
-        background: "#1A1A1A",
+        background: "var(--dark-gray)",
         borderRadius: "8px",
         border: "1px solid #2a2a2a",
         padding: "40px",
@@ -57,7 +57,7 @@ export default function AiDebatePanel() {
         <h3 style={{ fontFamily: "var(--font-anton)", color: "#FF6B35", fontSize: "20px", marginBottom: "8px" }}>
           DEBATE THE AI
         </h3>
-        <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px", marginBottom: "16px" }}>
+        <p style={{ color: "var(--text-muted)", fontSize: "14px", marginBottom: "16px" }}>
           Drop your hottest basketball take and the AI will argue the other side
         </p>
         <Link href="/login" style={{ color: "#FF6B35", textDecoration: "none", fontWeight: "600" }}>
@@ -69,7 +69,7 @@ export default function AiDebatePanel() {
 
   return (
     <div style={{
-      background: "#1A1A1A",
+      background: "var(--dark-gray)",
       borderRadius: "8px",
       border: "1px solid #2a2a2a",
       overflow: "hidden",
@@ -78,14 +78,14 @@ export default function AiDebatePanel() {
         <h3 style={{ fontFamily: "var(--font-anton)", color: "#FF6B35", fontSize: "18px", margin: 0 }}>
           DEBATE THE AI
         </h3>
-        <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px", margin: "4px 0 0 0" }}>
+        <p style={{ color: "var(--text-faint)", fontSize: "12px", margin: "4px 0 0 0" }}>
           Share a hot take. The AI will argue against you.
         </p>
       </div>
 
       <div style={{ padding: "16px", maxHeight: "400px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "12px" }}>
         {messages.length === 0 && (
-          <div style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", padding: "20px", fontSize: "14px" }}>
+          <div style={{ textAlign: "center", color: "var(--text-faint)", padding: "20px", fontSize: "14px" }}>
             Drop your hottest take to get started...
           </div>
         )}
@@ -98,7 +98,7 @@ export default function AiDebatePanel() {
               padding: "10px 14px",
               borderRadius: "12px",
               background: msg.role === "user" ? "#FF6B35" : "#2a2a2a",
-              color: "#fff",
+              color: "var(--white)",
               fontSize: "14px",
               lineHeight: "1.5",
             }}
@@ -112,7 +112,7 @@ export default function AiDebatePanel() {
           </div>
         ))}
         {loading && (
-          <div style={{ alignSelf: "flex-start", padding: "10px 14px", borderRadius: "12px", background: "#2a2a2a", color: "rgba(255,255,255,0.5)", fontSize: "14px" }}>
+          <div style={{ alignSelf: "flex-start", padding: "10px 14px", borderRadius: "12px", background: "#2a2a2a", color: "var(--text-muted)", fontSize: "14px" }}>
             Thinking of a rebuttal...
           </div>
         )}
@@ -128,8 +128,8 @@ export default function AiDebatePanel() {
             padding: "10px 14px",
             borderRadius: "8px",
             border: "1px solid #333",
-            background: "#0D0D0D",
-            color: "#fff",
+            background: "var(--black)",
+            color: "var(--white)",
             fontSize: "14px",
             fontFamily: "var(--font-inter)",
             outline: "none",
@@ -142,8 +142,8 @@ export default function AiDebatePanel() {
             padding: "10px 20px",
             borderRadius: "8px",
             border: "none",
-            background: input.trim() ? "#FF6B35" : "#333",
-            color: "#fff",
+            background: input.trim() ? "#FF6B35" : "var(--border-color)",
+            color: "var(--white)",
             fontSize: "14px",
             fontWeight: "600",
             cursor: input.trim() ? "pointer" : "default",

@@ -119,7 +119,7 @@ export default function PlayersPage() {
                   width: "100%",
                   padding: "15px 20px 15px 50px",
                   background: "var(--dark-gray)",
-                  border: "2px solid rgba(255,255,255,0.1)",
+                  border: "2px solid var(--border-color)",
                   color: "var(--white)",
                   fontSize: "18px",
                   fontFamily: "var(--font-inter), sans-serif"
@@ -130,7 +130,7 @@ export default function PlayersPage() {
                 height="24"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="rgba(255,255,255,0.5)"
+                stroke="var(--text-muted)"
                 strokeWidth="2"
                 style={{
                   position: "absolute",
@@ -145,7 +145,7 @@ export default function PlayersPage() {
             </div>
             <p style={{
               textAlign: "center",
-              color: "rgba(255,255,255,0.4)",
+              color: "var(--text-faint)",
               marginTop: "10px",
               fontSize: "14px"
             }}>
@@ -161,7 +161,7 @@ export default function PlayersPage() {
 
             {isLoading ? (
               <div style={{ textAlign: "center", padding: "40px" }}>
-                <p style={{ color: "rgba(255,255,255,0.5)" }}>Searching...</p>
+                <p style={{ color: "var(--text-muted)" }}>Searching...</p>
               </div>
             ) : error ? (
               <div style={{ textAlign: "center", padding: "40px" }}>
@@ -174,7 +174,7 @@ export default function PlayersPage() {
                   height="80"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="rgba(255,255,255,0.2)"
+                  stroke="var(--text-faint)"
                   strokeWidth="1"
                   style={{ margin: "0 auto 20px" }}
                 >
@@ -183,13 +183,13 @@ export default function PlayersPage() {
                   <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
                   <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                 </svg>
-                <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "16px" }}>
+                <p style={{ color: "var(--text-faint)", fontSize: "16px" }}>
                   Start typing to search for players
                 </p>
               </div>
             ) : players.length === 0 ? (
               <div style={{ textAlign: "center", padding: "40px" }}>
-                <p style={{ color: "rgba(255,255,255,0.5)" }}>
+                <p style={{ color: "var(--text-muted)" }}>
                   No players found for &quot;{searchQuery}&quot;
                 </p>
               </div>
@@ -259,7 +259,7 @@ export default function PlayersPage() {
                           {player.team?.name || "Free Agent"}
                         </p>
                         <p style={{
-                          color: "rgba(255,255,255,0.5)",
+                          color: "var(--text-muted)",
                           fontSize: "14px"
                         }}>
                           {[player.position, player.height, player.weight].filter(Boolean).join(" | ")}

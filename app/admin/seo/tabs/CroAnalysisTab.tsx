@@ -47,13 +47,13 @@ function ScoreBar({ label, score, description }: { label: string; score: number;
   return (
     <div style={{ marginBottom: "12px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
-        <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)" }}>{label}</span>
+        <span style={{ fontSize: "13px", color: "var(--text-secondary)" }}>{label}</span>
         <span style={{ fontSize: "13px", fontWeight: 600, fontFamily: "var(--font-roboto-mono), monospace", color: getScoreColor(score) }}>{score}</span>
       </div>
-      <div style={{ height: "6px", background: "rgba(255,255,255,0.1)", borderRadius: "3px", overflow: "hidden" }}>
+      <div style={{ height: "6px", background: "var(--border-color)", borderRadius: "3px", overflow: "hidden" }}>
         <div style={{ height: "100%", width: `${score}%`, background: getScoreColor(score), borderRadius: "3px", transition: "width 0.5s" }} />
       </div>
-      {description && <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginTop: "2px" }}>{description}</div>}
+      {description && <div style={{ fontSize: "11px", color: "var(--text-faint)", marginTop: "2px" }}>{description}</div>}
     </div>
   );
 }
@@ -65,8 +65,8 @@ export default function CroAnalysisTab({ data, onRescan }: { data: CroData | nul
     return (
       <div style={{ textAlign: "center", padding: "60px" }}>
         <div style={{ fontSize: "48px", marginBottom: "16px", opacity: 0.3 }}>&#x1F4C8;</div>
-        <h3 style={{ color: "rgba(255,255,255,0.7)", marginBottom: "8px" }}>CRO Analysis Not Yet Run</h3>
-        <p style={{ color: "rgba(255,255,255,0.4)", marginBottom: "24px" }}>
+        <h3 style={{ color: "var(--text-secondary)", marginBottom: "8px" }}>CRO Analysis Not Yet Run</h3>
+        <p style={{ color: "var(--text-faint)", marginBottom: "24px" }}>
           Scan your site to analyze Conversion Rate Optimization readiness.
         </p>
         <button className="btn btn-primary" onClick={onRescan}>Scan Now</button>
@@ -91,7 +91,7 @@ export default function CroAnalysisTab({ data, onRescan }: { data: CroData | nul
     <>
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-        <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>
+        <span style={{ fontSize: "12px", color: "var(--text-faint)" }}>
           Last scanned: {new Date(crawledAt).toLocaleString()} &bull; {pagesAnalyzed} pages analyzed
         </span>
         <button className="btn btn-primary" onClick={onRescan} style={{ fontSize: "13px", padding: "6px 16px" }}>
@@ -116,8 +116,8 @@ export default function CroAnalysisTab({ data, onRescan }: { data: CroData | nul
             }}>
               {card.score}
             </div>
-            <div style={{ fontSize: "12px", fontWeight: 600, color: "rgba(255,255,255,0.8)", marginTop: "4px" }}>{card.label}</div>
-            <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", marginTop: "2px" }}>{card.desc}</div>
+            <div style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-secondary)", marginTop: "4px" }}>{card.label}</div>
+            <div style={{ fontSize: "10px", color: "var(--text-faint)", marginTop: "2px" }}>{card.desc}</div>
           </div>
         ))}
       </div>
@@ -136,8 +136,8 @@ export default function CroAnalysisTab({ data, onRescan }: { data: CroData | nul
             }}>
               {card.score}
             </div>
-            <div style={{ fontSize: "12px", fontWeight: 600, color: "rgba(255,255,255,0.8)", marginTop: "4px" }}>{card.label}</div>
-            <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", marginTop: "2px" }}>{card.desc}</div>
+            <div style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-secondary)", marginTop: "4px" }}>{card.label}</div>
+            <div style={{ fontSize: "10px", color: "var(--text-faint)", marginTop: "2px" }}>{card.desc}</div>
           </div>
         ))}
       </div>
@@ -164,7 +164,7 @@ export default function CroAnalysisTab({ data, onRescan }: { data: CroData | nul
           <ResponsiveContainer width="100%" height={300}>
             <FunnelChart>
               <Tooltip
-                contentStyle={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px" }}
+                contentStyle={{ background: "var(--dark-gray)", border: "1px solid var(--border-color)", borderRadius: "8px" }}
                 formatter={(value: number) => [`${value}%`, "Coverage"]}
               />
               <Funnel
@@ -176,7 +176,7 @@ export default function CroAnalysisTab({ data, onRescan }: { data: CroData | nul
                   <Cell key={index} fill={entry.fill} />
                 ))}
                 <LabelList position="center" fill="#fff" fontSize={14} fontWeight={600} formatter={(value: number) => `${value}%`} />
-                <LabelList position="right" fill="rgba(255,255,255,0.6)" fontSize={12} dataKey="stage" />
+                <LabelList position="right" fill="var(--text-muted)" fontSize={12} dataKey="stage" />
               </Funnel>
             </FunnelChart>
           </ResponsiveContainer>
@@ -184,7 +184,7 @@ export default function CroAnalysisTab({ data, onRescan }: { data: CroData | nul
             {croFunnel.map((stage) => (
               <div key={stage.stage} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                 <div style={{ width: "10px", height: "10px", borderRadius: "2px", background: stage.fill }} />
-                <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)" }}>{stage.stage} ({stage.value}%)</span>
+                <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>{stage.stage} ({stage.value}%)</span>
               </div>
             ))}
           </div>
@@ -200,11 +200,11 @@ export default function CroAnalysisTab({ data, onRescan }: { data: CroData | nul
             layout="vertical"
             margin={{ left: 60, right: 20, top: 10, bottom: 10 }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-            <XAxis type="number" domain={[0, 100]} stroke="rgba(255,255,255,0.3)" tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 11 }} />
-            <YAxis type="category" dataKey="path" stroke="rgba(255,255,255,0.3)" tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 11 }} width={55} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+            <XAxis type="number" domain={[0, 100]} stroke="var(--text-faint)" tick={{ fill: "var(--text-muted)", fontSize: 11 }} />
+            <YAxis type="category" dataKey="path" stroke="var(--text-faint)" tick={{ fill: "var(--text-muted)", fontSize: 11 }} width={55} />
             <Tooltip
-              contentStyle={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px" }}
+              contentStyle={{ background: "var(--dark-gray)", border: "1px solid var(--border-color)", borderRadius: "8px" }}
             />
             <Bar dataKey="score" radius={[0, 4, 4, 0]}>
               {pages.map((p, i) => (
@@ -242,11 +242,11 @@ export default function CroAnalysisTab({ data, onRescan }: { data: CroData | nul
                 >
                   <td>
                     <div style={{ fontWeight: 500 }}>{page.path}</div>
-                    <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>
+                    <div style={{ fontSize: "11px", color: "var(--text-faint)" }}>
                       {page.ctaCount} CTAs &bull; {page.formCount} forms &bull; {page.responseTime}ms
                     </div>
                     {expanded === page.path && page.ctaTexts.length > 0 && (
-                      <div style={{ marginTop: "6px", fontSize: "11px", color: "rgba(255,255,255,0.5)" }}>
+                      <div style={{ marginTop: "6px", fontSize: "11px", color: "var(--text-muted)" }}>
                         CTAs found: {page.ctaTexts.map((t, i) => (
                           <span key={i} style={{ display: "inline-block", background: "rgba(0,188,212,0.15)", padding: "1px 6px", borderRadius: "3px", marginRight: "4px", marginTop: "2px" }}>
                             {t}
@@ -305,12 +305,12 @@ export default function CroAnalysisTab({ data, onRescan }: { data: CroData | nul
                   }}>
                     {rec.severity}
                   </span>
-                  <span style={{ fontWeight: 600, color: "rgba(255,255,255,0.9)" }}>{rec.title}</span>
+                  <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>{rec.title}</span>
                 </div>
-                <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.6)", marginBottom: "8px" }}>{rec.description}</p>
+                <p style={{ fontSize: "13px", color: "var(--text-muted)", marginBottom: "8px" }}>{rec.description}</p>
                 <p style={{ fontSize: "12px", color: "#00BCD4" }}>Fix: {rec.fix}</p>
                 {rec.affectedPages && rec.affectedPages.length > 0 && (
-                  <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginTop: "6px" }}>
+                  <div style={{ fontSize: "11px", color: "var(--text-faint)", marginTop: "6px" }}>
                     Affected: {rec.affectedPages.join(", ")}
                   </div>
                 )}

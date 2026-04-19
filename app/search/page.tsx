@@ -94,7 +94,7 @@ export default function SearchPage() {
       <main
         style={{
           minHeight: "100vh",
-          backgroundColor: "#0D0D0D",
+          backgroundColor: "var(--black)",
           paddingTop: "80px",
           paddingBottom: "60px",
         }}
@@ -117,11 +117,11 @@ export default function SearchPage() {
                 gap: "10px",
                 padding: "10px 14px",
                 borderRadius: "12px",
-                border: "1px solid rgba(255,255,255,0.12)",
-                backgroundColor: "rgba(255,255,255,0.04)",
+                border: "1px solid var(--border-color)",
+                backgroundColor: "var(--border-subtle)",
               }}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
@@ -136,7 +136,7 @@ export default function SearchPage() {
                   background: "transparent",
                   border: "none",
                   outline: "none",
-                  color: "rgba(255,255,255,0.9)",
+                  color: "var(--text-primary)",
                   fontSize: "15px",
                   fontFamily: "var(--font-inter), sans-serif",
                 }}
@@ -150,7 +150,7 @@ export default function SearchPage() {
               display: "flex",
               gap: "4px",
               marginBottom: "20px",
-              borderBottom: "1px solid rgba(255,255,255,0.08)",
+              borderBottom: "1px solid var(--border-subtle)",
               paddingBottom: "2px",
             }}
           >
@@ -168,7 +168,7 @@ export default function SearchPage() {
                   background: "none",
                   border: "none",
                   cursor: "pointer",
-                  color: activeTab === tab ? "#FF6B35" : "rgba(255,255,255,0.4)",
+                  color: activeTab === tab ? "#FF6B35" : "var(--text-faint)",
                   borderBottom: activeTab === tab ? "2px solid #FF6B35" : "2px solid transparent",
                   transition: "color 0.15s ease",
                 }}
@@ -180,19 +180,19 @@ export default function SearchPage() {
 
           {/* Results */}
           {loading && (
-            <div style={{ textAlign: "center", padding: "40px", color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-inter), sans-serif" }}>
+            <div style={{ textAlign: "center", padding: "40px", color: "var(--text-faint)", fontFamily: "var(--font-inter), sans-serif" }}>
               Searching...
             </div>
           )}
 
           {!loading && hasSearched && takes.length === 0 && users.length === 0 && players.length === 0 && (
-            <div style={{ textAlign: "center", padding: "40px", color: "rgba(255,255,255,0.3)", fontFamily: "var(--font-inter), sans-serif" }}>
+            <div style={{ textAlign: "center", padding: "40px", color: "var(--text-faint)", fontFamily: "var(--font-inter), sans-serif" }}>
               No results found for &ldquo;{query}&rdquo;
             </div>
           )}
 
           {!loading && !hasSearched && (
-            <div style={{ textAlign: "center", padding: "60px 0", color: "rgba(255,255,255,0.25)", fontFamily: "var(--font-inter), sans-serif" }}>
+            <div style={{ textAlign: "center", padding: "60px 0", color: "var(--text-faint)", fontFamily: "var(--font-inter), sans-serif" }}>
               Search for takes, users, and players
             </div>
           )}
@@ -201,7 +201,7 @@ export default function SearchPage() {
           {!loading && users.length > 0 && (activeTab === "ALL" || activeTab === "USERS") && (
             <div style={{ marginBottom: "24px" }}>
               {activeTab === "ALL" && (
-                <div style={{ fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-inter), sans-serif", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "10px" }}>
+                <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--text-faint)", fontFamily: "var(--font-inter), sans-serif", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "10px" }}>
                   Users
                 </div>
               )}
@@ -222,7 +222,7 @@ export default function SearchPage() {
                       cursor: "pointer",
                       transition: "background-color 0.15s ease",
                     }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.04)"; }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = "var(--border-subtle)"; }}
                     onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = "transparent"; }}
                   >
                     <div
@@ -238,7 +238,7 @@ export default function SearchPage() {
                         flexShrink: 0,
                         fontSize: "16px",
                         fontWeight: 700,
-                        color: "#fff",
+                        color: "var(--white)",
                         fontFamily: "var(--font-anton), sans-serif",
                       }}
                     >
@@ -249,10 +249,10 @@ export default function SearchPage() {
                       )}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: "14px", fontWeight: 600, color: "rgba(255,255,255,0.9)", fontFamily: "var(--font-inter), sans-serif" }}>
+                      <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text-primary)", fontFamily: "var(--font-inter), sans-serif" }}>
                         {user.displayName || user.name}
                       </div>
-                      <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-inter), sans-serif" }}>
+                      <div style={{ fontSize: "12px", color: "var(--text-faint)", fontFamily: "var(--font-inter), sans-serif" }}>
                         {user.handle && `@${user.handle} · `}{user.followerCount} followers · {user.takeCount} takes
                       </div>
                     </div>
@@ -266,7 +266,7 @@ export default function SearchPage() {
           {!loading && players.length > 0 && (activeTab === "ALL" || activeTab === "PLAYERS") && (
             <div style={{ marginBottom: "24px" }}>
               {activeTab === "ALL" && (
-                <div style={{ fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-inter), sans-serif", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "10px" }}>
+                <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--text-faint)", fontFamily: "var(--font-inter), sans-serif", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "10px" }}>
                   Players
                 </div>
               )}
@@ -287,7 +287,7 @@ export default function SearchPage() {
                       cursor: "pointer",
                       transition: "background-color 0.15s ease",
                     }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255,255,255,0.04)"; }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = "var(--border-subtle)"; }}
                     onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.backgroundColor = "transparent"; }}
                   >
                     <div
@@ -295,7 +295,7 @@ export default function SearchPage() {
                         width: 40,
                         height: 40,
                         borderRadius: "50%",
-                        backgroundColor: "rgba(255,255,255,0.08)",
+                        backgroundColor: "var(--border-subtle)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -306,16 +306,16 @@ export default function SearchPage() {
                       {player.headshotUrl ? (
                         <img src={player.headshotUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                       ) : (
-                        <span style={{ fontSize: "16px", fontWeight: 700, color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-anton), sans-serif" }}>
+                        <span style={{ fontSize: "16px", fontWeight: 700, color: "var(--text-faint)", fontFamily: "var(--font-anton), sans-serif" }}>
                           {player.name.charAt(0)}
                         </span>
                       )}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: "14px", fontWeight: 600, color: "rgba(255,255,255,0.9)", fontFamily: "var(--font-inter), sans-serif" }}>
+                      <div style={{ fontSize: "14px", fontWeight: 600, color: "var(--text-primary)", fontFamily: "var(--font-inter), sans-serif" }}>
                         {player.name}
                       </div>
-                      <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-inter), sans-serif" }}>
+                      <div style={{ fontSize: "12px", color: "var(--text-faint)", fontFamily: "var(--font-inter), sans-serif" }}>
                         {player.position}{player.team ? ` · ${player.team.name}` : ""}
                       </div>
                     </div>
@@ -329,7 +329,7 @@ export default function SearchPage() {
           {!loading && takes.length > 0 && (activeTab === "ALL" || activeTab === "TAKES") && (
             <div>
               {activeTab === "ALL" && (
-                <div style={{ fontSize: "12px", fontWeight: 700, color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-inter), sans-serif", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "10px" }}>
+                <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--text-faint)", fontFamily: "var(--font-inter), sans-serif", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "10px" }}>
                   Takes
                 </div>
               )}

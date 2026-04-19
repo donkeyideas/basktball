@@ -7,7 +7,10 @@ export const dynamic = "force-dynamic";
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const year = searchParams.get("year") || "2026";
+    const defaultYear = new Date().getMonth() >= 9
+      ? new Date().getFullYear() + 1
+      : new Date().getFullYear();
+    const year = searchParams.get("year") || String(defaultYear);
 
     const prospects = await prisma.draftProspect.findMany({
       where: {
@@ -37,7 +40,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       success: true,
       prospects: getFallbackProspects(),
-      year: 2026,
+      year: new Date().getMonth() >= 9 ? new Date().getFullYear() + 1 : new Date().getFullYear(),
       source: "fallback",
     });
   }

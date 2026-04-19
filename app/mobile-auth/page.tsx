@@ -131,7 +131,7 @@ export default function MobileAuthPage() {
         alignItems: "center",
         justifyContent: "center",
         padding: "40px 20px",
-        background: "#0D0D0D",
+        background: "var(--black)",
         fontFamily: "system-ui, -apple-system, sans-serif",
       }}
     >
@@ -139,7 +139,7 @@ export default function MobileAuthPage() {
         style={{
           width: "100%",
           maxWidth: "380px",
-          background: "#1A1A1A",
+          background: "var(--dark-gray)",
           borderRadius: "16px",
           border: "1px solid #333",
           padding: "40px 32px",
@@ -149,7 +149,7 @@ export default function MobileAuthPage() {
         <h1
           style={{
             fontSize: "36px",
-            color: "#FFFFFF",
+            color: "var(--white)",
             marginBottom: "8px",
             fontWeight: "900",
             letterSpacing: "3px",
@@ -159,7 +159,7 @@ export default function MobileAuthPage() {
         </h1>
         <p
           style={{
-            color: "rgba(255,255,255,0.5)",
+            color: "var(--text-muted)",
             fontSize: "14px",
             marginBottom: "36px",
           }}
@@ -212,7 +212,7 @@ export default function MobileAuthPage() {
             </p>
             <p
               style={{
-                color: "rgba(255,255,255,0.7)",
+                color: "var(--text-secondary)",
                 fontSize: "16px",
                 lineHeight: "1.5",
                 marginBottom: "8px",
@@ -222,15 +222,15 @@ export default function MobileAuthPage() {
             </p>
             <p
               style={{
-                color: "rgba(255,255,255,0.4)",
+                color: "var(--text-faint)",
                 fontSize: "14px",
               }}
             >
-              Tap the <strong style={{ color: "rgba(255,255,255,0.6)" }}>X</strong> button at the top left
+              Tap the <strong style={{ color: "var(--text-muted)" }}>X</strong> button at the top left
             </p>
           </div>
         ) : loading ? (
-          <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px" }}>
+          <div style={{ color: "var(--text-muted)", fontSize: "14px" }}>
             Loading...
           </div>
         ) : (
@@ -242,7 +242,7 @@ export default function MobileAuthPage() {
               borderRadius: "12px",
               border: "none",
               background: "#fff",
-              color: "#333",
+              color: "var(--border-color)",
               fontSize: "16px",
               fontWeight: "600",
               cursor: "pointer",

@@ -207,7 +207,7 @@ export default function AdminDashboard() {
       <div className="admin-content">
         {isLoading ? (
           <div style={{ textAlign: "center", padding: "60px" }}>
-            <p style={{ color: "rgba(255,255,255,0.5)" }}>Loading dashboard data...</p>
+            <p style={{ color: "var(--text-muted)" }}>Loading dashboard data...</p>
           </div>
         ) : error ? (
           <div style={{ textAlign: "center", padding: "60px" }}>
@@ -248,7 +248,7 @@ export default function AdminDashboard() {
                       </div>
                     ))
                   ) : (
-                    <p style={{ color: "rgba(255,255,255,0.5)", padding: "20px" }}>
+                    <p style={{ color: "var(--text-muted)", padding: "20px" }}>
                       No recent activity
                     </p>
                   )}
@@ -274,7 +274,7 @@ export default function AdminDashboard() {
                       </div>
                     ))
                   ) : (
-                    <p style={{ color: "rgba(255,255,255,0.5)", padding: "20px" }}>
+                    <p style={{ color: "var(--text-muted)", padding: "20px" }}>
                       Unable to check health status
                     </p>
                   )}

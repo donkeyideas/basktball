@@ -51,7 +51,7 @@ export default function PostEditor({ onSubmit, placeholder = "Write your reply..
 
   return (
     <form onSubmit={handleSubmit} style={{
-      background: "#1A1A1A",
+      background: "var(--dark-gray)",
       borderRadius: "8px",
       border: "1px solid #2a2a2a",
       padding: "16px",
@@ -69,7 +69,7 @@ export default function PostEditor({ onSubmit, placeholder = "Write your reply..
           <button
             type="button"
             onClick={onCancelReply}
-            style={{ background: "none", border: "none", color: "rgba(255,255,255,0.4)", cursor: "pointer", fontSize: "12px" }}
+            style={{ background: "none", border: "none", color: "var(--text-faint)", cursor: "pointer", fontSize: "12px" }}
           >
             Cancel
           </button>
@@ -86,8 +86,8 @@ export default function PostEditor({ onSubmit, placeholder = "Write your reply..
           padding: "12px",
           borderRadius: "6px",
           border: "1px solid #333",
-          background: "#0D0D0D",
-          color: "#fff",
+          background: "var(--black)",
+          color: "var(--white)",
           fontSize: "14px",
           fontFamily: "var(--font-inter)",
           resize: "vertical",
@@ -107,7 +107,7 @@ export default function PostEditor({ onSubmit, placeholder = "Write your reply..
             borderRadius: "6px",
             border: "1px solid #333",
             background: "transparent",
-            color: content.trim() ? "#3B82F6" : "rgba(255,255,255,0.3)",
+            color: content.trim() ? "#3B82F6" : "var(--text-faint)",
             fontSize: "13px",
             cursor: content.trim() ? "pointer" : "default",
             fontFamily: "var(--font-inter)",
@@ -124,7 +124,7 @@ export default function PostEditor({ onSubmit, placeholder = "Write your reply..
             borderRadius: "6px",
             border: "none",
             background: content.trim() ? "#FF6B35" : "#444",
-            color: "#fff",
+            color: "var(--white)",
             fontSize: "14px",
             fontWeight: "600",
             cursor: content.trim() ? "pointer" : "default",

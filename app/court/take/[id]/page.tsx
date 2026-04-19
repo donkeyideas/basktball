@@ -287,7 +287,7 @@ export default function TakeDetailPage() {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "6px",
-                color: "rgba(255,255,255,0.5)",
+                color: "var(--text-muted)",
                 textDecoration: "none",
                 fontFamily: "var(--font-inter), sans-serif",
                 fontSize: "14px",
@@ -304,7 +304,7 @@ export default function TakeDetailPage() {
               <div
                 key={i}
                 style={{
-                  background: "#1A1A1A",
+                  background: "var(--dark-gray)",
                   borderRadius: "12px",
                   border: "1px solid #2a2a2a",
                   padding: "24px",
@@ -351,7 +351,7 @@ export default function TakeDetailPage() {
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "6px",
-                color: "rgba(255,255,255,0.5)",
+                color: "var(--text-muted)",
                 textDecoration: "none",
                 fontFamily: "var(--font-inter), sans-serif",
                 fontSize: "14px",
@@ -366,7 +366,7 @@ export default function TakeDetailPage() {
             </Link>
             <div
               style={{
-                background: "#1A1A1A",
+                background: "var(--dark-gray)",
                 borderRadius: "12px",
                 border: "1px solid #2a2a2a",
                 padding: "40px 20px",
@@ -376,7 +376,7 @@ export default function TakeDetailPage() {
                 style={{
                   fontFamily: "var(--font-inter), sans-serif",
                   fontSize: "16px",
-                  color: "rgba(255,255,255,0.5)",
+                  color: "var(--text-muted)",
                   margin: 0,
                 }}
               >
@@ -414,7 +414,7 @@ export default function TakeDetailPage() {
               display: "inline-flex",
               alignItems: "center",
               gap: "6px",
-              color: "rgba(255,255,255,0.5)",
+              color: "var(--text-muted)",
               textDecoration: "none",
               fontFamily: "var(--font-inter), sans-serif",
               fontSize: "14px",
@@ -432,7 +432,7 @@ export default function TakeDetailPage() {
           {/* Main Take (Featured) */}
           <div
             style={{
-              background: "#1A1A1A",
+              background: "var(--dark-gray)",
               borderRadius: "12px",
               border: "1px solid #2a2a2a",
               padding: "24px",
@@ -459,7 +459,7 @@ export default function TakeDetailPage() {
                   justifyContent: "center",
                   fontSize: "18px",
                   fontWeight: "700",
-                  color: "#fff",
+                  color: "var(--white)",
                   flexShrink: 0,
                   overflow: "hidden",
                   fontFamily: "var(--font-inter), sans-serif",
@@ -477,7 +477,7 @@ export default function TakeDetailPage() {
                     fontFamily: "var(--font-inter), sans-serif",
                     fontWeight: "700",
                     fontSize: "16px",
-                    color: "#fff",
+                    color: "var(--white)",
                   }}
                 >
                   {authorName}
@@ -486,7 +486,7 @@ export default function TakeDetailPage() {
                   style={{
                     fontFamily: "var(--font-inter), sans-serif",
                     fontSize: "13px",
-                    color: "rgba(255,255,255,0.35)",
+                    color: "var(--text-faint)",
                   }}
                 >
                   @{mainTake.author.name}
@@ -497,7 +497,7 @@ export default function TakeDetailPage() {
             {/* Content */}
             <div
               style={{
-                color: "#fff",
+                color: "var(--white)",
                 fontFamily: "var(--font-inter), sans-serif",
                 fontSize: "20px",
                 lineHeight: "1.5",
@@ -579,10 +579,10 @@ export default function TakeDetailPage() {
               style={{
                 fontFamily: "var(--font-inter), sans-serif",
                 fontSize: "13px",
-                color: "rgba(255,255,255,0.3)",
+                color: "var(--text-faint)",
                 marginBottom: "16px",
                 paddingBottom: "14px",
-                borderBottom: "1px solid rgba(255,255,255,0.08)",
+                borderBottom: "1px solid var(--border-subtle)",
               }}
             >
               {fullTimestamp}
@@ -594,7 +594,7 @@ export default function TakeDetailPage() {
                 display: "flex",
                 gap: "24px",
                 paddingBottom: "14px",
-                borderBottom: "1px solid rgba(255,255,255,0.08)",
+                borderBottom: "1px solid var(--border-subtle)",
                 marginBottom: "12px",
               }}
             >
@@ -610,7 +610,7 @@ export default function TakeDetailPage() {
                       fontFamily: "var(--font-inter), sans-serif",
                       fontWeight: "700",
                       fontSize: "15px",
-                      color: "#fff",
+                      color: "var(--white)",
                     }}
                   >
                     {count}
@@ -619,7 +619,7 @@ export default function TakeDetailPage() {
                     style={{
                       fontFamily: "var(--font-inter), sans-serif",
                       fontSize: "13px",
-                      color: "rgba(255,255,255,0.35)",
+                      color: "var(--text-faint)",
                     }}
                   >
                     {label}
@@ -644,7 +644,7 @@ export default function TakeDetailPage() {
                   gap: "6px",
                   background: "none",
                   border: "none",
-                  color: mainTake.userReaction === "FIRE" ? "#FF6B35" : "rgba(255,255,255,0.4)",
+                  color: mainTake.userReaction === "FIRE" ? "#FF6B35" : "var(--text-faint)",
                   fontSize: "14px",
                   fontFamily: "var(--font-inter), sans-serif",
                   fontWeight: "600",
@@ -674,7 +674,7 @@ export default function TakeDetailPage() {
                   gap: "6px",
                   background: "none",
                   border: "none",
-                  color: mainTake.userReaction === "BRICK" ? "#EF4444" : "rgba(255,255,255,0.4)",
+                  color: mainTake.userReaction === "BRICK" ? "#EF4444" : "var(--text-faint)",
                   fontSize: "14px",
                   fontFamily: "var(--font-inter), sans-serif",
                   fontWeight: "600",
@@ -699,7 +699,7 @@ export default function TakeDetailPage() {
                   gap: "6px",
                   background: "none",
                   border: "none",
-                  color: mainTake.userReposted ? "#22c55e" : "rgba(255,255,255,0.4)",
+                  color: mainTake.userReposted ? "#22c55e" : "var(--text-faint)",
                   fontSize: "14px",
                   fontFamily: "var(--font-inter), sans-serif",
                   fontWeight: "600",
@@ -725,7 +725,7 @@ export default function TakeDetailPage() {
                   gap: "6px",
                   background: "none",
                   border: "none",
-                  color: mainTake.userBookmarked ? "#FF6B35" : "rgba(255,255,255,0.4)",
+                  color: mainTake.userBookmarked ? "#FF6B35" : "var(--text-faint)",
                   fontSize: "14px",
                   fontFamily: "var(--font-inter), sans-serif",
                   fontWeight: "600",
@@ -759,7 +759,7 @@ export default function TakeDetailPage() {
                     gap: "6px",
                     background: "none",
                     border: "none",
-                    color: statCheckLoading === mainTake.id ? "#FF6B35" : "rgba(255,255,255,0.4)",
+                    color: statCheckLoading === mainTake.id ? "#FF6B35" : "var(--text-faint)",
                     fontSize: "14px",
                     fontFamily: "var(--font-inter), sans-serif",
                     fontWeight: "600",
@@ -817,7 +817,7 @@ export default function TakeDetailPage() {
                     gap: "6px",
                     background: "none",
                     border: "none",
-                    color: "rgba(255,255,255,0.3)",
+                    color: "var(--text-faint)",
                     fontSize: "14px",
                     fontFamily: "var(--font-inter), sans-serif",
                     fontWeight: "600",
@@ -827,7 +827,7 @@ export default function TakeDetailPage() {
                     transition: "color 0.15s ease",
                   }}
                   onMouseEnter={(e) => { (e.target as HTMLElement).style.color = "#EF4444"; }}
-                  onMouseLeave={(e) => { (e.target as HTMLElement).style.color = "rgba(255,255,255,0.3)"; }}
+                  onMouseLeave={(e) => { (e.target as HTMLElement).style.color = "var(--text-faint)"; }}
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <polyline points="3 6 5 6 21 6" />
@@ -845,7 +845,7 @@ export default function TakeDetailPage() {
           {/* Replies Section */}
           <div
             style={{
-              background: "#1A1A1A",
+              background: "var(--dark-gray)",
               borderRadius: "12px",
               border: "1px solid #2a2a2a",
               overflow: "hidden",
@@ -856,14 +856,14 @@ export default function TakeDetailPage() {
             <div
               style={{
                 padding: "16px 20px",
-                borderBottom: "1px solid rgba(255,255,255,0.08)",
+                borderBottom: "1px solid var(--border-subtle)",
               }}
             >
               <h2
                 style={{
                   fontFamily: "var(--font-anton), Anton, sans-serif",
                   fontSize: "16px",
-                  color: "#fff",
+                  color: "var(--white)",
                   margin: 0,
                   letterSpacing: "1px",
                 }}
@@ -878,7 +878,7 @@ export default function TakeDetailPage() {
                 style={{
                   padding: "40px 20px",
                   textAlign: "center",
-                  color: "rgba(255,255,255,0.35)",
+                  color: "var(--text-faint)",
                   fontFamily: "var(--font-inter), sans-serif",
                   fontSize: "14px",
                 }}
@@ -909,7 +909,7 @@ export default function TakeDetailPage() {
           {session?.user ? (
             <div
               style={{
-                background: "#1A1A1A",
+                background: "var(--dark-gray)",
                 borderRadius: "12px",
                 border: "1px solid #2a2a2a",
                 padding: "16px 20px",
@@ -931,7 +931,7 @@ export default function TakeDetailPage() {
                   justifyContent: "center",
                   fontSize: "14px",
                   fontWeight: "700",
-                  color: "#fff",
+                  color: "var(--white)",
                   flexShrink: 0,
                   overflow: "hidden",
                   fontFamily: "var(--font-inter), sans-serif",
@@ -947,7 +947,7 @@ export default function TakeDetailPage() {
                 style={{
                   fontFamily: "var(--font-inter), sans-serif",
                   fontSize: "14px",
-                  color: "rgba(255,255,255,0.35)",
+                  color: "var(--text-faint)",
                 }}
               >
                 Drop your reply...
@@ -956,7 +956,7 @@ export default function TakeDetailPage() {
           ) : (
             <div
               style={{
-                background: "#1A1A1A",
+                background: "var(--dark-gray)",
                 borderRadius: "12px",
                 border: "1px solid #2a2a2a",
                 padding: "20px",

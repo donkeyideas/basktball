@@ -54,6 +54,12 @@ const NAV_ITEMS: NavItem[] = [
     matchPaths: ['/search'],
   },
   {
+    label: 'Tools',
+    icon: 'build-outline',
+    route: '/tools',
+    matchPaths: ['/tools'],
+  },
+  {
     label: 'Profile',
     icon: 'person-outline',
     route: '/(tabs)/profile',
@@ -168,6 +174,17 @@ export default function FloatingMenu() {
                 </TouchableOpacity>
               );
             })}
+
+            <View style={styles.divider} />
+
+            <TouchableOpacity
+              style={[styles.featuresBtn, { marginTop: 6 }]}
+              activeOpacity={0.7}
+              onPress={() => navigate('/features')}
+            >
+              <Ionicons name="sparkles" size={18} color={Colors.orange} />
+              <Text style={styles.featuresLabel}>FEATURES</Text>
+            </TouchableOpacity>
 
             <View style={styles.divider} />
 
@@ -299,6 +316,25 @@ const makeStyles = (colors: any, topInset: number) =>
       color: colors.text,
     },
     navLabelActive: { color: Colors.orange, fontWeight: '700' },
+    featuresBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      paddingVertical: 12,
+      paddingHorizontal: 14,
+      borderRadius: 10,
+      borderWidth: 1,
+      borderColor: 'rgba(255,107,53,0.25)',
+      backgroundColor: 'rgba(255,107,53,0.08)',
+      marginBottom: 4,
+    },
+    featuresLabel: {
+      fontFamily: Fonts.barlowBold,
+      fontWeight: '700',
+      fontSize: 14,
+      color: Colors.orange,
+      letterSpacing: 1,
+    },
     divider: {
       height: 1,
       backgroundColor: colors.border,

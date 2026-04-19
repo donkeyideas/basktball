@@ -51,8 +51,8 @@ export function FAQ({ items, title = "Frequently Asked Questions" }: FAQProps) {
               key={i}
               style={{
                 padding: "25px",
-                background: "rgba(255,255,255,0.03)",
-                border: "1px solid rgba(255,255,255,0.08)",
+                background: "var(--border-subtle)",
+                border: "1px solid var(--border-subtle)",
               }}
             >
               <h3
@@ -70,7 +70,7 @@ export function FAQ({ items, title = "Frequently Asked Questions" }: FAQProps) {
                 style={{
                   fontFamily: "var(--font-inter), sans-serif",
                   fontSize: "15px",
-                  color: "rgba(255,255,255,0.7)",
+                  color: "var(--text-secondary)",
                   lineHeight: "1.6",
                 }}
               >

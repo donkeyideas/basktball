@@ -149,7 +149,7 @@ export default function ProfilePage() {
         <Header />
         <main style={{ minHeight: "100vh", padding: "60px 20px" }}>
           <div style={{ maxWidth: "600px", margin: "0 auto", textAlign: "center" }}>
-            <p style={{ color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-inter)" }}>Loading profile...</p>
+            <p style={{ color: "var(--text-muted)", fontFamily: "var(--font-inter)" }}>Loading profile...</p>
           </div>
         </main>
         <Footer />
@@ -201,7 +201,7 @@ export default function ProfilePage() {
                 justifyContent: "center",
                 fontSize: "28px",
                 fontWeight: "700",
-                color: "#fff",
+                color: "var(--white)",
                 overflow: "hidden",
                 fontFamily: "var(--font-inter)",
                 flexShrink: 0,
@@ -252,14 +252,14 @@ export default function ProfilePage() {
                 fontFamily: "var(--font-inter)",
                 fontWeight: "700",
                 fontSize: "18px",
-                color: "#fff",
+                color: "var(--white)",
               }}>
                 {profile?.displayName || profile?.name}
               </div>
               <div style={{
                 fontFamily: "var(--font-inter)",
                 fontSize: "13px",
-                color: "rgba(255,255,255,0.4)",
+                color: "var(--text-faint)",
               }}>
                 @{profile?.name} · Joined {new Date(profile?.createdAt || "").toLocaleDateString("en-US", { month: "long", year: "numeric" })}
               </div>
@@ -272,7 +272,7 @@ export default function ProfilePage() {
             gap: "24px",
             marginBottom: "32px",
             padding: "16px 20px",
-            background: "#1A1A1A",
+            background: "var(--dark-gray)",
             borderRadius: "12px",
             border: "1px solid #2a2a2a",
           }}>
@@ -286,14 +286,14 @@ export default function ProfilePage() {
                   fontFamily: "var(--font-inter)",
                   fontWeight: "700",
                   fontSize: "18px",
-                  color: "#fff",
+                  color: "var(--white)",
                 }}>
                   {count}
                 </div>
                 <div style={{
                   fontFamily: "var(--font-inter)",
                   fontSize: "12px",
-                  color: "rgba(255,255,255,0.4)",
+                  color: "var(--text-faint)",
                   textTransform: "uppercase",
                   letterSpacing: "0.5px",
                 }}>
@@ -305,7 +305,7 @@ export default function ProfilePage() {
 
           {/* Form */}
           <div style={{
-            background: "#1A1A1A",
+            background: "var(--dark-gray)",
             borderRadius: "12px",
             border: "1px solid #2a2a2a",
             padding: "24px",
@@ -347,7 +347,7 @@ export default function ProfilePage() {
                 fontFamily: "var(--font-inter)",
                 fontSize: "13px",
                 fontWeight: "600",
-                color: "rgba(255,255,255,0.6)",
+                color: "var(--text-muted)",
                 textTransform: "uppercase",
                 letterSpacing: "0.5px",
                 marginBottom: "8px",
@@ -363,9 +363,9 @@ export default function ProfilePage() {
                   width: "100%",
                   padding: "10px 14px",
                   borderRadius: "8px",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  background: "rgba(255,255,255,0.05)",
-                  color: "#fff",
+                  border: "1px solid var(--border-color)",
+                  background: "var(--border-subtle)",
+                  color: "var(--white)",
                   fontFamily: "var(--font-inter)",
                   fontSize: "15px",
                   outline: "none",
@@ -373,12 +373,12 @@ export default function ProfilePage() {
                   boxSizing: "border-box",
                 }}
                 onFocus={(e) => { e.target.style.borderColor = "#FF6B35"; }}
-                onBlur={(e) => { e.target.style.borderColor = "rgba(255,255,255,0.15)"; }}
+                onBlur={(e) => { e.target.style.borderColor = "var(--border-color)"; }}
               />
               <div style={{
                 fontFamily: "var(--font-inter)",
                 fontSize: "12px",
-                color: "rgba(255,255,255,0.3)",
+                color: "var(--text-faint)",
                 marginTop: "4px",
               }}>
                 {displayName.length}/30 characters. This is how others see you on The Court.
@@ -392,7 +392,7 @@ export default function ProfilePage() {
                 fontFamily: "var(--font-inter)",
                 fontSize: "13px",
                 fontWeight: "600",
-                color: "rgba(255,255,255,0.6)",
+                color: "var(--text-muted)",
                 textTransform: "uppercase",
                 letterSpacing: "0.5px",
                 marginBottom: "8px",
@@ -407,7 +407,7 @@ export default function ProfilePage() {
                   transform: "translateY(-50%)",
                   fontFamily: "var(--font-inter)",
                   fontSize: "15px",
-                  color: "rgba(255,255,255,0.35)",
+                  color: "var(--text-faint)",
                   pointerEvents: "none",
                 }}>
                   @
@@ -421,9 +421,9 @@ export default function ProfilePage() {
                     width: "100%",
                     padding: "10px 14px 10px 28px",
                     borderRadius: "8px",
-                    border: "1px solid rgba(255,255,255,0.15)",
-                    background: "rgba(255,255,255,0.05)",
-                    color: "#fff",
+                    border: "1px solid var(--border-color)",
+                    background: "var(--border-subtle)",
+                    color: "var(--white)",
                     fontFamily: "var(--font-inter)",
                     fontSize: "15px",
                     outline: "none",
@@ -431,13 +431,13 @@ export default function ProfilePage() {
                     boxSizing: "border-box",
                   }}
                   onFocus={(e) => { e.target.style.borderColor = "#FF6B35"; }}
-                  onBlur={(e) => { e.target.style.borderColor = "rgba(255,255,255,0.15)"; }}
+                  onBlur={(e) => { e.target.style.borderColor = "var(--border-color)"; }}
                 />
               </div>
               <div style={{
                 fontFamily: "var(--font-inter)",
                 fontSize: "12px",
-                color: "rgba(255,255,255,0.3)",
+                color: "var(--text-faint)",
                 marginTop: "4px",
               }}>
                 {handle.length}/20 characters. Letters, numbers, and underscores only.
@@ -451,7 +451,7 @@ export default function ProfilePage() {
                 fontFamily: "var(--font-inter)",
                 fontSize: "13px",
                 fontWeight: "600",
-                color: "rgba(255,255,255,0.6)",
+                color: "var(--text-muted)",
                 textTransform: "uppercase",
                 letterSpacing: "0.5px",
                 marginBottom: "8px",
@@ -468,9 +468,9 @@ export default function ProfilePage() {
                   width: "100%",
                   padding: "10px 14px",
                   borderRadius: "8px",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  background: "rgba(255,255,255,0.05)",
-                  color: "#fff",
+                  border: "1px solid var(--border-color)",
+                  background: "var(--border-subtle)",
+                  color: "var(--white)",
                   fontFamily: "var(--font-inter)",
                   fontSize: "15px",
                   outline: "none",
@@ -480,12 +480,12 @@ export default function ProfilePage() {
                   boxSizing: "border-box",
                 }}
                 onFocus={(e) => { e.target.style.borderColor = "#FF6B35"; }}
-                onBlur={(e) => { e.target.style.borderColor = "rgba(255,255,255,0.15)"; }}
+                onBlur={(e) => { e.target.style.borderColor = "var(--border-color)"; }}
               />
               <div style={{
                 fontFamily: "var(--font-inter)",
                 fontSize: "12px",
-                color: "rgba(255,255,255,0.3)",
+                color: "var(--text-faint)",
                 marginTop: "4px",
               }}>
                 {bio.length}/160 characters
@@ -499,7 +499,7 @@ export default function ProfilePage() {
                 fontFamily: "var(--font-inter)",
                 fontSize: "13px",
                 fontWeight: "600",
-                color: "rgba(255,255,255,0.6)",
+                color: "var(--text-muted)",
                 textTransform: "uppercase",
                 letterSpacing: "0.5px",
                 marginBottom: "8px",
@@ -516,9 +516,9 @@ export default function ProfilePage() {
                   width: "100%",
                   padding: "10px 14px",
                   borderRadius: "8px",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  background: "rgba(255,255,255,0.05)",
-                  color: "#fff",
+                  border: "1px solid var(--border-color)",
+                  background: "var(--border-subtle)",
+                  color: "var(--white)",
                   fontFamily: "var(--font-inter)",
                   fontSize: "15px",
                   outline: "none",
@@ -526,7 +526,7 @@ export default function ProfilePage() {
                   boxSizing: "border-box",
                 }}
                 onFocus={(e) => { e.target.style.borderColor = "#FF6B35"; }}
-                onBlur={(e) => { e.target.style.borderColor = "rgba(255,255,255,0.15)"; }}
+                onBlur={(e) => { e.target.style.borderColor = "var(--border-color)"; }}
               />
             </div>
 
@@ -537,7 +537,7 @@ export default function ProfilePage() {
                 fontFamily: "var(--font-inter)",
                 fontSize: "13px",
                 fontWeight: "600",
-                color: "rgba(255,255,255,0.6)",
+                color: "var(--text-muted)",
                 textTransform: "uppercase",
                 letterSpacing: "0.5px",
                 marginBottom: "8px",
@@ -552,9 +552,9 @@ export default function ProfilePage() {
                   width: "100%",
                   padding: "10px 14px",
                   borderRadius: "8px",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  background: "rgba(255,255,255,0.02)",
-                  color: "rgba(255,255,255,0.35)",
+                  border: "1px solid var(--border-subtle)",
+                  background: "var(--border-subtle)",
+                  color: "var(--text-faint)",
                   fontFamily: "var(--font-inter)",
                   fontSize: "15px",
                   cursor: "not-allowed",
@@ -564,7 +564,7 @@ export default function ProfilePage() {
               <div style={{
                 fontFamily: "var(--font-inter)",
                 fontSize: "12px",
-                color: "rgba(255,255,255,0.2)",
+                color: "var(--text-faint)",
                 marginTop: "4px",
               }}>
                 Email cannot be changed.
@@ -581,7 +581,7 @@ export default function ProfilePage() {
                 borderRadius: "8px",
                 border: "none",
                 background: saving || !displayName.trim() || handle.trim().length < 3 ? "rgba(255,107,53,0.3)" : "#FF6B35",
-                color: saving || !displayName.trim() || handle.trim().length < 3 ? "rgba(255,255,255,0.4)" : "#fff",
+                color: saving || !displayName.trim() || handle.trim().length < 3 ? "var(--text-faint)" : "#fff",
                 fontFamily: "var(--font-inter)",
                 fontSize: "15px",
                 fontWeight: "700",

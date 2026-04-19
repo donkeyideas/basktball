@@ -140,7 +140,7 @@ function WinProbabilityBar({
       background: "var(--dark-gray)",
       padding: "20px 30px",
       marginBottom: "20px",
-      border: isLive ? "1px solid rgba(255, 107, 53, 0.3)" : "1px solid rgba(255,255,255,0.05)",
+      border: isLive ? "1px solid rgba(255, 107, 53, 0.3)" : "1px solid var(--border-subtle)",
     }}>
       <div style={{
         display: "flex",
@@ -148,7 +148,7 @@ function WinProbabilityBar({
         alignItems: "center",
         marginBottom: "12px",
       }}>
-        <span style={{ fontSize: "12px", letterSpacing: "1px", color: "rgba(255,255,255,0.5)" }}>
+        <span style={{ fontSize: "12px", letterSpacing: "1px", color: "var(--text-muted)" }}>
           WIN PROBABILITY
         </span>
         {isLive && (
@@ -181,10 +181,10 @@ function WinProbabilityBar({
           }}>
             {away}%
           </span>
-          <span style={{ fontSize: "14px", color: "rgba(255,255,255,0.6)" }}>{awayAbbr}</span>
+          <span style={{ fontSize: "14px", color: "var(--text-muted)" }}>{awayAbbr}</span>
         </div>
         <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
-          <span style={{ fontSize: "14px", color: "rgba(255,255,255,0.6)" }}>{homeAbbr}</span>
+          <span style={{ fontSize: "14px", color: "var(--text-muted)" }}>{homeAbbr}</span>
           <span style={{
             fontFamily: "var(--font-roboto-mono), monospace",
             fontSize: "24px",
@@ -200,7 +200,7 @@ function WinProbabilityBar({
         height: "10px",
         borderRadius: "5px",
         overflow: "hidden",
-        background: "rgba(255,255,255,0.05)",
+        background: "var(--border-subtle)",
       }}>
         <div style={{
           width: `${away}%`,
@@ -254,14 +254,14 @@ function QuarterScoresTable({
     }}>
       <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "400px" }}>
         <thead>
-          <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+          <tr style={{ borderBottom: "1px solid var(--border-color)" }}>
             <th style={{ padding: "10px 14px", textAlign: "left", fontSize: "12px", fontWeight: 600, width: "100px" }}>TEAM</th>
             {headers.map((h, i) => (
               <th key={h} style={{
                 ...cellStyle(i + 1 === period && isLive),
                 fontSize: "12px",
                 fontWeight: 600,
-                color: "rgba(255,255,255,0.5)",
+                color: "var(--text-muted)",
               }}>
                 {h}
               </th>
@@ -270,7 +270,7 @@ function QuarterScoresTable({
           </tr>
         </thead>
         <tbody>
-          <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+          <tr style={{ borderBottom: "1px solid var(--border-subtle)" }}>
             <td style={{ padding: "10px 14px", fontWeight: 600, fontSize: "14px" }}>{awayAbbr}</td>
             {headers.map((_, i) => (
               <td key={i} style={cellStyle(i + 1 === period && isLive)}>
@@ -338,7 +338,7 @@ function QuarterScoresChart({
         alignItems: "center",
         marginBottom: "16px",
       }}>
-        <span style={{ fontSize: "12px", letterSpacing: "1px", color: "rgba(255,255,255,0.5)" }}>
+        <span style={{ fontSize: "12px", letterSpacing: "1px", color: "var(--text-muted)" }}>
           SCORING BY QUARTER
         </span>
         <div style={{ display: "flex", gap: "16px", fontSize: "12px" }}>
@@ -414,7 +414,7 @@ function QuarterScoresChart({
               <span style={{
                 marginTop: "8px",
                 fontSize: "12px",
-                color: "rgba(255,255,255,0.5)",
+                color: "var(--text-muted)",
                 fontWeight: 600,
               }}>
                 {label}
@@ -447,7 +447,7 @@ function MomentumMeter({
       <div style={{
         fontSize: "12px",
         letterSpacing: "1px",
-        color: "rgba(255,255,255,0.5)",
+        color: "var(--text-muted)",
         marginBottom: "12px",
       }}>
         MOMENTUM
@@ -457,11 +457,11 @@ function MomentumMeter({
         justifyContent: "space-between",
         marginBottom: "8px",
         fontSize: "13px",
-        color: "rgba(255,255,255,0.5)",
+        color: "var(--text-muted)",
       }}>
         <span>{awayAbbr}</span>
         <span style={{
-          color: Math.abs(score) <= 1 ? "rgba(255,255,255,0.6)" :
+          color: Math.abs(score) <= 1 ? "var(--text-muted)" :
             score > 0 ? "var(--orange)" : "var(--blue)",
           fontWeight: 600,
           fontSize: "14px",
@@ -473,7 +473,7 @@ function MomentumMeter({
       <div style={{
         position: "relative",
         height: "8px",
-        background: "rgba(255,255,255,0.1)",
+        background: "var(--border-color)",
         borderRadius: "4px",
         marginBottom: "12px",
       }}>
@@ -484,7 +484,7 @@ function MomentumMeter({
           top: "-2px",
           width: "2px",
           height: "12px",
-          background: "rgba(255,255,255,0.3)",
+          background: "var(--text-faint)",
           transform: "translateX(-50%)",
         }} />
         {/* Indicator */}
@@ -495,10 +495,10 @@ function MomentumMeter({
           width: "16px",
           height: "16px",
           borderRadius: "50%",
-          background: score > 1 ? "var(--orange)" : score < -1 ? "var(--blue)" : "rgba(255,255,255,0.5)",
+          background: score > 1 ? "var(--orange)" : score < -1 ? "var(--blue)" : "var(--text-muted)",
           transform: "translateX(-50%)",
           transition: "left 0.5s ease",
-          boxShadow: `0 0 8px ${score > 1 ? "rgba(255, 107, 53, 0.5)" : score < -1 ? "rgba(59, 130, 246, 0.5)" : "rgba(255,255,255,0.2)"}`,
+          boxShadow: `0 0 8px ${score > 1 ? "rgba(255, 107, 53, 0.5)" : score < -1 ? "rgba(59, 130, 246, 0.5)" : "var(--text-faint)"}`,
         }} />
       </div>
       {factors.length > 0 && (
@@ -506,8 +506,8 @@ function MomentumMeter({
           {factors.map((f, i) => (
             <span key={i} style={{
               fontSize: "12px",
-              color: "rgba(255,255,255,0.5)",
-              background: "rgba(255,255,255,0.05)",
+              color: "var(--text-muted)",
+              background: "var(--border-subtle)",
               padding: "4px 10px",
               borderRadius: "4px",
             }}>
@@ -539,7 +539,7 @@ function AiInsightsPanel({ insights }: { insights: string[] }) {
         <span style={{
           fontSize: "12px",
           letterSpacing: "1px",
-          color: "rgba(255,255,255,0.5)",
+          color: "var(--text-muted)",
         }}>
           AI INSIGHTS
         </span>
@@ -566,7 +566,7 @@ function AiInsightsPanel({ insights }: { insights: string[] }) {
               marginTop: "7px",
               flexShrink: 0,
             }} />
-            <span style={{ fontSize: "14px", color: "rgba(255,255,255,0.8)", lineHeight: "1.5" }}>
+            <span style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: "1.5" }}>
               {insight}
             </span>
           </div>
@@ -607,11 +607,11 @@ function OddsCard({
         alignItems: "center",
         marginBottom: "16px",
       }}>
-        <span style={{ fontSize: "12px", letterSpacing: "1px", color: "rgba(255,255,255,0.5)" }}>
+        <span style={{ fontSize: "12px", letterSpacing: "1px", color: "var(--text-muted)" }}>
           ODDS
         </span>
         {odds.provider && (
-          <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)" }}>
+          <span style={{ fontSize: "11px", color: "var(--text-faint)" }}>
             via {odds.provider}
           </span>
         )}
@@ -623,36 +623,36 @@ function OddsCard({
         gap: "20px",
       }}>
         <div style={{ textAlign: "center", minWidth: "100px" }}>
-          <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginBottom: "6px", letterSpacing: "0.5px" }}>
+          <div style={{ fontSize: "11px", color: "var(--text-faint)", marginBottom: "6px", letterSpacing: "0.5px" }}>
             SPREAD
           </div>
           <div style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "20px", fontWeight: 700 }}>
             {odds.details || formatSpread(odds.spread)}
           </div>
         </div>
-        <div style={{ width: "1px", background: "rgba(255,255,255,0.1)", alignSelf: "stretch" }} />
+        <div style={{ width: "1px", background: "var(--border-color)", alignSelf: "stretch" }} />
         <div style={{ textAlign: "center", minWidth: "100px" }}>
-          <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginBottom: "6px", letterSpacing: "0.5px" }}>
+          <div style={{ fontSize: "11px", color: "var(--text-faint)", marginBottom: "6px", letterSpacing: "0.5px" }}>
             OVER/UNDER
           </div>
           <div style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "20px", fontWeight: 700 }}>
             {odds.overUnder ?? "-"}
           </div>
         </div>
-        <div style={{ width: "1px", background: "rgba(255,255,255,0.1)", alignSelf: "stretch" }} />
+        <div style={{ width: "1px", background: "var(--border-color)", alignSelf: "stretch" }} />
         <div style={{ textAlign: "center", minWidth: "140px" }}>
-          <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginBottom: "6px", letterSpacing: "0.5px" }}>
+          <div style={{ fontSize: "11px", color: "var(--text-faint)", marginBottom: "6px", letterSpacing: "0.5px" }}>
             MONEYLINE
           </div>
           <div style={{ display: "flex", justifyContent: "center", gap: "20px" }}>
             <div>
-              <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginBottom: "2px" }}>{awayAbbr}</div>
+              <div style={{ fontSize: "11px", color: "var(--text-faint)", marginBottom: "2px" }}>{awayAbbr}</div>
               <div style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "18px", fontWeight: 700 }}>
                 {formatMl(odds.awayMoneyline)}
               </div>
             </div>
             <div>
-              <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginBottom: "2px" }}>{homeAbbr}</div>
+              <div style={{ fontSize: "11px", color: "var(--text-faint)", marginBottom: "2px" }}>{homeAbbr}</div>
               <div style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "18px", fontWeight: 700 }}>
                 {formatMl(odds.homeMoneyline)}
               </div>
@@ -662,7 +662,7 @@ function OddsCard({
       </div>
       <p style={{
         fontSize: "10px",
-        color: "rgba(255,255,255,0.25)",
+        color: "var(--text-faint)",
         textAlign: "center",
         marginTop: "14px",
         lineHeight: "1.4",
@@ -694,13 +694,13 @@ function StatComparison({
     <div style={{ marginBottom: "15px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
         <span style={{ fontWeight: "bold" }}>{home}</span>
-        <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "14px" }}>{label}</span>
+        <span style={{ color: "var(--text-muted)", fontSize: "14px" }}>{label}</span>
         <span style={{ fontWeight: "bold" }}>{away}</span>
       </div>
       <div style={{
         display: "flex",
         height: "8px",
-        background: "rgba(255,255,255,0.1)",
+        background: "var(--border-color)",
         borderRadius: "4px",
         overflow: "hidden",
       }}>
@@ -727,7 +727,7 @@ function BoxScoreTable({ players, teamName }: { players: PlayerStat[]; teamName:
   const statColumns = ["MIN", "PTS", "REB", "AST", "FG", "3PT", "FT", "STL", "BLK", "TO"];
 
   const renderPlayerRow = (player: PlayerStat) => (
-    <tr key={player.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+    <tr key={player.id} style={{ borderBottom: "1px solid var(--border-color)" }}>
       <td style={{ padding: "12px 10px", display: "flex", alignItems: "center", gap: "10px" }}>
         {player.headshot ? (
           <Image
@@ -735,7 +735,7 @@ function BoxScoreTable({ players, teamName }: { players: PlayerStat[]; teamName:
             alt={player.name}
             width={32}
             height={32}
-            style={{ borderRadius: "50%", background: "rgba(255,255,255,0.1)" }}
+            style={{ borderRadius: "50%", background: "var(--border-color)" }}
           />
         ) : (
           <div style={{
@@ -762,7 +762,7 @@ function BoxScoreTable({ players, teamName }: { players: PlayerStat[]; teamName:
         >
           {player.shortName}
           {player.position && (
-            <span style={{ color: "rgba(255,255,255,0.5)", marginLeft: "5px", fontSize: "12px" }}>
+            <span style={{ color: "var(--text-muted)", marginLeft: "5px", fontSize: "12px" }}>
               {player.position}
             </span>
           )}
@@ -789,7 +789,7 @@ function BoxScoreTable({ players, teamName }: { players: PlayerStat[]; teamName:
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "800px" }}>
           <thead>
-            <tr style={{ background: "rgba(255,255,255,0.05)" }}>
+            <tr style={{ background: "var(--border-subtle)" }}>
               <th style={{ padding: "12px 10px", textAlign: "left", fontWeight: "600" }}>PLAYER</th>
               {statColumns.map(col => (
                 <th key={col} style={{ padding: "12px 8px", textAlign: "center", fontWeight: "600", fontSize: "12px" }}>
@@ -806,8 +806,8 @@ function BoxScoreTable({ players, teamName }: { players: PlayerStat[]; teamName:
                     padding: "8px 10px",
                     fontSize: "12px",
                     fontWeight: "bold",
-                    color: "rgba(255,255,255,0.5)",
-                    background: "rgba(255,255,255,0.02)",
+                    color: "var(--text-muted)",
+                    background: "var(--border-subtle)",
                   }}>
                     STARTERS
                   </td>
@@ -822,8 +822,8 @@ function BoxScoreTable({ players, teamName }: { players: PlayerStat[]; teamName:
                     padding: "8px 10px",
                     fontSize: "12px",
                     fontWeight: "bold",
-                    color: "rgba(255,255,255,0.5)",
-                    background: "rgba(255,255,255,0.02)",
+                    color: "var(--text-muted)",
+                    background: "var(--border-subtle)",
                   }}>
                     BENCH
                   </td>
@@ -838,15 +838,15 @@ function BoxScoreTable({ players, teamName }: { players: PlayerStat[]; teamName:
                     padding: "8px 10px",
                     fontSize: "12px",
                     fontWeight: "bold",
-                    color: "rgba(255,255,255,0.5)",
-                    background: "rgba(255,255,255,0.02)",
+                    color: "var(--text-muted)",
+                    background: "var(--border-subtle)",
                   }}>
                     DID NOT PLAY
                   </td>
                 </tr>
                 {dnp.map(player => (
-                  <tr key={player.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-                    <td colSpan={statColumns.length + 1} style={{ padding: "10px", color: "rgba(255,255,255,0.4)" }}>
+                  <tr key={player.id} style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                    <td colSpan={statColumns.length + 1} style={{ padding: "10px", color: "var(--text-faint)" }}>
                       {player.shortName} - {player.dnpReason || "DNP"}
                     </td>
                   </tr>
@@ -904,7 +904,7 @@ function GamePageContent({ params }: { params: Promise<{ id: string }> }) {
         <Header />
         <main style={{ minHeight: "100vh", padding: "40px 20px" }}>
           <div style={{ textAlign: "center", padding: "100px" }}>
-            <p style={{ color: "rgba(255,255,255,0.5)" }}>Loading game data...</p>
+            <p style={{ color: "var(--text-muted)" }}>Loading game data...</p>
           </div>
         </main>
         <Footer />
@@ -940,7 +940,7 @@ function GamePageContent({ params }: { params: Promise<{ id: string }> }) {
           <Link
             href="/live"
             style={{
-              color: "rgba(255,255,255,0.5)",
+              color: "var(--text-muted)",
               textDecoration: "none",
               display: "inline-flex",
               alignItems: "center",
@@ -965,7 +965,7 @@ function GamePageContent({ params }: { params: Promise<{ id: string }> }) {
               right: "20px",
               padding: "8px 20px",
               background: game.status === "live" ? "var(--red)" :
-                         game.status === "final" ? "rgba(255,255,255,0.2)" : "var(--orange)",
+                         game.status === "final" ? "var(--text-faint)" : "var(--orange)",
               fontWeight: "bold",
               fontSize: "14px",
               letterSpacing: "1px",
@@ -997,9 +997,9 @@ function GamePageContent({ params }: { params: Promise<{ id: string }> }) {
                 }}>
                   {game.awayTeam.name}
                 </h2>
-                <p style={{ color: "rgba(255,255,255,0.5)" }}>{game.awayTeam.abbreviation}</p>
+                <p style={{ color: "var(--text-muted)" }}>{game.awayTeam.abbreviation}</p>
                 {data.records?.away && (
-                  <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "13px", marginTop: "4px" }}>
+                  <p style={{ color: "var(--text-faint)", fontSize: "13px", marginTop: "4px" }}>
                     {data.records.away}
                   </p>
                 )}
@@ -1017,13 +1017,13 @@ function GamePageContent({ params }: { params: Promise<{ id: string }> }) {
                   <span style={{ color: game.awayTeam.winner ? "var(--orange)" : "var(--white)" }}>
                     {game.awayTeam.score}
                   </span>
-                  <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "48px" }}>-</span>
+                  <span style={{ color: "var(--text-faint)", fontSize: "48px" }}>-</span>
                   <span style={{ color: game.homeTeam.winner ? "var(--orange)" : "var(--white)" }}>
                     {game.homeTeam.score}
                   </span>
                 </div>
                 {game.venue && (
-                  <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "14px", marginTop: "10px" }}>
+                  <p style={{ color: "var(--text-faint)", fontSize: "14px", marginTop: "10px" }}>
                     {game.venue}
                     {game.location && ` • ${game.location}`}
                   </p>
@@ -1052,7 +1052,7 @@ function GamePageContent({ params }: { params: Promise<{ id: string }> }) {
                   </div>
                 )}
                 {data.seasonSeries && (
-                  <p style={{ color: "rgba(255,255,255,0.35)", fontSize: "12px", marginTop: "6px" }}>
+                  <p style={{ color: "var(--text-faint)", fontSize: "12px", marginTop: "6px" }}>
                     {data.seasonSeries}
                   </p>
                 )}
@@ -1072,9 +1072,9 @@ function GamePageContent({ params }: { params: Promise<{ id: string }> }) {
                 }}>
                   {game.homeTeam.name}
                 </h2>
-                <p style={{ color: "rgba(255,255,255,0.5)" }}>{game.homeTeam.abbreviation}</p>
+                <p style={{ color: "var(--text-muted)" }}>{game.homeTeam.abbreviation}</p>
                 {data.records?.home && (
-                  <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "13px", marginTop: "4px" }}>
+                  <p style={{ color: "var(--text-faint)", fontSize: "13px", marginTop: "4px" }}>
                     {data.records.home}
                   </p>
                 )}
@@ -1217,7 +1217,7 @@ export default function GameClient({ params }: { params: Promise<{ id: string }>
         <Header />
         <main style={{ minHeight: "100vh", padding: "40px 20px" }}>
           <div style={{ textAlign: "center", padding: "100px" }}>
-            <p style={{ color: "rgba(255,255,255,0.5)" }}>Loading game data...</p>
+            <p style={{ color: "var(--text-muted)" }}>Loading game data...</p>
           </div>
         </main>
         <Footer />

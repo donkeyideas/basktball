@@ -82,7 +82,7 @@ export default async function RootLayout({
   const session = await auth();
 
   return (
-    <html lang="en" className={`${anton.variable} ${barlowCondensed.variable} ${inter.variable} ${robotoMono.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`${anton.variable} ${barlowCondensed.variable} ${inter.variable} ${robotoMono.variable}`}>
       <head>
         {/* Prevent flash of wrong theme */}
         <script

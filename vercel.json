@@ -34,6 +34,10 @@
     {
       "path": "/api/cron/bot-post",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/auto-broadcast",
+      "schedule": "0 * * * *"
     }
   ]
 }

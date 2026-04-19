@@ -126,7 +126,10 @@ async function fetchSeasonFromESPN(year: number) {
 // GET - Fetch season history from ESPN API
 export async function GET() {
   try {
-    const years = [2025, 2024, 2023, 2022, 2021, 2020];
+    const currentSeason = new Date().getMonth() >= 9
+      ? new Date().getFullYear() + 1
+      : new Date().getFullYear();
+    const years = Array.from({ length: 6 }, (_, i) => currentSeason - i);
     const results = await Promise.all(years.map(fetchSeasonFromESPN));
     const seasons = results.filter(Boolean);
 

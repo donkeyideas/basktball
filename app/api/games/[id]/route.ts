@@ -126,7 +126,7 @@ export async function GET(
       `https://site.api.espn.com/apis/site/v2/sports/${sportSlug}/summary?event=${id}`,
       {
         headers: { Accept: "application/json" },
-        next: { revalidate: 30 },
+        cache: "no-store",
       }
     );
 

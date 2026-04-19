@@ -56,12 +56,12 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
   return (
     <div style={{ marginBottom: "12px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
-        <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)" }}>{label}</span>
+        <span style={{ fontSize: "13px", color: "var(--text-secondary)" }}>{label}</span>
         <span style={{ fontSize: "13px", fontWeight: 600, fontFamily: "var(--font-roboto-mono), monospace", color: getScoreColor(score) }}>
           {score}
         </span>
       </div>
-      <div style={{ height: "6px", background: "rgba(255,255,255,0.1)", borderRadius: "3px", overflow: "hidden" }}>
+      <div style={{ height: "6px", background: "var(--border-color)", borderRadius: "3px", overflow: "hidden" }}>
         <div style={{ height: "100%", width: `${score}%`, background: getScoreColor(score), borderRadius: "3px", transition: "width 0.5s ease" }} />
       </div>
     </div>
@@ -144,8 +144,8 @@ export default function GeoAnalysisTab({ data }: { data: AnalysisData }) {
             <div style={{ fontSize: "28px", fontWeight: "bold", fontFamily: "var(--font-roboto-mono), monospace", color: getScoreColor(item.score) }}>
               {item.score}
             </div>
-            <div style={{ color: "rgba(255,255,255,0.8)", marginTop: "4px", fontSize: "13px", fontWeight: 600 }}>{item.label}</div>
-            <div style={{ color: "rgba(255,255,255,0.4)", marginTop: "2px", fontSize: "11px" }}>{item.desc}</div>
+            <div style={{ color: "var(--text-secondary)", marginTop: "4px", fontSize: "13px", fontWeight: 600 }}>{item.label}</div>
+            <div style={{ color: "var(--text-faint)", marginTop: "2px", fontSize: "11px" }}>{item.desc}</div>
           </div>
         ))}
       </div>
@@ -169,16 +169,16 @@ export default function GeoAnalysisTab({ data }: { data: AnalysisData }) {
             <div style={{ width: "100%", height: 280 }}>
               <ResponsiveContainer>
                 <BarChart data={chartData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis type="number" domain={[0, 100]} tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }} />
-                  <YAxis dataKey="name" type="category" width={150} tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 10 }} />
-                  <Tooltip contentStyle={{ background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px" }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                  <XAxis type="number" domain={[0, 100]} tick={{ fill: "var(--text-muted)", fontSize: 10 }} />
+                  <YAxis dataKey="name" type="category" width={150} tick={{ fill: "var(--text-secondary)", fontSize: 10 }} />
+                  <Tooltip contentStyle={{ background: "#1a1a2e", border: "1px solid var(--border-color)", borderRadius: "8px" }} />
                   <Bar dataKey="score" fill="#4A90D9" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <p style={{ color: "rgba(255,255,255,0.5)", textAlign: "center", padding: "40px 0" }}>No article data to display</p>
+            <p style={{ color: "var(--text-muted)", textAlign: "center", padding: "40px 0" }}>No article data to display</p>
           )}
         </div>
       </div>
@@ -203,7 +203,7 @@ export default function GeoAnalysisTab({ data }: { data: AnalysisData }) {
               <tr key={page.id}>
                 <td>
                   <div style={{ fontWeight: 600, fontSize: "13px" }}>{page.path}</div>
-                  <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>{page.wordCount} words</div>
+                  <div style={{ fontSize: "11px", color: "var(--text-faint)" }}>{page.wordCount} words</div>
                 </td>
                 <td style={{ textAlign: "center", fontFamily: "var(--font-roboto-mono), monospace", color: getScoreColor(page.geoBreakdown.aiFriendliness) }}>
                   {page.geoBreakdown.aiFriendliness}
@@ -229,7 +229,7 @@ export default function GeoAnalysisTab({ data }: { data: AnalysisData }) {
             ))}
             {articlePages.length === 0 && (
               <tr>
-                <td colSpan={7} style={{ textAlign: "center", color: "rgba(255,255,255,0.5)" }}>
+                <td colSpan={7} style={{ textAlign: "center", color: "var(--text-muted)" }}>
                   No article content to analyze. Publish articles to see GEO scores.
                 </td>
               </tr>
@@ -251,7 +251,7 @@ export default function GeoAnalysisTab({ data }: { data: AnalysisData }) {
             {scanning ? "Scanning..." : "Run Deep AI Scan"}
           </button>
         </div>
-        <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "13px", marginBottom: "15px" }}>
+        <p style={{ color: "var(--text-muted)", fontSize: "13px", marginBottom: "15px" }}>
           Uses DeepSeek AI to deeply analyze each article for AI-engine readiness, citation probability, and content quality.
           Results are cached for 24 hours. Analyzes up to 10 articles per scan.
         </p>
@@ -268,8 +268,8 @@ export default function GeoAnalysisTab({ data }: { data: AnalysisData }) {
               <div
                 key={result.articleId}
                 style={{
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.08)",
+                  background: "var(--border-subtle)",
+                  border: "1px solid var(--border-subtle)",
                   borderRadius: "8px",
                   padding: "16px",
                 }}
@@ -287,7 +287,7 @@ export default function GeoAnalysisTab({ data }: { data: AnalysisData }) {
                     </span>
                   )}
                 </div>
-                <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginBottom: "10px" }}>
+                <div style={{ fontSize: "11px", color: "var(--text-faint)", marginBottom: "10px" }}>
                   Scanned: {new Date(result.scannedAt).toLocaleString()}
                 </div>
 
@@ -297,11 +297,11 @@ export default function GeoAnalysisTab({ data }: { data: AnalysisData }) {
                   <>
                     {result.analysis.topSuggestions && result.analysis.topSuggestions.length > 0 && (
                       <div style={{ marginTop: "8px" }}>
-                        <div style={{ fontSize: "12px", fontWeight: 600, color: "rgba(255,255,255,0.6)", marginBottom: "6px" }}>
+                        <div style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-muted)", marginBottom: "6px" }}>
                           AI Suggestions:
                         </div>
                         {result.analysis.topSuggestions.map((suggestion, i) => (
-                          <div key={i} style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)", padding: "3px 0", paddingLeft: "12px", borderLeft: "2px solid #4A90D9" }}>
+                          <div key={i} style={{ fontSize: "13px", color: "var(--text-secondary)", padding: "3px 0", paddingLeft: "12px", borderLeft: "2px solid #4A90D9" }}>
                             {suggestion}
                           </div>
                         ))}
@@ -315,7 +315,7 @@ export default function GeoAnalysisTab({ data }: { data: AnalysisData }) {
         )}
 
         {scanResults.length === 0 && !scanError && !scanning && (
-          <div style={{ textAlign: "center", padding: "30px", color: "rgba(255,255,255,0.4)" }}>
+          <div style={{ textAlign: "center", padding: "30px", color: "var(--text-faint)" }}>
             Click &quot;Run Deep AI Scan&quot; to analyze your content with DeepSeek AI.
           </div>
         )}

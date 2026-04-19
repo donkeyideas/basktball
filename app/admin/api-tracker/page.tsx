@@ -59,14 +59,14 @@ const PROVIDER_LABELS: Record<string, string> = {
 };
 
 const tooltipStyle = {
-  backgroundColor: "#1A1A1A",
-  border: "1px solid rgba(255,255,255,0.15)",
+  backgroundColor: "var(--dark-gray)",
+  border: "1px solid var(--border-color)",
   borderRadius: "8px",
-  color: "#fff",
+  color: "var(--white)",
   fontSize: "13px",
 };
 
-const tickStyle = { fill: "rgba(255,255,255,0.5)", fontSize: 12 };
+const tickStyle = { fill: "var(--text-muted)", fontSize: 12 };
 
 export default function AdminApiTrackerPage() {
   const [calls, setCalls] = useState<TrackerCall[]>([]);
@@ -168,7 +168,7 @@ export default function AdminApiTrackerPage() {
   };
 
   const responseColor = (ms: number) => {
-    if (ms === 0) return "rgba(255,255,255,0.3)";
+    if (ms === 0) return "var(--text-faint)";
     if (ms < 300) return "var(--green)";
     if (ms < 1000) return "var(--yellow)";
     return "var(--red)";
@@ -176,7 +176,7 @@ export default function AdminApiTrackerPage() {
 
   if (loading) {
     return (
-      <div style={{ padding: "40px", textAlign: "center", color: "rgba(255,255,255,0.5)" }}>
+      <div style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
         Loading API tracker...
       </div>
     );
@@ -191,10 +191,10 @@ export default function AdminApiTrackerPage() {
             onClick={exportCsv}
             style={{
               padding: "8px 16px",
-              background: "rgba(255,255,255,0.1)",
-              border: "1px solid rgba(255,255,255,0.2)",
+              background: "var(--border-color)",
+              border: "1px solid var(--text-faint)",
               borderRadius: "6px",
-              color: "#fff",
+              color: "var(--white)",
               cursor: "pointer",
               fontSize: "13px",
             }}
@@ -271,7 +271,7 @@ export default function AdminApiTrackerPage() {
             <div style={{ width: "100%", height: 260, marginTop: "20px" }}>
               <ResponsiveContainer>
                 <BarChart data={dailyVolume}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
                   <XAxis
                     dataKey="date"
                     tick={tickStyle}
@@ -293,7 +293,7 @@ export default function AdminApiTrackerPage() {
               {callsByProvider.length > 0 ? (
                 <ResponsiveContainer>
                   <BarChart data={callsByProvider} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border-subtle)" />
                     <XAxis type="number" tick={tickStyle} />
                     <YAxis
                       type="category"
@@ -317,7 +317,7 @@ export default function AdminApiTrackerPage() {
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "rgba(255,255,255,0.3)" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", color: "var(--text-faint)" }}>
                   No data yet
                 </div>
               )}
@@ -338,10 +338,10 @@ export default function AdminApiTrackerPage() {
             onChange={(e) => { setProviderFilter(e.target.value); setPage(1); }}
             style={{
               padding: "10px 14px",
-              background: "#1A1A1A",
-              border: "1px solid rgba(255,255,255,0.15)",
+              background: "var(--dark-gray)",
+              border: "1px solid var(--border-color)",
               borderRadius: "8px",
-              color: "#fff",
+              color: "var(--white)",
               fontSize: "14px",
               outline: "none",
             }}
@@ -358,10 +358,10 @@ export default function AdminApiTrackerPage() {
             onChange={(e) => { setCachedFilter(e.target.value); setPage(1); }}
             style={{
               padding: "10px 14px",
-              background: "#1A1A1A",
-              border: "1px solid rgba(255,255,255,0.15)",
+              background: "var(--dark-gray)",
+              border: "1px solid var(--border-color)",
               borderRadius: "8px",
-              color: "#fff",
+              color: "var(--white)",
               fontSize: "14px",
               outline: "none",
             }}
@@ -380,10 +380,10 @@ export default function AdminApiTrackerPage() {
               flex: "1",
               minWidth: "180px",
               padding: "10px 14px",
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.15)",
+              background: "var(--border-subtle)",
+              border: "1px solid var(--border-color)",
               borderRadius: "8px",
-              color: "#fff",
+              color: "var(--white)",
               fontSize: "14px",
               outline: "none",
             }}
@@ -395,25 +395,25 @@ export default function AdminApiTrackerPage() {
             onChange={(e) => { setDateFrom(e.target.value); setPage(1); }}
             style={{
               padding: "10px 14px",
-              background: "#1A1A1A",
-              border: "1px solid rgba(255,255,255,0.15)",
+              background: "var(--dark-gray)",
+              border: "1px solid var(--border-color)",
               borderRadius: "8px",
-              color: "#fff",
+              color: "var(--white)",
               fontSize: "13px",
               outline: "none",
             }}
           />
-          <span style={{ color: "rgba(255,255,255,0.3)" }}>to</span>
+          <span style={{ color: "var(--text-faint)" }}>to</span>
           <input
             type="date"
             value={dateTo}
             onChange={(e) => { setDateTo(e.target.value); setPage(1); }}
             style={{
               padding: "10px 14px",
-              background: "#1A1A1A",
-              border: "1px solid rgba(255,255,255,0.15)",
+              background: "var(--dark-gray)",
+              border: "1px solid var(--border-color)",
               borderRadius: "8px",
-              color: "#fff",
+              color: "var(--white)",
               fontSize: "13px",
               outline: "none",
             }}
@@ -427,7 +427,7 @@ export default function AdminApiTrackerPage() {
             <span style={{
               fontWeight: 400,
               fontSize: "13px",
-              color: "rgba(255,255,255,0.4)",
+              color: "var(--text-faint)",
               marginLeft: "10px",
               fontFamily: "var(--font-inter)",
             }}>
@@ -453,7 +453,7 @@ export default function AdminApiTrackerPage() {
               <tbody>
                 {calls.length === 0 ? (
                   <tr>
-                    <td colSpan={9} style={{ textAlign: "center", padding: "40px", color: "rgba(255,255,255,0.3)" }}>
+                    <td colSpan={9} style={{ textAlign: "center", padding: "40px", color: "var(--text-faint)" }}>
                       No API calls tracked yet. Data will appear as the site makes external API requests.
                     </td>
                   </tr>
@@ -508,7 +508,7 @@ export default function AdminApiTrackerPage() {
                         textAlign: "center",
                         fontFamily: "var(--font-roboto-mono), monospace",
                         fontSize: "13px",
-                        color: call.tokensUsed ? "#fff" : "rgba(255,255,255,0.2)",
+                        color: call.tokensUsed ? "var(--white)" : "var(--text-faint)",
                       }}>
                         {call.tokensUsed ? call.tokensUsed.toLocaleString() : "-"}
                       </td>
@@ -516,7 +516,7 @@ export default function AdminApiTrackerPage() {
                         textAlign: "center",
                         fontFamily: "var(--font-roboto-mono), monospace",
                         fontSize: "13px",
-                        color: call.estimatedCost > 0 ? "var(--green)" : "rgba(255,255,255,0.2)",
+                        color: call.estimatedCost > 0 ? "var(--green)" : "var(--text-faint)",
                       }}>
                         {call.estimatedCost > 0 ? `$${call.estimatedCost.toFixed(6)}` : "Free"}
                       </td>
@@ -526,12 +526,12 @@ export default function AdminApiTrackerPage() {
                             <polyline points="20 6 9 17 4 12" />
                           </svg>
                         ) : (
-                          <span style={{ color: "rgba(255,255,255,0.15)" }}>-</span>
+                          <span style={{ color: "var(--border-color)" }}>-</span>
                         )}
                       </td>
                       <td style={{
                         fontSize: "12px",
-                        color: "rgba(255,255,255,0.4)",
+                        color: "var(--text-faint)",
                         maxWidth: "150px",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
@@ -560,17 +560,17 @@ export default function AdminApiTrackerPage() {
                 disabled={page === 1}
                 style={{
                   padding: "6px 12px",
-                  background: page === 1 ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.1)",
-                  border: "1px solid rgba(255,255,255,0.15)",
+                  background: page === 1 ? "var(--border-subtle)" : "var(--border-color)",
+                  border: "1px solid var(--border-color)",
                   borderRadius: "6px",
-                  color: page === 1 ? "rgba(255,255,255,0.3)" : "#fff",
+                  color: page === 1 ? "var(--text-faint)" : "#fff",
                   cursor: page === 1 ? "not-allowed" : "pointer",
                   fontSize: "13px",
                 }}
               >
                 Previous
               </button>
-              <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)" }}>
+              <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>
                 Page {page} of {pagination.totalPages}
               </span>
               <button
@@ -578,10 +578,10 @@ export default function AdminApiTrackerPage() {
                 disabled={page === pagination.totalPages}
                 style={{
                   padding: "6px 12px",
-                  background: page === pagination.totalPages ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.1)",
-                  border: "1px solid rgba(255,255,255,0.15)",
+                  background: page === pagination.totalPages ? "var(--border-subtle)" : "var(--border-color)",
+                  border: "1px solid var(--border-color)",
                   borderRadius: "6px",
-                  color: page === pagination.totalPages ? "rgba(255,255,255,0.3)" : "#fff",
+                  color: page === pagination.totalPages ? "var(--text-faint)" : "#fff",
                   cursor: page === pagination.totalPages ? "not-allowed" : "pointer",
                   fontSize: "13px",
                 }}

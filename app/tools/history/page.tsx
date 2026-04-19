@@ -114,7 +114,7 @@ export default function HistoryPage() {
           </h1>
           <p style={{
             textAlign: "center",
-            color: "rgba(255,255,255,0.6)",
+            color: "var(--text-muted)",
             marginBottom: "40px"
           }}>
             Access decades of basketball history with records, champions, and legendary performances.
@@ -134,7 +134,7 @@ export default function HistoryPage() {
                   padding: "12px 30px",
                   background: activeTab === tab.key ? "var(--orange)" : "transparent",
                   border: "1px solid",
-                  borderColor: activeTab === tab.key ? "var(--orange)" : "rgba(255,255,255,0.2)",
+                  borderColor: activeTab === tab.key ? "var(--orange)" : "var(--text-faint)",
                   color: "var(--white)",
                   cursor: "pointer",
                   fontFamily: "var(--font-anton), Anton, sans-serif",
@@ -151,13 +151,13 @@ export default function HistoryPage() {
               <div style={{
                 width: "40px",
                 height: "40px",
-                border: "3px solid rgba(255,255,255,0.1)",
+                border: "3px solid var(--border-color)",
                 borderTopColor: "var(--orange)",
                 borderRadius: "50%",
                 margin: "0 auto 20px",
                 animation: "spin 1s linear infinite"
               }} />
-              <p style={{ color: "rgba(255,255,255,0.6)" }}>Loading historical data...</p>
+              <p style={{ color: "var(--text-muted)" }}>Loading historical data...</p>
               <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
             </div>
           ) : (
@@ -175,7 +175,7 @@ export default function HistoryPage() {
                   style={{
                     padding: "10px 15px",
                     background: "rgba(0,0,0,0.3)",
-                    border: "1px solid rgba(255,255,255,0.1)",
+                    border: "1px solid var(--border-color)",
                     color: "var(--white)",
                     width: "250px"
                   }}
@@ -183,7 +183,7 @@ export default function HistoryPage() {
               </div>
 
               {filteredRecords.length === 0 ? (
-                <p style={{ textAlign: "center", color: "rgba(255,255,255,0.5)", padding: "40px 0" }}>
+                <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "40px 0" }}>
                   No records found. Historical records can be managed from the admin panel.
                 </p>
               ) : (
@@ -227,7 +227,7 @@ export default function HistoryPage() {
                               borderRadius: "50%",
                               overflow: "hidden",
                               flexShrink: 0,
-                              background: "rgba(255,255,255,0.1)",
+                              background: "var(--border-color)",
                             }}>
                               <img
                                 src={headshotUrl}
@@ -239,20 +239,20 @@ export default function HistoryPage() {
                           )}
                           <div>
                             <div style={{ fontWeight: "bold" }}>{record.holder}</div>
-                            <div style={{ fontSize: "14px", color: "rgba(255,255,255,0.5)" }}>{record.details}</div>
+                            <div style={{ fontSize: "14px", color: "var(--text-muted)" }}>{record.details}</div>
                           </div>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                           <div style={{
                             padding: "6px 12px",
-                            background: "rgba(255,255,255,0.1)",
+                            background: "var(--border-color)",
                             fontSize: "14px"
                           }}>
                             {record.date}
                           </div>
                           <svg
                             width="16" height="16" viewBox="0 0 24 24" fill="none"
-                            stroke="rgba(255,255,255,0.5)" strokeWidth="2"
+                            stroke="var(--text-muted)" strokeWidth="2"
                             style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
                           >
                             <polyline points="6 9 12 15 18 9" />
@@ -276,7 +276,7 @@ export default function HistoryPage() {
                                 borderRadius: "8px",
                                 overflow: "hidden",
                                 flexShrink: 0,
-                                background: "rgba(255,255,255,0.05)",
+                                background: "var(--border-subtle)",
                               }}>
                                 <img
                                   src={headshotUrl}
@@ -305,28 +305,28 @@ export default function HistoryPage() {
                                   background: "rgba(255,107,0,0.15)",
                                   border: "1px solid rgba(255,107,0,0.3)",
                                 }}>
-                                  <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "12px", display: "block" }}>RECORD</span>
+                                  <span style={{ color: "var(--text-muted)", fontSize: "12px", display: "block" }}>RECORD</span>
                                   <span style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "20px", fontWeight: "bold", color: "var(--orange)" }}>{record.record}</span>
                                 </div>
                                 <div style={{
                                   padding: "8px 16px",
-                                  background: "rgba(255,255,255,0.05)",
-                                  border: "1px solid rgba(255,255,255,0.1)",
+                                  background: "var(--border-subtle)",
+                                  border: "1px solid var(--border-color)",
                                 }}>
-                                  <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "12px", display: "block" }}>CATEGORY</span>
+                                  <span style={{ color: "var(--text-muted)", fontSize: "12px", display: "block" }}>CATEGORY</span>
                                   <span style={{ fontWeight: "bold" }}>{record.category}</span>
                                 </div>
                                 <div style={{
                                   padding: "8px 16px",
-                                  background: "rgba(255,255,255,0.05)",
-                                  border: "1px solid rgba(255,255,255,0.1)",
+                                  background: "var(--border-subtle)",
+                                  border: "1px solid var(--border-color)",
                                 }}>
-                                  <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "12px", display: "block" }}>DATE</span>
+                                  <span style={{ color: "var(--text-muted)", fontSize: "12px", display: "block" }}>DATE</span>
                                   <span style={{ fontWeight: "bold" }}>{record.date}</span>
                                 </div>
                               </div>
                               {record.details && (
-                                <p style={{ color: "rgba(255,255,255,0.7)", lineHeight: "1.6", marginBottom: "15px" }}>
+                                <p style={{ color: "var(--text-secondary)", lineHeight: "1.6", marginBottom: "15px" }}>
                                   {record.details}
                                 </p>
                               )}
@@ -365,7 +365,7 @@ export default function HistoryPage() {
             <div className="section">
               <div className="section-title">Recent NBA Seasons</div>
               {seasons.length === 0 ? (
-                <p style={{ textAlign: "center", color: "rgba(255,255,255,0.5)", padding: "40px 0" }}>
+                <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "40px 0" }}>
                   No season history found. Season data can be managed from the admin panel.
                 </p>
               ) : (
@@ -379,7 +379,7 @@ export default function HistoryPage() {
                   borderBottom: "2px solid var(--orange)",
                   fontWeight: "bold",
                   fontSize: "14px",
-                  color: "rgba(255,255,255,0.6)",
+                  color: "var(--text-muted)",
                 }}>
                   <div>Season</div>
                   <div>Champion</div>
@@ -407,7 +407,7 @@ export default function HistoryPage() {
                           gap: "15px",
                           alignItems: "center",
                           padding: "15px 20px",
-                          borderBottom: "1px solid rgba(255,255,255,0.1)",
+                          borderBottom: "1px solid var(--border-color)",
                           cursor: "pointer",
                           background: isExpanded ? "rgba(255,107,0,0.08)" : "transparent",
                           transition: "background 0.2s",
@@ -443,7 +443,7 @@ export default function HistoryPage() {
                               borderRadius: "50%",
                               overflow: "hidden",
                               flexShrink: 0,
-                              background: "rgba(255,255,255,0.1)",
+                              background: "var(--border-color)",
                             }}>
                               <img
                                 src={mvpHeadshotUrl}
@@ -463,7 +463,7 @@ export default function HistoryPage() {
                               borderRadius: "50%",
                               overflow: "hidden",
                               flexShrink: 0,
-                              background: "rgba(255,255,255,0.1)",
+                              background: "var(--border-color)",
                             }}>
                               <img
                                 src={scorerHeadshotUrl}
@@ -499,10 +499,10 @@ export default function HistoryPage() {
                             {/* Champion Column */}
                             <div style={{
                               padding: "20px",
-                              background: "rgba(255,255,255,0.03)",
-                              border: "1px solid rgba(255,255,255,0.08)",
+                              background: "var(--border-subtle)",
+                              border: "1px solid var(--border-subtle)",
                             }}>
-                              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginBottom: "12px", fontWeight: "bold" }}>
+                              <div style={{ fontSize: "12px", color: "var(--text-faint)", marginBottom: "12px", fontWeight: "bold" }}>
                                 CHAMPION
                               </div>
                               <div style={{ display: "flex", alignItems: "center", gap: "15px", marginBottom: "15px" }}>
@@ -533,7 +533,7 @@ export default function HistoryPage() {
                                 const losses = parseInt(match[2]);
                                 return (
                                   <div style={{ marginBottom: "15px" }}>
-                                    <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginBottom: "6px" }}>FINALS SERIES</div>
+                                    <div style={{ fontSize: "12px", color: "var(--text-faint)", marginBottom: "6px" }}>FINALS SERIES</div>
                                     <div style={{ display: "flex", gap: "6px" }}>
                                       {Array.from({ length: wins }).map((_, i) => (
                                         <div key={`w${i}`} style={{ width: "24px", height: "24px", background: "var(--green)", borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: "bold" }}>W</div>
@@ -566,10 +566,10 @@ export default function HistoryPage() {
                             {/* MVP Column */}
                             <div style={{
                               padding: "20px",
-                              background: "rgba(255,255,255,0.03)",
-                              border: "1px solid rgba(255,255,255,0.08)",
+                              background: "var(--border-subtle)",
+                              border: "1px solid var(--border-subtle)",
                             }}>
-                              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginBottom: "12px", fontWeight: "bold" }}>
+                              <div style={{ fontSize: "12px", color: "var(--text-faint)", marginBottom: "12px", fontWeight: "bold" }}>
                                 SEASON MVP
                               </div>
                               <div style={{ display: "flex", alignItems: "center", gap: "15px", marginBottom: "15px" }}>
@@ -580,7 +580,7 @@ export default function HistoryPage() {
                                     borderRadius: "50%",
                                     overflow: "hidden",
                                     flexShrink: 0,
-                                    background: "rgba(255,255,255,0.1)",
+                                    background: "var(--border-color)",
                                   }}>
                                     <img
                                       src={mvpHeadshotUrl}
@@ -629,10 +629,10 @@ export default function HistoryPage() {
                             {/* Scoring Leader Column */}
                             <div style={{
                               padding: "20px",
-                              background: "rgba(255,255,255,0.03)",
-                              border: "1px solid rgba(255,255,255,0.08)",
+                              background: "var(--border-subtle)",
+                              border: "1px solid var(--border-subtle)",
                             }}>
-                              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginBottom: "12px", fontWeight: "bold" }}>
+                              <div style={{ fontSize: "12px", color: "var(--text-faint)", marginBottom: "12px", fontWeight: "bold" }}>
                                 SCORING LEADER
                               </div>
                               <div style={{ display: "flex", alignItems: "center", gap: "15px", marginBottom: "15px" }}>
@@ -643,7 +643,7 @@ export default function HistoryPage() {
                                     borderRadius: "50%",
                                     overflow: "hidden",
                                     flexShrink: 0,
-                                    background: "rgba(255,255,255,0.1)",
+                                    background: "var(--border-color)",
                                   }}>
                                     <img
                                       src={scorerHeadshotUrl}
@@ -701,7 +701,7 @@ export default function HistoryPage() {
             <div className="section">
               <div className="section-title">All-Time Championship Leaders</div>
               {championships.length === 0 ? (
-                <p style={{ textAlign: "center", color: "rgba(255,255,255,0.5)", padding: "40px 0" }}>
+                <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "40px 0" }}>
                   No championship data found.
                 </p>
               ) : (
@@ -729,7 +729,7 @@ export default function HistoryPage() {
                         <div style={{
                           width: "50px",
                           height: "50px",
-                          background: index === 0 ? "var(--yellow)" : index === 1 ? "#C0C0C0" : index === 2 ? "#CD7F32" : "rgba(255,255,255,0.1)",
+                          background: index === 0 ? "var(--yellow)" : index === 1 ? "#C0C0C0" : index === 2 ? "#CD7F32" : "var(--border-color)",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -752,7 +752,7 @@ export default function HistoryPage() {
                         )}
                         <div style={{ flex: 1 }}>
                           <div style={{ fontWeight: "bold", fontSize: "18px" }}>{team.team}</div>
-                          <div style={{ fontSize: "14px", color: "rgba(255,255,255,0.5)" }}>
+                          <div style={{ fontSize: "14px", color: "var(--text-muted)" }}>
                             Last championship: {team.lastWon}
                           </div>
                         </div>
@@ -774,7 +774,7 @@ export default function HistoryPage() {
                           </div>
                           <svg
                             width="16" height="16" viewBox="0 0 24 24" fill="none"
-                            stroke="rgba(255,255,255,0.5)" strokeWidth="2"
+                            stroke="var(--text-muted)" strokeWidth="2"
                             style={{ transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s", marginLeft: "8px" }}
                           >
                             <polyline points="6 9 12 15 18 9" />
@@ -812,22 +812,22 @@ export default function HistoryPage() {
                                   background: "rgba(255,215,0,0.15)",
                                   border: "1px solid rgba(255,215,0,0.3)",
                                 }}>
-                                  <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "12px", display: "block" }}>TOTAL CHAMPIONSHIPS</span>
+                                  <span style={{ color: "var(--text-muted)", fontSize: "12px", display: "block" }}>TOTAL CHAMPIONSHIPS</span>
                                   <span style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "24px", fontWeight: "bold", color: "var(--yellow)" }}>{team.count}</span>
                                 </div>
                                 <div style={{
                                   padding: "8px 16px",
-                                  background: "rgba(255,255,255,0.05)",
-                                  border: "1px solid rgba(255,255,255,0.1)",
+                                  background: "var(--border-subtle)",
+                                  border: "1px solid var(--border-color)",
                                 }}>
-                                  <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "12px", display: "block" }}>LAST WON</span>
+                                  <span style={{ color: "var(--text-muted)", fontSize: "12px", display: "block" }}>LAST WON</span>
                                   <span style={{ fontWeight: "bold", fontSize: "18px" }}>{team.lastWon}</span>
                                 </div>
                               </div>
 
                               {champYears.length > 0 && (
                                 <div style={{ marginBottom: "15px" }}>
-                                  <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginBottom: "8px", fontWeight: "bold" }}>
+                                  <div style={{ fontSize: "12px", color: "var(--text-faint)", marginBottom: "8px", fontWeight: "bold" }}>
                                     CHAMPIONSHIP SEASONS IN DATABASE
                                   </div>
                                   <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>

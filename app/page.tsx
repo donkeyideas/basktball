@@ -81,8 +81,8 @@ export default function HomePage() {
           }}>
             <div style={{
               padding: "32px 20px",
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: "var(--input-bg)",
+              border: "1px solid var(--border-subtle)",
             }}>
               <div style={{
                 fontFamily: "var(--font-anton), Anton, sans-serif",
@@ -94,7 +94,7 @@ export default function HomePage() {
               </div>
               <div style={{
                 fontSize: "14px",
-                color: "rgba(255,255,255,0.6)",
+                color: "var(--text-muted)",
                 fontWeight: 600,
                 textTransform: "uppercase",
                 letterSpacing: "1px",
@@ -104,8 +104,8 @@ export default function HomePage() {
             </div>
             <div style={{
               padding: "32px 20px",
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: "var(--input-bg)",
+              border: "1px solid var(--border-subtle)",
             }}>
               <div style={{
                 fontFamily: "var(--font-anton), Anton, sans-serif",
@@ -117,7 +117,7 @@ export default function HomePage() {
               </div>
               <div style={{
                 fontSize: "14px",
-                color: "rgba(255,255,255,0.6)",
+                color: "var(--text-muted)",
                 fontWeight: 600,
                 textTransform: "uppercase",
                 letterSpacing: "1px",
@@ -127,8 +127,8 @@ export default function HomePage() {
             </div>
             <div style={{
               padding: "32px 20px",
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.08)",
+              background: "var(--input-bg)",
+              border: "1px solid var(--border-subtle)",
             }}>
               <div style={{
                 fontFamily: "var(--font-anton), Anton, sans-serif",
@@ -140,7 +140,7 @@ export default function HomePage() {
               </div>
               <div style={{
                 fontSize: "14px",
-                color: "rgba(255,255,255,0.6)",
+                color: "var(--text-muted)",
                 fontWeight: 600,
                 textTransform: "uppercase",
                 letterSpacing: "1px",

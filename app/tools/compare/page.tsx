@@ -46,7 +46,7 @@ function StatBar({ label, value1, value2, max }: { label: string; value1: number
         }}>
           {value1.toFixed(1)}
         </span>
-        <span style={{ color: "rgba(255,255,255,0.6)", fontSize: "14px" }}>{label}</span>
+        <span style={{ color: "var(--text-muted)", fontSize: "14px" }}>{label}</span>
         <span style={{
           fontFamily: "var(--font-roboto-mono), monospace",
           fontSize: "18px",
@@ -57,7 +57,7 @@ function StatBar({ label, value1, value2, max }: { label: string; value1: number
         </span>
       </div>
       <div style={{ display: "flex", gap: "4px", height: "8px" }}>
-        <div style={{ flex: 1, background: "rgba(255,255,255,0.1)", borderRadius: "4px", overflow: "hidden", position: "relative" }}>
+        <div style={{ flex: 1, background: "var(--border-color)", borderRadius: "4px", overflow: "hidden", position: "relative" }}>
           <div style={{
             width: `${pct1}%`,
             height: "100%",
@@ -68,7 +68,7 @@ function StatBar({ label, value1, value2, max }: { label: string; value1: number
             right: 0
           }} />
         </div>
-        <div style={{ flex: 1, background: "rgba(255,255,255,0.1)", borderRadius: "4px", overflow: "hidden" }}>
+        <div style={{ flex: 1, background: "var(--border-color)", borderRadius: "4px", overflow: "hidden" }}>
           <div style={{ width: `${pct2}%`, height: "100%", background: winner === 2 ? "var(--green)" : "var(--blue)", borderRadius: "4px", transition: "width 0.5s ease" }} />
         </div>
       </div>
@@ -189,12 +189,12 @@ export default function ComparePage() {
                     width: "100%",
                     padding: "12px 15px",
                     background: "rgba(0,0,0,0.3)",
-                    border: "1px solid rgba(255,255,255,0.1)",
+                    border: "1px solid var(--border-color)",
                     color: "var(--white)",
                     fontSize: "16px"
                   }}
                 />
-                {isSearching1 && <span style={{ position: "absolute", right: "15px", top: "12px", color: "rgba(255,255,255,0.5)" }}>...</span>}
+                {isSearching1 && <span style={{ position: "absolute", right: "15px", top: "12px", color: "var(--text-muted)" }}>...</span>}
                 {players1.length > 0 && (
                   <div style={{
                     position: "absolute",
@@ -202,7 +202,7 @@ export default function ComparePage() {
                     left: 0,
                     right: 0,
                     background: "var(--dark-gray)",
-                    border: "1px solid rgba(255,255,255,0.1)",
+                    border: "1px solid var(--border-color)",
                     maxHeight: "200px",
                     overflowY: "auto",
                     zIndex: 10
@@ -214,7 +214,7 @@ export default function ComparePage() {
                         style={{
                           padding: "12px 15px",
                           cursor: "pointer",
-                          borderBottom: "1px solid rgba(255,255,255,0.05)"
+                          borderBottom: "1px solid var(--border-subtle)"
                         }}
                       >
                         {player.name} {player.team && `(${player.team.abbreviation})`}
@@ -246,7 +246,7 @@ export default function ComparePage() {
                     />
                   </div>
                   <h3 style={{ fontFamily: "var(--font-anton), Anton, sans-serif", fontSize: "24px" }}>{selected1.name}</h3>
-                  <p style={{ color: "rgba(255,255,255,0.5)" }}>{selected1.team?.name || "Free Agent"}</p>
+                  <p style={{ color: "var(--text-muted)" }}>{selected1.team?.name || "Free Agent"}</p>
                 </div>
               )}
             </div>
@@ -256,7 +256,7 @@ export default function ComparePage() {
               <span style={{
                 fontFamily: "var(--font-anton), Anton, sans-serif",
                 fontSize: "36px",
-                color: "rgba(255,255,255,0.3)"
+                color: "var(--text-faint)"
               }}>VS</span>
             </div>
 
@@ -273,12 +273,12 @@ export default function ComparePage() {
                     width: "100%",
                     padding: "12px 15px",
                     background: "rgba(0,0,0,0.3)",
-                    border: "1px solid rgba(255,255,255,0.1)",
+                    border: "1px solid var(--border-color)",
                     color: "var(--white)",
                     fontSize: "16px"
                   }}
                 />
-                {isSearching2 && <span style={{ position: "absolute", right: "15px", top: "12px", color: "rgba(255,255,255,0.5)" }}>...</span>}
+                {isSearching2 && <span style={{ position: "absolute", right: "15px", top: "12px", color: "var(--text-muted)" }}>...</span>}
                 {players2.length > 0 && (
                   <div style={{
                     position: "absolute",
@@ -286,7 +286,7 @@ export default function ComparePage() {
                     left: 0,
                     right: 0,
                     background: "var(--dark-gray)",
-                    border: "1px solid rgba(255,255,255,0.1)",
+                    border: "1px solid var(--border-color)",
                     maxHeight: "200px",
                     overflowY: "auto",
                     zIndex: 10
@@ -298,7 +298,7 @@ export default function ComparePage() {
                         style={{
                           padding: "12px 15px",
                           cursor: "pointer",
-                          borderBottom: "1px solid rgba(255,255,255,0.05)"
+                          borderBottom: "1px solid var(--border-subtle)"
                         }}
                       >
                         {player.name} {player.team && `(${player.team.abbreviation})`}
@@ -330,7 +330,7 @@ export default function ComparePage() {
                     />
                   </div>
                   <h3 style={{ fontFamily: "var(--font-anton), Anton, sans-serif", fontSize: "24px" }}>{selected2.name}</h3>
-                  <p style={{ color: "rgba(255,255,255,0.5)" }}>{selected2.team?.name || "Free Agent"}</p>
+                  <p style={{ color: "var(--text-muted)" }}>{selected2.team?.name || "Free Agent"}</p>
                 </div>
               )}
             </div>
@@ -340,7 +340,7 @@ export default function ComparePage() {
           <div className="section">
             <div className="section-title">Statistical Comparison</div>
             {!selected1 && !selected2 ? (
-              <p style={{ textAlign: "center", color: "rgba(255,255,255,0.5)", padding: "40px 0" }}>
+              <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "40px 0" }}>
                 Select two players to compare their statistics
               </p>
             ) : loadingStats1 || loadingStats2 ? (
@@ -348,13 +348,13 @@ export default function ComparePage() {
                 <div style={{
                   width: "30px",
                   height: "30px",
-                  border: "3px solid rgba(255,255,255,0.1)",
+                  border: "3px solid var(--border-color)",
                   borderTopColor: "var(--orange)",
                   borderRadius: "50%",
                   margin: "0 auto 15px",
                   animation: "spin 1s linear infinite"
                 }} />
-                <p style={{ color: "rgba(255,255,255,0.6)" }}>Loading stats...</p>
+                <p style={{ color: "var(--text-muted)" }}>Loading stats...</p>
                 <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
               </div>
             ) : (

@@ -11,40 +11,58 @@ export async function GET(
     const { id } = await params;
     const viewer = await getMobileUser(request);
 
-    const [user, isFollowing, isBlocked] = await Promise.all([
-      prisma.user.findUnique({
-        where: { id },
-        select: {
-          id: true,
-          name: true,
-          displayName: true,
-          bio: true,
-          avatarUrl: true,
-          image: true,
-          location: true,
-          role: true,
-          takeCount: true,
-          followerCount: true,
-          createdAt: true,
-        },
-      }),
-      viewer && viewer.id !== id
+    // Support lookup by UUID or by username/handle
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+
+    const userSelect = {
+      id: true,
+      name: true,
+      displayName: true,
+      bio: true,
+      avatarUrl: true,
+      image: true,
+      location: true,
+      role: true,
+      takeCount: true,
+      followerCount: true,
+      createdAt: true,
+    };
+
+    let user = isUuid
+      ? await prisma.user.findUnique({ where: { id }, select: userSelect })
+      : await prisma.user.findFirst({
+          where: { name: { equals: id, mode: "insensitive" }, status: "ACTIVE" },
+          select: userSelect,
+        });
+
+    // Fallback: try handle lookup
+    if (!user && !isUuid) {
+      user = await prisma.user.findFirst({
+        where: { handle: { equals: id, mode: "insensitive" }, status: "ACTIVE" },
+        select: userSelect,
+      });
+    }
+
+    const userId = user?.id;
+
+    const [isFollowing, isBlocked] = await Promise.all([
+      viewer && userId && viewer.id !== userId
         ? prisma.follow.findUnique({
             where: {
               followerId_followingId: {
                 followerId: viewer.id,
-                followingId: id,
+                followingId: userId,
               },
             },
             select: { id: true },
           })
         : Promise.resolve(null),
-      viewer && viewer.id !== id
+      viewer && userId && viewer.id !== userId
         ? prisma.userBlock.findUnique({
             where: {
               blockerId_blockedId: {
                 blockerId: viewer.id,
-                blockedId: id,
+                blockedId: userId,
               },
             },
             select: { id: true },
@@ -60,7 +78,7 @@ export async function GET(
       user,
       isFollowing: !!isFollowing,
       isBlocked: !!isBlocked,
-      isSelf: viewer?.id === id,
+      isSelf: viewer?.id === userId,
     });
   } catch (error) {
     console.error("Get user profile error:", error);

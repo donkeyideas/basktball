@@ -136,7 +136,7 @@ function FireIcon({ active }: { active: boolean }) {
       height="18"
       viewBox="0 0 24 24"
       fill={active ? "#FF6B35" : "none"}
-      stroke={active ? "#FF6B35" : "rgba(255,255,255,0.4)"}
+      stroke={active ? "#FF6B35" : "var(--text-faint)"}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -153,7 +153,7 @@ function BrickIcon({ active }: { active: boolean }) {
       height="18"
       viewBox="0 0 24 24"
       fill="none"
-      stroke={active ? "#FF6B35" : "rgba(255,255,255,0.4)"}
+      stroke={active ? "#FF6B35" : "var(--text-faint)"}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -172,7 +172,7 @@ function ReplyIcon() {
       height="18"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="rgba(255,255,255,0.4)"
+      stroke="var(--text-faint)"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -189,7 +189,7 @@ function RepostIcon({ active }: { active: boolean }) {
       height="18"
       viewBox="0 0 24 24"
       fill="none"
-      stroke={active ? "#22C55E" : "rgba(255,255,255,0.4)"}
+      stroke={active ? "#22C55E" : "var(--text-faint)"}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -209,7 +209,7 @@ function BookmarkIcon({ active }: { active: boolean }) {
       height="18"
       viewBox="0 0 24 24"
       fill={active ? "#FF6B35" : "none"}
-      stroke={active ? "#FF6B35" : "rgba(255,255,255,0.4)"}
+      stroke={active ? "#FF6B35" : "var(--text-faint)"}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -307,7 +307,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
   const cardStyle: React.CSSProperties = {
     display: "block",
     padding: "16px",
-    borderBottom: "1px solid rgba(255,255,255,0.08)",
+    borderBottom: "1px solid var(--border-subtle)",
     borderLeft: "2px solid transparent",
     borderRight: "none",
     borderTop: "none",
@@ -337,7 +337,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
     overflow: "hidden",
     fontFamily: "var(--font-anton), sans-serif",
     fontSize: "16px",
-    color: "#FFFFFF",
+    color: "var(--white)",
     lineHeight: 1,
   };
 
@@ -359,7 +359,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
     fontFamily: "var(--font-inter), sans-serif",
     fontWeight: 700,
     fontSize: "14px",
-    color: "#FFFFFF",
+    color: "var(--white)",
     lineHeight: 1.2,
   };
 
@@ -367,20 +367,20 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
     fontFamily: "var(--font-inter), sans-serif",
     fontWeight: 400,
     fontSize: "13px",
-    color: "rgba(255,255,255,0.45)",
+    color: "var(--text-faint)",
     lineHeight: 1.2,
   };
 
   const dotStyle: React.CSSProperties = {
     fontSize: "13px",
-    color: "rgba(255,255,255,0.3)",
+    color: "var(--text-faint)",
   };
 
   const timeStyle: React.CSSProperties = {
     fontFamily: "var(--font-inter), sans-serif",
     fontWeight: 400,
     fontSize: "13px",
-    color: "rgba(255,255,255,0.45)",
+    color: "var(--text-faint)",
     lineHeight: 1.2,
   };
 
@@ -388,7 +388,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
     fontFamily: "var(--font-inter), sans-serif",
     fontSize: "15px",
     lineHeight: 1.45,
-    color: "rgba(255,255,255,0.85)",
+    color: "var(--text-secondary)",
     marginBottom: "8px",
     wordBreak: "break-word",
     whiteSpace: "pre-wrap",
@@ -437,7 +437,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
   };
 
   const actionCountStyle = (color?: string): React.CSSProperties => ({
-    color: color || "rgba(255,255,255,0.45)",
+    color: color || "var(--text-faint)",
     fontSize: "13px",
     fontFamily: "var(--font-mono), monospace",
     fontWeight: 500,
@@ -599,7 +599,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
                 border: "none",
                 cursor: "pointer",
                 padding: "4px 8px",
-                color: "rgba(255,255,255,0.35)",
+                color: "var(--text-faint)",
                 fontSize: "18px",
                 lineHeight: 1,
                 borderRadius: "4px",
@@ -616,7 +616,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
                   right: 0,
                   top: "100%",
                   backgroundColor: "#2a2a2a",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  border: "1px solid var(--border-color)",
                   borderRadius: "8px",
                   overflow: "hidden",
                   zIndex: 50,
@@ -665,8 +665,8 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
 
       {/* GIF / Media */}
       {take.mediaUrl && (
-        <div style={{ margin: "8px 0", borderRadius: "12px", overflow: "hidden" }} onClick={(e) => e.stopPropagation()}>
-          <img src={take.mediaUrl} alt="" style={{ width: "100%", maxHeight: "300px", objectFit: "contain", display: "block", borderRadius: "12px" }} />
+        <div style={{ margin: "8px 0", textAlign: "center" }} onClick={(e) => e.stopPropagation()}>
+          <img src={take.mediaUrl} alt="" style={{ maxWidth: "100%", maxHeight: "400px", borderRadius: "12px", display: "inline-block" }} />
         </div>
       )}
 
@@ -705,14 +705,14 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
             padding: "10px 12px",
             borderRadius: "8px",
             background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.08)",
+            border: "1px solid var(--border-subtle)",
           }}
         >
-          <div style={{ fontSize: "11px", fontWeight: 700, color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-inter), sans-serif", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "8px" }}>
+          <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-muted)", fontFamily: "var(--font-inter), sans-serif", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "8px" }}>
             Stat Check Analysis
           </div>
           {(take.statCheck.claims as Array<{ claim: string; verdict: string; evidence: string }>).map((c, i) => (
-            <div key={i} style={{ marginBottom: i < (take.statCheck!.claims as unknown[]).length - 1 ? "8px" : 0, paddingBottom: i < (take.statCheck!.claims as unknown[]).length - 1 ? "8px" : 0, borderBottom: i < (take.statCheck!.claims as unknown[]).length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
+            <div key={i} style={{ marginBottom: i < (take.statCheck!.claims as unknown[]).length - 1 ? "8px" : 0, paddingBottom: i < (take.statCheck!.claims as unknown[]).length - 1 ? "8px" : 0, borderBottom: i < (take.statCheck!.claims as unknown[]).length - 1 ? "1px solid var(--border-subtle)" : "none" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "3px" }}>
                 <span style={{
                   fontSize: "10px",
@@ -726,12 +726,12 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
                 }}>
                   {c.verdict}
                 </span>
-                <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.8)", fontFamily: "var(--font-inter), sans-serif", fontWeight: 600 }}>
+                <span style={{ fontSize: "12px", color: "var(--text-secondary)", fontFamily: "var(--font-inter), sans-serif", fontWeight: 600 }}>
                   {c.claim}
                 </span>
               </div>
               {c.evidence && (
-                <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-inter), sans-serif", paddingLeft: "2px" }}>
+                <div style={{ fontSize: "11px", color: "var(--text-faint)", fontFamily: "var(--font-inter), sans-serif", paddingLeft: "2px" }}>
                   {c.evidence}
                 </div>
               )}
@@ -763,7 +763,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
           <div
             style={{
               marginBottom: "10px",
-              border: "1px solid rgba(255,255,255,0.1)",
+              border: "1px solid var(--border-color)",
               borderRadius: "10px",
               overflow: "hidden",
             }}
@@ -780,7 +780,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
                     style={{
                       position: "relative",
                       padding: "10px 14px",
-                      borderBottom: "1px solid rgba(255,255,255,0.06)",
+                      borderBottom: "1px solid var(--border-subtle)",
                     }}
                   >
                     {/* Percentage bar background */}
@@ -791,7 +791,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
                         left: 0,
                         bottom: 0,
                         width: `${pct}%`,
-                        backgroundColor: isUserVote ? "rgba(255,107,53,0.2)" : "rgba(255,255,255,0.06)",
+                        backgroundColor: isUserVote ? "rgba(255,107,53,0.2)" : "var(--border-subtle)",
                         transition: "width 0.4s ease",
                       }}
                     />
@@ -800,7 +800,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
                         fontFamily: "var(--font-inter), sans-serif",
                         fontSize: "13px",
                         fontWeight: isUserVote ? 700 : 500,
-                        color: isUserVote ? "#FF6B35" : "rgba(255,255,255,0.7)",
+                        color: isUserVote ? "#FF6B35" : "var(--text-secondary)",
                         display: "flex",
                         alignItems: "center",
                         gap: "6px",
@@ -812,7 +812,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
                         fontFamily: "var(--font-mono), monospace",
                         fontSize: "12px",
                         fontWeight: 600,
-                        color: isUserVote ? "#FF6B35" : "rgba(255,255,255,0.5)",
+                        color: isUserVote ? "#FF6B35" : "var(--text-muted)",
                       }}>
                         {pct}%
                       </span>
@@ -832,18 +832,18 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
                     display: "block",
                     width: "100%",
                     padding: "10px 14px",
-                    borderBottom: "1px solid rgba(255,255,255,0.06)",
+                    borderBottom: "1px solid var(--border-subtle)",
                     background: "none",
                     border: "none",
                     borderBottomStyle: "solid",
                     borderBottomWidth: "1px",
-                    borderBottomColor: "rgba(255,255,255,0.06)",
+                    borderBottomColor: "var(--border-subtle)",
                     cursor: votingOptionId ? "not-allowed" : "pointer",
                     textAlign: "left",
                     fontFamily: "var(--font-inter), sans-serif",
                     fontSize: "13px",
                     fontWeight: 500,
-                    color: "rgba(255,255,255,0.8)",
+                    color: "var(--text-secondary)",
                     transition: "background-color 0.15s ease",
                   }}
                   onMouseEnter={(e) => { if (!votingOptionId) (e.target as HTMLElement).style.backgroundColor = "rgba(255,107,53,0.1)"; }}
@@ -863,14 +863,14 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
               <span style={{
                 fontFamily: "var(--font-inter), sans-serif",
                 fontSize: "12px",
-                color: "rgba(255,255,255,0.35)",
+                color: "var(--text-faint)",
               }}>
                 {totalVotes} {totalVotes === 1 ? "vote" : "votes"}
               </span>
               <span style={{
                 fontFamily: "var(--font-inter), sans-serif",
                 fontSize: "12px",
-                color: pollEnded ? "rgba(255,255,255,0.25)" : "rgba(255,255,255,0.35)",
+                color: pollEnded ? "var(--text-faint)" : "var(--text-faint)",
               }}>
                 {pollEnded
                   ? "Poll ended"
@@ -891,7 +891,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
         {/* Fire */}
         <button
           type="button"
-          style={{ ...actionBtnStyle, color: take.userReaction === "FIRE" ? "#FF6B35" : "rgba(255,255,255,0.45)" }}
+          style={{ ...actionBtnStyle, color: take.userReaction === "FIRE" ? "#FF6B35" : "var(--text-faint)" }}
           onClick={(e) => handleReact(e, "FIRE")}
           aria-label="Fire"
         >
@@ -904,7 +904,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
         {/* Brick */}
         <button
           type="button"
-          style={{ ...actionBtnStyle, color: take.userReaction === "BRICK" ? "#FF6B35" : "rgba(255,255,255,0.45)" }}
+          style={{ ...actionBtnStyle, color: take.userReaction === "BRICK" ? "#FF6B35" : "var(--text-faint)" }}
           onClick={(e) => handleReact(e, "BRICK")}
           aria-label="Brick"
         >
@@ -925,7 +925,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
         {/* Repost */}
         <button
           type="button"
-          style={{ ...actionBtnStyle, color: take.userReposted ? "#22C55E" : "rgba(255,255,255,0.45)" }}
+          style={{ ...actionBtnStyle, color: take.userReposted ? "#22C55E" : "var(--text-faint)" }}
           onClick={handleRepost}
           aria-label="Repost"
         >
@@ -939,7 +939,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
         {onStatCheck && !take.statCheck && (
           <button
             type="button"
-            style={{ ...actionBtnStyle, color: statCheckLoading === take.id ? "#FF6B35" : "rgba(255,255,255,0.45)" }}
+            style={{ ...actionBtnStyle, color: statCheckLoading === take.id ? "#FF6B35" : "var(--text-faint)" }}
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (statCheckLoading !== take.id) onStatCheck(take.id); }}
             aria-label="Stat Check"
             title={statCheckLoading === take.id ? "Checking..." : "Fact-check this take"}
@@ -948,7 +948,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
             {statCheckLoading === take.id ? (
               <span style={{ display: "inline-block", width: 16, height: 16, border: "2px solid rgba(255,107,53,0.3)", borderTopColor: "#FF6B35", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
             ) : (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /><line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" /></svg>
             )}
           </button>
         )}
@@ -957,12 +957,12 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
         {onChallenge && currentUserId && currentUserId !== take.author.id && (
           <button
             type="button"
-            style={{ ...actionBtnStyle, color: "rgba(255,255,255,0.45)" }}
+            style={{ ...actionBtnStyle, color: "var(--text-faint)" }}
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onChallenge(take.id, take.author.id); }}
             aria-label="Challenge"
             title="Challenge this user"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><line x1="4" y1="22" x2="4" y2="15" /></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><line x1="4" y1="22" x2="4" y2="15" /></svg>
           </button>
         )}
 
@@ -970,12 +970,12 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
         {onAge && !take.agingTake && (
           <button
             type="button"
-            style={{ ...actionBtnStyle, color: "rgba(255,255,255,0.45)" }}
+            style={{ ...actionBtnStyle, color: "var(--text-faint)" }}
             onClick={(e) => { e.preventDefault(); e.stopPropagation(); onAge(take.id); }}
             aria-label="Age this take"
             title="Mark for revisit later"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
           </button>
         )}
 
@@ -985,7 +985,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
             style={{
               ...actionBtnStyle,
               cursor: "default",
-              color: "rgba(255,255,255,0.35)",
+              color: "var(--text-faint)",
               marginLeft: "auto",
             }}
             aria-label="Views"
@@ -995,7 +995,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
               height="18"
               viewBox="0 0 24 24"
               fill="none"
-              stroke="rgba(255,255,255,0.35)"
+              stroke="var(--text-faint)"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -1014,7 +1014,7 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
         {/* Bookmark */}
         <button
           type="button"
-          style={{ ...actionBtnStyle, marginLeft: (take.viewCount ?? 0) > 0 ? undefined : "auto", color: take.userBookmarked ? "#FF6B35" : "rgba(255,255,255,0.45)" }}
+          style={{ ...actionBtnStyle, marginLeft: (take.viewCount ?? 0) > 0 ? undefined : "auto", color: take.userBookmarked ? "#FF6B35" : "var(--text-faint)" }}
           onClick={handleBookmark}
           aria-label="Save"
         >

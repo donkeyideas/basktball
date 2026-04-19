@@ -18,7 +18,7 @@ export default function CategoryCard({ category }: CategoryCardProps) {
       href={`/forum/${category.slug}`}
       style={{
         display: "block",
-        background: "#1A1A1A",
+        background: "var(--dark-gray)",
         borderRadius: "8px",
         border: "1px solid #2a2a2a",
         padding: "20px",
@@ -45,7 +45,7 @@ export default function CategoryCard({ category }: CategoryCardProps) {
         <h3 style={{
           fontFamily: "var(--font-anton)",
           fontSize: "18px",
-          color: "#fff",
+          color: "var(--white)",
           margin: 0,
           letterSpacing: "0.5px",
         }}>
@@ -53,11 +53,11 @@ export default function CategoryCard({ category }: CategoryCardProps) {
         </h3>
       </div>
       {category.description && (
-        <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "13px", margin: "0 0 12px 0", lineHeight: "1.4" }}>
+        <p style={{ color: "var(--text-muted)", fontSize: "13px", margin: "0 0 12px 0", lineHeight: "1.4" }}>
           {category.description}
         </p>
       )}
-      <div style={{ display: "flex", gap: "16px", fontSize: "12px", color: "rgba(255,255,255,0.35)" }}>
+      <div style={{ display: "flex", gap: "16px", fontSize: "12px", color: "var(--text-faint)" }}>
         <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
           <span style={{ color: category.color || "#FF6B35", fontWeight: "700" }}>{category.threadCount}</span> threads
         </span>

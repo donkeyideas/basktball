@@ -57,7 +57,7 @@ function GameCard({ game, league }: { game: Game; league: string }) {
           position: "absolute",
           top: "15px",
           right: "15px",
-          background: "rgba(255,255,255,0.2)",
+          background: "var(--text-faint)",
           padding: "5px 15px",
           fontSize: "12px",
           fontWeight: "bold",
@@ -94,16 +94,16 @@ function GameCard({ game, league }: { game: Game; league: string }) {
           gap: "6px",
           marginTop: "6px",
           paddingTop: "6px",
-          borderTop: "1px solid rgba(255,255,255,0.06)",
+          borderTop: "1px solid var(--border-subtle)",
         }}>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="2" y="7" width="20" height="15" rx="2" ry="2" />
             <polyline points="17 2 12 7 7 2" />
           </svg>
           <span style={{
             fontFamily: "var(--font-roboto-mono), monospace",
             fontSize: "11px",
-            color: "rgba(255,255,255,0.4)",
+            color: "var(--text-faint)",
             letterSpacing: "0.5px",
           }}>
             {game.broadcast}
@@ -129,7 +129,7 @@ export function LiveScores({ league = "nba" }: LiveScoresProps) {
             LIVE SCORES
           </h2>
         </div>
-        <p style={{ textAlign: "center", color: "rgba(255,255,255,0.5)" }}>
+        <p style={{ textAlign: "center", color: "var(--text-muted)" }}>
           Unable to load live scores. Please try again later.
         </p>
       </section>
@@ -144,7 +144,7 @@ export function LiveScores({ league = "nba" }: LiveScoresProps) {
           LIVE SCORES
         </h2>
         {lastUpdated && (
-          <span style={{ fontSize: "14px", color: "rgba(255,255,255,0.5)" }}>
+          <span style={{ fontSize: "14px", color: "var(--text-muted)" }}>
             Updated: {lastUpdated.toLocaleTimeString()}
           </span>
         )}
@@ -156,7 +156,7 @@ export function LiveScores({ league = "nba" }: LiveScoresProps) {
             <div key={i} className="game-card" style={{ opacity: 0.5 }}>
               <div style={{
                 height: "150px",
-                background: "rgba(255,255,255,0.05)",
+                background: "var(--input-bg)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center"
@@ -167,7 +167,7 @@ export function LiveScores({ league = "nba" }: LiveScoresProps) {
           ))}
         </div>
       ) : games.length === 0 ? (
-        <p style={{ textAlign: "center", color: "rgba(255,255,255,0.5)", padding: "40px" }}>
+        <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "40px" }}>
           No games currently scheduled. Check back soon!
         </p>
       ) : (

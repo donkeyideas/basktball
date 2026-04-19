@@ -212,7 +212,7 @@ export default function UserProfilePage() {
     return (
       <>
         <Header />
-        <main style={{ maxWidth: "700px", margin: "0 auto", padding: "80px 20px", textAlign: "center", color: "rgba(255,255,255,0.5)" }}>
+        <main style={{ maxWidth: "700px", margin: "0 auto", padding: "80px 20px", textAlign: "center", color: "var(--text-muted)" }}>
           Loading profile...
         </main>
         <Footer />
@@ -225,8 +225,8 @@ export default function UserProfilePage() {
       <>
         <Header />
         <main style={{ maxWidth: "700px", margin: "0 auto", padding: "80px 20px", textAlign: "center" }}>
-          <h2 style={{ color: "#fff", fontSize: "24px", marginBottom: "8px" }}>User not found</h2>
-          <p style={{ color: "rgba(255,255,255,0.5)" }}>This user doesn&apos;t exist or has been deactivated.</p>
+          <h2 style={{ color: "var(--white)", fontSize: "24px", marginBottom: "8px" }}>User not found</h2>
+          <p style={{ color: "var(--text-muted)" }}>This user doesn&apos;t exist or has been deactivated.</p>
           <Link href="/court" style={{ color: "#F97316", marginTop: "16px", display: "inline-block" }}>Back to The Court</Link>
         </main>
         <Footer />
@@ -262,7 +262,7 @@ export default function UserProfilePage() {
             {/* ===== LEFT SIDEBAR: Profile Info ===== */}
             <div className="profile-left-sidebar" style={{ position: "sticky", top: "140px" }}>
               <div style={{
-                background: "#1A1A1A",
+                background: "var(--dark-gray)",
                 borderRadius: "12px",
                 border: "1px solid #2a2a2a",
                 padding: "20px",
@@ -277,7 +277,7 @@ export default function UserProfilePage() {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    color: "#fff",
+                    color: "var(--white)",
                     fontWeight: 700,
                     fontSize: "32px",
                     fontFamily: "var(--font-anton), sans-serif",
@@ -288,7 +288,7 @@ export default function UserProfilePage() {
                   <h1 style={{
                     fontSize: "20px",
                     fontWeight: 700,
-                    color: "#fff",
+                    color: "var(--white)",
                     fontFamily: "var(--font-anton), sans-serif",
                     letterSpacing: "0.5px",
                     marginTop: "12px",
@@ -296,12 +296,12 @@ export default function UserProfilePage() {
                   }}>
                     {profile.displayName || profile.name}
                   </h1>
-                  <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "13px", margin: 0 }}>@{profile.name}</p>
+                  <p style={{ color: "var(--text-faint)", fontSize: "13px", margin: 0 }}>@{profile.name}</p>
                 </div>
 
                 {/* Bio */}
                 {profile.bio && (
-                  <p style={{ color: "rgba(255,255,255,0.7)", fontSize: "13px", lineHeight: "1.5", marginBottom: "12px", textAlign: "center" }}>
+                  <p style={{ color: "var(--text-secondary)", fontSize: "13px", lineHeight: "1.5", marginBottom: "12px", textAlign: "center" }}>
                     {profile.bio}
                   </p>
                 )}
@@ -309,8 +309,8 @@ export default function UserProfilePage() {
                 {/* Location */}
                 {profile.location && (
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "4px", marginBottom: "14px" }}>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
-                    <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px" }}>{profile.location}</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                    <span style={{ color: "var(--text-faint)", fontSize: "12px" }}>{profile.location}</span>
                   </div>
                 )}
 
@@ -343,9 +343,9 @@ export default function UserProfilePage() {
                       href="/profile"
                       style={{
                         display: "block",
-                        background: "rgba(255,255,255,0.1)",
-                        color: "#fff",
-                        border: "1px solid rgba(255,255,255,0.2)",
+                        background: "var(--border-color)",
+                        color: "var(--white)",
+                        border: "1px solid var(--text-faint)",
                         borderRadius: "20px",
                         padding: "8px 20px",
                         fontWeight: 600,
@@ -370,10 +370,10 @@ export default function UserProfilePage() {
                       { label: "W-L", value: `${profile.challengeWins}-${profile.challengeLosses}` },
                     ].map((stat) => (
                       <div key={stat.label} style={{ textAlign: "center" }}>
-                        <div style={{ fontSize: "18px", fontWeight: 700, color: "#fff", fontFamily: "var(--font-inter)" }}>
+                        <div style={{ fontSize: "18px", fontWeight: 700, color: "var(--white)", fontFamily: "var(--font-inter)" }}>
                           {stat.value}
                         </div>
-                        <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.5px", fontFamily: "var(--font-inter)" }}>
+                        <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "0.5px", fontFamily: "var(--font-inter)" }}>
                           {stat.label}
                         </div>
                       </div>
@@ -384,7 +384,7 @@ export default function UserProfilePage() {
                       <div style={{ fontSize: "18px", fontWeight: 700, color: "#22C55E", fontFamily: "var(--font-inter)" }}>
                         {predictionAccuracy}%
                       </div>
-                      <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", textTransform: "uppercase", letterSpacing: "0.5px", fontFamily: "var(--font-inter)" }}>
+                      <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase", letterSpacing: "0.5px", fontFamily: "var(--font-inter)" }}>
                         Prediction Accuracy
                       </div>
                     </div>
@@ -393,7 +393,7 @@ export default function UserProfilePage() {
 
                 {/* Member Since */}
                 <div style={{ borderTop: "1px solid #2a2a2a", marginTop: "14px", paddingTop: "12px", textAlign: "center" }}>
-                  <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)" }}>
+                  <span style={{ fontSize: "11px", color: "var(--text-faint)" }}>
                     Member since {new Date(profile.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
                   </span>
                 </div>
@@ -407,7 +407,7 @@ export default function UserProfilePage() {
                 <div style={{
                   display: "flex",
                   gap: "0",
-                  background: "#1A1A1A",
+                  background: "var(--dark-gray)",
                   borderRadius: "12px 12px 0 0",
                   border: "1px solid #2a2a2a",
                   borderBottom: "none",
@@ -422,7 +422,7 @@ export default function UserProfilePage() {
                         border: "none",
                         borderBottom: activeTab === tab.key ? "2px solid #F97316" : "2px solid transparent",
                         padding: "14px 18px",
-                        color: activeTab === tab.key ? "#F97316" : "rgba(255,255,255,0.5)",
+                        color: activeTab === tab.key ? "#F97316" : "var(--text-muted)",
                         fontSize: "12px",
                         fontWeight: 700,
                         cursor: "pointer",
@@ -442,20 +442,20 @@ export default function UserProfilePage() {
 
               {/* Tab Content */}
               <div style={{
-                background: "#1A1A1A",
+                background: "var(--dark-gray)",
                 borderRadius: "0 0 12px 12px",
                 border: "1px solid #2a2a2a",
                 borderTop: "none",
                 overflow: "hidden",
               }}>
               {tabLoading ? (
-                <div style={{ textAlign: "center", padding: "40px", color: "rgba(255,255,255,0.5)" }}>Loading...</div>
+                <div style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>Loading...</div>
               ) : (
                 <>
                   {(activeTab === "takes" || activeTab === "replies" || activeTab === "saved") && (
                     <div>
                       {takes.length === 0 ? (
-                        <div style={{ textAlign: "center", padding: "40px", color: "rgba(255,255,255,0.4)" }}>
+                        <div style={{ textAlign: "center", padding: "40px", color: "var(--text-faint)" }}>
                           No {activeTab} yet
                         </div>
                       ) : (
@@ -469,28 +469,28 @@ export default function UserProfilePage() {
                   {activeTab === "predictions" && (
                     <div>
                       {predictions.length === 0 ? (
-                        <div style={{ textAlign: "center", padding: "40px", color: "rgba(255,255,255,0.4)" }}>No predictions yet</div>
+                        <div style={{ textAlign: "center", padding: "40px", color: "var(--text-faint)" }}>No predictions yet</div>
                       ) : (
                         predictions.map((p) => (
                           <Link
                             key={p.id}
                             href={p.take ? `/court/take/${p.take.id}` : "#"}
-                            style={{ display: "block", padding: "16px", borderBottom: "1px solid rgba(255,255,255,0.08)", textDecoration: "none" }}
+                            style={{ display: "block", padding: "16px", borderBottom: "1px solid var(--border-subtle)", textDecoration: "none" }}
                           >
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
                               <span style={{
                                 fontSize: "11px", fontWeight: 700, padding: "2px 8px", borderRadius: "4px", textTransform: "uppercase",
-                                background: p.status === "RECEIPT" ? "rgba(34,197,94,0.2)" : p.status === "BUST" ? "rgba(239,68,68,0.2)" : "rgba(255,255,255,0.1)",
-                                color: p.status === "RECEIPT" ? "#22C55E" : p.status === "BUST" ? "#EF4444" : "rgba(255,255,255,0.6)",
+                                background: p.status === "RECEIPT" ? "rgba(34,197,94,0.2)" : p.status === "BUST" ? "rgba(239,68,68,0.2)" : "var(--border-color)",
+                                color: p.status === "RECEIPT" ? "#22C55E" : p.status === "BUST" ? "#EF4444" : "var(--text-muted)",
                               }}>{p.status}</span>
                               {p.game && (
-                                <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>
+                                <span style={{ fontSize: "12px", color: "var(--text-faint)" }}>
                                   {p.game.awayTeam.abbreviation} {p.game.awayScore ?? "?"} - {p.game.homeTeam.abbreviation} {p.game.homeScore ?? "?"}
                                 </span>
                               )}
                             </div>
-                            <p style={{ color: "rgba(255,255,255,0.8)", fontSize: "14px", lineHeight: "1.4", fontFamily: "var(--font-inter)" }}>{p.claim}</p>
-                            {p.result && <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px", marginTop: "6px" }}>{p.result}</p>}
+                            <p style={{ color: "var(--text-secondary)", fontSize: "14px", lineHeight: "1.4", fontFamily: "var(--font-inter)" }}>{p.claim}</p>
+                            {p.result && <p style={{ color: "var(--text-faint)", fontSize: "12px", marginTop: "6px" }}>{p.result}</p>}
                           </Link>
                         ))
                       )}
@@ -500,29 +500,29 @@ export default function UserProfilePage() {
                   {activeTab === "challenges" && (
                     <div>
                       {challenges.length === 0 ? (
-                        <div style={{ textAlign: "center", padding: "40px", color: "rgba(255,255,255,0.4)" }}>No challenges yet</div>
+                        <div style={{ textAlign: "center", padding: "40px", color: "var(--text-faint)" }}>No challenges yet</div>
                       ) : (
                         challenges.map((c) => (
                           <Link
                             key={c.id}
                             href={`/court/challenge/${c.id}`}
-                            style={{ display: "block", padding: "16px", borderBottom: "1px solid rgba(255,255,255,0.08)", textDecoration: "none" }}
+                            style={{ display: "block", padding: "16px", borderBottom: "1px solid var(--border-subtle)", textDecoration: "none" }}
                           >
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
                               <span style={{
                                 fontSize: "11px", fontWeight: 700, padding: "2px 8px", borderRadius: "4px", textTransform: "uppercase",
-                                background: c.status === "COMPLETED" ? "rgba(34,197,94,0.2)" : c.status === "EXPIRED" ? "rgba(255,255,255,0.1)" : "rgba(249,115,22,0.2)",
-                                color: c.status === "COMPLETED" ? "#22C55E" : c.status === "EXPIRED" ? "rgba(255,255,255,0.4)" : "#F97316",
+                                background: c.status === "COMPLETED" ? "rgba(34,197,94,0.2)" : c.status === "EXPIRED" ? "var(--border-color)" : "rgba(249,115,22,0.2)",
+                                color: c.status === "COMPLETED" ? "#22C55E" : c.status === "EXPIRED" ? "var(--text-faint)" : "#F97316",
                               }}>{c.status}</span>
-                              <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)" }}>{new Date(c.createdAt).toLocaleDateString()}</span>
+                              <span style={{ fontSize: "12px", color: "var(--text-faint)" }}>{new Date(c.createdAt).toLocaleDateString()}</span>
                             </div>
-                            <p style={{ color: "#fff", fontSize: "14px", fontWeight: 600, marginBottom: "8px", fontFamily: "var(--font-inter)" }}>{c.topic}</p>
+                            <p style={{ color: "var(--white)", fontSize: "14px", fontWeight: 600, marginBottom: "8px", fontFamily: "var(--font-inter)" }}>{c.topic}</p>
                             <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "13px" }}>
-                              <span style={{ color: "rgba(255,255,255,0.7)" }}>{c.challenger.displayName || c.challenger.name}</span>
-                              <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "11px" }}>VS</span>
-                              <span style={{ color: "rgba(255,255,255,0.7)" }}>{c.challenged.displayName || c.challenged.name}</span>
+                              <span style={{ color: "var(--text-secondary)" }}>{c.challenger.displayName || c.challenger.name}</span>
+                              <span style={{ color: "var(--text-faint)", fontSize: "11px" }}>VS</span>
+                              <span style={{ color: "var(--text-secondary)" }}>{c.challenged.displayName || c.challenged.name}</span>
                               {(c.votesChallenger > 0 || c.votesChallenged > 0) && (
-                                <span style={{ color: "rgba(255,255,255,0.3)", marginLeft: "auto", fontSize: "12px" }}>{c.votesChallenger} - {c.votesChallenged} votes</span>
+                                <span style={{ color: "var(--text-faint)", marginLeft: "auto", fontSize: "12px" }}>{c.votesChallenger} - {c.votesChallenged} votes</span>
                               )}
                             </div>
                           </Link>
@@ -534,25 +534,25 @@ export default function UserProfilePage() {
                   {activeTab === "aging" && (
                     <div>
                       {agingTakes.length === 0 ? (
-                        <div style={{ textAlign: "center", padding: "40px", color: "rgba(255,255,255,0.4)" }}>No aging takes yet</div>
+                        <div style={{ textAlign: "center", padding: "40px", color: "var(--text-faint)" }}>No aging takes yet</div>
                       ) : (
                         agingTakes.map((at) => (
                           <Link
                             key={at.id}
                             href={`/court/take/${at.take.id}`}
-                            style={{ display: "block", padding: "16px", borderBottom: "1px solid rgba(255,255,255,0.08)", textDecoration: "none" }}
+                            style={{ display: "block", padding: "16px", borderBottom: "1px solid var(--border-subtle)", textDecoration: "none" }}
                           >
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
                               <span style={{
                                 fontSize: "11px", fontWeight: 700, padding: "2px 8px", borderRadius: "4px", textTransform: "uppercase",
-                                background: at.status === "AGED" ? "rgba(234,179,8,0.2)" : at.status === "AGING" ? "rgba(59,130,246,0.2)" : "rgba(255,255,255,0.1)",
-                                color: at.status === "AGED" ? "#EAB308" : at.status === "AGING" ? "#3B82F6" : "rgba(255,255,255,0.4)",
+                                background: at.status === "AGED" ? "rgba(234,179,8,0.2)" : at.status === "AGING" ? "rgba(59,130,246,0.2)" : "var(--border-color)",
+                                color: at.status === "AGED" ? "#EAB308" : at.status === "AGING" ? "#3B82F6" : "var(--text-faint)",
                               }}>
                                 {at.status === "AGING" ? `Aging until ${new Date(at.revisitDate).toLocaleDateString()}` : at.status}
                               </span>
                             </div>
-                            <p style={{ color: "rgba(255,255,255,0.8)", fontSize: "14px", lineHeight: "1.4", fontFamily: "var(--font-inter)" }}>{at.take.content}</p>
-                            <div style={{ display: "flex", gap: "12px", marginTop: "8px", fontSize: "12px", color: "rgba(255,255,255,0.3)" }}>
+                            <p style={{ color: "var(--text-secondary)", fontSize: "14px", lineHeight: "1.4", fontFamily: "var(--font-inter)" }}>{at.take.content}</p>
+                            <div style={{ display: "flex", gap: "12px", marginTop: "8px", fontSize: "12px", color: "var(--text-faint)" }}>
                               <span>{at.take.fireCount} fires</span>
                               <span>{at.take.brickCount} bricks</span>
                               <span>{at.take.replyCount} replies</span>
@@ -572,7 +572,7 @@ export default function UserProfilePage() {
               {/* Live Scores */}
               {liveGames.length > 0 && (
                 <div style={{
-                  background: "#1A1A1A",
+                  background: "var(--dark-gray)",
                   borderRadius: "12px",
                   border: "1px solid #2a2a2a",
                   padding: "20px",
@@ -596,30 +596,30 @@ export default function UserProfilePage() {
                     <Link
                       key={game.id}
                       href="/scores"
-                      style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", textDecoration: "none" }}
+                      style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid var(--border-subtle)", textDecoration: "none" }}
                     >
                       <div style={{ display: "flex", flexDirection: "column", gap: "4px", flex: 1 }}>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                             {game.awayTeam.logoUrl && <img src={game.awayTeam.logoUrl} alt="" style={{ width: 16, height: 16, objectFit: "contain" }} />}
-                            <span style={{ fontFamily: FONT, fontSize: "13px", fontWeight: 600, color: game.awayScore > game.homeScore ? "#fff" : "rgba(255,255,255,0.5)" }}>{game.awayTeam.abbreviation}</span>
+                            <span style={{ fontFamily: FONT, fontSize: "13px", fontWeight: 600, color: game.awayScore > game.homeScore ? "var(--white)" : "var(--text-muted)" }}>{game.awayTeam.abbreviation}</span>
                           </div>
-                          <span style={{ fontFamily: "var(--font-mono), monospace", fontSize: "13px", fontWeight: 700, color: game.awayScore > game.homeScore ? "#fff" : "rgba(255,255,255,0.5)" }}>{game.awayScore}</span>
+                          <span style={{ fontFamily: "var(--font-mono), monospace", fontSize: "13px", fontWeight: 700, color: game.awayScore > game.homeScore ? "var(--white)" : "var(--text-muted)" }}>{game.awayScore}</span>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                             {game.homeTeam.logoUrl && <img src={game.homeTeam.logoUrl} alt="" style={{ width: 16, height: 16, objectFit: "contain" }} />}
-                            <span style={{ fontFamily: FONT, fontSize: "13px", fontWeight: 600, color: game.homeScore > game.awayScore ? "#fff" : "rgba(255,255,255,0.5)" }}>{game.homeTeam.abbreviation}</span>
+                            <span style={{ fontFamily: FONT, fontSize: "13px", fontWeight: 600, color: game.homeScore > game.awayScore ? "var(--white)" : "var(--text-muted)" }}>{game.homeTeam.abbreviation}</span>
                           </div>
-                          <span style={{ fontFamily: "var(--font-mono), monospace", fontSize: "13px", fontWeight: 700, color: game.homeScore > game.awayScore ? "#fff" : "rgba(255,255,255,0.5)" }}>{game.homeScore}</span>
+                          <span style={{ fontFamily: "var(--font-mono), monospace", fontSize: "13px", fontWeight: 700, color: game.homeScore > game.awayScore ? "var(--white)" : "var(--text-muted)" }}>{game.homeScore}</span>
                         </div>
                       </div>
                       <div style={{ marginLeft: "12px", textAlign: "center", minWidth: "40px" }}>
-                        <div style={{ fontFamily: FONT, fontSize: "10px", fontWeight: 700, color: game.status === "live" ? "#22c55e" : "rgba(255,255,255,0.4)", textTransform: "uppercase" }}>
+                        <div style={{ fontFamily: FONT, fontSize: "10px", fontWeight: 700, color: game.status === "live" ? "#22c55e" : "var(--text-faint)", textTransform: "uppercase" }}>
                           {game.status === "live" ? (game.quarter || "LIVE") : game.status === "final" ? "FINAL" : ""}
                         </div>
                         {game.clock && game.status === "live" && (
-                          <div style={{ fontFamily: "var(--font-mono), monospace", fontSize: "10px", color: "rgba(255,255,255,0.5)" }}>{game.clock}</div>
+                          <div style={{ fontFamily: "var(--font-mono), monospace", fontSize: "10px", color: "var(--text-muted)" }}>{game.clock}</div>
                         )}
                       </div>
                     </Link>
@@ -633,7 +633,7 @@ export default function UserProfilePage() {
               {/* Active Challenges */}
               {activeChallenges.length > 0 && (
                 <div style={{
-                  background: "#1A1A1A",
+                  background: "var(--dark-gray)",
                   borderRadius: "12px",
                   border: "1px solid #2a2a2a",
                   padding: "20px",
@@ -649,15 +649,15 @@ export default function UserProfilePage() {
                   }}>Active Challenges</h3>
                   {activeChallenges.map((c) => (
                     <div key={c.id} style={{ padding: "10px 0", borderTop: "1px solid #2a2a2a" }}>
-                      <div style={{ fontSize: "13px", color: "#fff", fontFamily: FONT, fontWeight: 600, marginBottom: "6px", lineHeight: "1.3" }}>
+                      <div style={{ fontSize: "13px", color: "var(--white)", fontFamily: FONT, fontWeight: 600, marginBottom: "6px", lineHeight: "1.3" }}>
                         {c.topic.length > 80 ? c.topic.slice(0, 77) + "..." : c.topic}
                       </div>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "12px", fontFamily: FONT }}>
-                        <span style={{ color: "rgba(255,255,255,0.5)" }}>{c.challenger.displayName || c.challenger.name} vs {c.challenged.displayName || c.challenged.name}</span>
+                        <span style={{ color: "var(--text-muted)" }}>{c.challenger.displayName || c.challenger.name} vs {c.challenged.displayName || c.challenged.name}</span>
                         <span style={{ fontSize: "11px", color: c.status === "VOTING" ? "#EAB308" : "#22C55E", fontWeight: 700, textTransform: "uppercase" }}>{c.status}</span>
                       </div>
                       {(c.votesChallenger > 0 || c.votesChallenged > 0) && (
-                        <div style={{ marginTop: "6px", height: "4px", borderRadius: "2px", background: "#333", overflow: "hidden", display: "flex" }}>
+                        <div style={{ marginTop: "6px", height: "4px", borderRadius: "2px", background: "var(--border-color)", overflow: "hidden", display: "flex" }}>
                           <div style={{ width: `${(c.votesChallenger / (c.votesChallenger + c.votesChallenged)) * 100}%`, background: "#FF6B35", borderRadius: "2px 0 0 2px" }} />
                         </div>
                       )}
@@ -669,7 +669,7 @@ export default function UserProfilePage() {
               {/* Latest News */}
               {newsArticles.length > 0 && (
                 <div style={{
-                  background: "#1A1A1A",
+                  background: "var(--dark-gray)",
                   borderRadius: "12px",
                   border: "1px solid #2a2a2a",
                   padding: "20px",
@@ -689,7 +689,7 @@ export default function UserProfilePage() {
                       href={article.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ display: "flex", gap: "10px", padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,0.05)", textDecoration: "none", color: "inherit" }}
+                      style={{ display: "flex", gap: "10px", padding: "10px 0", borderBottom: "1px solid var(--border-subtle)", textDecoration: "none", color: "inherit" }}
                     >
                       <div style={{ width: 56, height: 56, borderRadius: "8px", overflow: "hidden", flexShrink: 0, background: "rgba(255,107,53,0.15)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                         {article.imageUrl ? (
@@ -699,10 +699,10 @@ export default function UserProfilePage() {
                         )}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontFamily: FONT, fontSize: "13px", fontWeight: "600", color: "#fff", lineHeight: "1.3", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+                        <div style={{ fontFamily: FONT, fontSize: "13px", fontWeight: "600", color: "var(--white)", lineHeight: "1.3", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                           {article.title}
                         </div>
-                        <div style={{ fontFamily: FONT, fontSize: "11px", color: "rgba(255,255,255,0.35)", marginTop: "4px" }}>
+                        <div style={{ fontFamily: FONT, fontSize: "11px", color: "var(--text-faint)", marginTop: "4px" }}>
                           {article.source}
                         </div>
                       </div>

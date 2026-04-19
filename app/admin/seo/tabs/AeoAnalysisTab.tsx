@@ -42,13 +42,13 @@ function ScoreBar({ label, score, description }: { label: string; score: number;
   return (
     <div style={{ marginBottom: "12px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
-        <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)" }}>{label}</span>
+        <span style={{ fontSize: "13px", color: "var(--text-secondary)" }}>{label}</span>
         <span style={{ fontSize: "13px", fontWeight: 600, fontFamily: "var(--font-roboto-mono), monospace", color: getScoreColor(score) }}>{score}</span>
       </div>
-      <div style={{ height: "6px", background: "rgba(255,255,255,0.1)", borderRadius: "3px", overflow: "hidden" }}>
+      <div style={{ height: "6px", background: "var(--border-color)", borderRadius: "3px", overflow: "hidden" }}>
         <div style={{ height: "100%", width: `${score}%`, background: getScoreColor(score), borderRadius: "3px", transition: "width 0.5s" }} />
       </div>
-      {description && <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginTop: "2px" }}>{description}</div>}
+      {description && <div style={{ fontSize: "11px", color: "var(--text-faint)", marginTop: "2px" }}>{description}</div>}
     </div>
   );
 }
@@ -60,8 +60,8 @@ export default function AeoAnalysisTab({ data, onRescan }: { data: AeoData | nul
     return (
       <div style={{ textAlign: "center", padding: "60px" }}>
         <div style={{ fontSize: "48px", marginBottom: "16px", opacity: 0.3 }}>&#x1F916;</div>
-        <h3 style={{ color: "rgba(255,255,255,0.7)", marginBottom: "8px" }}>AEO Analysis Not Yet Run</h3>
-        <p style={{ color: "rgba(255,255,255,0.4)", marginBottom: "24px" }}>
+        <h3 style={{ color: "var(--text-secondary)", marginBottom: "8px" }}>AEO Analysis Not Yet Run</h3>
+        <p style={{ color: "var(--text-faint)", marginBottom: "24px" }}>
           Scan your site to analyze Answer Engine Optimization readiness.
         </p>
         <button className="btn btn-primary" onClick={onRescan}>Scan Now</button>
@@ -92,7 +92,7 @@ export default function AeoAnalysisTab({ data, onRescan }: { data: AeoData | nul
       {/* Header with scan info */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
         <div>
-          <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>
+          <span style={{ fontSize: "12px", color: "var(--text-faint)" }}>
             Last scanned: {new Date(crawledAt).toLocaleString()} &bull; {pagesAnalyzed} pages analyzed
           </span>
         </div>
@@ -120,8 +120,8 @@ export default function AeoAnalysisTab({ data, onRescan }: { data: AeoData | nul
             }}>
               {card.score}
             </div>
-            <div style={{ fontSize: "12px", fontWeight: 600, color: "rgba(255,255,255,0.8)", marginTop: "4px" }}>{card.label}</div>
-            <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.4)", marginTop: "2px" }}>{card.desc}</div>
+            <div style={{ fontSize: "12px", fontWeight: 600, color: "var(--text-secondary)", marginTop: "4px" }}>{card.label}</div>
+            <div style={{ fontSize: "10px", color: "var(--text-faint)", marginTop: "2px" }}>{card.desc}</div>
           </div>
         ))}
       </div>
@@ -146,12 +146,12 @@ export default function AeoAnalysisTab({ data, onRescan }: { data: AeoData | nul
           <h3 className="section-title" style={{ borderColor: "#9C27B0" }}>AEO Score by Page</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={pageBarData} layout="vertical" margin={{ left: 60, right: 20, top: 10, bottom: 10 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-              <XAxis type="number" domain={[0, 100]} stroke="rgba(255,255,255,0.3)" tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 11 }} />
-              <YAxis type="category" dataKey="path" stroke="rgba(255,255,255,0.3)" tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 11 }} width={55} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+              <XAxis type="number" domain={[0, 100]} stroke="var(--text-faint)" tick={{ fill: "var(--text-muted)", fontSize: 11 }} />
+              <YAxis type="category" dataKey="path" stroke="var(--text-faint)" tick={{ fill: "var(--text-muted)", fontSize: 11 }} width={55} />
               <Tooltip
-                contentStyle={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px" }}
-                labelStyle={{ color: "rgba(255,255,255,0.7)" }}
+                contentStyle={{ background: "var(--dark-gray)", border: "1px solid var(--border-color)", borderRadius: "8px" }}
+                labelStyle={{ color: "var(--text-secondary)" }}
               />
               <Bar dataKey="score" fill="#9C27B0" radius={[0, 4, 4, 0]} />
             </BarChart>
@@ -165,9 +165,9 @@ export default function AeoAnalysisTab({ data, onRescan }: { data: AeoData | nul
         <div style={{ display: "flex", justifyContent: "center" }}>
           <ResponsiveContainer width="100%" height={350}>
             <RadarChart data={aeoRadar} outerRadius="70%">
-              <PolarGrid stroke="rgba(255,255,255,0.15)" />
-              <PolarAngleAxis dataKey="axis" tick={{ fill: "rgba(255,255,255,0.6)", fontSize: 12 }} />
-              <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }} />
+              <PolarGrid stroke="var(--border-color)" />
+              <PolarAngleAxis dataKey="axis" tick={{ fill: "var(--text-muted)", fontSize: 12 }} />
+              <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: "var(--text-faint)", fontSize: 10 }} />
               <Radar dataKey="value" stroke="#9C27B0" fill="#9C27B0" fillOpacity={0.3} />
             </RadarChart>
           </ResponsiveContainer>
@@ -200,7 +200,7 @@ export default function AeoAnalysisTab({ data, onRescan }: { data: AeoData | nul
                 >
                   <td>
                     <div style={{ fontWeight: 500 }}>{page.path}</div>
-                    <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>{page.wordCount} words</div>
+                    <div style={{ fontSize: "11px", color: "var(--text-faint)" }}>{page.wordCount} words</div>
                   </td>
                   <td style={{ color: getScoreColor(page.aeoScores.schemaRichness), fontFamily: "var(--font-roboto-mono), monospace" }}>
                     {page.aeoScores.schemaRichness}
@@ -249,12 +249,12 @@ export default function AeoAnalysisTab({ data, onRescan }: { data: AeoData | nul
                   }}>
                     {rec.severity}
                   </span>
-                  <span style={{ fontWeight: 600, color: "rgba(255,255,255,0.9)" }}>{rec.title}</span>
+                  <span style={{ fontWeight: 600, color: "var(--text-primary)" }}>{rec.title}</span>
                 </div>
-                <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.6)", marginBottom: "8px" }}>{rec.description}</p>
+                <p style={{ fontSize: "13px", color: "var(--text-muted)", marginBottom: "8px" }}>{rec.description}</p>
                 <p style={{ fontSize: "12px", color: "#9C27B0" }}>Fix: {rec.fix}</p>
                 {rec.affectedPages && rec.affectedPages.length > 0 && (
-                  <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginTop: "6px" }}>
+                  <div style={{ fontSize: "11px", color: "var(--text-faint)", marginTop: "6px" }}>
                     Affected: {rec.affectedPages.join(", ")}
                   </div>
                 )}

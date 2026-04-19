@@ -33,7 +33,7 @@ export default function LinkPreviewCard({ preview }: LinkPreviewCardProps) {
       style={{
         margin: "8px 0",
         borderRadius: "12px",
-        border: "1px solid rgba(255,255,255,0.1)",
+        border: "1px solid var(--border-color)",
         overflow: "hidden",
         // Dark background when video is playing to eliminate white side gaps
         backgroundColor: showVideo ? "#000" : "rgba(255,255,255,0.03)",
@@ -153,7 +153,7 @@ export default function LinkPreviewCard({ preview }: LinkPreviewCardProps) {
             style={{
               marginTop: 8,
               fontSize: "12px",
-              color: "rgba(255,255,255,0.4)",
+              color: "var(--text-faint)",
               fontFamily: "var(--font-inter), sans-serif",
             }}
           >
@@ -170,7 +170,7 @@ export default function LinkPreviewCard({ preview }: LinkPreviewCardProps) {
               style={{
                 fontSize: "11px",
                 fontWeight: 600,
-                color: "rgba(255,255,255,0.4)",
+                color: "var(--text-faint)",
                 fontFamily: "var(--font-inter), sans-serif",
                 textTransform: "uppercase",
                 letterSpacing: "0.5px",
@@ -185,7 +185,7 @@ export default function LinkPreviewCard({ preview }: LinkPreviewCardProps) {
               style={{
                 fontSize: "14px",
                 fontWeight: 600,
-                color: "rgba(255,255,255,0.9)",
+                color: "var(--text-primary)",
                 fontFamily: "var(--font-inter), sans-serif",
                 lineHeight: 1.3,
                 marginBottom: preview.description ? "4px" : 0,
@@ -202,7 +202,7 @@ export default function LinkPreviewCard({ preview }: LinkPreviewCardProps) {
             <div
               style={{
                 fontSize: "12px",
-                color: "rgba(255,255,255,0.5)",
+                color: "var(--text-muted)",
                 fontFamily: "var(--font-inter), sans-serif",
                 lineHeight: 1.4,
                 display: "-webkit-box",

@@ -119,7 +119,7 @@ export default function TeamAnalyticsPage() {
           </h1>
           <p style={{
             textAlign: "center",
-            color: "rgba(255,255,255,0.6)",
+            color: "var(--text-muted)",
             marginBottom: "40px"
           }}>
             Comprehensive team performance analysis with live standings data.
@@ -130,19 +130,19 @@ export default function TeamAnalyticsPage() {
               <div style={{
                 width: "40px",
                 height: "40px",
-                border: "3px solid rgba(255,255,255,0.1)",
+                border: "3px solid var(--border-color)",
                 borderTopColor: "var(--orange)",
                 borderRadius: "50%",
                 margin: "0 auto 20px",
                 animation: "spin 1s linear infinite"
               }} />
-              <p style={{ color: "rgba(255,255,255,0.6)" }}>Loading team analytics...</p>
+              <p style={{ color: "var(--text-muted)" }}>Loading team analytics...</p>
               <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
             </div>
           ) : teams.length === 0 ? (
             <div className="section" style={{ textAlign: "center", padding: "60px 20px" }}>
-              <p style={{ color: "rgba(255,255,255,0.6)", marginBottom: "10px" }}>No team analytics data available.</p>
-              <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "14px" }}>Check back later for updated team statistics.</p>
+              <p style={{ color: "var(--text-muted)", marginBottom: "10px" }}>No team analytics data available.</p>
+              <p style={{ color: "var(--text-faint)", fontSize: "14px" }}>Check back later for updated team statistics.</p>
             </div>
           ) : (
           <div className="team-analytics-layout">
@@ -160,7 +160,7 @@ export default function TeamAnalyticsPage() {
                     width: "100%",
                     padding: "15px",
                     background: "rgba(0,0,0,0.3)",
-                    border: "1px solid rgba(255,255,255,0.1)",
+                    border: "1px solid var(--border-color)",
                     color: "var(--white)",
                     fontSize: "16px",
                     marginBottom: "20px"
@@ -196,7 +196,7 @@ export default function TeamAnalyticsPage() {
                   }}>
                     {selectedTeam.wins}-{selectedTeam.losses}
                   </p>
-                  <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px", marginTop: "5px" }}>
+                  <p style={{ color: "var(--text-muted)", fontSize: "14px", marginTop: "5px" }}>
                     {selectedTeam.seed > 0 ? `#${selectedTeam.seed} Seed` : ""}
                     {selectedTeam.streak !== 0 ? ` | ${formatStreak(selectedTeam.streak)}` : ""}
                   </p>
@@ -207,19 +207,19 @@ export default function TeamAnalyticsPage() {
                 {selectedTeam && (
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                   <div style={{ background: "rgba(0,0,0,0.3)", padding: "15px", textAlign: "center" }}>
-                    <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", marginBottom: "5px" }}>PPG</div>
+                    <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "5px" }}>PPG</div>
                     <StatRank value={selectedTeam.ppg.toFixed(1)} rank={getRank(selectedTeam, "ppg")} total={teams.length} />
                   </div>
                   <div style={{ background: "rgba(0,0,0,0.3)", padding: "15px", textAlign: "center" }}>
-                    <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", marginBottom: "5px" }}>OPP PPG</div>
+                    <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "5px" }}>OPP PPG</div>
                     <StatRank value={selectedTeam.oppPpg.toFixed(1)} rank={getRank(selectedTeam, "oppPpg", true)} total={teams.length} inverse />
                   </div>
                   <div style={{ background: "rgba(0,0,0,0.3)", padding: "15px", textAlign: "center" }}>
-                    <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", marginBottom: "5px" }}>DIFF</div>
+                    <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "5px" }}>DIFF</div>
                     <StatRank value={`${selectedTeam.differential > 0 ? "+" : ""}${selectedTeam.differential.toFixed(1)}`} rank={getRank(selectedTeam, "differential")} total={teams.length} />
                   </div>
                   <div style={{ background: "rgba(0,0,0,0.3)", padding: "15px", textAlign: "center" }}>
-                    <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", marginBottom: "5px" }}>WIN %</div>
+                    <div style={{ fontSize: "12px", color: "var(--text-muted)", marginBottom: "5px" }}>WIN %</div>
                     <StatRank value={`${(selectedTeam.winPct * 100).toFixed(1)}%`} rank={getRank(selectedTeam, "winPct")} total={teams.length} />
                   </div>
                 </div>
@@ -273,7 +273,7 @@ export default function TeamAnalyticsPage() {
                         key={team.id}
                         onClick={() => setSelectedTeam(team)}
                         style={{
-                          borderBottom: "1px solid rgba(255,255,255,0.1)",
+                          borderBottom: "1px solid var(--border-color)",
                           background: selectedTeam?.id === team.id ? "rgba(255, 107, 53, 0.15)" : "transparent",
                           cursor: "pointer"
                         }}
@@ -284,7 +284,7 @@ export default function TeamAnalyticsPage() {
                               width: "24px",
                               textAlign: "center",
                               fontFamily: "var(--font-roboto-mono), monospace",
-                              color: "rgba(255,255,255,0.5)"
+                              color: "var(--text-muted)"
                             }}>
                               {index + 1}
                             </span>
@@ -295,7 +295,7 @@ export default function TeamAnalyticsPage() {
                               onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                             />
                             <span style={{ fontWeight: "bold" }}>{team.abbreviation}</span>
-                            <span style={{ color: "rgba(255,255,255,0.5)" }}>{team.name}</span>
+                            <span style={{ color: "var(--text-muted)" }}>{team.name}</span>
                           </div>
                         </td>
                         <td style={{ padding: "12px", textAlign: "center", fontFamily: "var(--font-roboto-mono), monospace" }}>

@@ -402,12 +402,8 @@ export default function HomeScreen() {
           trendingTakes.map((take) => {
             const displayName = take.author?.displayName || take.author?.name || 'Anonymous';
             return (
-              <TouchableOpacity
-                key={take.id}
-                style={styles.takeCard}
-                activeOpacity={0.7}
-                onPress={() => router.push(`/take/${take.id}`)}
-              >
+              <View key={take.id} style={styles.takeCard}>
+                <TouchableOpacity activeOpacity={0.7} onPress={() => router.push(`/take/${take.id}`)}>
                 <View style={styles.takeHeader}>
                   {(take.author?.avatarUrl || take.author?.image) ? (
                     <Image source={{ uri: (take.author.avatarUrl || take.author.image)! }} style={styles.takeAvatarImg} />
@@ -425,6 +421,7 @@ export default function HomeScreen() {
                   text={extractFirstUrl(take.content) ? stripFirstUrl(take.content) : take.content}
                   style={styles.takeText}
                 />
+                </TouchableOpacity>
                 {take.mediaUrl && (
                   <ExpoImage
                     source={{ uri: take.mediaUrl }}
@@ -450,7 +447,7 @@ export default function HomeScreen() {
                     <Ionicons name="bookmark-outline" size={16} color={colors.textSecondary} />
                   </View>
                 </View>
-              </TouchableOpacity>
+              </View>
             );
           })
         )}

@@ -122,7 +122,7 @@ export default function MetricsPage() {
                   }}
                 >
                   <div style={{ fontWeight: "bold", color: "var(--orange)" }}>{metric.abbr}</div>
-                  <div style={{ fontSize: "14px", color: "rgba(255,255,255,0.6)" }}>{metric.name}</div>
+                  <div style={{ fontSize: "14px", color: "var(--text-muted)" }}>{metric.name}</div>
                 </div>
               ))}
             </div>
@@ -150,7 +150,7 @@ export default function MetricsPage() {
 
               <div className="section">
                 <div className="section-title">Quick Calculator</div>
-                <p style={{ marginBottom: "20px", color: "rgba(255,255,255,0.6)" }}>
+                <p style={{ marginBottom: "20px", color: "var(--text-muted)" }}>
                   Enter stats to calculate TS% and eFG%
                 </p>
 
@@ -163,7 +163,7 @@ export default function MetricsPage() {
                     { key: "threePm", label: "3PM" },
                   ].map(input => (
                     <div key={input.key}>
-                      <label style={{ display: "block", marginBottom: "5px", fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>
+                      <label style={{ display: "block", marginBottom: "5px", fontSize: "12px", color: "var(--text-muted)" }}>
                         {input.label}
                       </label>
                       <input
@@ -174,7 +174,7 @@ export default function MetricsPage() {
                           width: "100%",
                           padding: "12px",
                           background: "rgba(0,0,0,0.3)",
-                          border: "1px solid rgba(255,255,255,0.1)",
+                          border: "1px solid var(--border-color)",
                           color: "var(--white)",
                           fontFamily: "var(--font-roboto-mono), monospace",
                           textAlign: "center"
@@ -189,13 +189,13 @@ export default function MetricsPage() {
                     <div style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "36px", fontWeight: "bold", color: ts > 60 ? "var(--green)" : ts > 55 ? "var(--yellow)" : "var(--red)" }}>
                       {isNaN(ts) ? "0.0" : ts.toFixed(1)}%
                     </div>
-                    <div style={{ color: "rgba(255,255,255,0.5)", marginTop: "5px" }}>True Shooting %</div>
+                    <div style={{ color: "var(--text-muted)", marginTop: "5px" }}>True Shooting %</div>
                   </div>
                   <div style={{ background: "rgba(0,0,0,0.3)", padding: "25px", textAlign: "center" }}>
                     <div style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "36px", fontWeight: "bold", color: efg > 55 ? "var(--green)" : efg > 50 ? "var(--yellow)" : "var(--red)" }}>
                       {isNaN(efg) ? "0.0" : efg.toFixed(1)}%
                     </div>
-                    <div style={{ color: "rgba(255,255,255,0.5)", marginTop: "5px" }}>Effective FG %</div>
+                    <div style={{ color: "var(--text-muted)", marginTop: "5px" }}>Effective FG %</div>
                   </div>
                 </div>
               </div>

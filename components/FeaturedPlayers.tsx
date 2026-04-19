@@ -101,7 +101,7 @@ export function FeaturedPlayers() {
           </h2>
           <p style={{
             textAlign: "center",
-            color: "rgba(255,255,255,0.5)",
+            color: "var(--text-muted)",
             fontSize: "14px",
             marginBottom: "50px",
             textTransform: "uppercase",
@@ -138,7 +138,7 @@ export function FeaturedPlayers() {
           </h2>
           <p style={{
             textAlign: "center",
-            color: "rgba(255,255,255,0.5)",
+            color: "var(--text-muted)",
             fontSize: "14px",
             marginBottom: "50px",
             textTransform: "uppercase",
@@ -160,7 +160,7 @@ export function FeaturedPlayers() {
                     top: "12px",
                     right: "12px",
                     background: "#e53935",
-                    color: "white",
+                    color: "var(--white)",
                     fontSize: "11px",
                     fontWeight: 700,
                     padding: "3px 8px",
@@ -229,7 +229,7 @@ export function FeaturedPlayers() {
             TOP PERFORMERS
           </h2>
           <p style={{
-            color: "rgba(255,255,255,0.5)",
+            color: "var(--text-muted)",
             fontSize: "14px",
             marginBottom: "50px",
             textTransform: "uppercase",
@@ -255,7 +255,7 @@ export function FeaturedPlayers() {
         </h2>
         <p style={{
           textAlign: "center",
-          color: "rgba(255,255,255,0.5)",
+          color: "var(--text-muted)",
           fontSize: "14px",
           marginBottom: "50px",
           textTransform: "uppercase",

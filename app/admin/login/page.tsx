@@ -49,7 +49,7 @@ export default function AdminLogin() {
         maxWidth: "400px",
         padding: "40px",
         background: "var(--dark-gray)",
-        border: "1px solid rgba(255,255,255,0.1)"
+        border: "1px solid var(--border-color)"
       }}>
         <div style={{ textAlign: "center", marginBottom: "40px" }}>
           <h1 style={{
@@ -61,7 +61,7 @@ export default function AdminLogin() {
             BASKTBALL
           </h1>
           <p style={{
-            color: "rgba(255,255,255,0.5)",
+            color: "var(--text-muted)",
             letterSpacing: "3px",
             fontSize: "14px"
           }}>
@@ -126,7 +126,7 @@ export default function AdminLogin() {
           marginTop: "30px",
           textAlign: "center",
           fontSize: "12px",
-          color: "rgba(255,255,255,0.3)"
+          color: "var(--text-faint)"
         }}>
           Protected admin area. Authorized access only.
         </p>

@@ -41,7 +41,7 @@ export default function UserBadge({ user, size = "md" }: UserBadgeProps) {
         justifyContent: "center",
         fontSize: size === "sm" ? "12px" : "16px",
         fontWeight: "700",
-        color: "#fff",
+        color: "var(--white)",
         overflow: "hidden",
         flexShrink: 0,
       }}>
@@ -56,7 +56,7 @@ export default function UserBadge({ user, size = "md" }: UserBadgeProps) {
           <span style={{
             fontWeight: "600",
             fontSize: size === "sm" ? "13px" : "14px",
-            color: "#fff",
+            color: "var(--white)",
           }}>
             {displayName}
           </span>
@@ -76,7 +76,7 @@ export default function UserBadge({ user, size = "md" }: UserBadgeProps) {
           )}
         </div>
         {size === "md" && user.reputation !== undefined && (
-          <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginTop: "2px" }}>
+          <div style={{ fontSize: "11px", color: "var(--text-faint)", marginTop: "2px" }}>
             {user.reputation} rep &middot; {user.postCount || 0} posts
           </div>
         )}

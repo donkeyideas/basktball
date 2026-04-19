@@ -186,7 +186,7 @@ export default function PlayoffsPage() {
               maxWidth: "500px",
               padding: "30px",
               background: "var(--dark-gray)",
-              border: "1px solid rgba(255,255,255,0.1)",
+              border: "1px solid var(--border-color)",
             }}
           >
             <svg
@@ -196,40 +196,40 @@ export default function PlayoffsPage() {
               style={{ width: "100%", height: "auto" }}
             >
               {/* Left side - Round 1 */}
-              <rect x="10" y="10" width="80" height="20" rx="2" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
-              <rect x="10" y="40" width="80" height="20" rx="2" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
-              <rect x="10" y="80" width="80" height="20" rx="2" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
-              <rect x="10" y="110" width="80" height="20" rx="2" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
-              <rect x="10" y="150" width="80" height="20" rx="2" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
-              <rect x="10" y="180" width="80" height="20" rx="2" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
-              <rect x="10" y="210" width="80" height="20" rx="2" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
+              <rect x="10" y="10" width="80" height="20" rx="2" stroke="var(--border-color)" strokeWidth="1" />
+              <rect x="10" y="40" width="80" height="20" rx="2" stroke="var(--border-color)" strokeWidth="1" />
+              <rect x="10" y="80" width="80" height="20" rx="2" stroke="var(--border-color)" strokeWidth="1" />
+              <rect x="10" y="110" width="80" height="20" rx="2" stroke="var(--border-color)" strokeWidth="1" />
+              <rect x="10" y="150" width="80" height="20" rx="2" stroke="var(--border-color)" strokeWidth="1" />
+              <rect x="10" y="180" width="80" height="20" rx="2" stroke="var(--border-color)" strokeWidth="1" />
+              <rect x="10" y="210" width="80" height="20" rx="2" stroke="var(--border-color)" strokeWidth="1" />
 
               {/* Left side - Round 2 */}
-              <rect x="120" y="25" width="80" height="20" rx="2" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
-              <rect x="120" y="95" width="80" height="20" rx="2" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
-              <rect x="120" y="165" width="80" height="20" rx="2" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
+              <rect x="120" y="25" width="80" height="20" rx="2" stroke="var(--border-color)" strokeWidth="1" />
+              <rect x="120" y="95" width="80" height="20" rx="2" stroke="var(--border-color)" strokeWidth="1" />
+              <rect x="120" y="165" width="80" height="20" rx="2" stroke="var(--border-color)" strokeWidth="1" />
 
               {/* Left connectors */}
-              <line x1="90" y1="20" x2="120" y2="35" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
-              <line x1="90" y1="50" x2="120" y2="35" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
-              <line x1="90" y1="90" x2="120" y2="105" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
-              <line x1="90" y1="120" x2="120" y2="105" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
-              <line x1="90" y1="160" x2="120" y2="175" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
-              <line x1="90" y1="190" x2="120" y2="175" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+              <line x1="90" y1="20" x2="120" y2="35" stroke="var(--border-subtle)" strokeWidth="1" />
+              <line x1="90" y1="50" x2="120" y2="35" stroke="var(--border-subtle)" strokeWidth="1" />
+              <line x1="90" y1="90" x2="120" y2="105" stroke="var(--border-subtle)" strokeWidth="1" />
+              <line x1="90" y1="120" x2="120" y2="105" stroke="var(--border-subtle)" strokeWidth="1" />
+              <line x1="90" y1="160" x2="120" y2="175" stroke="var(--border-subtle)" strokeWidth="1" />
+              <line x1="90" y1="190" x2="120" y2="175" stroke="var(--border-subtle)" strokeWidth="1" />
 
               {/* Conference Finals */}
-              <rect x="230" y="60" width="80" height="20" rx="2" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
-              <line x1="200" y1="35" x2="230" y2="70" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
-              <line x1="200" y1="105" x2="230" y2="70" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+              <rect x="230" y="60" width="80" height="20" rx="2" stroke="var(--border-color)" strokeWidth="1" />
+              <line x1="200" y1="35" x2="230" y2="70" stroke="var(--border-subtle)" strokeWidth="1" />
+              <line x1="200" y1="105" x2="230" y2="70" stroke="var(--border-subtle)" strokeWidth="1" />
 
               {/* Finals */}
               <rect x="340" y="105" width="100" height="30" rx="3" stroke="var(--orange)" strokeWidth="1.5" strokeDasharray="4 3" />
-              <text x="390" y="125" textAnchor="middle" fill="rgba(255,255,255,0.2)" fontSize="9" fontFamily="monospace">FINALS</text>
-              <line x1="310" y1="70" x2="340" y2="120" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+              <text x="390" y="125" textAnchor="middle" fill="var(--text-faint)" fontSize="9" fontFamily="monospace">FINALS</text>
+              <line x1="310" y1="70" x2="340" y2="120" stroke="var(--border-subtle)" strokeWidth="1" />
 
               {/* Right side hint */}
-              <rect x="340" y="165" width="80" height="20" rx="2" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
-              <line x1="420" y1="175" x2="440" y2="135" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+              <rect x="340" y="165" width="80" height="20" rx="2" stroke="var(--border-color)" strokeWidth="1" />
+              <line x1="420" y1="175" x2="440" y2="135" stroke="var(--border-subtle)" strokeWidth="1" />
 
               {/* Trophy icon */}
               <text x="470" y="125" textAnchor="middle" fill="var(--orange)" fontSize="22" style={{ opacity: 0.3 }}>&#127942;</text>
@@ -241,7 +241,7 @@ export default function PlayoffsPage() {
             style={{
               fontFamily: "var(--font-roboto-mono), monospace",
               fontSize: "14px",
-              color: "rgba(255,255,255,0.5)",
+              color: "var(--text-muted)",
               lineHeight: "1.8",
               maxWidth: "550px",
               margin: "0 auto",
@@ -272,7 +272,7 @@ export default function PlayoffsPage() {
                 key={round.label}
                 style={{
                   background: "var(--dark-gray)",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  border: "1px solid var(--border-color)",
                   padding: "16px 24px",
                   textAlign: "center",
                   minWidth: "140px",

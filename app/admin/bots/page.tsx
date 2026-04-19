@@ -280,14 +280,14 @@ export default function AdminBotsPage() {
     width: "100%",
     padding: "10px",
     borderRadius: "8px",
-    border: "1px solid rgba(255,255,255,0.2)",
+    border: "1px solid var(--text-faint)",
     background: "rgba(0,0,0,0.3)",
-    color: "#fff",
+    color: "var(--white)",
     fontSize: "14px",
   };
 
   const labelStyle = {
-    color: "rgba(255,255,255,0.7)",
+    color: "var(--text-secondary)",
     fontSize: "13px",
     display: "block" as const,
     marginBottom: "4px",
@@ -297,8 +297,8 @@ export default function AdminBotsPage() {
     <div style={{ padding: "30px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
         <div>
-          <h1 style={{ fontSize: "24px", fontWeight: "700", color: "#fff" }}>Bot Users</h1>
-          <p style={{ color: "rgba(255,255,255,0.5)", marginTop: "4px" }}>
+          <h1 style={{ fontSize: "24px", fontWeight: "700", color: "var(--white)" }}>Bot Users</h1>
+          <p style={{ color: "var(--text-muted)", marginTop: "4px" }}>
             Create and manage AI-powered bot accounts that post, reply, react, and repost on The Court
           </p>
         </div>
@@ -306,7 +306,7 @@ export default function AdminBotsPage() {
           onClick={() => setShowCreate(!showCreate)}
           style={{
             background: "#F97316",
-            color: "#fff",
+            color: "var(--white)",
             border: "none",
             borderRadius: "8px",
             padding: "10px 20px",
@@ -333,8 +333,8 @@ export default function AdminBotsPage() {
 
       {/* Create form */}
       {showCreate && (
-        <form onSubmit={createBot} style={{ background: "rgba(255,255,255,0.05)", borderRadius: "12px", padding: "24px", marginBottom: "24px", border: "1px solid rgba(255,255,255,0.1)" }}>
-          <h3 style={{ color: "#fff", marginBottom: "16px", fontSize: "16px", fontWeight: "600" }}>Create New Bot</h3>
+        <form onSubmit={createBot} style={{ background: "var(--border-subtle)", borderRadius: "12px", padding: "24px", marginBottom: "24px", border: "1px solid var(--border-color)" }}>
+          <h3 style={{ color: "var(--white)", marginBottom: "16px", fontSize: "16px", fontWeight: "600" }}>Create New Bot</h3>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
             <div>
               <label style={labelStyle}>Handle *</label>
@@ -358,9 +358,9 @@ export default function AdminBotsPage() {
                     alignItems: "center",
                     justifyContent: "center",
                     cursor: "pointer",
-                    border: "2px dashed rgba(255,255,255,0.3)",
+                    border: "2px dashed var(--text-faint)",
                     flexShrink: 0,
-                    color: "#fff",
+                    color: "var(--white)",
                     fontSize: "12px",
                     fontWeight: "600",
                   }}
@@ -413,7 +413,7 @@ export default function AdminBotsPage() {
             </div>
           </div>
           <div style={{ marginTop: "16px", display: "flex", gap: "12px" }}>
-            <button type="submit" disabled={creating} style={{ background: "#F97316", color: "#fff", border: "none", borderRadius: "8px", padding: "10px 24px", fontWeight: "600", cursor: "pointer", opacity: creating ? 0.5 : 1 }}>
+            <button type="submit" disabled={creating} style={{ background: "#F97316", color: "var(--white)", border: "none", borderRadius: "8px", padding: "10px 24px", fontWeight: "600", cursor: "pointer", opacity: creating ? 0.5 : 1 }}>
               {creating ? "Creating..." : "Create Bot"}
             </button>
           </div>
@@ -422,9 +422,9 @@ export default function AdminBotsPage() {
 
       {/* Bot list */}
       {loading ? (
-        <div style={{ textAlign: "center", padding: "40px", color: "rgba(255,255,255,0.5)" }}>Loading bots...</div>
+        <div style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>Loading bots...</div>
       ) : bots.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "60px", color: "rgba(255,255,255,0.5)" }}>
+        <div style={{ textAlign: "center", padding: "60px", color: "var(--text-muted)" }}>
           <p style={{ fontSize: "18px", marginBottom: "8px" }}>No bots created yet</p>
           <p>Click &quot;+ Create Bot&quot; to add your first AI-powered bot user.</p>
         </div>
@@ -437,7 +437,7 @@ export default function AdminBotsPage() {
             const botTeam = bot.favoriteTeamId ? getTeam(bot.favoriteTeamId) : undefined;
 
             return (
-              <div key={bot.id} style={{ background: "rgba(255,255,255,0.05)", borderRadius: "12px", padding: "20px", border: "1px solid rgba(255,255,255,0.1)", display: "flex", alignItems: "center", gap: "16px" }}>
+              <div key={bot.id} style={{ background: "var(--border-subtle)", borderRadius: "12px", padding: "20px", border: "1px solid var(--border-color)", display: "flex", alignItems: "center", gap: "16px" }}>
                 <div style={{
                   width: "48px",
                   height: "48px",
@@ -446,7 +446,7 @@ export default function AdminBotsPage() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: "#fff",
+                  color: "var(--white)",
                   fontWeight: "700",
                   fontSize: "18px",
                   flexShrink: 0,
@@ -456,8 +456,8 @@ export default function AdminBotsPage() {
 
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span style={{ color: "#fff", fontWeight: "600", fontSize: "15px" }}>{bot.displayName}</span>
-                    <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "13px" }}>@{bot.name}</span>
+                    <span style={{ color: "var(--white)", fontWeight: "600", fontSize: "15px" }}>{bot.displayName}</span>
+                    <span style={{ color: "var(--text-faint)", fontSize: "13px" }}>@{bot.name}</span>
                     <span style={{
                       fontSize: "11px",
                       padding: "2px 8px",
@@ -469,11 +469,11 @@ export default function AdminBotsPage() {
                       {bot.botActive ? "ACTIVE" : "INACTIVE"}
                     </span>
                   </div>
-                  <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "13px", marginTop: "4px" }}>
+                  <div style={{ color: "var(--text-muted)", fontSize: "13px", marginTop: "4px" }}>
                     {bot.takeCount} takes &middot; {personality.tone || "default"} tone &middot; {(personality.interests || []).join(", ") || "basketball"}
                     {botTeam && <> &middot; <span style={{ color: "#F97316" }}>{getTeamFullName(botTeam)}</span> fan</>}
                   </div>
-                  {bot.bio && <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "12px", marginTop: "2px" }}>{bot.bio}</div>}
+                  {bot.bio && <div style={{ color: "var(--text-faint)", fontSize: "12px", marginTop: "2px" }}>{bot.bio}</div>}
                 </div>
 
                 <div style={{ display: "flex", gap: "8px", flexShrink: 0, flexWrap: "wrap", justifyContent: "flex-end" }}>
@@ -563,16 +563,16 @@ export default function AdminBotsPage() {
           <form
             onSubmit={saveEdit}
             style={{
-              background: "#1A1A1A",
+              background: "var(--dark-gray)",
               borderRadius: "16px",
               padding: "32px",
               width: "100%",
               maxWidth: "500px",
-              border: "1px solid rgba(255,255,255,0.15)",
+              border: "1px solid var(--border-color)",
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 style={{ color: "#fff", fontSize: "20px", fontWeight: "700", marginBottom: "24px" }}>
+            <h2 style={{ color: "var(--white)", fontSize: "20px", fontWeight: "700", marginBottom: "24px" }}>
               Edit Bot: @{editBot.name}
             </h2>
 
@@ -589,15 +589,15 @@ export default function AdminBotsPage() {
                   alignItems: "center",
                   justifyContent: "center",
                   cursor: "pointer",
-                  border: "3px dashed rgba(255,255,255,0.3)",
+                  border: "3px dashed var(--text-faint)",
                   flexShrink: 0,
-                  color: "#fff",
+                  color: "var(--white)",
                   fontSize: "14px",
                   fontWeight: "600",
                   transition: "border-color 0.2s",
                 }}
                 onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#F97316"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.3)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--text-faint)"; }}
               >
                 {!editAvatarPreview && (editBot.displayName?.[0] || "B")}
               </div>
@@ -616,9 +616,9 @@ export default function AdminBotsPage() {
                   type="button"
                   onClick={() => editAvatarRef.current?.click()}
                   style={{
-                    background: "rgba(255,255,255,0.1)",
-                    color: "#fff",
-                    border: "1px solid rgba(255,255,255,0.2)",
+                    background: "var(--border-color)",
+                    color: "var(--white)",
+                    border: "1px solid var(--text-faint)",
                     borderRadius: "6px",
                     padding: "6px 16px",
                     fontSize: "13px",
@@ -628,7 +628,7 @@ export default function AdminBotsPage() {
                 >
                   Change Avatar
                 </button>
-                <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "11px", marginTop: "4px" }}>Click avatar or button to upload</p>
+                <p style={{ color: "var(--text-faint)", fontSize: "11px", marginTop: "4px" }}>Click avatar or button to upload</p>
               </div>
             </div>
 
@@ -657,7 +657,7 @@ export default function AdminBotsPage() {
 
             {/* Favorite Team */}
             <div style={{ marginBottom: "24px" }}>
-              <label style={labelStyle}>Favorite Team <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "11px" }}>(~80% of takes will focus on this team)</span></label>
+              <label style={labelStyle}>Favorite Team <span style={{ color: "var(--text-faint)", fontSize: "11px" }}>(~80% of takes will focus on this team)</span></label>
               <select value={editTeam} onChange={(e) => setEditTeam(e.target.value)} style={inputStyle}>
                 <option value="">No team (general basketball)</option>
                 <optgroup label="NBA">
@@ -679,9 +679,9 @@ export default function AdminBotsPage() {
                 type="button"
                 onClick={() => setEditBot(null)}
                 style={{
-                  background: "rgba(255,255,255,0.1)",
-                  color: "#fff",
-                  border: "1px solid rgba(255,255,255,0.2)",
+                  background: "var(--border-color)",
+                  color: "var(--white)",
+                  border: "1px solid var(--text-faint)",
                   borderRadius: "8px",
                   padding: "10px 20px",
                   fontWeight: "600",
@@ -695,7 +695,7 @@ export default function AdminBotsPage() {
                 disabled={saving}
                 style={{
                   background: "#F97316",
-                  color: "#fff",
+                  color: "var(--white)",
                   border: "none",
                   borderRadius: "8px",
                   padding: "10px 20px",

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { getLeagueLeaders } from "@/lib/api/live-stats";
+import { statsCache } from "@/lib/cache/redis";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,12 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const category = (searchParams.get("category") || "ppg") as StatCategory;
     const limit = parseInt(searchParams.get("limit") || "10");
+    const flush = searchParams.get("flush") === "true";
+
+    // Flush cache if requested (so code changes take effect immediately)
+    if (flush) {
+      await statsCache.delete(`live:leaders:${category}`);
+    }
 
     // First try to get from database
     const playerStats = await prisma.playerStat.groupBy({

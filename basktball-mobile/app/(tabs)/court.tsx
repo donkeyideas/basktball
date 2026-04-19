@@ -25,7 +25,10 @@ import { api } from '@/lib/api/client';
 import { LinkPreview, extractFirstUrl, stripFirstUrl } from '@/components/content/LinkPreview';
 import { LinkifiedText } from '@/components/content/LinkifiedText';
 import { Image as ExpoImage } from 'expo-image';
+import * as ImagePicker from 'expo-image-picker';
+import * as SecureStore from 'expo-secure-store';
 import { GifPicker } from '@/components/feed/GifPicker';
+import { MentionAutocomplete } from '@/components/feed/MentionAutocomplete';
 
 const API_BASE = 'https://www.basktball.com';
 const SEGMENTS = ['FOR YOU', 'FOLLOWING', 'LIVE'];
@@ -114,9 +117,12 @@ export default function CourtScreen() {
   const [posting, setPosting] = useState(false);
   const [composeMediaUrl, setComposeMediaUrl] = useState<string | null>(null);
   const [showGifPicker, setShowGifPicker] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [showPoll, setShowPoll] = useState(false);
   const [pollOptions, setPollOptions] = useState<string[]>(['', '']);
   const [pollDuration, setPollDuration] = useState(24);
+  const [mentionQuery, setMentionQuery] = useState('');
+  const [showMentions, setShowMentions] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
 
@@ -448,6 +454,84 @@ export default function CourtScreen() {
     setPollDuration(24);
     setComposeMediaUrl(null);
     setShowGifPicker(false);
+    setShowMentions(false);
+    setMentionQuery('');
+  }
+
+  function handleComposeTextChange(val: string) {
+    setComposeText(val);
+    const mentionMatch = val.match(/@([a-zA-Z0-9_]*)$/);
+    if (mentionMatch) {
+      setMentionQuery(mentionMatch[1]);
+      setShowMentions(true);
+    } else {
+      setShowMentions(false);
+    }
+  }
+
+  function handleMentionSelect(handle: string) {
+    const atIndex = composeText.lastIndexOf('@');
+    if (atIndex === -1) return;
+    const newContent = composeText.slice(0, atIndex) + `@${handle} `;
+    setComposeText(newContent);
+    setShowMentions(false);
+  }
+
+  async function handleImagePick() {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        showAlert('Permission Needed', 'Please allow photo access to attach images.');
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        quality: 0.8,
+      });
+      if (result.canceled || !result.assets?.[0]) return;
+
+      const asset = result.assets[0];
+      const uri = asset.uri;
+      const mimeType = asset.mimeType || 'image/jpeg';
+      const fileSize = asset.fileSize || 0;
+
+      setUploading(true);
+      const authToken = await SecureStore.getItemAsync('auth_token');
+      if (!authToken) {
+        showAlert('Error', 'Please sign in again.');
+        setUploading(false);
+        return;
+      }
+
+      const presignRes = await fetch(`${API_BASE}/api/mobile/upload`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authToken}`,
+        },
+        body: JSON.stringify({ contentType: mimeType, fileSize }),
+      });
+      if (!presignRes.ok) {
+        const err = await presignRes.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to get upload URL');
+      }
+      const { uploadUrl, publicUrl } = await presignRes.json();
+
+      const blob = await fetch(uri).then((r) => r.blob());
+      const uploadRes = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': mimeType },
+        body: blob,
+      });
+      if (!uploadRes.ok) throw new Error('Upload failed');
+
+      setComposeMediaUrl(publicUrl);
+    } catch (err: any) {
+      showAlert('Upload Error', err?.message || 'Failed to upload image.');
+    } finally {
+      setUploading(false);
+    }
   }
 
   async function handlePost() {
@@ -493,12 +577,9 @@ export default function CourtScreen() {
     const initial = displayName.charAt(0).toUpperCase();
 
     return (
-      <TouchableOpacity
-        style={styles.takeCard}
-        activeOpacity={0.7}
-        onPress={() => router.push(`/take/${item.id}`)}
-      >
-        {/* Header */}
+      <View style={styles.takeCard}>
+        {/* Header — tappable to navigate */}
+        <TouchableOpacity activeOpacity={0.7} onPress={() => router.push(`/take/${item.id}`)}>
         <View style={styles.takeHeader}>
           {item.author?.avatarUrl || item.author?.image ? (
             <Image
@@ -614,6 +695,7 @@ export default function CourtScreen() {
           text={extractFirstUrl(item.content) ? stripFirstUrl(item.content) : item.content}
           style={styles.takeText}
         />
+        </TouchableOpacity>
 
         {/* GIF / Media */}
         {item.mediaUrl && (
@@ -725,7 +807,7 @@ export default function CourtScreen() {
             <Text style={[styles.takeActionCount, { color: colors.textTertiary, fontSize: 12 }]}>{item.viewCount ?? 0}</Text>
           </View>
         </View>
-      </TouchableOpacity>
+      </View>
     );
   }
 
@@ -795,8 +877,8 @@ export default function CourtScreen() {
               </TouchableOpacity>
               <Text style={styles.composeTitle}>New Take</Text>
               <TouchableOpacity
-                style={[styles.composePostBtn, (!composeText.trim() || posting) && styles.composePostBtnDisabled]}
-                disabled={!composeText.trim() || posting}
+                style={[styles.composePostBtn, (!composeText.trim() || posting || uploading) && styles.composePostBtnDisabled]}
+                disabled={!composeText.trim() || posting || uploading}
                 onPress={handlePost}
               >
                 {posting ? <ActivityIndicator color={colors.text} size="small" /> : <Text style={styles.composePostText}>Post</Text>}
@@ -810,9 +892,18 @@ export default function CourtScreen() {
               multiline
               maxLength={2000}
               value={composeText}
-              onChangeText={setComposeText}
+              onChangeText={handleComposeTextChange}
               autoFocus
             />
+
+            {/* Mention autocomplete */}
+            <MentionAutocomplete
+              query={mentionQuery}
+              onSelect={handleMentionSelect}
+              visible={showMentions}
+              apiBase={API_BASE}
+            />
+
             <Text style={styles.charCount}>{composeText.length}/2000</Text>
 
             {/* GIF Preview */}
@@ -839,19 +930,45 @@ export default function CourtScreen() {
               </View>
             )}
 
-            {/* GIF / Poll Toolbar */}
+            {/* Uploading indicator */}
+            {uploading && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, gap: 8, marginBottom: 8 }}>
+                <ActivityIndicator size="small" color={Colors.orange} />
+                <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: colors.textSecondary }}>Uploading image...</Text>
+              </View>
+            )}
+
+            {/* GIF / IMG / Poll Toolbar */}
             <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, gap: 10, marginBottom: 8 }}>
               <TouchableOpacity
                 onPress={() => setShowGifPicker(!showGifPicker)}
+                disabled={!!composeMediaUrl || uploading}
                 style={{
                   paddingHorizontal: 10, paddingVertical: 5,
                   borderWidth: 1,
                   borderColor: showGifPicker ? Colors.orange : 'rgba(255,107,53,0.3)',
                   borderRadius: 6,
                   backgroundColor: showGifPicker ? 'rgba(255,107,53,0.15)' : 'transparent',
+                  opacity: (composeMediaUrl || uploading) ? 0.4 : 1,
                 }}
               >
                 <Text style={{ fontFamily: Fonts.barlowSemiBold, fontSize: 13, color: Colors.orange, fontWeight: '600' }}>GIF</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={handleImagePick}
+                disabled={!!composeMediaUrl || uploading}
+                style={{
+                  flexDirection: 'row', alignItems: 'center', gap: 4,
+                  paddingHorizontal: 10, paddingVertical: 5,
+                  borderWidth: 1,
+                  borderColor: 'rgba(255,107,53,0.3)',
+                  borderRadius: 6,
+                  opacity: (composeMediaUrl || uploading) ? 0.4 : 1,
+                }}
+              >
+                <Ionicons name="image-outline" size={14} color={Colors.orange} />
+                <Text style={{ fontFamily: Fonts.barlowSemiBold, fontSize: 13, color: Colors.orange, fontWeight: '600' }}>IMG</Text>
               </TouchableOpacity>
 
               {!showPoll && (

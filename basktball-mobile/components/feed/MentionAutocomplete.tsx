@@ -3,7 +3,7 @@ import {
   View,
   Text,
   TouchableOpacity,
-  FlatList,
+  ScrollView,
   StyleSheet,
 } from 'react-native';
 import { Image } from 'expo-image';
@@ -11,6 +11,7 @@ import { Colors, Fonts } from '@/constants/Colors';
 
 interface AutocompleteUser {
   id: string;
+  name: string | null;
   handle: string | null;
   displayName: string | null;
   avatarUrl: string | null;
@@ -45,40 +46,37 @@ export function MentionAutocomplete({ query, onSelect, visible, apiBase }: Menti
   if (!visible || users.length === 0) return null;
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={users}
-        keyExtractor={(item) => item.id}
-        keyboardShouldPersistTaps="handled"
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.row}
-            onPress={() => item.handle && onSelect(item.handle)}
-            activeOpacity={0.7}
-          >
-            <View style={styles.avatar}>
-              {item.avatarUrl || item.image ? (
-                <Image source={{ uri: item.avatarUrl || item.image || '' }} style={styles.avatarImage} contentFit="cover" />
-              ) : (
-                <Text style={styles.avatarText}>
-                  {(item.displayName || '?').charAt(0).toUpperCase()}
-                </Text>
-              )}
-            </View>
-            <View style={styles.info}>
-              <Text style={styles.name} numberOfLines={1}>
-                {item.displayName || item.handle}
+    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled" nestedScrollEnabled>
+      {users.map((item) => (
+        <TouchableOpacity
+          key={item.id}
+          style={styles.row}
+          onPress={() => {
+            const identifier = item.handle || item.name;
+            if (identifier) onSelect(identifier);
+          }}
+          activeOpacity={0.7}
+        >
+          <View style={styles.avatar}>
+            {item.avatarUrl || item.image ? (
+              <Image source={{ uri: item.avatarUrl || item.image || '' }} style={styles.avatarImage} contentFit="cover" />
+            ) : (
+              <Text style={styles.avatarText}>
+                {(item.displayName || '?').charAt(0).toUpperCase()}
               </Text>
-              {item.handle && (
-                <Text style={styles.handle} numberOfLines={1}>
-                  @{item.handle}
-                </Text>
-              )}
-            </View>
-          </TouchableOpacity>
-        )}
-      />
-    </View>
+            )}
+          </View>
+          <View style={styles.info}>
+            <Text style={styles.name} numberOfLines={1}>
+              {item.displayName || item.handle || item.name}
+            </Text>
+            <Text style={styles.handle} numberOfLines={1}>
+              @{item.handle || item.name}
+            </Text>
+          </View>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
   );
 }
 

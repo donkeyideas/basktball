@@ -99,8 +99,8 @@ export default function CategoryPage() {
         <div style={{ maxWidth: "900px", margin: "0 auto" }}>
       {/* Breadcrumb */}
       <div style={{ marginBottom: "20px", fontSize: "13px" }}>
-        <Link href="/forum" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Forum</Link>
-        <span style={{ color: "rgba(255,255,255,0.2)", margin: "0 8px" }}>/</span>
+        <Link href="/forum" style={{ color: "var(--text-faint)", textDecoration: "none" }}>Forum</Link>
+        <span style={{ color: "var(--text-faint)", margin: "0 8px" }}>/</span>
         <span style={{ color: categoryColor }}>{categoryName || categorySlug}</span>
       </div>
 
@@ -109,7 +109,7 @@ export default function CategoryPage() {
         <h1 style={{
           fontFamily: "var(--font-anton)",
           fontSize: "32px",
-          color: "#fff",
+          color: "var(--white)",
           margin: 0,
           letterSpacing: "1px",
         }}>
@@ -122,7 +122,7 @@ export default function CategoryPage() {
               padding: "10px 20px",
               borderRadius: "8px",
               background: "#FF6B35",
-              color: "#fff",
+              color: "var(--white)",
               textDecoration: "none",
               fontWeight: "700",
               fontSize: "14px",
@@ -146,7 +146,7 @@ export default function CategoryPage() {
               borderRadius: "6px",
               border: "none",
               background: sort === s ? "#FF6B35" : "#2a2a2a",
-              color: sort === s ? "#fff" : "rgba(255,255,255,0.5)",
+              color: sort === s ? "var(--white)" : "var(--text-muted)",
               fontSize: "13px",
               fontWeight: "600",
               cursor: "pointer",
@@ -161,16 +161,16 @@ export default function CategoryPage() {
 
       {/* Threads */}
       {loading ? (
-        <div style={{ color: "rgba(255,255,255,0.4)", padding: "40px", textAlign: "center" }}>Loading threads...</div>
+        <div style={{ color: "var(--text-faint)", padding: "40px", textAlign: "center" }}>Loading threads...</div>
       ) : threads.length === 0 ? (
         <div style={{
-          background: "#1A1A1A",
+          background: "var(--dark-gray)",
           borderRadius: "8px",
           border: "1px solid #2a2a2a",
           padding: "40px",
           textAlign: "center",
         }}>
-          <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: "16px" }}>No threads yet. Be the first to start a discussion!</p>
+          <p style={{ color: "var(--text-muted)", marginBottom: "16px" }}>No threads yet. Be the first to start a discussion!</p>
           {session?.user && (
             <Link
               href={`/forum/new?category=${categorySlug}`}
@@ -192,17 +192,17 @@ export default function CategoryPage() {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                style={{ padding: "8px 16px", borderRadius: "6px", border: "1px solid #333", background: "transparent", color: "#fff", cursor: page > 1 ? "pointer" : "default", opacity: page > 1 ? 1 : 0.3 }}
+                style={{ padding: "8px 16px", borderRadius: "6px", border: "1px solid #333", background: "transparent", color: "var(--white)", cursor: page > 1 ? "pointer" : "default", opacity: page > 1 ? 1 : 0.3 }}
               >
                 Prev
               </button>
-              <span style={{ padding: "8px 16px", color: "rgba(255,255,255,0.5)", fontSize: "14px" }}>
+              <span style={{ padding: "8px 16px", color: "var(--text-muted)", fontSize: "14px" }}>
                 Page {page} of {pagination.totalPages}
               </span>
               <button
                 onClick={() => setPage((p) => Math.min(pagination!.totalPages, p + 1))}
                 disabled={page >= pagination.totalPages}
-                style={{ padding: "8px 16px", borderRadius: "6px", border: "1px solid #333", background: "transparent", color: "#fff", cursor: page < pagination.totalPages ? "pointer" : "default", opacity: page < pagination.totalPages ? 1 : 0.3 }}
+                style={{ padding: "8px 16px", borderRadius: "6px", border: "1px solid #333", background: "transparent", color: "var(--white)", cursor: page < pagination.totalPages ? "pointer" : "default", opacity: page < pagination.totalPages ? 1 : 0.3 }}
               >
                 Next
               </button>

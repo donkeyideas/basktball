@@ -175,7 +175,7 @@ export default function AdminInboxPage() {
 
   if (loading) {
     return (
-      <div style={{ padding: "40px", textAlign: "center", color: "rgba(255,255,255,0.5)" }}>
+      <div style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)" }}>
         Loading inbox...
       </div>
     );
@@ -232,10 +232,10 @@ export default function AdminInboxPage() {
               flex: "1",
               minWidth: "200px",
               padding: "10px 14px",
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.15)",
+              background: "var(--border-subtle)",
+              border: "1px solid var(--border-color)",
               borderRadius: "8px",
-              color: "#fff",
+              color: "var(--white)",
               fontSize: "14px",
               outline: "none",
             }}
@@ -245,10 +245,10 @@ export default function AdminInboxPage() {
             onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
             style={{
               padding: "10px 14px",
-              background: "#1A1A1A",
-              border: "1px solid rgba(255,255,255,0.15)",
+              background: "var(--dark-gray)",
+              border: "1px solid var(--border-color)",
               borderRadius: "8px",
-              color: "#fff",
+              color: "var(--white)",
               fontSize: "14px",
               outline: "none",
             }}
@@ -264,7 +264,7 @@ export default function AdminInboxPage() {
         {/* Messages List */}
         <div className="section">
           {messages.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "60px 20px", color: "rgba(255,255,255,0.4)" }}>
+            <div style={{ textAlign: "center", padding: "60px 20px", color: "var(--text-faint)" }}>
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ margin: "0 auto 16px", display: "block", opacity: 0.4 }}>
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
                 <polyline points="22,6 12,13 2,6" />
@@ -272,7 +272,7 @@ export default function AdminInboxPage() {
               No messages found
             </div>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: "1px", background: "rgba(255,255,255,0.05)", borderRadius: "8px", overflow: "hidden" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1px", background: "var(--border-subtle)", borderRadius: "8px", overflow: "hidden" }}>
               {messages.map((msg) => (
                 <div
                   key={msg.id}
@@ -287,7 +287,7 @@ export default function AdminInboxPage() {
                     alignItems: "center",
                     transition: "background 0.15s ease",
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "var(--border-subtle)"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = msg.status === "UNREAD" ? "rgba(59, 130, 246, 0.05)" : "var(--dark-gray)"; }}
                 >
                   {/* Status dot */}
@@ -305,11 +305,11 @@ export default function AdminInboxPage() {
                       <span style={{
                         fontWeight: msg.status === "UNREAD" ? "700" : "500",
                         fontSize: "15px",
-                        color: msg.status === "UNREAD" ? "#fff" : "rgba(255,255,255,0.8)",
+                        color: msg.status === "UNREAD" ? "var(--white)" : "var(--text-secondary)",
                       }}>
                         {msg.name}
                       </span>
-                      <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)" }}>
+                      <span style={{ fontSize: "13px", color: "var(--text-faint)" }}>
                         &lt;{msg.email}&gt;
                       </span>
                       <span style={{
@@ -326,14 +326,14 @@ export default function AdminInboxPage() {
                     <div style={{
                       fontWeight: msg.status === "UNREAD" ? "600" : "400",
                       fontSize: "14px",
-                      color: msg.status === "UNREAD" ? "#fff" : "rgba(255,255,255,0.7)",
+                      color: msg.status === "UNREAD" ? "var(--white)" : "var(--text-secondary)",
                       marginBottom: "2px",
                     }}>
                       {msg.subject}
                     </div>
                     <div style={{
                       fontSize: "13px",
-                      color: "rgba(255,255,255,0.4)",
+                      color: "var(--text-faint)",
                       whiteSpace: "nowrap",
                       overflow: "hidden",
                       textOverflow: "ellipsis",
@@ -343,7 +343,7 @@ export default function AdminInboxPage() {
                   </div>
 
                   {/* Date */}
-                  <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", whiteSpace: "nowrap" }}>
+                  <div style={{ fontSize: "13px", color: "var(--text-faint)", whiteSpace: "nowrap" }}>
                     {formatDate(msg.createdAt)}
                   </div>
                 </div>
@@ -365,17 +365,17 @@ export default function AdminInboxPage() {
                 disabled={page === 1}
                 style={{
                   padding: "6px 12px",
-                  background: page === 1 ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.1)",
-                  border: "1px solid rgba(255,255,255,0.15)",
+                  background: page === 1 ? "var(--border-subtle)" : "var(--border-color)",
+                  border: "1px solid var(--border-color)",
                   borderRadius: "6px",
-                  color: page === 1 ? "rgba(255,255,255,0.3)" : "#fff",
+                  color: page === 1 ? "var(--text-faint)" : "#fff",
                   cursor: page === 1 ? "not-allowed" : "pointer",
                   fontSize: "13px",
                 }}
               >
                 Previous
               </button>
-              <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)" }}>
+              <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>
                 Page {page} of {totalPages}
               </span>
               <button
@@ -383,10 +383,10 @@ export default function AdminInboxPage() {
                 disabled={page === totalPages}
                 style={{
                   padding: "6px 12px",
-                  background: page === totalPages ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.1)",
-                  border: "1px solid rgba(255,255,255,0.15)",
+                  background: page === totalPages ? "var(--border-subtle)" : "var(--border-color)",
+                  border: "1px solid var(--border-color)",
                   borderRadius: "6px",
-                  color: page === totalPages ? "rgba(255,255,255,0.3)" : "#fff",
+                  color: page === totalPages ? "var(--text-faint)" : "#fff",
                   cursor: page === totalPages ? "not-allowed" : "pointer",
                   fontSize: "13px",
                 }}
@@ -418,9 +418,9 @@ export default function AdminInboxPage() {
           onKeyDown={(e) => { if (e.key === "Escape") setSelectedMessage(null); }}
         >
           <div style={{
-            background: "#1A1A1A",
+            background: "var(--dark-gray)",
             borderRadius: "12px",
-            border: "1px solid rgba(255,255,255,0.1)",
+            border: "1px solid var(--border-color)",
             maxWidth: "700px",
             width: "100%",
             maxHeight: "85vh",
@@ -429,7 +429,7 @@ export default function AdminInboxPage() {
             {/* Modal Header */}
             <div style={{
               padding: "24px",
-              borderBottom: "1px solid rgba(255,255,255,0.1)",
+              borderBottom: "1px solid var(--border-color)",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "flex-start",
@@ -448,10 +448,10 @@ export default function AdminInboxPage() {
                     {STATUS_LABELS[selectedMessage.status]}
                   </span>
                 </div>
-                <div style={{ fontSize: "14px", color: "rgba(255,255,255,0.5)" }}>
-                  From: <span style={{ color: "#fff" }}>{selectedMessage.name}</span> &lt;{selectedMessage.email}&gt;
+                <div style={{ fontSize: "14px", color: "var(--text-muted)" }}>
+                  From: <span style={{ color: "var(--white)" }}>{selectedMessage.name}</span> &lt;{selectedMessage.email}&gt;
                 </div>
-                <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", marginTop: "4px" }}>
+                <div style={{ fontSize: "13px", color: "var(--text-faint)", marginTop: "4px" }}>
                   {new Date(selectedMessage.createdAt).toLocaleString("en-US", {
                     weekday: "long",
                     year: "numeric",
@@ -467,7 +467,7 @@ export default function AdminInboxPage() {
                 style={{
                   background: "none",
                   border: "none",
-                  color: "rgba(255,255,255,0.5)",
+                  color: "var(--text-muted)",
                   cursor: "pointer",
                   fontSize: "24px",
                   lineHeight: "1",
@@ -481,11 +481,11 @@ export default function AdminInboxPage() {
             {/* Message Body */}
             <div style={{
               padding: "24px",
-              borderBottom: "1px solid rgba(255,255,255,0.1)",
+              borderBottom: "1px solid var(--border-color)",
               whiteSpace: "pre-wrap",
               lineHeight: "1.7",
               fontSize: "15px",
-              color: "rgba(255,255,255,0.85)",
+              color: "var(--text-secondary)",
             }}>
               {selectedMessage.message}
             </div>
@@ -493,13 +493,13 @@ export default function AdminInboxPage() {
             {/* Status Actions */}
             <div style={{
               padding: "20px 24px",
-              borderBottom: "1px solid rgba(255,255,255,0.1)",
+              borderBottom: "1px solid var(--border-color)",
               display: "flex",
               gap: "8px",
               flexWrap: "wrap",
               alignItems: "center",
             }}>
-              <span style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", marginRight: "8px" }}>
+              <span style={{ fontSize: "13px", color: "var(--text-muted)", marginRight: "8px" }}>
                 Mark as:
               </span>
               {(["UNREAD", "READ", "REPLIED", "ARCHIVED"] as const).map((s) => (
@@ -512,13 +512,13 @@ export default function AdminInboxPage() {
                     borderRadius: "6px",
                     border: selectedMessage.status === s
                       ? `1px solid ${STATUS_COLORS[s]}`
-                      : "1px solid rgba(255,255,255,0.15)",
+                      : "1px solid var(--border-color)",
                     background: selectedMessage.status === s
                       ? `${STATUS_COLORS[s]}20`
-                      : "rgba(255,255,255,0.05)",
+                      : "var(--border-subtle)",
                     color: selectedMessage.status === s
                       ? STATUS_COLORS[s]
-                      : "rgba(255,255,255,0.7)",
+                      : "var(--text-secondary)",
                     cursor: selectedMessage.status === s ? "default" : "pointer",
                     fontSize: "13px",
                     fontWeight: "600",
@@ -530,8 +530,8 @@ export default function AdminInboxPage() {
             </div>
 
             {/* Admin Note */}
-            <div style={{ padding: "20px 24px", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-              <label style={{ display: "block", marginBottom: "8px", fontSize: "13px", color: "rgba(255,255,255,0.5)", fontWeight: "600" }}>
+            <div style={{ padding: "20px 24px", borderBottom: "1px solid var(--border-color)" }}>
+              <label style={{ display: "block", marginBottom: "8px", fontSize: "13px", color: "var(--text-muted)", fontWeight: "600" }}>
                 Admin Note
               </label>
               <textarea
@@ -542,10 +542,10 @@ export default function AdminInboxPage() {
                 style={{
                   width: "100%",
                   padding: "10px 14px",
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.15)",
+                  background: "var(--border-subtle)",
+                  border: "1px solid var(--border-color)",
                   borderRadius: "8px",
-                  color: "#fff",
+                  color: "var(--white)",
                   fontSize: "14px",
                   outline: "none",
                   resize: "vertical",
@@ -558,7 +558,7 @@ export default function AdminInboxPage() {
                 style={{
                   padding: "8px 20px",
                   background: "var(--orange)",
-                  color: "#fff",
+                  color: "var(--white)",
                   border: "none",
                   borderRadius: "6px",
                   cursor: saving ? "not-allowed" : "pointer",
@@ -583,7 +583,7 @@ export default function AdminInboxPage() {
                 style={{
                   padding: "10px 20px",
                   background: "#10B981",
-                  color: "#fff",
+                  color: "var(--white)",
                   borderRadius: "8px",
                   textDecoration: "none",
                   fontSize: "14px",

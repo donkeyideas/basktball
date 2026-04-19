@@ -210,7 +210,7 @@ export default function AdminSeoGeoPage() {
                 }}>
                   {overviewData.seoScore}
                 </div>
-                <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "1px" }}>SEO</div>
+                <div style={{ fontSize: "10px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "1px" }}>SEO</div>
               </div>
               <div style={{ textAlign: "center" }}>
                 <div style={{
@@ -221,7 +221,7 @@ export default function AdminSeoGeoPage() {
                 }}>
                   {overviewData.geoScore}
                 </div>
-                <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "1px" }}>GEO</div>
+                <div style={{ fontSize: "10px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "1px" }}>GEO</div>
               </div>
               {aeoCroData && (
                 <>
@@ -234,7 +234,7 @@ export default function AdminSeoGeoPage() {
                     }}>
                       {aeoCroData.aeoScore}
                     </div>
-                    <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "1px" }}>AEO</div>
+                    <div style={{ fontSize: "10px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "1px" }}>AEO</div>
                   </div>
                   <div style={{ textAlign: "center" }}>
                     <div style={{
@@ -245,7 +245,7 @@ export default function AdminSeoGeoPage() {
                     }}>
                       {aeoCroData.croScore}
                     </div>
-                    <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.5)", textTransform: "uppercase", letterSpacing: "1px" }}>CRO</div>
+                    <div style={{ fontSize: "10px", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "1px" }}>CRO</div>
                   </div>
                 </>
               )}
@@ -276,7 +276,7 @@ export default function AdminSeoGeoPage() {
       <div className="admin-content">
         {isLoading ? (
           <div style={{ textAlign: "center", padding: "60px" }}>
-            <p style={{ color: "rgba(255,255,255,0.5)" }}>Analyzing SEO & GEO data...</p>
+            <p style={{ color: "var(--text-muted)" }}>Analyzing SEO & GEO data...</p>
           </div>
         ) : error ? (
           <div style={{ textAlign: "center", padding: "60px" }}>
@@ -302,7 +302,7 @@ export default function AdminSeoGeoPage() {
             {activeTab === "aeo" && (
               aeoCroLoading ? (
                 <div style={{ textAlign: "center", padding: "60px" }}>
-                  <p style={{ color: "rgba(255,255,255,0.5)" }}>Scanning pages for AEO analysis...</p>
+                  <p style={{ color: "var(--text-muted)" }}>Scanning pages for AEO analysis...</p>
                 </div>
               ) : (
                 <AeoAnalysisTab data={aeoCroData as Parameters<typeof AeoAnalysisTab>[0]["data"]} onRescan={handleRescan} />
@@ -311,7 +311,7 @@ export default function AdminSeoGeoPage() {
             {activeTab === "cro" && (
               aeoCroLoading ? (
                 <div style={{ textAlign: "center", padding: "60px" }}>
-                  <p style={{ color: "rgba(255,255,255,0.5)" }}>Scanning pages for CRO analysis...</p>
+                  <p style={{ color: "var(--text-muted)" }}>Scanning pages for CRO analysis...</p>
                 </div>
               ) : (
                 <CroAnalysisTab data={aeoCroData as Parameters<typeof CroAnalysisTab>[0]["data"]} onRescan={handleRescan} />

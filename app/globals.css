@@ -279,6 +279,20 @@ select option {
   background: linear-gradient(135deg, rgba(13, 13, 13, 0.95) 0%, rgba(26, 26, 26, 0.8) 100%);
 }
 
+[data-theme="light"] .hero-overlay {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(245, 245, 245, 0.82) 100%);
+}
+
+[data-theme="light"] .hero h1,
+[data-theme="light"] .hero h1 span {
+  color: #111111;
+  text-shadow: 3px 3px 0 var(--orange);
+}
+
+[data-theme="light"] .hero p {
+  color: #333333;
+}
+
 .hero-content {
   position: relative;
   z-index: 10;
@@ -659,7 +673,7 @@ select option {
   background: var(--card-bg);
   padding: 40px 30px;
   position: relative;
-  border: 2px solid transparent;
+  border: 2px solid var(--border-color);
   transition: all 0.3s ease;
   overflow: hidden;
 }

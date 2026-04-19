@@ -150,12 +150,12 @@ export default function ShotChartPage() {
                   width: "100%",
                   padding: "15px",
                   background: "rgba(0,0,0,0.3)",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  border: "1px solid var(--border-color)",
                   color: "var(--white)",
                   fontSize: "16px"
                 }}
               />
-              {isSearching && <span style={{ position: "absolute", right: "15px", top: "15px", color: "rgba(255,255,255,0.5)" }}>...</span>}
+              {isSearching && <span style={{ position: "absolute", right: "15px", top: "15px", color: "var(--text-muted)" }}>...</span>}
               {players.length > 0 && (
                 <div style={{
                   position: "absolute",
@@ -163,7 +163,7 @@ export default function ShotChartPage() {
                   left: 0,
                   right: 0,
                   background: "var(--dark-gray)",
-                  border: "1px solid rgba(255,255,255,0.1)",
+                  border: "1px solid var(--border-color)",
                   maxHeight: "200px",
                   overflowY: "auto",
                   zIndex: 10
@@ -175,7 +175,7 @@ export default function ShotChartPage() {
                       style={{
                         padding: "12px 15px",
                         cursor: "pointer",
-                        borderBottom: "1px solid rgba(255,255,255,0.05)"
+                        borderBottom: "1px solid var(--border-subtle)"
                       }}
                     >
                       {player.name} {player.team && `(${player.team.abbreviation})`}
@@ -190,7 +190,7 @@ export default function ShotChartPage() {
                   {selectedPlayer.name}
                 </span>
                 {selectedPlayer.team && (
-                  <span style={{ color: "rgba(255,255,255,0.5)", marginLeft: "10px" }}>
+                  <span style={{ color: "var(--text-muted)", marginLeft: "10px" }}>
                     ({selectedPlayer.team.abbreviation})
                   </span>
                 )}
@@ -203,19 +203,19 @@ export default function ShotChartPage() {
               <div style={{
                 width: "40px",
                 height: "40px",
-                border: "3px solid rgba(255,255,255,0.1)",
+                border: "3px solid var(--border-color)",
                 borderTopColor: "var(--orange)",
                 borderRadius: "50%",
                 margin: "0 auto 20px",
                 animation: "spin 1s linear infinite"
               }} />
-              <p style={{ color: "rgba(255,255,255,0.6)" }}>Loading shot chart...</p>
+              <p style={{ color: "var(--text-muted)" }}>Loading shot chart...</p>
               <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
             </div>
           ) : !selectedPlayer ? (
             <div className="section" style={{ textAlign: "center", padding: "60px 20px" }}>
-              <p style={{ color: "rgba(255,255,255,0.6)", marginBottom: "10px" }}>Search for a player to view their shot chart</p>
-              <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "14px" }}>Shot data is generated from player game statistics</p>
+              <p style={{ color: "var(--text-muted)", marginBottom: "10px" }}>Search for a player to view their shot chart</p>
+              <p style={{ color: "var(--text-faint)", fontSize: "14px" }}>Shot data is generated from player game statistics</p>
             </div>
           ) : (
           <div style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: "40px", marginTop: "40px" }}>
@@ -275,7 +275,7 @@ export default function ShotChartPage() {
                       padding: "8px 20px",
                       background: filter === f ? "var(--orange)" : "transparent",
                       border: "1px solid",
-                      borderColor: filter === f ? "var(--orange)" : "rgba(255,255,255,0.2)",
+                      borderColor: filter === f ? "var(--orange)" : "var(--text-faint)",
                       color: "var(--white)",
                       cursor: "pointer",
                       textTransform: "capitalize"
@@ -296,13 +296,13 @@ export default function ShotChartPage() {
                     <div style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "32px", fontWeight: "bold" }}>
                       {stats.percentage}%
                     </div>
-                    <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px" }}>FG%</div>
+                    <div style={{ color: "var(--text-muted)", fontSize: "14px" }}>FG%</div>
                   </div>
                   <div style={{ background: "rgba(0,0,0,0.3)", padding: "20px", textAlign: "center" }}>
                     <div style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "32px", fontWeight: "bold" }}>
                       {stats.made}/{stats.total}
                     </div>
-                    <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px" }}>FGM/FGA</div>
+                    <div style={{ color: "var(--text-muted)", fontSize: "14px" }}>FGM/FGA</div>
                   </div>
                 </div>
               </div>
@@ -360,7 +360,7 @@ export default function ShotChartPage() {
           {selectedPlayer && !isLoading && shots.length > 0 && (
             <p style={{
               textAlign: "center",
-              color: "rgba(255,255,255,0.35)",
+              color: "var(--text-faint)",
               fontSize: "13px",
               fontStyle: "italic",
               marginTop: "20px"

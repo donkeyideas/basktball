@@ -165,6 +165,18 @@ function ThemedStack() {
             options={{ headerShown: false }}
           />
           <Stack.Screen
+            name="tools"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="features"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="feature-guide"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
             name="news"
             options={{ headerShown: false }}
           />

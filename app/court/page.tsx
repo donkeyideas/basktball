@@ -59,7 +59,9 @@ export default function CourtPage() {
   const [composeShowMentions, setComposeShowMentions] = useState(false);
   const [composeShowGif, setComposeShowGif] = useState(false);
   const [composeMediaUrl, setComposeMediaUrl] = useState<string | null>(null);
+  const [composeUploading, setComposeUploading] = useState(false);
   const composeTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const composeFileInputRef = useRef<HTMLInputElement>(null);
 
   // Modal state for Age and Challenge
   const [ageModal, setAgeModal] = useState<{ takeId: string; days: string } | null>(null);
@@ -413,6 +415,48 @@ export default function CourtPage() {
     [composeTagInput, composeTags]
   );
 
+  const handleComposeImageSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = "";
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!allowedTypes.includes(file.type)) {
+      alert("Only JPEG, PNG, WebP, and GIF images are allowed.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Image must be under 10 MB.");
+      return;
+    }
+
+    setComposeUploading(true);
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contentType: file.type, fileSize: file.size }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to get upload URL");
+      }
+      const { uploadUrl, publicUrl } = await res.json();
+      const uploadRes = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+      if (!uploadRes.ok) throw new Error("Upload failed");
+      setComposeMediaUrl(publicUrl);
+    } catch (err) {
+      console.error("Image upload error:", err);
+      alert(err instanceof Error ? err.message : "Failed to upload image.");
+    } finally {
+      setComposeUploading(false);
+    }
+  }, []);
+
   const handleInlinePost = useCallback(async () => {
     if (!composeCanPost) return;
     setComposeSubmitting(true);
@@ -509,7 +553,7 @@ export default function CourtPage() {
             {/* Features Sidebar */}
             <div className="court-features-sidebar" style={{ position: "sticky", top: "140px" }}>
               <div style={{
-                background: "#1A1A1A",
+                background: "var(--dark-gray)",
                 borderRadius: "12px",
                 border: "1px solid #2a2a2a",
                 padding: "20px",
@@ -602,13 +646,13 @@ export default function CourtPage() {
                         fontFamily: FONT,
                         fontWeight: 700,
                         fontSize: "14px",
-                        color: "white",
+                        color: "var(--white)",
                         marginBottom: "4px",
                       }}>{feature.title}</div>
                       <div style={{
                         fontFamily: FONT,
                         fontSize: "13px",
-                        color: "rgba(255,255,255,0.5)",
+                        color: "var(--text-muted)",
                         lineHeight: "1.45",
                       }}>{feature.desc}</div>
                     </div>
@@ -619,7 +663,7 @@ export default function CourtPage() {
               {/* Download the App */}
               {(GOOGLE_PLAY_URL || APP_STORE_URL) && (
                 <div style={{
-                  background: "#1A1A1A",
+                  background: "var(--dark-gray)",
                   borderRadius: "12px",
                   border: "1px solid #2a2a2a",
                   padding: "20px",
@@ -636,7 +680,7 @@ export default function CourtPage() {
                   <p style={{
                     fontFamily: FONT,
                     fontSize: "13px",
-                    color: "rgba(255,255,255,0.5)",
+                    color: "var(--text-muted)",
                     marginBottom: "14px",
                     lineHeight: "1.4",
                   }}>Take your takes on the go. Download BASKTBALL for mobile.</p>
@@ -660,7 +704,7 @@ export default function CourtPage() {
             <div>
               <div style={{ position: "sticky", top: "140px", zIndex: 20 }}>
                 <div style={{
-                  background: "#1A1A1A",
+                  background: "var(--dark-gray)",
                   borderRadius: "12px 12px 0 0",
                   border: "1px solid #2a2a2a",
                   borderBottom: "none",
@@ -677,7 +721,7 @@ export default function CourtPage() {
               {/* Inline Compose Box */}
               {session?.user && (
                 <div style={{
-                  background: "#1A1A1A",
+                  background: "var(--dark-gray)",
                   border: "1px solid #2a2a2a",
                   borderTop: "none",
                   padding: "16px",
@@ -696,7 +740,7 @@ export default function CourtPage() {
                       overflow: "hidden",
                       fontFamily: "var(--font-anton), sans-serif",
                       fontSize: "16px",
-                      color: "#fff",
+                      color: "var(--white)",
                     }}>
                       {session.user.image ? (
                         <img src={session.user.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
@@ -722,7 +766,7 @@ export default function CourtPage() {
                           fontFamily: FONT,
                           fontSize: "15px",
                           lineHeight: 1.45,
-                          color: "rgba(255,255,255,0.9)",
+                          color: "var(--text-primary)",
                           backgroundColor: "transparent",
                           border: "none",
                           outline: "none",
@@ -754,17 +798,35 @@ export default function CourtPage() {
                     />
                   )}
 
-                  {/* GIF Preview */}
+                  {/* Upload progress */}
+                  {composeUploading && (
+                    <div style={{
+                      padding: "8px 0 0 52px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      color: "var(--text-muted)",
+                      fontFamily: FONT,
+                      fontSize: "13px",
+                    }}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" style={{ animation: "spin 1s linear infinite", flexShrink: 0 }}>
+                        <circle cx="8" cy="8" r="6" fill="none" stroke="#FF6B35" strokeWidth="2" strokeDasharray="28" strokeDashoffset="8" strokeLinecap="round" />
+                      </svg>
+                      Uploading image...
+                    </div>
+                  )}
+
+                  {/* Media Preview */}
                   {composeMediaUrl && (
                     <div style={{ padding: "8px 0 0 52px", position: "relative", display: "inline-block" }}>
                       <img
                         src={composeMediaUrl}
-                        alt="GIF"
+                        alt="Attached media"
                         style={{
-                          maxWidth: "200px",
-                          maxHeight: "150px",
-                          borderRadius: "8px",
-                          border: "1px solid rgba(255,255,255,0.1)",
+                          maxWidth: "100%",
+                          maxHeight: "250px",
+                          borderRadius: "12px",
+                          display: "block",
                         }}
                       />
                       <button
@@ -772,13 +834,13 @@ export default function CourtPage() {
                         onClick={() => setComposeMediaUrl(null)}
                         style={{
                           position: "absolute",
-                          top: "12px",
-                          right: "4px",
-                          width: "20px",
-                          height: "20px",
+                          top: "16px",
+                          right: "8px",
+                          width: "24px",
+                          height: "24px",
                           borderRadius: "50%",
                           background: "rgba(0,0,0,0.7)",
-                          color: "#fff",
+                          color: "var(--white)",
                           border: "none",
                           cursor: "pointer",
                           fontSize: "12px",
@@ -818,7 +880,7 @@ export default function CourtPage() {
                           style={{
                             background: "none",
                             border: "none",
-                            color: "rgba(255,255,255,0.4)",
+                            color: "var(--text-faint)",
                             cursor: "pointer",
                             fontSize: "12px",
                             fontFamily: FONT,
@@ -844,9 +906,9 @@ export default function CourtPage() {
                               flex: 1,
                               padding: "8px 12px",
                               borderRadius: "8px",
-                              border: "1px solid rgba(255,255,255,0.12)",
+                              border: "1px solid var(--border-color)",
                               background: "rgba(255,255,255,0.04)",
-                              color: "rgba(255,255,255,0.85)",
+                              color: "var(--text-secondary)",
                               fontFamily: FONT,
                               fontSize: "13px",
                               outline: "none",
@@ -859,7 +921,7 @@ export default function CourtPage() {
                               style={{
                                 background: "none",
                                 border: "none",
-                                color: "rgba(255,255,255,0.3)",
+                                color: "var(--text-faint)",
                                 cursor: "pointer",
                                 fontSize: "16px",
                                 lineHeight: 1,
@@ -897,7 +959,7 @@ export default function CourtPage() {
                           <span style={{
                             fontFamily: FONT,
                             fontSize: "12px",
-                            color: "rgba(255,255,255,0.4)",
+                            color: "var(--text-faint)",
                           }}>
                             Duration:
                           </span>
@@ -907,9 +969,9 @@ export default function CourtPage() {
                             style={{
                               padding: "4px 8px",
                               borderRadius: "6px",
-                              border: "1px solid rgba(255,255,255,0.12)",
-                              background: "#1A1A1A",
-                              color: "rgba(255,255,255,0.7)",
+                              border: "1px solid var(--border-color)",
+                              background: "var(--dark-gray)",
+                              color: "var(--text-secondary)",
                               fontFamily: FONT,
                               fontSize: "12px",
                               outline: "none",
@@ -988,7 +1050,7 @@ export default function CourtPage() {
                           style={{
                             fontFamily: FONT,
                             fontSize: "12px",
-                            color: "rgba(255,255,255,0.6)",
+                            color: "var(--text-muted)",
                             backgroundColor: "transparent",
                             border: "none",
                             outline: "none",
@@ -1019,14 +1081,22 @@ export default function CourtPage() {
                         + Poll
                       </button>
                     )}
+                    <input
+                      ref={composeFileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      style={{ display: "none" }}
+                      onChange={handleComposeImageSelect}
+                    />
                     <button
                       type="button"
-                      onClick={() => setComposeShowGif(!composeShowGif)}
+                      onClick={() => composeFileInputRef.current?.click()}
+                      disabled={!!composeMediaUrl || composeUploading}
                       style={{
-                        background: composeShowGif ? "rgba(255,107,53,0.15)" : "none",
+                        background: "none",
                         border: "1px solid rgba(255,107,53,0.3)",
-                        color: "#FF6B35",
-                        cursor: "pointer",
+                        color: (composeMediaUrl || composeUploading) ? "var(--text-faint)" : "#FF6B35",
+                        cursor: (composeMediaUrl || composeUploading) ? "not-allowed" : "pointer",
                         fontSize: "11px",
                         fontFamily: FONT,
                         fontWeight: 700,
@@ -1035,6 +1105,29 @@ export default function CourtPage() {
                         textTransform: "uppercase",
                         letterSpacing: "0.3px",
                         flexShrink: 0,
+                        opacity: (composeMediaUrl || composeUploading) ? 0.4 : 1,
+                      }}
+                    >
+                      IMG
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setComposeShowGif(!composeShowGif)}
+                      disabled={!!composeMediaUrl || composeUploading}
+                      style={{
+                        background: composeShowGif ? "rgba(255,107,53,0.15)" : "none",
+                        border: "1px solid rgba(255,107,53,0.3)",
+                        color: (composeMediaUrl || composeUploading) ? "var(--text-faint)" : "#FF6B35",
+                        cursor: (composeMediaUrl || composeUploading) ? "not-allowed" : "pointer",
+                        fontSize: "11px",
+                        fontFamily: FONT,
+                        fontWeight: 700,
+                        padding: "3px 10px",
+                        borderRadius: "6px",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.3px",
+                        flexShrink: 0,
+                        opacity: (composeMediaUrl || composeUploading) ? 0.4 : 1,
                       }}
                     >
                       GIF
@@ -1047,7 +1140,7 @@ export default function CourtPage() {
                         ? "#EF4444"
                         : composeCharCount > 1900
                         ? "#F59E0B"
-                        : "rgba(255,255,255,0.35)",
+                        : "var(--text-faint)",
                       flexShrink: 0,
                     }}>
                       {composeCharCount}/2000
@@ -1059,7 +1152,7 @@ export default function CourtPage() {
                         padding: "6px 20px",
                         borderRadius: "20px",
                         background: composeCanPost ? "#FF6B35" : "rgba(255,107,53,0.2)",
-                        color: composeCanPost ? "#fff" : "rgba(255,255,255,0.3)",
+                        color: composeCanPost ? "var(--white)" : "var(--text-faint)",
                         border: "none",
                         fontWeight: "700",
                         fontSize: "13px",
@@ -1077,7 +1170,7 @@ export default function CourtPage() {
               )}
 
               <div style={{
-                background: "#1A1A1A",
+                background: "var(--dark-gray)",
                 borderRadius: "0 0 12px 12px",
                 border: "1px solid #2a2a2a",
                 borderTop: "none",
@@ -1087,7 +1180,7 @@ export default function CourtPage() {
                   <div style={{
                     padding: "60px 20px",
                     textAlign: "center",
-                    color: "rgba(255,255,255,0.35)",
+                    color: "var(--text-faint)",
                     fontFamily: FONT,
                     fontSize: "15px",
                   }}>
@@ -1099,7 +1192,7 @@ export default function CourtPage() {
                     textAlign: "center",
                   }}>
                     <div style={{
-                      color: "rgba(255,255,255,0.5)",
+                      color: "var(--text-muted)",
                       fontFamily: FONT,
                       fontSize: "16px",
                       marginBottom: "12px",
@@ -1112,7 +1205,7 @@ export default function CourtPage() {
                         padding: "8px 24px",
                         borderRadius: "8px",
                         background: "#FF6B35",
-                        color: "#fff",
+                        color: "var(--white)",
                         border: "none",
                         fontWeight: "700",
                         fontSize: "13px",
@@ -1131,7 +1224,7 @@ export default function CourtPage() {
                     textAlign: "center",
                   }}>
                     <div style={{
-                      color: "rgba(255,255,255,0.5)",
+                      color: "var(--text-muted)",
                       fontFamily: FONT,
                       fontSize: "16px",
                       marginBottom: "8px",
@@ -1139,7 +1232,7 @@ export default function CourtPage() {
                       {activeTab === "LIVE" ? "No live takes yet" : "No takes yet"}
                     </div>
                     <div style={{
-                      color: "rgba(255,255,255,0.3)",
+                      color: "var(--text-faint)",
                       fontFamily: FONT,
                       fontSize: "14px",
                     }}>
@@ -1169,7 +1262,7 @@ export default function CourtPage() {
                               borderRadius: "8px",
                               background: "rgba(255,107,53,0.1)",
                               border: "1px solid rgba(255,107,53,0.3)",
-                              color: "#fff",
+                              color: "var(--white)",
                               fontFamily: FONT,
                               fontSize: "14px",
                               fontWeight: "600",
@@ -1177,7 +1270,7 @@ export default function CourtPage() {
                             }}
                           >
                             <span>{game.awayTeam.abbreviation}</span>
-                            <span style={{ color: "rgba(255,255,255,0.3)" }}>@</span>
+                            <span style={{ color: "var(--text-faint)" }}>@</span>
                             <span>{game.homeTeam.abbreviation}</span>
                             <span style={{
                               color: "#FF6B35",
@@ -1247,7 +1340,7 @@ export default function CourtPage() {
               {/* Live Scores */}
               {liveGames.length > 0 && (
                 <div style={{
-                  background: "#1A1A1A",
+                  background: "var(--dark-gray)",
                   borderRadius: "12px",
                   border: "1px solid #2a2a2a",
                   padding: "20px",
@@ -1298,7 +1391,7 @@ export default function CourtPage() {
                         alignItems: "center",
                         justifyContent: "space-between",
                         padding: "8px 0",
-                        borderBottom: "1px solid rgba(255,255,255,0.05)",
+                        borderBottom: "1px solid var(--border-subtle)",
                         textDecoration: "none",
                         transition: "opacity 0.15s",
                       }}
@@ -1313,7 +1406,7 @@ export default function CourtPage() {
                               fontFamily: FONT,
                               fontSize: "13px",
                               fontWeight: 600,
-                              color: game.awayScore > game.homeScore ? "#fff" : "rgba(255,255,255,0.5)",
+                              color: game.awayScore > game.homeScore ? "var(--white)" : "var(--text-muted)",
                             }}>
                               {game.awayTeam.abbreviation}
                             </span>
@@ -1322,7 +1415,7 @@ export default function CourtPage() {
                             fontFamily: "var(--font-mono), monospace",
                             fontSize: "13px",
                             fontWeight: 700,
-                            color: game.awayScore > game.homeScore ? "#fff" : "rgba(255,255,255,0.5)",
+                            color: game.awayScore > game.homeScore ? "var(--white)" : "var(--text-muted)",
                           }}>
                             {game.awayScore}
                           </span>
@@ -1336,7 +1429,7 @@ export default function CourtPage() {
                               fontFamily: FONT,
                               fontSize: "13px",
                               fontWeight: 600,
-                              color: game.homeScore > game.awayScore ? "#fff" : "rgba(255,255,255,0.5)",
+                              color: game.homeScore > game.awayScore ? "var(--white)" : "var(--text-muted)",
                             }}>
                               {game.homeTeam.abbreviation}
                             </span>
@@ -1345,7 +1438,7 @@ export default function CourtPage() {
                             fontFamily: "var(--font-mono), monospace",
                             fontSize: "13px",
                             fontWeight: 700,
-                            color: game.homeScore > game.awayScore ? "#fff" : "rgba(255,255,255,0.5)",
+                            color: game.homeScore > game.awayScore ? "var(--white)" : "var(--text-muted)",
                           }}>
                             {game.homeScore}
                           </span>
@@ -1356,7 +1449,7 @@ export default function CourtPage() {
                           fontFamily: FONT,
                           fontSize: "10px",
                           fontWeight: 700,
-                          color: game.status === "live" ? "#22c55e" : "rgba(255,255,255,0.4)",
+                          color: game.status === "live" ? "#22c55e" : "var(--text-faint)",
                           textTransform: "uppercase",
                         }}>
                           {game.status === "live" ? (game.quarter || "LIVE") : game.status === "final" ? "FINAL" : ""}
@@ -1365,7 +1458,7 @@ export default function CourtPage() {
                           <div style={{
                             fontFamily: "var(--font-mono), monospace",
                             fontSize: "10px",
-                            color: "rgba(255,255,255,0.5)",
+                            color: "var(--text-muted)",
                           }}>
                             {game.clock}
                           </div>
@@ -1396,7 +1489,7 @@ export default function CourtPage() {
               {/* Active Challenges */}
               {activeChallenges.length > 0 && (
                 <div style={{
-                  background: "#1A1A1A",
+                  background: "var(--dark-gray)",
                   borderRadius: "12px",
                   border: "1px solid #2a2a2a",
                   padding: "20px",
@@ -1416,7 +1509,7 @@ export default function CourtPage() {
                     <Link key={c.id} href={`/court/challenge/${c.id}`} style={{ display: "block", padding: "10px 0", borderTop: "1px solid #2a2a2a", textDecoration: "none" }}>
                       <div style={{
                         fontSize: "13px",
-                        color: "#fff",
+                        color: "var(--white)",
                         fontFamily: FONT,
                         fontWeight: 600,
                         marginBottom: "6px",
@@ -1431,7 +1524,7 @@ export default function CourtPage() {
                         fontSize: "12px",
                         fontFamily: FONT,
                       }}>
-                        <span style={{ color: "rgba(255,255,255,0.5)" }}>
+                        <span style={{ color: "var(--text-muted)" }}>
                           {c.challenger.displayName || c.challenger.name} vs {c.challenged.displayName || c.challenged.name}
                         </span>
                         <span style={{
@@ -1448,7 +1541,7 @@ export default function CourtPage() {
                           marginTop: "6px",
                           height: "4px",
                           borderRadius: "2px",
-                          background: "#333",
+                          background: "var(--border-color)",
                           overflow: "hidden",
                           display: "flex",
                         }}>
@@ -1466,7 +1559,7 @@ export default function CourtPage() {
 
               {/* Latest News */}
               <div style={{
-                background: "#1A1A1A",
+                background: "var(--dark-gray)",
                 borderRadius: "12px",
                 border: "1px solid #2a2a2a",
                 padding: "20px",
@@ -1483,7 +1576,7 @@ export default function CourtPage() {
                   Latest News
                 </h3>
                 {newsArticles.length === 0 ? (
-                  <div style={{ color: "rgba(255,255,255,0.3)", fontSize: "13px", fontFamily: FONT }}>
+                  <div style={{ color: "var(--text-faint)", fontSize: "13px", fontFamily: FONT }}>
                     Loading news...
                   </div>
                 ) : (
@@ -1498,7 +1591,7 @@ export default function CourtPage() {
                           display: "flex",
                           gap: "10px",
                           padding: "10px 0",
-                          borderBottom: "1px solid rgba(255,255,255,0.05)",
+                          borderBottom: "1px solid var(--border-subtle)",
                           textDecoration: "none",
                           color: "inherit",
                         }}
@@ -1535,7 +1628,7 @@ export default function CourtPage() {
                             fontFamily: FONT,
                             fontSize: "13px",
                             fontWeight: "600",
-                            color: "#fff",
+                            color: "var(--white)",
                             lineHeight: "1.3",
                             display: "-webkit-box",
                             WebkitLineClamp: 2,
@@ -1547,7 +1640,7 @@ export default function CourtPage() {
                           <div style={{
                             fontFamily: FONT,
                             fontSize: "11px",
-                            color: "rgba(255,255,255,0.35)",
+                            color: "var(--text-faint)",
                             marginTop: "4px",
                           }}>
                             {article.source}
@@ -1577,7 +1670,7 @@ export default function CourtPage() {
               {/* Who to Follow */}
               {suggestedUsers.length > 0 && (
                 <div style={{
-                  background: "#1A1A1A",
+                  background: "var(--dark-gray)",
                   borderRadius: "12px",
                   border: "1px solid #2a2a2a",
                   padding: "20px",
@@ -1600,7 +1693,7 @@ export default function CourtPage() {
                         alignItems: "center",
                         justifyContent: "space-between",
                         padding: "8px 0",
-                        borderBottom: "1px solid rgba(255,255,255,0.05)",
+                        borderBottom: "1px solid var(--border-subtle)",
                       }}
                     >
                       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
@@ -1614,7 +1707,7 @@ export default function CourtPage() {
                           justifyContent: "center",
                           fontSize: "13px",
                           fontWeight: "700",
-                          color: "#fff",
+                          color: "var(--white)",
                           overflow: "hidden",
                         }}>
                           {(user.avatarUrl || user.image)
@@ -1622,10 +1715,10 @@ export default function CourtPage() {
                             : (user.name || "?").charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <div style={{ fontFamily: FONT, fontSize: "13px", fontWeight: "700", color: "#fff" }}>
+                          <div style={{ fontFamily: FONT, fontSize: "13px", fontWeight: "700", color: "var(--white)" }}>
                             {user.name}
                           </div>
-                          <div style={{ fontFamily: FONT, fontSize: "11px", color: "rgba(255,255,255,0.35)" }}>
+                          <div style={{ fontFamily: FONT, fontSize: "11px", color: "var(--text-faint)" }}>
                             {user.takeCount} takes
                           </div>
                         </div>
@@ -1636,9 +1729,9 @@ export default function CourtPage() {
                         style={{
                           padding: "4px 14px",
                           borderRadius: "6px",
-                          border: followedIds.has(user.id) ? "1px solid rgba(255,255,255,0.2)" : "1px solid rgba(255,107,53,0.4)",
-                          background: followedIds.has(user.id) ? "rgba(255,255,255,0.1)" : "transparent",
-                          color: followedIds.has(user.id) ? "rgba(255,255,255,0.6)" : "#FF6B35",
+                          border: followedIds.has(user.id) ? "1px solid var(--border-color)" : "1px solid rgba(255,107,53,0.4)",
+                          background: followedIds.has(user.id) ? "var(--border-color)" : "transparent",
+                          color: followedIds.has(user.id) ? "var(--text-muted)" : "#FF6B35",
                           fontSize: "11px",
                           fontWeight: "700",
                           fontFamily: FONT,
@@ -1690,12 +1783,12 @@ export default function CourtPage() {
         {ageModal && (
           <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }} onClick={() => setAgeModal(null)}>
             <div
-              style={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "16px", padding: "28px", width: "100%", maxWidth: "400px", boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }}
+              style={{ background: "var(--dark-gray)", border: "1px solid var(--border-color)", borderRadius: "16px", padding: "28px", width: "100%", maxWidth: "400px", boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }}
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 style={{ fontFamily: "var(--font-anton), sans-serif", fontSize: "18px", color: "white", marginBottom: "6px" }}>AGE THIS TAKE</h3>
-              <p style={{ fontFamily: FONT, fontSize: "13px", color: "rgba(255,255,255,0.5)", marginBottom: "20px" }}>Set a revisit date. This take will resurface for the community to re-evaluate.</p>
-              <label style={{ fontFamily: FONT, fontSize: "13px", color: "rgba(255,255,255,0.6)", display: "block", marginBottom: "8px" }}>Revisit in how many days?</label>
+              <h3 style={{ fontFamily: "var(--font-anton), sans-serif", fontSize: "18px", color: "var(--white)", marginBottom: "6px" }}>AGE THIS TAKE</h3>
+              <p style={{ fontFamily: FONT, fontSize: "13px", color: "var(--text-muted)", marginBottom: "20px" }}>Set a revisit date. This take will resurface for the community to re-evaluate.</p>
+              <label style={{ fontFamily: FONT, fontSize: "13px", color: "var(--text-muted)", display: "block", marginBottom: "8px" }}>Revisit in how many days?</label>
               <input
                 type="number"
                 min="1"
@@ -1704,10 +1797,10 @@ export default function CourtPage() {
                 onChange={(e) => setAgeModal({ ...ageModal, days: e.target.value })}
                 autoFocus
                 onKeyDown={(e) => { if (e.key === "Enter") submitAge(); }}
-                style={{ width: "100%", padding: "10px 14px", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", color: "white", fontSize: "16px", fontFamily: FONT }}
+                style={{ width: "100%", padding: "10px 14px", background: "rgba(0,0,0,0.4)", border: "1px solid var(--border-color)", borderRadius: "8px", color: "var(--white)", fontSize: "16px", fontFamily: FONT }}
               />
               <div style={{ display: "flex", gap: "10px", marginTop: "20px", justifyContent: "flex-end" }}>
-                <button onClick={() => setAgeModal(null)} style={{ padding: "8px 20px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "rgba(255,255,255,0.7)", cursor: "pointer", fontSize: "13px", fontFamily: FONT, fontWeight: 600 }}>Cancel</button>
+                <button onClick={() => setAgeModal(null)} style={{ padding: "8px 20px", background: "var(--border-subtle)", border: "1px solid var(--border-color)", borderRadius: "8px", color: "var(--text-secondary)", cursor: "pointer", fontSize: "13px", fontFamily: FONT, fontWeight: 600 }}>Cancel</button>
                 <button onClick={submitAge} disabled={!ageModal.days || parseInt(ageModal.days) < 1} style={{ padding: "8px 20px", background: "#FF6B35", border: "none", borderRadius: "8px", color: "black", cursor: "pointer", fontSize: "13px", fontFamily: FONT, fontWeight: 700, opacity: !ageModal.days || parseInt(ageModal.days) < 1 ? 0.5 : 1 }}>Age It</button>
               </div>
             </div>
@@ -1718,12 +1811,12 @@ export default function CourtPage() {
         {challengeModal && (
           <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }} onClick={() => setChallengeModal(null)}>
             <div
-              style={{ background: "#1a1a1a", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "16px", padding: "28px", width: "100%", maxWidth: "440px", boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }}
+              style={{ background: "var(--dark-gray)", border: "1px solid var(--border-color)", borderRadius: "16px", padding: "28px", width: "100%", maxWidth: "440px", boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }}
               onClick={(e) => e.stopPropagation()}
             >
-              <h3 style={{ fontFamily: "var(--font-anton), sans-serif", fontSize: "18px", color: "white", marginBottom: "6px" }}>CHALLENGE</h3>
-              <p style={{ fontFamily: FONT, fontSize: "13px", color: "rgba(255,255,255,0.5)", marginBottom: "20px" }}>Challenge this user to a head-to-head debate. The community votes on who wins.</p>
-              <label style={{ fontFamily: FONT, fontSize: "13px", color: "rgba(255,255,255,0.6)", display: "block", marginBottom: "8px" }}>What&apos;s the debate topic?</label>
+              <h3 style={{ fontFamily: "var(--font-anton), sans-serif", fontSize: "18px", color: "var(--white)", marginBottom: "6px" }}>CHALLENGE</h3>
+              <p style={{ fontFamily: FONT, fontSize: "13px", color: "var(--text-muted)", marginBottom: "20px" }}>Challenge this user to a head-to-head debate. The community votes on who wins.</p>
+              <label style={{ fontFamily: FONT, fontSize: "13px", color: "var(--text-muted)", display: "block", marginBottom: "8px" }}>What&apos;s the debate topic?</label>
               <input
                 type="text"
                 value={challengeModal.topic}
@@ -1731,10 +1824,10 @@ export default function CourtPage() {
                 placeholder="e.g. LeBron vs Jordan, Best PG in the league..."
                 autoFocus
                 onKeyDown={(e) => { if (e.key === "Enter") submitChallenge(); }}
-                style={{ width: "100%", padding: "10px 14px", background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", color: "white", fontSize: "14px", fontFamily: FONT }}
+                style={{ width: "100%", padding: "10px 14px", background: "rgba(0,0,0,0.4)", border: "1px solid var(--border-color)", borderRadius: "8px", color: "var(--white)", fontSize: "14px", fontFamily: FONT }}
               />
               <div style={{ display: "flex", gap: "10px", marginTop: "20px", justifyContent: "flex-end" }}>
-                <button onClick={() => setChallengeModal(null)} style={{ padding: "8px 20px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px", color: "rgba(255,255,255,0.7)", cursor: "pointer", fontSize: "13px", fontFamily: FONT, fontWeight: 600 }}>Cancel</button>
+                <button onClick={() => setChallengeModal(null)} style={{ padding: "8px 20px", background: "var(--border-subtle)", border: "1px solid var(--border-color)", borderRadius: "8px", color: "var(--text-secondary)", cursor: "pointer", fontSize: "13px", fontFamily: FONT, fontWeight: 600 }}>Cancel</button>
                 <button onClick={submitChallenge} disabled={!challengeModal.topic.trim()} style={{ padding: "8px 20px", background: "#FF6B35", border: "none", borderRadius: "8px", color: "black", cursor: "pointer", fontSize: "13px", fontFamily: FONT, fontWeight: 700, opacity: !challengeModal.topic.trim() ? 0.5 : 1 }}>Send Challenge</button>
               </div>
             </div>

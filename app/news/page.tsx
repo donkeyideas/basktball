@@ -88,7 +88,7 @@ export default function NewsPage() {
           </h1>
           <p style={{
             textAlign: "center",
-            color: "rgba(255,255,255,0.4)",
+            color: "var(--text-faint)",
             fontSize: "14px",
             marginBottom: "40px",
             letterSpacing: "1px",
@@ -101,11 +101,11 @@ export default function NewsPage() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))", gap: "30px" }}>
               {[1, 2, 3, 4, 5, 6].map(i => (
                 <div key={i} style={{ background: "var(--dark-gray)", opacity: 0.5, overflow: "hidden" }}>
-                  <div style={{ height: "180px", background: "rgba(255,255,255,0.05)" }} />
+                  <div style={{ height: "180px", background: "var(--input-bg)" }} />
                   <div style={{ padding: "20px" }}>
-                    <div style={{ height: "20px", background: "rgba(255,255,255,0.1)", marginBottom: "15px", width: "80px" }} />
-                    <div style={{ height: "28px", background: "rgba(255,255,255,0.1)", marginBottom: "12px" }} />
-                    <div style={{ height: "60px", background: "rgba(255,255,255,0.05)" }} />
+                    <div style={{ height: "20px", background: "var(--border-color)", marginBottom: "15px", width: "80px" }} />
+                    <div style={{ height: "28px", background: "var(--border-color)", marginBottom: "12px" }} />
+                    <div style={{ height: "60px", background: "var(--input-bg)" }} />
                   </div>
                 </div>
               ))}
@@ -116,7 +116,7 @@ export default function NewsPage() {
             </div>
           ) : articles.length === 0 ? (
             <div style={{ textAlign: "center", padding: "60px" }}>
-              <p style={{ color: "rgba(255,255,255,0.5)" }}>No news articles found.</p>
+              <p style={{ color: "var(--text-muted)" }}>No news articles found.</p>
             </div>
           ) : (
             <>
@@ -130,7 +130,7 @@ export default function NewsPage() {
                     <article
                       style={{
                         background: "var(--dark-gray)",
-                        border: "1px solid rgba(255,255,255,0.1)",
+                        border: "1px solid var(--border-color)",
                         height: "100%",
                         display: "flex",
                         flexDirection: "column",
@@ -143,12 +143,12 @@ export default function NewsPage() {
                         e.currentTarget.style.transform = "translateY(-2px)";
                       }}
                       onMouseOut={e => {
-                        e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+                        e.currentTarget.style.borderColor = "var(--border-color)";
                         e.currentTarget.style.transform = "translateY(0)";
                       }}
                     >
                       {/* Image */}
-                      <div style={{ width: "100%", height: "180px", overflow: "hidden", background: "rgba(255,255,255,0.03)" }}>
+                      <div style={{ width: "100%", height: "180px", overflow: "hidden", background: "var(--input-bg)" }}>
                         {article.imageUrl ? (
                           <img
                             src={article.imageUrl}
@@ -160,7 +160,7 @@ export default function NewsPage() {
                                 p.style.display = "flex";
                                 p.style.alignItems = "center";
                                 p.style.justifyContent = "center";
-                                p.innerHTML = `<span style="font-family:Anton,sans-serif;font-size:42px;color:rgba(255,255,255,0.06)">${LEAGUE_LABELS[article.league] || article.league.toUpperCase()}</span>`;
+                                p.innerHTML = `<span style="font-family:Anton,sans-serif;font-size:42px;color:var(--border-subtle)">${LEAGUE_LABELS[article.league] || article.league.toUpperCase()}</span>`;
                               }
                             }}
                           />
@@ -169,7 +169,7 @@ export default function NewsPage() {
                             width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center",
                             background: "linear-gradient(135deg, rgba(255,107,53,0.05) 0%, transparent 100%)",
                           }}>
-                            <span style={{ fontFamily: "var(--font-anton), Anton, sans-serif", fontSize: "42px", color: "rgba(255,255,255,0.06)" }}>
+                            <span style={{ fontFamily: "var(--font-anton), Anton, sans-serif", fontSize: "42px", color: "var(--border-subtle)" }}>
                               {LEAGUE_LABELS[article.league] || article.league.toUpperCase()}
                             </span>
                           </div>
@@ -187,7 +187,7 @@ export default function NewsPage() {
                           }}>
                             {LEAGUE_LABELS[article.league] || article.league.toUpperCase()}
                           </span>
-                          <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "11px", fontFamily: "var(--font-roboto-mono), monospace" }}>
+                          <span style={{ color: "var(--text-faint)", fontSize: "11px", fontFamily: "var(--font-roboto-mono), monospace" }}>
                             {timeAgo(article.pubDate)}
                           </span>
                         </div>
@@ -197,7 +197,7 @@ export default function NewsPage() {
                         </h3>
 
                         <p style={{
-                          color: "rgba(255,255,255,0.7)", fontSize: "14px", lineHeight: "1.6", flex: 1,
+                          color: "var(--text-secondary)", fontSize: "14px", lineHeight: "1.6", flex: 1,
                           overflow: "hidden", display: "-webkit-box",
                           WebkitLineClamp: 3, WebkitBoxOrient: "vertical",
                         }}>
@@ -205,12 +205,12 @@ export default function NewsPage() {
                         </p>
 
                         <div style={{
-                          marginTop: "15px", paddingTop: "12px", borderTop: "1px solid rgba(255,255,255,0.06)",
+                          marginTop: "15px", paddingTop: "12px", borderTop: "1px solid var(--border-subtle)",
                           display: "flex", justifyContent: "space-between", alignItems: "center",
                         }}>
                           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                            <span style={{ color: "rgba(255,255,255,0.35)", fontSize: "12px" }}>via</span>
-                            <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "12px", fontWeight: "600" }}>{article.source}</span>
+                            <span style={{ color: "var(--text-faint)", fontSize: "12px" }}>via</span>
+                            <span style={{ color: "var(--text-muted)", fontSize: "12px", fontWeight: "600" }}>{article.source}</span>
                           </div>
                           <span style={{ color: "var(--orange)", fontSize: "12px", fontWeight: "600" }}>
                             Read Full Article &rarr;
@@ -237,9 +237,9 @@ export default function NewsPage() {
                     disabled={page === 1}
                     style={{
                       padding: "10px 20px",
-                      background: page === 1 ? "rgba(255,255,255,0.05)" : "var(--dark-gray)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: page === 1 ? "rgba(255,255,255,0.2)" : "var(--white)",
+                      background: page === 1 ? "var(--input-bg)" : "var(--dark-gray)",
+                      border: "1px solid var(--border-color)",
+                      color: page === 1 ? "var(--text-faint)" : "var(--white)",
                       fontFamily: "var(--font-inter), sans-serif",
                       fontSize: "14px",
                       fontWeight: "600",
@@ -262,7 +262,7 @@ export default function NewsPage() {
                         justifyContent: "center",
                         background: page === p ? "var(--orange)" : "var(--dark-gray)",
                         border: "1px solid",
-                        borderColor: page === p ? "var(--orange)" : "rgba(255,255,255,0.1)",
+                        borderColor: page === p ? "var(--orange)" : "var(--border-color)",
                         color: "var(--white)",
                         fontFamily: "var(--font-inter), sans-serif",
                         fontSize: "14px",
@@ -279,9 +279,9 @@ export default function NewsPage() {
                     disabled={page === totalPages}
                     style={{
                       padding: "10px 20px",
-                      background: page === totalPages ? "rgba(255,255,255,0.05)" : "var(--dark-gray)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: page === totalPages ? "rgba(255,255,255,0.2)" : "var(--white)",
+                      background: page === totalPages ? "var(--input-bg)" : "var(--dark-gray)",
+                      border: "1px solid var(--border-color)",
+                      color: page === totalPages ? "var(--text-faint)" : "var(--white)",
                       fontFamily: "var(--font-inter), sans-serif",
                       fontSize: "14px",
                       fontWeight: "600",
@@ -297,7 +297,7 @@ export default function NewsPage() {
               {/* Page info */}
               <p style={{
                 textAlign: "center",
-                color: "rgba(255,255,255,0.3)",
+                color: "var(--text-faint)",
                 fontSize: "12px",
                 marginTop: "15px",
                 fontFamily: "var(--font-roboto-mono), monospace",

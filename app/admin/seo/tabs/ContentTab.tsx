@@ -128,12 +128,12 @@ export default function ContentTab({ data }: { data: AnalysisData }) {
                       <Cell key={`cell-${index}`} fill={FRESHNESS_COLORS[index % FRESHNESS_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px" }} />
+                  <Tooltip contentStyle={{ background: "#1a1a2e", border: "1px solid var(--border-color)", borderRadius: "8px" }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <p style={{ color: "rgba(255,255,255,0.5)", textAlign: "center", padding: "40px 0" }}>No articles to analyze</p>
+            <p style={{ color: "var(--text-muted)", textAlign: "center", padding: "40px 0" }}>No articles to analyze</p>
           )}
         </div>
 
@@ -144,16 +144,16 @@ export default function ContentTab({ data }: { data: AnalysisData }) {
             <div style={{ width: "100%", height: 280 }}>
               <ResponsiveContainer>
                 <BarChart data={keywordData} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis type="number" tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }} />
-                  <YAxis dataKey="keyword" type="category" width={120} tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 11 }} />
-                  <Tooltip contentStyle={{ background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px" }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                  <XAxis type="number" tick={{ fill: "var(--text-muted)", fontSize: 10 }} />
+                  <YAxis dataKey="keyword" type="category" width={120} tick={{ fill: "var(--text-secondary)", fontSize: 11 }} />
+                  <Tooltip contentStyle={{ background: "#1a1a2e", border: "1px solid var(--border-color)", borderRadius: "8px" }} />
                   <Bar dataKey="count" fill="#4A90D9" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           ) : (
-            <p style={{ color: "rgba(255,255,255,0.5)", textAlign: "center", padding: "40px 0" }}>
+            <p style={{ color: "var(--text-muted)", textAlign: "center", padding: "40px 0" }}>
               No keyword data. Add keywords to articles.
             </p>
           )}
@@ -166,19 +166,19 @@ export default function ContentTab({ data }: { data: AnalysisData }) {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "15px" }}>
           <div style={{ background: "rgba(76,175,80,0.1)", padding: "16px", textAlign: "center", borderRadius: "6px" }}>
             <div style={{ fontSize: "24px", fontWeight: 700, fontFamily: "var(--font-roboto-mono), monospace", color: "var(--green)" }}>{goodMetaDesc}</div>
-            <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)", marginTop: "4px" }}>Good (120-160 chars)</div>
+            <div style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "4px" }}>Good (120-160 chars)</div>
           </div>
           <div style={{ background: "rgba(255,152,0,0.1)", padding: "16px", textAlign: "center", borderRadius: "6px" }}>
             <div style={{ fontSize: "24px", fontWeight: 700, fontFamily: "var(--font-roboto-mono), monospace", color: "var(--yellow)" }}>{shortMetaDesc}</div>
-            <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)", marginTop: "4px" }}>Short (&lt; 120 chars)</div>
+            <div style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "4px" }}>Short (&lt; 120 chars)</div>
           </div>
           <div style={{ background: "rgba(255,152,0,0.1)", padding: "16px", textAlign: "center", borderRadius: "6px" }}>
             <div style={{ fontSize: "24px", fontWeight: 700, fontFamily: "var(--font-roboto-mono), monospace", color: "var(--yellow)" }}>{longMetaDesc}</div>
-            <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)", marginTop: "4px" }}>Long (&gt; 160 chars)</div>
+            <div style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "4px" }}>Long (&gt; 160 chars)</div>
           </div>
           <div style={{ background: "rgba(244,67,54,0.1)", padding: "16px", textAlign: "center", borderRadius: "6px" }}>
             <div style={{ fontSize: "24px", fontWeight: 700, fontFamily: "var(--font-roboto-mono), monospace", color: "var(--red)" }}>{noMetaDesc}</div>
-            <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)", marginTop: "4px" }}>Missing</div>
+            <div style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "4px" }}>Missing</div>
           </div>
         </div>
       </div>
@@ -212,7 +212,7 @@ export default function ContentTab({ data }: { data: AnalysisData }) {
                 <tr key={page.id}>
                   <td>
                     <div style={{ fontWeight: 600, fontSize: "13px" }}>{page.title}</div>
-                    <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>{page.path}</div>
+                    <div style={{ fontSize: "11px", color: "var(--text-faint)" }}>{page.path}</div>
                   </td>
                   <td style={{
                     fontFamily: "var(--font-roboto-mono), monospace",
@@ -259,7 +259,7 @@ export default function ContentTab({ data }: { data: AnalysisData }) {
             })}
             {articles.length === 0 && (
               <tr>
-                <td colSpan={7} style={{ textAlign: "center", color: "rgba(255,255,255,0.5)" }}>
+                <td colSpan={7} style={{ textAlign: "center", color: "var(--text-muted)" }}>
                   No articles to analyze. Publish articles to see content quality scores.
                 </td>
               </tr>

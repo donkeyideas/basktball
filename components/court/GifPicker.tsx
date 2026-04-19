@@ -83,8 +83,8 @@ export default function GifPicker({ onSelect, onClose }: GifPickerProps) {
           transform: "translate(-50%, -50%)",
           width: "min(480px, 90vw)",
           maxHeight: "70vh",
-          backgroundColor: "#1A1A1A",
-          border: "1px solid rgba(255,255,255,0.15)",
+          backgroundColor: "var(--dark-gray)",
+          border: "1px solid var(--border-color)",
           borderRadius: "16px",
           display: "flex",
           flexDirection: "column",
@@ -100,7 +100,7 @@ export default function GifPicker({ onSelect, onClose }: GifPickerProps) {
             alignItems: "center",
             gap: "10px",
             padding: "14px 16px",
-            borderBottom: "1px solid rgba(255,255,255,0.08)",
+            borderBottom: "1px solid var(--border-subtle)",
           }}
         >
           <span style={{
@@ -121,9 +121,9 @@ export default function GifPicker({ onSelect, onClose }: GifPickerProps) {
               flex: 1,
               padding: "8px 12px",
               borderRadius: "8px",
-              border: "1px solid rgba(255,255,255,0.12)",
+              border: "1px solid var(--border-color)",
               background: "rgba(255,255,255,0.04)",
-              color: "rgba(255,255,255,0.85)",
+              color: "var(--text-secondary)",
               fontFamily: "var(--font-inter), sans-serif",
               fontSize: "14px",
               outline: "none",
@@ -135,7 +135,7 @@ export default function GifPicker({ onSelect, onClose }: GifPickerProps) {
             style={{
               background: "none",
               border: "none",
-              color: "rgba(255,255,255,0.5)",
+              color: "var(--text-muted)",
               cursor: "pointer",
               fontSize: "22px",
               lineHeight: 1,
@@ -158,12 +158,12 @@ export default function GifPicker({ onSelect, onClose }: GifPickerProps) {
           }}
         >
           {loading && gifs.length === 0 && (
-            <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "30px", color: "rgba(255,255,255,0.4)", fontSize: "14px", fontFamily: "var(--font-inter), sans-serif" }}>
+            <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "30px", color: "var(--text-faint)", fontSize: "14px", fontFamily: "var(--font-inter), sans-serif" }}>
               Loading...
             </div>
           )}
           {!loading && gifs.length === 0 && query && (
-            <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "30px", color: "rgba(255,255,255,0.4)", fontSize: "14px", fontFamily: "var(--font-inter), sans-serif" }}>
+            <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "30px", color: "var(--text-faint)", fontSize: "14px", fontFamily: "var(--font-inter), sans-serif" }}>
               No GIFs found
             </div>
           )}
@@ -201,10 +201,10 @@ export default function GifPicker({ onSelect, onClose }: GifPickerProps) {
         <div
           style={{
             padding: "8px 16px",
-            borderTop: "1px solid rgba(255,255,255,0.08)",
+            borderTop: "1px solid var(--border-subtle)",
             textAlign: "right",
             fontSize: "11px",
-            color: "rgba(255,255,255,0.3)",
+            color: "var(--text-faint)",
             fontFamily: "var(--font-inter), sans-serif",
           }}
         >

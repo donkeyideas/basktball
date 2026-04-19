@@ -100,7 +100,7 @@ function TeamLogo({ team }: { team: GameTeam }) {
       fontFamily: "var(--font-anton), Anton, sans-serif",
       fontSize: "14px",
       color: "var(--white)",
-      background: "rgba(255,255,255,0.1)",
+      background: "var(--border-color)",
       borderRadius: "4px",
       flexShrink: 0,
     }}>
@@ -137,7 +137,7 @@ function GameCard({ game, league }: { game: Game; league: string }) {
         background: "var(--dark-gray)",
         border: isLive
           ? "2px solid var(--orange)"
-          : "1px solid rgba(255,255,255,0.1)",
+          : "1px solid var(--border-color)",
         borderRadius: "8px",
         padding: "20px",
         cursor: "pointer",
@@ -152,7 +152,7 @@ function GameCard({ game, league }: { game: Game; league: string }) {
           (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
           (e.currentTarget as HTMLDivElement).style.borderColor = isLive
             ? "var(--orange)"
-            : "rgba(255,255,255,0.1)";
+            : "var(--border-color)";
         }}
       >
         {/* Status badge */}
@@ -184,10 +184,10 @@ function GameCard({ game, league }: { game: Game; league: string }) {
             </span>
           )}
           {isFinal && (
-            <span style={{ color: "rgba(255,255,255,0.5)" }}>FINAL</span>
+            <span style={{ color: "var(--text-muted)" }}>FINAL</span>
           )}
           {isScheduled && (
-            <span style={{ color: "rgba(255,255,255,0.5)" }}>{tipOffTime}</span>
+            <span style={{ color: "var(--text-muted)" }}>{tipOffTime}</span>
           )}
         </div>
 
@@ -258,16 +258,16 @@ function GameCard({ game, league }: { game: Game; league: string }) {
             gap: "6px",
             marginTop: "8px",
             paddingTop: "8px",
-            borderTop: "1px solid rgba(255,255,255,0.06)",
+            borderTop: "1px solid var(--border-subtle)",
           }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-faint)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="2" y="7" width="20" height="15" rx="2" ry="2" />
               <polyline points="17 2 12 7 7 2" />
             </svg>
             <span style={{
               fontFamily: "var(--font-roboto-mono), monospace",
               fontSize: "11px",
-              color: "rgba(255,255,255,0.4)",
+              color: "var(--text-faint)",
               letterSpacing: "0.5px",
             }}>
               {game.broadcast}
@@ -363,7 +363,7 @@ export default function ScoresPage() {
               }}></span>
             </h1>
             <p style={{
-              color: "rgba(255,255,255,0.5)",
+              color: "var(--text-muted)",
               fontSize: "15px",
               maxWidth: "650px",
               margin: "16px auto 0",
@@ -386,7 +386,7 @@ export default function ScoresPage() {
               onClick={goToPreviousDay}
               style={{
                 background: "var(--dark-gray)",
-                border: "1px solid rgba(255,255,255,0.1)",
+                border: "1px solid var(--border-color)",
                 color: "var(--white)",
                 fontSize: "24px",
                 width: "48px",
@@ -402,7 +402,7 @@ export default function ScoresPage() {
                 (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--orange)";
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.1)";
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border-color)";
               }}
               aria-label="Previous day"
             >
@@ -424,7 +424,7 @@ export default function ScoresPage() {
               onClick={goToNextDay}
               style={{
                 background: "var(--dark-gray)",
-                border: "1px solid rgba(255,255,255,0.1)",
+                border: "1px solid var(--border-color)",
                 color: "var(--white)",
                 fontSize: "24px",
                 width: "48px",
@@ -440,7 +440,7 @@ export default function ScoresPage() {
                 (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--orange)";
               }}
               onMouseLeave={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.1)";
+                (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border-color)";
               }}
               aria-label="Next day"
             >
@@ -452,7 +452,7 @@ export default function ScoresPage() {
               style={{
                 background: isToday ? "var(--orange)" : "var(--dark-gray)",
                 border: "2px solid",
-                borderColor: isToday ? "var(--orange)" : "rgba(255,255,255,0.1)",
+                borderColor: isToday ? "var(--orange)" : "var(--border-color)",
                 color: "var(--white)",
                 fontFamily: "var(--font-anton), Anton, sans-serif",
                 fontSize: "14px",
@@ -469,7 +469,7 @@ export default function ScoresPage() {
               }}
               onMouseLeave={(e) => {
                 if (!isToday) {
-                  (e.currentTarget as HTMLButtonElement).style.borderColor = "rgba(255,255,255,0.1)";
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "var(--border-color)";
                 }
               }}
             >
@@ -493,7 +493,7 @@ export default function ScoresPage() {
                   padding: "12px 24px",
                   background: selectedLeague === league.id ? "var(--orange)" : "var(--dark-gray)",
                   border: "2px solid",
-                  borderColor: selectedLeague === league.id ? "var(--orange)" : "rgba(255,255,255,0.1)",
+                  borderColor: selectedLeague === league.id ? "var(--orange)" : "var(--border-color)",
                   color: "var(--white)",
                   fontFamily: "var(--font-anton), Anton, sans-serif",
                   fontSize: "16px",
@@ -517,14 +517,14 @@ export default function ScoresPage() {
               <div style={{
                 width: "48px",
                 height: "48px",
-                border: "4px solid rgba(255,255,255,0.1)",
+                border: "4px solid var(--border-color)",
                 borderTop: "4px solid var(--orange)",
                 borderRadius: "50%",
                 animation: "spin 1s linear infinite",
                 margin: "0 auto 20px",
               }}></div>
               <p style={{
-                color: "rgba(255,255,255,0.5)",
+                color: "var(--text-muted)",
                 fontFamily: "var(--font-roboto-mono), monospace",
                 fontSize: "14px",
               }}>
@@ -567,7 +567,7 @@ export default function ScoresPage() {
               padding: "80px 20px",
             }}>
               <p style={{
-                color: "rgba(255,255,255,0.5)",
+                color: "var(--text-muted)",
                 fontSize: "20px",
                 fontFamily: "var(--font-anton), Anton, sans-serif",
                 letterSpacing: "1px",
@@ -575,7 +575,7 @@ export default function ScoresPage() {
                 No games scheduled for this date
               </p>
               <p style={{
-                color: "rgba(255,255,255,0.3)",
+                color: "var(--text-faint)",
                 marginTop: "12px",
                 fontSize: "14px",
               }}>
@@ -648,7 +648,7 @@ export default function ScoresPage() {
                     fontFamily: "var(--font-anton), Anton, sans-serif",
                     fontSize: "28px",
                     marginBottom: "24px",
-                    color: "rgba(255,255,255,0.6)",
+                    color: "var(--text-muted)",
                   }}>
                     UPCOMING ({scheduledGames.length})
                   </h2>

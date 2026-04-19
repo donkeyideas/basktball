@@ -171,7 +171,7 @@ export default function ConnectionsTab() {
   }
 
   if (isLoading) {
-    return <div style={{ textAlign: "center", padding: "40px", color: "rgba(255,255,255,0.5)" }}>Loading...</div>;
+    return <div style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>Loading...</div>;
   }
 
   return (
@@ -203,7 +203,7 @@ export default function ConnectionsTab() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "12px" }}>
               {platform.fields.map((field) => (
                 <div key={field.key} className="form-group">
-                  <label style={{ display: "block", fontSize: "12px", color: "rgba(255,255,255,0.5)", marginBottom: "4px" }}>
+                  <label style={{ display: "block", fontSize: "12px", color: "var(--text-muted)", marginBottom: "4px" }}>
                     {field.label}
                   </label>
                   <input
@@ -215,9 +215,9 @@ export default function ConnectionsTab() {
                       width: "100%",
                       padding: "8px 12px",
                       background: "rgba(0,0,0,0.3)",
-                      border: "1px solid rgba(255,255,255,0.1)",
+                      border: "1px solid var(--border-color)",
                       borderRadius: "6px",
-                      color: "white",
+                      color: "var(--white)",
                       fontSize: "13px",
                     }}
                   />
@@ -275,11 +275,11 @@ export default function ConnectionsTab() {
                 style={{
                   marginTop: "12px",
                   padding: "14px",
-                  background: "rgba(255,255,255,0.02)",
-                  border: "1px solid rgba(255,255,255,0.06)",
+                  background: "var(--border-subtle)",
+                  border: "1px solid var(--border-subtle)",
                   borderRadius: "8px",
                   fontSize: "12px",
-                  color: "rgba(255,255,255,0.5)",
+                  color: "var(--text-muted)",
                   whiteSpace: "pre-wrap",
                   lineHeight: 1.6,
                 }}

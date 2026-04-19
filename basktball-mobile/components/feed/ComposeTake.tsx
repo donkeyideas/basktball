@@ -6,8 +6,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { Image } from 'expo-image';
+import * as ImagePicker from 'expo-image-picker';
+import * as SecureStore from 'expo-secure-store';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Fonts } from '@/constants/Colors';
 import { GifPicker } from './GifPicker';
@@ -51,6 +55,7 @@ export function ComposeTake({ onSubmit, onCancel, userName, apiBase = 'https://w
   const [pollDuration, setPollDuration] = useState(24);
   const [showDurationPicker, setShowDurationPicker] = useState(false);
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [showGifPicker, setShowGifPicker] = useState(false);
   const [mentionQuery, setMentionQuery] = useState('');
   const [showMentions, setShowMentions] = useState(false);
@@ -61,7 +66,7 @@ export function ComposeTake({ onSubmit, onCancel, userName, apiBase = 'https://w
   const isEmpty = content.trim().length === 0;
   const validPollOptions = pollOptions.filter((o) => o.trim().length > 0);
   const pollValid = !showPoll || validPollOptions.length >= 2;
-  const canSubmit = !isEmpty && !isOverLimit && pollValid;
+  const canSubmit = !isEmpty && !isOverLimit && pollValid && !uploading;
 
   const displayName = userName || 'User';
   const initials = getInitials(displayName);
@@ -97,6 +102,82 @@ export function ComposeTake({ onSubmit, onCancel, userName, apiBase = 'https://w
     const newContent = content.slice(0, atIndex) + `@${handle} `;
     setContent(newContent);
     setShowMentions(false);
+  };
+
+  const handleImagePick = async () => {
+    if (uploading || mediaUrl) return;
+
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission needed', 'Please allow photo access to upload images.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      quality: 0.8,
+      exif: false,
+    });
+
+    if (result.canceled || !result.assets?.[0]) return;
+
+    const asset = result.assets[0];
+    const uri = asset.uri;
+    const mimeType = asset.mimeType || 'image/jpeg';
+    const fileSize = asset.fileSize || 0;
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!allowedTypes.includes(mimeType)) {
+      Alert.alert('Invalid format', 'Only JPEG, PNG, WebP, and GIF images are allowed.');
+      return;
+    }
+
+    if (fileSize > 10 * 1024 * 1024) {
+      Alert.alert('Too large', 'Image must be under 10 MB.');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      // Get presigned URL from our API
+      const token = await SecureStore.getItemAsync('auth_token');
+      const presignRes = await fetch(`${apiBase}/mobile/upload`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ contentType: mimeType, fileSize }),
+      });
+
+      if (!presignRes.ok) {
+        const err = await presignRes.json().catch(() => ({ error: 'Upload failed' }));
+        throw new Error(err.error || 'Failed to get upload URL');
+      }
+
+      const { uploadUrl, publicUrl } = await presignRes.json();
+
+      // Read file and upload to R2
+      const fileRes = await fetch(uri);
+      const blob = await fileRes.blob();
+
+      const uploadRes = await fetch(uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': mimeType },
+        body: blob,
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error('Upload to storage failed');
+      }
+
+      setMediaUrl(publicUrl);
+    } catch (err) {
+      Alert.alert('Upload failed', err instanceof Error ? err.message : 'Could not upload image.');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const updateOption = (index: number, value: string) => {
@@ -159,10 +240,18 @@ export function ComposeTake({ onSubmit, onCancel, userName, apiBase = 'https://w
           </View>
         </View>
 
-        {/* GIF preview */}
+        {/* Upload progress */}
+        {uploading && (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginHorizontal: 16, marginBottom: 8 }}>
+            <ActivityIndicator size="small" color={Colors.orange} />
+            <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: Colors.textTertiary }}>Uploading image...</Text>
+          </View>
+        )}
+
+        {/* Media preview (image or GIF) */}
         {mediaUrl && (
           <View style={{ marginHorizontal: 16, marginBottom: 8, position: 'relative' }}>
-            <Image source={{ uri: mediaUrl }} style={{ width: '100%', height: 180, borderRadius: 10 }} contentFit="contain" />
+            <Image source={{ uri: mediaUrl }} style={{ width: '100%', height: 200, borderRadius: 10 }} contentFit="cover" />
             <TouchableOpacity
               onPress={() => setMediaUrl(null)}
               style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(0,0,0,0.7)', alignItems: 'center', justifyContent: 'center' }}
@@ -288,10 +377,16 @@ export function ComposeTake({ onSubmit, onCancel, userName, apiBase = 'https://w
 
       <View style={styles.bottomBar}>
         <View style={styles.attachments}>
-          <TouchableOpacity onPress={() => setShowGifPicker(!showGifPicker)} activeOpacity={0.7}>
-            <Text style={[styles.attachIcon, showGifPicker && styles.attachIconActive]}>GIF</Text>
+          <TouchableOpacity
+            onPress={() => setShowGifPicker(!showGifPicker)}
+            activeOpacity={0.7}
+            disabled={!!mediaUrl || uploading}
+          >
+            <Text style={[styles.attachIcon, showGifPicker && styles.attachIconActive, (mediaUrl || uploading) && styles.attachIconDisabled]}>GIF</Text>
           </TouchableOpacity>
-          <Text style={styles.attachIcon}>IMG</Text>
+          <TouchableOpacity onPress={handleImagePick} activeOpacity={0.7} disabled={!!mediaUrl || uploading}>
+            <Text style={[styles.attachIcon, (mediaUrl || uploading) && styles.attachIconDisabled]}>IMG</Text>
+          </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {
               if (!showPoll) {
@@ -429,6 +524,9 @@ const styles = StyleSheet.create({
   attachIconActive: {
     backgroundColor: 'rgba(255,107,53,0.15)',
     borderColor: Colors.orange,
+  },
+  attachIconDisabled: {
+    opacity: 0.3,
   },
   charCounter: {
     fontFamily: Fonts.mono,

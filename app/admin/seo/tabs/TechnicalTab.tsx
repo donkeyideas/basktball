@@ -48,7 +48,7 @@ function CheckItem({ label, pass, detail }: { label: string; pass: boolean; deta
       alignItems: "flex-start",
       gap: "10px",
       padding: "12px 0",
-      borderBottom: "1px solid rgba(255,255,255,0.05)",
+      borderBottom: "1px solid var(--border-subtle)",
     }}>
       <span style={{
         width: "22px",
@@ -67,7 +67,7 @@ function CheckItem({ label, pass, detail }: { label: string; pass: boolean; deta
       </span>
       <div>
         <div style={{ fontWeight: 600, fontSize: "14px" }}>{label}</div>
-        {detail && <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", marginTop: "2px" }}>{detail}</div>}
+        {detail && <div style={{ fontSize: "12px", color: "var(--text-muted)", marginTop: "2px" }}>{detail}</div>}
       </div>
     </div>
   );
@@ -132,10 +132,10 @@ export default function TechnicalTab({ data, analysisData }: { data: OverviewDat
           <div style={{ width: "100%", height: 280 }}>
             <ResponsiveContainer>
               <LineChart data={data.trendData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                <XAxis dataKey="date" tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }} tickFormatter={(v: string) => v.slice(5)} />
-                <YAxis tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }} />
-                <Tooltip contentStyle={{ background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px" }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                <XAxis dataKey="date" tick={{ fill: "var(--text-muted)", fontSize: 10 }} tickFormatter={(v: string) => v.slice(5)} />
+                <YAxis tick={{ fill: "var(--text-muted)", fontSize: 10 }} />
+                <Tooltip contentStyle={{ background: "#1a1a2e", border: "1px solid var(--border-color)", borderRadius: "8px" }} />
                 <Line type="monotone" dataKey="responseTime" stroke="#FF6B35" strokeWidth={2} name="Avg Response (ms)" dot={false} />
               </LineChart>
             </ResponsiveContainer>
@@ -148,10 +148,10 @@ export default function TechnicalTab({ data, analysisData }: { data: OverviewDat
           <div style={{ width: "100%", height: 280 }}>
             <ResponsiveContainer>
               <BarChart data={slowEndpoints} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                <XAxis type="number" tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }} />
-                <YAxis dataKey="endpoint" type="category" width={140} tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 10 }} />
-                <Tooltip contentStyle={{ background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px" }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                <XAxis type="number" tick={{ fill: "var(--text-muted)", fontSize: 10 }} />
+                <YAxis dataKey="endpoint" type="category" width={140} tick={{ fill: "var(--text-secondary)", fontSize: 10 }} />
+                <Tooltip contentStyle={{ background: "#1a1a2e", border: "1px solid var(--border-color)", borderRadius: "8px" }} />
                 <Bar dataKey="avg" fill="#FF6B35" radius={[0, 4, 4, 0]} name="Avg Response (ms)" />
               </BarChart>
             </ResponsiveContainer>
@@ -164,30 +164,30 @@ export default function TechnicalTab({ data, analysisData }: { data: OverviewDat
         <div className="section">
           <div className="section-title">Sitemap Health</div>
           <div style={{ padding: "10px 0" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-              <span style={{ color: "rgba(255,255,255,0.7)" }}>Static Pages in Sitemap</span>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid var(--border-subtle)" }}>
+              <span style={{ color: "var(--text-secondary)" }}>Static Pages in Sitemap</span>
               <span style={{ fontFamily: "var(--font-roboto-mono), monospace", fontWeight: 600 }}>{staticSitemapPages}</span>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-              <span style={{ color: "rgba(255,255,255,0.7)" }}>Dynamic Pages in Sitemap</span>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid var(--border-subtle)" }}>
+              <span style={{ color: "var(--text-secondary)" }}>Dynamic Pages in Sitemap</span>
               <span style={{ fontFamily: "var(--font-roboto-mono), monospace", fontWeight: 600, color: "var(--green)" }}>
                 {dynamicPagesInDb}
               </span>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-              <span style={{ color: "rgba(255,255,255,0.7)" }}>Players in Sitemap</span>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid var(--border-subtle)" }}>
+              <span style={{ color: "var(--text-secondary)" }}>Players in Sitemap</span>
               <span style={{ fontFamily: "var(--font-roboto-mono), monospace", color: "var(--green)" }}>
                 {totalPlayers}
               </span>
             </div>
-            <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
-              <span style={{ color: "rgba(255,255,255,0.7)" }}>Teams in Sitemap</span>
+            <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid var(--border-subtle)" }}>
+              <span style={{ color: "var(--text-secondary)" }}>Teams in Sitemap</span>
               <span style={{ fontFamily: "var(--font-roboto-mono), monospace", color: "var(--green)" }}>
                 {totalTeams}
               </span>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0" }}>
-              <span style={{ color: "rgba(255,255,255,0.7)" }}>Articles in Sitemap</span>
+              <span style={{ color: "var(--text-secondary)" }}>Articles in Sitemap</span>
               <span style={{ fontFamily: "var(--font-roboto-mono), monospace", color: "var(--green)" }}>
                 {publishedArticles}
               </span>
@@ -203,13 +203,13 @@ export default function TechnicalTab({ data, analysisData }: { data: OverviewDat
               <div>Allow: /</div>
               <div style={{ color: "var(--yellow)" }}>Disallow: /admin/</div>
               <div style={{ color: "var(--yellow)" }}>Disallow: /api/</div>
-              <div style={{ color: "rgba(255,255,255,0.4)" }}>Disallow: /*?sort=</div>
-              <div style={{ color: "rgba(255,255,255,0.4)" }}>Disallow: /*?filter=</div>
-              <div style={{ color: "rgba(255,255,255,0.4)" }}>Disallow: /*?page=</div>
+              <div style={{ color: "var(--text-faint)" }}>Disallow: /*?sort=</div>
+              <div style={{ color: "var(--text-faint)" }}>Disallow: /*?filter=</div>
+              <div style={{ color: "var(--text-faint)" }}>Disallow: /*?page=</div>
               <div style={{ marginTop: "8px", color: "var(--green)" }}>Sitemap: /sitemap.xml</div>
               <div>Crawl-delay: 1</div>
             </div>
-            <div style={{ marginTop: "10px", fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>
+            <div style={{ marginTop: "10px", fontSize: "12px", color: "var(--text-muted)" }}>
               Configuration looks good. Admin and API routes are properly blocked.
             </div>
           </div>

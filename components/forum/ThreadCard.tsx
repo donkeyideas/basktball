@@ -41,7 +41,7 @@ export default function ThreadCard({ thread, showCategory }: ThreadCardProps) {
       style={{
         display: "block",
         padding: "16px 20px",
-        background: thread.isPinned ? "rgba(255,107,53,0.05)" : "#1A1A1A",
+        background: thread.isPinned ? "rgba(255,107,53,0.05)" : "var(--dark-gray)",
         borderRadius: "8px",
         border: `1px solid ${thread.isPinned ? "rgba(255,107,53,0.2)" : "#2a2a2a"}`,
         textDecoration: "none",
@@ -81,7 +81,7 @@ export default function ThreadCard({ thread, showCategory }: ThreadCardProps) {
           <h3 style={{
             fontSize: "16px",
             fontWeight: "600",
-            color: "#fff",
+            color: "var(--white)",
             margin: "0 0 8px 0",
             lineHeight: "1.3",
             overflow: "hidden",
@@ -94,7 +94,7 @@ export default function ThreadCard({ thread, showCategory }: ThreadCardProps) {
           {/* Author + time */}
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <UserBadge user={thread.author} size="sm" />
-            <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)" }}>
+            <span style={{ fontSize: "12px", color: "var(--text-faint)" }}>
               {timeAgo}
             </span>
           </div>
@@ -104,11 +104,11 @@ export default function ThreadCard({ thread, showCategory }: ThreadCardProps) {
         <div style={{ display: "flex", gap: "20px", alignItems: "center", flexShrink: 0 }}>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: "16px", fontWeight: "700", color: "#FF6B35" }}>{thread.postCount}</div>
-            <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)", textTransform: "uppercase" }}>replies</div>
+            <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase" }}>replies</div>
           </div>
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: "16px", fontWeight: "700", color: "rgba(255,255,255,0.6)" }}>{thread.viewCount}</div>
-            <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)", textTransform: "uppercase" }}>views</div>
+            <div style={{ fontSize: "16px", fontWeight: "700", color: "var(--text-muted)" }}>{thread.viewCount}</div>
+            <div style={{ fontSize: "10px", color: "var(--text-faint)", textTransform: "uppercase" }}>views</div>
           </div>
         </div>
       </div>

@@ -32,6 +32,12 @@ const nextConfig: NextConfig = {
         hostname: "cdn.balldontlie.io",
         pathname: "/**",
       },
+      // Cloudflare R2 public bucket (user-uploaded images)
+      {
+        protocol: "https",
+        hostname: "*.r2.dev",
+        pathname: "/**",
+      },
     ],
   },
 

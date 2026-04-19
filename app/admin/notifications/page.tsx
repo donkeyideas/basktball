@@ -120,6 +120,12 @@ export default function AdminNotificationsPage() {
   const [generateType, setGenerateType] = useState<"news" | "encouragement">("news");
   const [isGenerating, setIsGenerating] = useState(false);
 
+  // Auto-broadcast schedule
+  const [scheduledHours, setScheduledHours] = useState<number[]>([12, 18]);
+  const [scheduleLoading, setScheduleLoading] = useState(true);
+  const [scheduleSaving, setScheduleSaving] = useState(false);
+  const [scheduleMessage, setScheduleMessage] = useState<string | null>(null);
+
   // Active tab
   const [activeTab, setActiveTab] = useState<"history" | "broadcasts" | "games">("history");
 
@@ -164,15 +170,28 @@ export default function AdminNotificationsPage() {
     }
   }, []);
 
+  const fetchSchedule = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/notifications/broadcast/schedule");
+      const data = await res.json();
+      if (data.hours) setScheduledHours(data.hours);
+    } catch {
+      // Non-critical
+    } finally {
+      setScheduleLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchNotifications();
     fetchLogs();
+    fetchSchedule();
     const interval = setInterval(() => {
       fetchNotifications();
       fetchLogs();
     }, 30000);
     return () => clearInterval(interval);
-  }, [fetchNotifications, fetchLogs]);
+  }, [fetchNotifications, fetchLogs, fetchSchedule]);
 
   async function handleSendBroadcast() {
     if (!broadcastTitle.trim() || !broadcastBody.trim()) return;
@@ -218,6 +237,43 @@ export default function AdminNotificationsPage() {
     } finally {
       setIsSending(false);
     }
+  }
+
+  function toggleScheduleHour(hour: number) {
+    setScheduledHours((prev) =>
+      prev.includes(hour) ? prev.filter((h) => h !== hour) : [...prev, hour].sort((a, b) => a - b)
+    );
+    setScheduleMessage(null);
+  }
+
+  async function handleSaveSchedule() {
+    setScheduleSaving(true);
+    setScheduleMessage(null);
+    try {
+      const res = await fetch("/api/admin/notifications/broadcast/schedule", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ hours: scheduledHours }),
+      });
+      const data = await res.json();
+      if (data.hours) {
+        setScheduledHours(data.hours);
+        setScheduleMessage(`Schedule saved: ${data.hours.length} broadcasts/day`);
+      } else {
+        setScheduleMessage(`Error: ${data.error || "Failed to save"}`);
+      }
+    } catch {
+      setScheduleMessage("Error: Failed to save schedule");
+    } finally {
+      setScheduleSaving(false);
+    }
+  }
+
+  function formatHour(h: number): string {
+    if (h === 0) return "12 AM";
+    if (h < 12) return `${h} AM`;
+    if (h === 12) return "12 PM";
+    return `${h - 12} PM`;
   }
 
   const ENCOURAGEMENT_MESSAGES = [
@@ -316,7 +372,7 @@ export default function AdminNotificationsPage() {
       <div className="admin-content">
         {isLoading ? (
           <div style={{ textAlign: "center", padding: "60px" }}>
-            <p style={{ color: "rgba(255,255,255,0.5)" }}>Loading notifications...</p>
+            <p style={{ color: "var(--text-muted)" }}>Loading notifications...</p>
           </div>
         ) : error ? (
           <div style={{ textAlign: "center", padding: "60px" }}>
@@ -358,7 +414,7 @@ export default function AdminNotificationsPage() {
                     >
                       <div style={{
                         fontSize: "10px",
-                        color: "rgba(255,255,255,0.6)",
+                        color: "var(--text-muted)",
                         marginBottom: "4px",
                       }}>
                         {day.count > 0 ? day.count : ""}
@@ -375,7 +431,7 @@ export default function AdminNotificationsPage() {
                       />
                       <div style={{
                         fontSize: "9px",
-                        color: "rgba(255,255,255,0.3)",
+                        color: "var(--text-faint)",
                         marginTop: "4px",
                         transform: "rotate(-45deg)",
                         whiteSpace: "nowrap",
@@ -402,7 +458,7 @@ export default function AdminNotificationsPage() {
                       }}>
                         {t.type}
                       </div>
-                      <div style={{ flex: 1, height: "20px", background: "rgba(255,255,255,0.05)", borderRadius: "4px", overflow: "hidden" }}>
+                      <div style={{ flex: 1, height: "20px", background: "var(--border-subtle)", borderRadius: "4px", overflow: "hidden" }}>
                         <div style={{
                           width: `${(t.count / maxTypeCount) * 100}%`,
                           height: "100%",
@@ -440,8 +496,8 @@ export default function AdminNotificationsPage() {
                     style={{
                       padding: "10px 14px",
                       background: "rgba(0,0,0,0.3)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: "#fff",
+                      border: "1px solid var(--border-color)",
+                      color: "var(--white)",
                       fontSize: "14px",
                       outline: "none",
                     }}
@@ -456,7 +512,7 @@ export default function AdminNotificationsPage() {
                       padding: "10px 20px",
                       background: isGenerating ? "rgba(139,92,246,0.4)" : "linear-gradient(135deg, #8B5CF6, #6D28D9)",
                       border: "none",
-                      color: "#fff",
+                      color: "var(--white)",
                       fontSize: "14px",
                       fontWeight: "600",
                       cursor: isGenerating ? "not-allowed" : "pointer",
@@ -468,7 +524,7 @@ export default function AdminNotificationsPage() {
                   >
                     {isGenerating ? (
                       <>
-                        <span style={{ display: "inline-block", width: "14px", height: "14px", border: "2px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.6s linear infinite" }} />
+                        <span style={{ display: "inline-block", width: "14px", height: "14px", border: "2px solid var(--text-faint)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.6s linear infinite" }} />
                         Generating...
                       </>
                     ) : (
@@ -491,8 +547,8 @@ export default function AdminNotificationsPage() {
                   style={{
                     padding: "10px 14px",
                     background: "rgba(0,0,0,0.3)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    color: "#fff",
+                    border: "1px solid var(--border-color)",
+                    color: "var(--white)",
                     fontSize: "14px",
                     outline: "none",
                     fontFamily: "var(--font-inter), sans-serif",
@@ -506,8 +562,8 @@ export default function AdminNotificationsPage() {
                   style={{
                     padding: "10px 14px",
                     background: "rgba(0,0,0,0.3)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    color: "#fff",
+                    border: "1px solid var(--border-color)",
+                    color: "var(--white)",
                     fontSize: "14px",
                     outline: "none",
                     fontFamily: "var(--font-inter), sans-serif",
@@ -521,8 +577,8 @@ export default function AdminNotificationsPage() {
                     style={{
                       padding: "10px 14px",
                       background: "rgba(0,0,0,0.3)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: "#fff",
+                      border: "1px solid var(--border-color)",
+                      color: "var(--white)",
                       fontSize: "14px",
                       outline: "none",
                     }}
@@ -540,8 +596,8 @@ export default function AdminNotificationsPage() {
                       style={{
                         padding: "10px 14px",
                         background: "rgba(0,0,0,0.3)",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                        color: "#fff",
+                        border: "1px solid var(--border-color)",
+                        color: "var(--white)",
                         fontSize: "14px",
                         outline: "none",
                         width: "250px",
@@ -555,8 +611,8 @@ export default function AdminNotificationsPage() {
                       style={{
                         padding: "10px 14px",
                         background: "rgba(0,0,0,0.3)",
-                        border: "1px solid rgba(255,255,255,0.1)",
-                        color: "#fff",
+                        border: "1px solid var(--border-color)",
+                        color: "var(--white)",
                         fontSize: "14px",
                         outline: "none",
                       }}
@@ -591,6 +647,85 @@ export default function AdminNotificationsPage() {
               </div>
             </div>
 
+            {/* Auto-Broadcast Schedule */}
+            <div className="section" style={{ marginBottom: "30px" }}>
+              <div className="section-title" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+                Auto-Broadcast Schedule
+                <span style={{ fontSize: "12px", fontWeight: "400", color: "var(--text-faint)" }}>(Eastern Time)</span>
+              </div>
+              {scheduleLoading ? (
+                <p style={{ color: "var(--text-faint)", fontSize: "13px" }}>Loading schedule...</p>
+              ) : (
+                <>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginBottom: "16px" }}>
+                    {Array.from({ length: 24 }, (_, i) => i).map((hour) => {
+                      const active = scheduledHours.includes(hour);
+                      return (
+                        <button
+                          key={hour}
+                          onClick={() => toggleScheduleHour(hour)}
+                          style={{
+                            padding: "8px 12px",
+                            fontSize: "12px",
+                            fontWeight: active ? "700" : "400",
+                            fontFamily: "var(--font-roboto-mono), monospace",
+                            background: active
+                              ? "rgba(163,190,0,0.2)"
+                              : "rgba(0,0,0,0.3)",
+                            border: `1px solid ${active ? "rgba(163,190,0,0.6)" : "var(--border-color)"}`,
+                            color: active ? "#C8E600" : "var(--text-faint)",
+                            cursor: "pointer",
+                            borderRadius: "6px",
+                            transition: "all 0.15s",
+                            minWidth: "56px",
+                          }}
+                        >
+                          {formatHour(hour)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                    <button
+                      onClick={handleSaveSchedule}
+                      disabled={scheduleSaving}
+                      style={{
+                        padding: "8px 20px",
+                        background: scheduleSaving ? "rgba(163,190,0,0.3)" : "linear-gradient(135deg, #C8E600, #A3BE00)",
+                        border: "none",
+                        color: "#000",
+                        fontSize: "13px",
+                        fontWeight: "700",
+                        cursor: scheduleSaving ? "not-allowed" : "pointer",
+                        borderRadius: "6px",
+                      }}
+                    >
+                      {scheduleSaving ? "Saving..." : "Save Schedule"}
+                    </button>
+                    <span style={{ fontSize: "12px", color: "var(--text-faint)" }}>
+                      {scheduledHours.length} broadcasts/day: {scheduledHours.map(formatHour).join(", ") || "None"} ET
+                    </span>
+                  </div>
+                  {scheduleMessage && (
+                    <div style={{
+                      marginTop: "10px",
+                      padding: "8px 14px",
+                      background: scheduleMessage.startsWith("Error") ? "rgba(239,68,68,0.1)" : "rgba(16,185,129,0.1)",
+                      border: `1px solid ${scheduleMessage.startsWith("Error") ? "rgba(239,68,68,0.3)" : "rgba(16,185,129,0.3)"}`,
+                      color: scheduleMessage.startsWith("Error") ? "#EF4444" : "#10B981",
+                      fontSize: "13px",
+                    }}>
+                      {scheduleMessage}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+
             {/* Tab Navigation */}
             <div style={{ display: "flex", gap: "0", marginBottom: "0" }}>
               {([
@@ -603,10 +738,10 @@ export default function AdminNotificationsPage() {
                   onClick={() => setActiveTab(tab.key)}
                   style={{
                     padding: "10px 24px",
-                    background: activeTab === tab.key ? "rgba(255,255,255,0.08)" : "transparent",
+                    background: activeTab === tab.key ? "var(--border-subtle)" : "transparent",
                     border: "none",
                     borderBottom: activeTab === tab.key ? "2px solid #FF6B35" : "2px solid transparent",
-                    color: activeTab === tab.key ? "#fff" : "rgba(255,255,255,0.4)",
+                    color: activeTab === tab.key ? "var(--white)" : "var(--text-faint)",
                     fontSize: "14px",
                     fontWeight: activeTab === tab.key ? "600" : "400",
                     cursor: "pointer",
@@ -629,8 +764,8 @@ export default function AdminNotificationsPage() {
                     style={{
                       padding: "10px 14px",
                       background: "rgba(0,0,0,0.3)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: "#fff",
+                      border: "1px solid var(--border-color)",
+                      color: "var(--white)",
                       fontSize: "14px",
                       outline: "none",
                     }}
@@ -646,8 +781,8 @@ export default function AdminNotificationsPage() {
                     style={{
                       padding: "10px 14px",
                       background: "rgba(0,0,0,0.3)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: "#fff",
+                      border: "1px solid var(--border-color)",
+                      color: "var(--white)",
                       fontSize: "14px",
                       outline: "none",
                     }}
@@ -662,8 +797,8 @@ export default function AdminNotificationsPage() {
                     style={{
                       padding: "10px 14px",
                       background: "rgba(0,0,0,0.3)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: "#fff",
+                      border: "1px solid var(--border-color)",
+                      color: "var(--white)",
                       fontSize: "14px",
                       outline: "none",
                     }}
@@ -689,7 +824,7 @@ export default function AdminNotificationsPage() {
                   <tbody>
                     {notifications.length === 0 ? (
                       <tr>
-                        <td colSpan={6} style={{ textAlign: "center", color: "rgba(255,255,255,0.4)", padding: "30px" }}>
+                        <td colSpan={6} style={{ textAlign: "center", color: "var(--text-faint)", padding: "30px" }}>
                           No notifications found
                         </td>
                       </tr>
@@ -712,7 +847,7 @@ export default function AdminNotificationsPage() {
                           <td>
                             <div style={{ fontWeight: "500", fontSize: "13px" }}>{n.title}</div>
                             {n.body && (
-                              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginTop: "2px" }}>
+                              <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: "2px" }}>
                                 {n.body.length > 60 ? n.body.slice(0, 60) + "..." : n.body}
                               </div>
                             )}
@@ -726,10 +861,10 @@ export default function AdminNotificationsPage() {
                               width: "8px",
                               height: "8px",
                               borderRadius: "50%",
-                              background: n.pushed ? "#10B981" : "rgba(255,255,255,0.2)",
+                              background: n.pushed ? "#10B981" : "var(--text-faint)",
                               marginRight: "6px",
                             }} />
-                            <span style={{ fontSize: "12px", color: n.pushed ? "#10B981" : "rgba(255,255,255,0.4)" }}>
+                            <span style={{ fontSize: "12px", color: n.pushed ? "#10B981" : "var(--text-faint)" }}>
                               {n.pushed ? "Yes" : "No"}
                             </span>
                           </td>
@@ -739,14 +874,14 @@ export default function AdminNotificationsPage() {
                               width: "8px",
                               height: "8px",
                               borderRadius: "50%",
-                              background: n.read ? "#3B82F6" : "rgba(255,255,255,0.2)",
+                              background: n.read ? "#3B82F6" : "var(--text-faint)",
                               marginRight: "6px",
                             }} />
-                            <span style={{ fontSize: "12px", color: n.read ? "#3B82F6" : "rgba(255,255,255,0.4)" }}>
+                            <span style={{ fontSize: "12px", color: n.read ? "#3B82F6" : "var(--text-faint)" }}>
                               {n.read ? "Yes" : "No"}
                             </span>
                           </td>
-                          <td style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)", whiteSpace: "nowrap" }}>
+                          <td style={{ fontSize: "12px", color: "var(--text-muted)", whiteSpace: "nowrap" }}>
                             {new Date(n.createdAt).toLocaleString()}
                           </td>
                         </tr>
@@ -764,7 +899,7 @@ export default function AdminNotificationsPage() {
                     marginTop: "20px",
                     padding: "10px 0",
                   }}>
-                    <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "13px" }}>
+                    <div style={{ color: "var(--text-faint)", fontSize: "13px" }}>
                       Showing {(page - 1) * 30 + 1}-{Math.min(page * 30, pagination.total)} of {pagination.total}
                     </div>
                     <div style={{ display: "flex", gap: "8px" }}>
@@ -773,9 +908,9 @@ export default function AdminNotificationsPage() {
                         disabled={page <= 1}
                         style={{
                           padding: "6px 14px",
-                          background: page > 1 ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.03)",
-                          border: "1px solid rgba(255,255,255,0.1)",
-                          color: page > 1 ? "#fff" : "rgba(255,255,255,0.3)",
+                          background: page > 1 ? "var(--border-color)" : "var(--border-subtle)",
+                          border: "1px solid var(--border-color)",
+                          color: page > 1 ? "var(--white)" : "var(--text-faint)",
                           fontSize: "13px",
                           cursor: page > 1 ? "pointer" : "default",
                         }}
@@ -785,7 +920,7 @@ export default function AdminNotificationsPage() {
                       <span style={{
                         padding: "6px 14px",
                         fontSize: "13px",
-                        color: "rgba(255,255,255,0.6)",
+                        color: "var(--text-muted)",
                       }}>
                         Page {page} of {pagination.totalPages}
                       </span>
@@ -794,9 +929,9 @@ export default function AdminNotificationsPage() {
                         disabled={page >= pagination.totalPages}
                         style={{
                           padding: "6px 14px",
-                          background: page < pagination.totalPages ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.03)",
-                          border: "1px solid rgba(255,255,255,0.1)",
-                          color: page < pagination.totalPages ? "#fff" : "rgba(255,255,255,0.3)",
+                          background: page < pagination.totalPages ? "var(--border-color)" : "var(--border-subtle)",
+                          border: "1px solid var(--border-color)",
+                          color: page < pagination.totalPages ? "var(--white)" : "var(--text-faint)",
                           fontSize: "13px",
                           cursor: page < pagination.totalPages ? "pointer" : "default",
                         }}
@@ -826,7 +961,7 @@ export default function AdminNotificationsPage() {
                   <tbody>
                     {broadcastLogs.length === 0 ? (
                       <tr>
-                        <td colSpan={6} style={{ textAlign: "center", color: "rgba(255,255,255,0.4)", padding: "30px" }}>
+                        <td colSpan={6} style={{ textAlign: "center", color: "var(--text-faint)", padding: "30px" }}>
                           No broadcasts sent yet
                         </td>
                       </tr>
@@ -836,7 +971,7 @@ export default function AdminNotificationsPage() {
                           <td>
                             <div style={{ fontWeight: "500", fontSize: "13px" }}>{log.title}</div>
                             {log.body && (
-                              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginTop: "2px" }}>
+                              <div style={{ fontSize: "12px", color: "var(--text-faint)", marginTop: "2px" }}>
                                 {log.body.length > 50 ? log.body.slice(0, 50) + "..." : log.body}
                               </div>
                             )}
@@ -858,10 +993,10 @@ export default function AdminNotificationsPage() {
                           <td style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "14px", color: "#10B981" }}>
                             {log.successCount}
                           </td>
-                          <td style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "14px", color: log.failureCount > 0 ? "#EF4444" : "rgba(255,255,255,0.4)" }}>
+                          <td style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "14px", color: log.failureCount > 0 ? "#EF4444" : "var(--text-faint)" }}>
                             {log.failureCount}
                           </td>
-                          <td style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)", whiteSpace: "nowrap" }}>
+                          <td style={{ fontSize: "12px", color: "var(--text-muted)", whiteSpace: "nowrap" }}>
                             {new Date(log.createdAt).toLocaleString()}
                           </td>
                         </tr>
@@ -888,7 +1023,7 @@ export default function AdminNotificationsPage() {
                   <tbody>
                     {gameLogs.length === 0 ? (
                       <tr>
-                        <td colSpan={5} style={{ textAlign: "center", color: "rgba(255,255,255,0.4)", padding: "30px" }}>
+                        <td colSpan={5} style={{ textAlign: "center", color: "var(--text-faint)", padding: "30px" }}>
                           No game notifications sent yet
                         </td>
                       </tr>
@@ -899,7 +1034,7 @@ export default function AdminNotificationsPage() {
                             <div style={{ fontWeight: "500", fontSize: "13px" }}>
                               {log.game.awayTeam.abbreviation} @ {log.game.homeTeam.abbreviation}
                             </div>
-                            <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>
+                            <div style={{ fontSize: "11px", color: "var(--text-faint)" }}>
                               {log.game.awayTeam.name} vs {log.game.homeTeam.name}
                             </div>
                           </td>
@@ -920,7 +1055,7 @@ export default function AdminNotificationsPage() {
                           <td style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "14px" }}>
                             {log.userCount}
                           </td>
-                          <td style={{ fontSize: "12px", color: "rgba(255,255,255,0.6)", whiteSpace: "nowrap" }}>
+                          <td style={{ fontSize: "12px", color: "var(--text-muted)", whiteSpace: "nowrap" }}>
                             {new Date(log.sentAt).toLocaleString()}
                           </td>
                         </tr>

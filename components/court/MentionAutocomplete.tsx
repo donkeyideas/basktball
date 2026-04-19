@@ -83,8 +83,8 @@ export default function MentionAutocomplete({ query, onSelect, onClose, visible 
         left: 16,
         right: 16,
         marginBottom: "4px",
-        backgroundColor: "#1A1A1A",
-        border: "1px solid rgba(255,255,255,0.15)",
+        backgroundColor: "var(--dark-gray)",
+        border: "1px solid var(--border-color)",
         borderRadius: "10px",
         maxHeight: "200px",
         overflowY: "auto",
@@ -93,7 +93,7 @@ export default function MentionAutocomplete({ query, onSelect, onClose, visible 
       }}
     >
       {loading && users.length === 0 && (
-        <div style={{ padding: "10px 14px", fontSize: "13px", color: "rgba(255,255,255,0.4)", fontFamily: "var(--font-inter), sans-serif" }}>
+        <div style={{ padding: "10px 14px", fontSize: "13px", color: "var(--text-faint)", fontFamily: "var(--font-inter), sans-serif" }}>
           Searching...
         </div>
       )}
@@ -112,7 +112,7 @@ export default function MentionAutocomplete({ query, onSelect, onClose, visible 
             padding: "8px 14px",
             cursor: "pointer",
             backgroundColor: i === selectedIndex ? "rgba(255,107,53,0.12)" : "transparent",
-            borderBottom: i < users.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none",
+            borderBottom: i < users.length - 1 ? "1px solid var(--border-subtle)" : "none",
           }}
         >
           <div
@@ -128,7 +128,7 @@ export default function MentionAutocomplete({ query, onSelect, onClose, visible 
               flexShrink: 0,
               fontSize: "12px",
               fontWeight: 700,
-              color: "#fff",
+              color: "var(--white)",
               fontFamily: "var(--font-anton), sans-serif",
             }}
           >
@@ -139,7 +139,7 @@ export default function MentionAutocomplete({ query, onSelect, onClose, visible 
             )}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: "13px", fontWeight: 600, color: "rgba(255,255,255,0.9)", fontFamily: "var(--font-inter), sans-serif" }}>
+            <div style={{ fontSize: "13px", fontWeight: 600, color: "var(--text-primary)", fontFamily: "var(--font-inter), sans-serif" }}>
               {user.displayName || user.handle}
             </div>
             {user.handle && (

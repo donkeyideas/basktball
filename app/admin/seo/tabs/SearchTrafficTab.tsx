@@ -81,10 +81,10 @@ export default function SearchTrafficTab({
   if (!gsc && !ga4) {
     return (
       <div style={{ textAlign: "center", padding: "60px" }}>
-        <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: "10px" }}>
+        <p style={{ color: "var(--text-muted)", marginBottom: "10px" }}>
           Google API data not available.
         </p>
-        <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "13px" }}>
+        <p style={{ color: "var(--text-faint)", fontSize: "13px" }}>
           Ensure GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY, GOOGLE_GA4_PROPERTY_ID, and GOOGLE_SEARCH_CONSOLE_SITE are configured.
         </p>
       </div>
@@ -199,11 +199,11 @@ export default function SearchTrafficTab({
             <div style={{ width: "100%", height: 280 }}>
               <ResponsiveContainer>
                 <LineChart data={gsc.dailyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis dataKey="date" tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }} tickFormatter={(v: string) => v.slice(5)} />
-                  <YAxis yAxisId="left" tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }} />
-                  <YAxis yAxisId="right" orientation="right" tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }} />
-                  <Tooltip contentStyle={{ background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px" }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                  <XAxis dataKey="date" tick={{ fill: "var(--text-muted)", fontSize: 10 }} tickFormatter={(v: string) => v.slice(5)} />
+                  <YAxis yAxisId="left" tick={{ fill: "var(--text-muted)", fontSize: 10 }} />
+                  <YAxis yAxisId="right" orientation="right" tick={{ fill: "var(--text-muted)", fontSize: 10 }} />
+                  <Tooltip contentStyle={{ background: "#1a1a2e", border: "1px solid var(--border-color)", borderRadius: "8px" }} />
                   <Legend />
                   <Line yAxisId="left" type="monotone" dataKey="clicks" stroke="#FF6B35" strokeWidth={2} name="Clicks" dot={false} />
                   <Line yAxisId="right" type="monotone" dataKey="impressions" stroke="#4A90D9" strokeWidth={2} name="Impressions" dot={false} />
@@ -219,10 +219,10 @@ export default function SearchTrafficTab({
             <div style={{ width: "100%", height: 280 }}>
               <ResponsiveContainer>
                 <LineChart data={ga4.dailyData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis dataKey="date" tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }} tickFormatter={(v: string) => v.slice(5)} />
-                  <YAxis tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }} />
-                  <Tooltip contentStyle={{ background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px" }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                  <XAxis dataKey="date" tick={{ fill: "var(--text-muted)", fontSize: 10 }} tickFormatter={(v: string) => v.slice(5)} />
+                  <YAxis tick={{ fill: "var(--text-muted)", fontSize: 10 }} />
+                  <Tooltip contentStyle={{ background: "#1a1a2e", border: "1px solid var(--border-color)", borderRadius: "8px" }} />
                   <Legend />
                   <Line type="monotone" dataKey="users" stroke="#4CAF50" strokeWidth={2} name="Users" dot={false} />
                   <Line type="monotone" dataKey="sessions" stroke="#FFD700" strokeWidth={2} name="Sessions" dot={false} />
@@ -242,17 +242,17 @@ export default function SearchTrafficTab({
             <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
                 <thead>
-                  <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-                    <th style={{ textAlign: "left", padding: "8px 12px", color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>Query</th>
-                    <th style={{ textAlign: "right", padding: "8px 12px", color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>Clicks</th>
-                    <th style={{ textAlign: "right", padding: "8px 12px", color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>Impr.</th>
-                    <th style={{ textAlign: "right", padding: "8px 12px", color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>CTR</th>
-                    <th style={{ textAlign: "right", padding: "8px 12px", color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>Pos.</th>
+                  <tr style={{ borderBottom: "1px solid var(--border-color)" }}>
+                    <th style={{ textAlign: "left", padding: "8px 12px", color: "var(--text-muted)", fontWeight: 500 }}>Query</th>
+                    <th style={{ textAlign: "right", padding: "8px 12px", color: "var(--text-muted)", fontWeight: 500 }}>Clicks</th>
+                    <th style={{ textAlign: "right", padding: "8px 12px", color: "var(--text-muted)", fontWeight: 500 }}>Impr.</th>
+                    <th style={{ textAlign: "right", padding: "8px 12px", color: "var(--text-muted)", fontWeight: 500 }}>CTR</th>
+                    <th style={{ textAlign: "right", padding: "8px 12px", color: "var(--text-muted)", fontWeight: 500 }}>Pos.</th>
                   </tr>
                 </thead>
                 <tbody>
                   {gsc.topQueries.slice(0, 15).map((q, i) => (
-                    <tr key={i} style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                    <tr key={i} style={{ borderBottom: "1px solid var(--border-subtle)" }}>
                       <td style={{ padding: "8px 12px", maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {q.keys[0]}
                       </td>
@@ -274,18 +274,18 @@ export default function SearchTrafficTab({
             <div style={{ overflowX: "auto" }}>
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
                 <thead>
-                  <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-                    <th style={{ textAlign: "left", padding: "8px 12px", color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>Source</th>
-                    <th style={{ textAlign: "left", padding: "8px 12px", color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>Medium</th>
-                    <th style={{ textAlign: "right", padding: "8px 12px", color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>Users</th>
-                    <th style={{ textAlign: "right", padding: "8px 12px", color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>Sessions</th>
+                  <tr style={{ borderBottom: "1px solid var(--border-color)" }}>
+                    <th style={{ textAlign: "left", padding: "8px 12px", color: "var(--text-muted)", fontWeight: 500 }}>Source</th>
+                    <th style={{ textAlign: "left", padding: "8px 12px", color: "var(--text-muted)", fontWeight: 500 }}>Medium</th>
+                    <th style={{ textAlign: "right", padding: "8px 12px", color: "var(--text-muted)", fontWeight: 500 }}>Users</th>
+                    <th style={{ textAlign: "right", padding: "8px 12px", color: "var(--text-muted)", fontWeight: 500 }}>Sessions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {ga4.topSources.slice(0, 15).map((s, i) => (
-                    <tr key={i} style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                    <tr key={i} style={{ borderBottom: "1px solid var(--border-subtle)" }}>
                       <td style={{ padding: "8px 12px" }}>{s.source}</td>
-                      <td style={{ padding: "8px 12px", color: "rgba(255,255,255,0.6)" }}>{s.medium}</td>
+                      <td style={{ padding: "8px 12px", color: "var(--text-muted)" }}>{s.medium}</td>
                       <td style={{ textAlign: "right", padding: "8px 12px", fontFamily: "var(--font-roboto-mono), monospace" }}>{s.users}</td>
                       <td style={{ textAlign: "right", padding: "8px 12px", fontFamily: "var(--font-roboto-mono), monospace" }}>{s.sessions}</td>
                     </tr>
@@ -312,10 +312,10 @@ export default function SearchTrafficTab({
                   }))}
                   layout="vertical"
                 >
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis type="number" tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }} />
-                  <YAxis dataKey="page" type="category" width={150} tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 10 }} />
-                  <Tooltip contentStyle={{ background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px" }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                  <XAxis type="number" tick={{ fill: "var(--text-muted)", fontSize: 10 }} />
+                  <YAxis dataKey="page" type="category" width={150} tick={{ fill: "var(--text-secondary)", fontSize: 10 }} />
+                  <Tooltip contentStyle={{ background: "#1a1a2e", border: "1px solid var(--border-color)", borderRadius: "8px" }} />
                   <Legend />
                   <Bar dataKey="clicks" fill="#FF6B35" radius={[0, 4, 4, 0]} name="Clicks" />
                 </BarChart>
@@ -343,7 +343,7 @@ export default function SearchTrafficTab({
                       <Cell key={i} fill={DEVICE_COLORS[i % DEVICE_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px" }} />
+                  <Tooltip contentStyle={{ background: "#1a1a2e", border: "1px solid var(--border-color)", borderRadius: "8px" }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -358,16 +358,16 @@ export default function SearchTrafficTab({
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
               <thead>
-                <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-                  <th style={{ textAlign: "left", padding: "8px 12px", color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>Page</th>
-                  <th style={{ textAlign: "right", padding: "8px 12px", color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>Views</th>
-                  <th style={{ textAlign: "right", padding: "8px 12px", color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>Users</th>
-                  <th style={{ textAlign: "right", padding: "8px 12px", color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>Avg Duration</th>
+                <tr style={{ borderBottom: "1px solid var(--border-color)" }}>
+                  <th style={{ textAlign: "left", padding: "8px 12px", color: "var(--text-muted)", fontWeight: 500 }}>Page</th>
+                  <th style={{ textAlign: "right", padding: "8px 12px", color: "var(--text-muted)", fontWeight: 500 }}>Views</th>
+                  <th style={{ textAlign: "right", padding: "8px 12px", color: "var(--text-muted)", fontWeight: 500 }}>Users</th>
+                  <th style={{ textAlign: "right", padding: "8px 12px", color: "var(--text-muted)", fontWeight: 500 }}>Avg Duration</th>
                 </tr>
               </thead>
               <tbody>
                 {ga4.topPages.slice(0, 20).map((p, i) => (
-                  <tr key={i} style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+                  <tr key={i} style={{ borderBottom: "1px solid var(--border-subtle)" }}>
                     <td style={{ padding: "8px 12px", maxWidth: "300px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {p.path}
                     </td>

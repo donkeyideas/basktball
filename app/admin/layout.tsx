@@ -253,7 +253,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     top: "50%",
                     transform: "translateY(-50%)",
                     background: "#EF4444",
-                    color: "#fff",
+                    color: "var(--white)",
                     fontSize: "11px",
                     fontWeight: "700",
                     borderRadius: "10px",

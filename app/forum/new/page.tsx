@@ -45,7 +45,7 @@ export default function NewThreadPage() {
       <>
         <Header />
         <main style={{ minHeight: "100vh", padding: "40px 20px" }}>
-          <div style={{ maxWidth: "700px", margin: "0 auto", textAlign: "center", color: "rgba(255,255,255,0.4)" }}>Loading...</div>
+          <div style={{ maxWidth: "700px", margin: "0 auto", textAlign: "center", color: "var(--text-faint)" }}>Loading...</div>
         </main>
         <Footer />
       </>
@@ -59,7 +59,7 @@ export default function NewThreadPage() {
         <main style={{ minHeight: "100vh", padding: "40px 20px" }}>
           <div style={{ maxWidth: "700px", margin: "0 auto", textAlign: "center" }}>
             <h1 style={{ fontFamily: "var(--font-anton)", color: "#FF6B35", fontSize: "28px", marginBottom: "16px" }}>SIGN IN REQUIRED</h1>
-            <p style={{ color: "rgba(255,255,255,0.5)", marginBottom: "16px" }}>You need to be signed in to create a thread.</p>
+            <p style={{ color: "var(--text-muted)", marginBottom: "16px" }}>You need to be signed in to create a thread.</p>
             <Link href="/login" style={{ color: "#FF6B35", textDecoration: "none", fontWeight: "600" }}>Sign In</Link>
           </div>
         </main>
@@ -109,9 +109,9 @@ export default function NewThreadPage() {
         <div style={{ maxWidth: "700px", margin: "0 auto" }}>
       {/* Breadcrumb */}
       <div style={{ marginBottom: "20px", fontSize: "13px" }}>
-        <Link href="/forum" style={{ color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Forum</Link>
-        <span style={{ color: "rgba(255,255,255,0.2)", margin: "0 8px" }}>/</span>
-        <span style={{ color: "rgba(255,255,255,0.6)" }}>New Thread</span>
+        <Link href="/forum" style={{ color: "var(--text-faint)", textDecoration: "none" }}>Forum</Link>
+        <span style={{ color: "var(--text-faint)", margin: "0 8px" }}>/</span>
+        <span style={{ color: "var(--text-muted)" }}>New Thread</span>
       </div>
 
       <h1 style={{
@@ -140,7 +140,7 @@ export default function NewThreadPage() {
 
       {/* Category selector */}
       <div style={{ marginBottom: "16px" }}>
-        <label style={{ display: "block", color: "rgba(255,255,255,0.7)", fontSize: "13px", marginBottom: "6px", fontFamily: "var(--font-inter)" }}>
+        <label style={{ display: "block", color: "var(--text-secondary)", fontSize: "13px", marginBottom: "6px", fontFamily: "var(--font-inter)" }}>
           Category *
         </label>
         <select
@@ -151,8 +151,8 @@ export default function NewThreadPage() {
             padding: "10px 14px",
             borderRadius: "8px",
             border: "1px solid #333",
-            background: "#0D0D0D",
-            color: "#fff",
+            background: "var(--black)",
+            color: "var(--white)",
             fontSize: "15px",
             fontFamily: "var(--font-inter)",
             outline: "none",
@@ -167,7 +167,7 @@ export default function NewThreadPage() {
 
       {/* Title */}
       <div style={{ marginBottom: "16px" }}>
-        <label style={{ display: "block", color: "rgba(255,255,255,0.7)", fontSize: "13px", marginBottom: "6px", fontFamily: "var(--font-inter)" }}>
+        <label style={{ display: "block", color: "var(--text-secondary)", fontSize: "13px", marginBottom: "6px", fontFamily: "var(--font-inter)" }}>
           Title *
         </label>
         <input
@@ -181,8 +181,8 @@ export default function NewThreadPage() {
             padding: "10px 14px",
             borderRadius: "8px",
             border: "1px solid #333",
-            background: "#0D0D0D",
-            color: "#fff",
+            background: "var(--black)",
+            color: "var(--white)",
             fontSize: "15px",
             fontFamily: "var(--font-inter)",
             outline: "none",

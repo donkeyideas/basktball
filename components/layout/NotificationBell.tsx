@@ -152,7 +152,7 @@ export function NotificationBell() {
             top: 0,
             right: 0,
             background: "#EF4444",
-            color: "#fff",
+            color: "var(--white)",
             fontSize: "10px",
             fontWeight: "700",
             borderRadius: "10px",
@@ -240,14 +240,14 @@ export function NotificationBell() {
                     borderBottom: "1px solid var(--border-subtle)",
                     transition: "background 0.15s",
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = "var(--border-subtle)"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = notif.read ? "transparent" : "rgba(255,107,53,0.05)"; }}
                 >
                   <div style={{
                     width: "32px",
                     height: "32px",
                     borderRadius: "50%",
-                    background: notif.read ? "rgba(255,255,255,0.06)" : "rgba(255,107,53,0.15)",
+                    background: notif.read ? "var(--border-subtle)" : "rgba(255,107,53,0.15)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",

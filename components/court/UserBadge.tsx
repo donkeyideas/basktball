@@ -62,7 +62,7 @@ export default function UserBadge({ user }: UserBadgeProps) {
     overflow: "hidden",
     fontFamily: "var(--font-anton), sans-serif",
     fontSize: "13px",
-    color: "#FFFFFF",
+    color: "var(--white)",
     lineHeight: 1,
   };
 
@@ -77,7 +77,7 @@ export default function UserBadge({ user }: UserBadgeProps) {
     fontFamily: "var(--font-inter), sans-serif",
     fontWeight: 700,
     fontSize: "13px",
-    color: "#FFFFFF",
+    color: "var(--white)",
     lineHeight: 1.2,
     whiteSpace: "nowrap",
   };

@@ -35,9 +35,11 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
   const [pollDuration, setPollDuration] = useState(24);
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
   const [showGifPicker, setShowGifPicker] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [mentionQuery, setMentionQuery] = useState("");
   const [showMentions, setShowMentions] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const charCount = content.length;
   const isOverLimit = charCount > MAX_CHARS;
@@ -157,6 +159,62 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
     }, 0);
   }, [content]);
 
+  // Handle image file selection and upload to R2
+  const handleImageSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Reset input so the same file can be re-selected
+    e.target.value = "";
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+    if (!allowedTypes.includes(file.type)) {
+      alert("Only JPEG, PNG, WebP, and GIF images are allowed.");
+      return;
+    }
+
+    const maxSize = 10 * 1024 * 1024; // 10 MB
+    if (file.size > maxSize) {
+      alert("Image must be under 10 MB.");
+      return;
+    }
+
+    setUploading(true);
+    try {
+      // Get presigned URL from our API
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contentType: file.type, fileSize: file.size }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to get upload URL");
+      }
+
+      const { uploadUrl, publicUrl } = await res.json();
+
+      // Upload directly to R2 via presigned URL
+      const uploadRes = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error("Upload failed");
+      }
+
+      setMediaUrl(publicUrl);
+    } catch (err) {
+      console.error("Image upload error:", err);
+      alert(err instanceof Error ? err.message : "Failed to upload image. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  }, []);
+
   // Close on Escape
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -180,8 +238,8 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
   };
 
   const cardStyle: React.CSSProperties = {
-    backgroundColor: "#1A1A1A",
-    border: "1px solid rgba(255,255,255,0.1)",
+    backgroundColor: "var(--dark-gray)",
+    border: "1px solid var(--border-color)",
     borderRadius: "16px",
     width: "100%",
     maxWidth: "520px",
@@ -194,13 +252,13 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
     alignItems: "center",
     justifyContent: "space-between",
     padding: "12px 16px",
-    borderBottom: "1px solid rgba(255,255,255,0.08)",
+    borderBottom: "1px solid var(--border-subtle)",
   };
 
   const headerTitleStyle: React.CSSProperties = {
     fontFamily: "var(--font-anton), sans-serif",
     fontSize: "16px",
-    color: "#FFFFFF",
+    color: "var(--white)",
     textTransform: "uppercase",
     letterSpacing: "1px",
   };
@@ -215,7 +273,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
     fontFamily: "var(--font-inter), sans-serif",
     fontSize: "14px",
     fontWeight: 600,
-    color: "rgba(255,255,255,0.5)",
+    color: "var(--text-muted)",
     background: "none",
     border: "none",
     cursor: "pointer",
@@ -228,7 +286,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
     fontFamily: "var(--font-inter), sans-serif",
     fontSize: "14px",
     fontWeight: 700,
-    color: canPost ? "#FFFFFF" : "rgba(255,255,255,0.3)",
+    color: canPost ? "var(--white)" : "var(--text-faint)",
     backgroundColor: canPost ? "#FF6B35" : "rgba(255,107,53,0.2)",
     border: "none",
     cursor: canPost ? "pointer" : "not-allowed",
@@ -258,7 +316,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
     overflow: "hidden",
     fontFamily: "var(--font-anton), sans-serif",
     fontSize: "16px",
-    color: "#FFFFFF",
+    color: "var(--white)",
     lineHeight: 1,
   };
 
@@ -274,7 +332,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
     fontFamily: "var(--font-inter), sans-serif",
     fontSize: "15px",
     lineHeight: 1.45,
-    color: "rgba(255,255,255,0.9)",
+    color: "var(--text-primary)",
     backgroundColor: "transparent",
     border: "none",
     outline: "none",
@@ -290,7 +348,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
     alignItems: "center",
     justifyContent: "space-between",
     padding: "10px 16px",
-    borderTop: "1px solid rgba(255,255,255,0.08)",
+    borderTop: "1px solid var(--border-subtle)",
     flexWrap: "wrap",
     gap: "8px",
   };
@@ -334,7 +392,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
   const tagInputStyle: React.CSSProperties = {
     fontFamily: "var(--font-inter), sans-serif",
     fontSize: "12px",
-    color: "rgba(255,255,255,0.6)",
+    color: "var(--text-muted)",
     backgroundColor: "transparent",
     border: "none",
     outline: "none",
@@ -349,7 +407,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
       ? "#EF4444"
       : charCount > MAX_CHARS - 20
       ? "#F59E0B"
-      : "rgba(255,255,255,0.35)",
+      : "var(--text-faint)",
     flexShrink: 0,
   };
 
@@ -393,10 +451,28 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
           />
         </div>
 
-        {/* GIF preview */}
+        {/* Upload progress */}
+        {uploading && (
+          <div style={{
+            padding: "16px",
+            display: "flex",
+            alignItems: "center",
+            gap: "10px",
+            color: "var(--text-muted)",
+            fontFamily: "var(--font-inter), sans-serif",
+            fontSize: "13px",
+          }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" style={{ animation: "spin 1s linear infinite", flexShrink: 0 }}>
+              <circle cx="8" cy="8" r="6" fill="none" stroke="#FF6B35" strokeWidth="2" strokeDasharray="28" strokeDashoffset="8" strokeLinecap="round" />
+            </svg>
+            Uploading image...
+          </div>
+        )}
+
+        {/* Media preview */}
         {mediaUrl && (
           <div style={{ padding: "0 16px 8px", position: "relative" }}>
-            <img src={mediaUrl} alt="Selected GIF" style={{ width: "100%", maxHeight: "200px", objectFit: "contain", borderRadius: "10px" }} />
+            <img src={mediaUrl} alt="Attached media" style={{ maxWidth: "100%", maxHeight: "250px", borderRadius: "12px", display: "block" }} />
             <button
               type="button"
               onClick={() => setMediaUrl(null)}
@@ -408,7 +484,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
                 height: "24px",
                 borderRadius: "50%",
                 backgroundColor: "rgba(0,0,0,0.7)",
-                color: "#fff",
+                color: "var(--white)",
                 border: "none",
                 cursor: "pointer",
                 fontSize: "14px",
@@ -426,7 +502,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
         {showPoll && (
           <div style={{
             padding: "12px 16px",
-            borderTop: "1px solid rgba(255,255,255,0.08)",
+            borderTop: "1px solid var(--border-subtle)",
           }}>
             <div style={{
               display: "flex",
@@ -453,7 +529,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
                 style={{
                   background: "none",
                   border: "none",
-                  color: "rgba(255,255,255,0.4)",
+                  color: "var(--text-faint)",
                   cursor: "pointer",
                   fontSize: "12px",
                   fontFamily: "var(--font-inter), sans-serif",
@@ -479,9 +555,9 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
                     flex: 1,
                     padding: "8px 12px",
                     borderRadius: "8px",
-                    border: "1px solid rgba(255,255,255,0.12)",
+                    border: "1px solid var(--border-color)",
                     background: "rgba(255,255,255,0.04)",
-                    color: "rgba(255,255,255,0.85)",
+                    color: "var(--text-secondary)",
                     fontFamily: "var(--font-inter), sans-serif",
                     fontSize: "13px",
                     outline: "none",
@@ -494,7 +570,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
                     style={{
                       background: "none",
                       border: "none",
-                      color: "rgba(255,255,255,0.3)",
+                      color: "var(--text-faint)",
                       cursor: "pointer",
                       fontSize: "16px",
                       lineHeight: 1,
@@ -532,7 +608,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
                 <span style={{
                   fontFamily: "var(--font-inter), sans-serif",
                   fontSize: "12px",
-                  color: "rgba(255,255,255,0.4)",
+                  color: "var(--text-faint)",
                 }}>
                   Duration:
                 </span>
@@ -542,9 +618,9 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
                   style={{
                     padding: "4px 8px",
                     borderRadius: "6px",
-                    border: "1px solid rgba(255,255,255,0.12)",
-                    background: "#1A1A1A",
-                    color: "rgba(255,255,255,0.7)",
+                    border: "1px solid var(--border-color)",
+                    background: "var(--dark-gray)",
+                    color: "var(--text-secondary)",
                     fontFamily: "var(--font-inter), sans-serif",
                     fontSize: "12px",
                     outline: "none",
@@ -609,14 +685,23 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
               />
             )}
           </div>
+          {/* Hidden file input for image uploads */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            style={{ display: "none" }}
+            onChange={handleImageSelect}
+          />
           <button
             type="button"
-            onClick={() => setShowGifPicker(!showGifPicker)}
+            onClick={() => fileInputRef.current?.click()}
+            disabled={!!mediaUrl || uploading}
             style={{
               background: "none",
               border: "1px solid rgba(255,107,53,0.3)",
-              color: "#FF6B35",
-              cursor: "pointer",
+              color: (mediaUrl || uploading) ? "var(--text-faint)" : "#FF6B35",
+              cursor: (mediaUrl || uploading) ? "not-allowed" : "pointer",
               fontSize: "11px",
               fontFamily: "var(--font-inter), sans-serif",
               fontWeight: 700,
@@ -625,6 +710,29 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
               textTransform: "uppercase",
               letterSpacing: "0.3px",
               flexShrink: 0,
+              opacity: (mediaUrl || uploading) ? 0.4 : 1,
+            }}
+          >
+            IMG
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowGifPicker(!showGifPicker)}
+            disabled={!!mediaUrl || uploading}
+            style={{
+              background: "none",
+              border: "1px solid rgba(255,107,53,0.3)",
+              color: (mediaUrl || uploading) ? "var(--text-faint)" : "#FF6B35",
+              cursor: (mediaUrl || uploading) ? "not-allowed" : "pointer",
+              fontSize: "11px",
+              fontFamily: "var(--font-inter), sans-serif",
+              fontWeight: 700,
+              padding: "3px 10px",
+              borderRadius: "6px",
+              textTransform: "uppercase",
+              letterSpacing: "0.3px",
+              flexShrink: 0,
+              opacity: (mediaUrl || uploading) ? 0.4 : 1,
             }}
           >
             GIF

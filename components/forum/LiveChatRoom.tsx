@@ -80,7 +80,7 @@ export default function LiveChatRoom({ gameId, compact }: LiveChatRoomProps) {
 
   return (
     <div style={{
-      background: "#1A1A1A",
+      background: "var(--dark-gray)",
       borderRadius: "8px",
       border: "1px solid #2a2a2a",
       overflow: "hidden",
@@ -99,7 +99,7 @@ export default function LiveChatRoom({ gameId, compact }: LiveChatRoomProps) {
         <span style={{ fontWeight: "700", fontSize: "14px", color: "#FF6B35", fontFamily: "var(--font-inter)" }}>
           LIVE CHAT
         </span>
-        <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)" }}>
+        <span style={{ fontSize: "12px", color: "var(--text-faint)" }}>
           {messages.length} messages
         </span>
       </div>
@@ -117,7 +117,7 @@ export default function LiveChatRoom({ gameId, compact }: LiveChatRoomProps) {
         }}
       >
         {messages.length === 0 && (
-          <div style={{ textAlign: "center", color: "rgba(255,255,255,0.3)", padding: "20px", fontSize: "14px" }}>
+          <div style={{ textAlign: "center", color: "var(--text-faint)", padding: "20px", fontSize: "14px" }}>
             No messages yet. Start the conversation!
           </div>
         )}
@@ -135,7 +135,7 @@ export default function LiveChatRoom({ gameId, compact }: LiveChatRoomProps) {
                 justifyContent: "center",
                 fontSize: "11px",
                 fontWeight: "700",
-                color: "#fff",
+                color: "var(--white)",
                 flexShrink: 0,
               }}>
                 {displayName.charAt(0).toUpperCase()}
@@ -144,10 +144,10 @@ export default function LiveChatRoom({ gameId, compact }: LiveChatRoomProps) {
                 <span style={{ fontSize: "12px", fontWeight: "600", color: msg.author.role === "ADMIN" ? "#EF4444" : msg.author.role === "MODERATOR" ? "#8B5CF6" : "#FF6B35" }}>
                   {displayName}
                 </span>
-                <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.2)", marginLeft: "6px" }}>
+                <span style={{ fontSize: "11px", color: "var(--text-faint)", marginLeft: "6px" }}>
                   {new Date(msg.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </span>
-                <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.8)", marginTop: "2px", wordBreak: "break-word" }}>
+                <div style={{ fontSize: "13px", color: "var(--text-secondary)", marginTop: "2px", wordBreak: "break-word" }}>
                   {msg.content}
                 </div>
               </div>
@@ -175,8 +175,8 @@ export default function LiveChatRoom({ gameId, compact }: LiveChatRoomProps) {
               padding: "8px 12px",
               borderRadius: "6px",
               border: "1px solid #333",
-              background: "#0D0D0D",
-              color: "#fff",
+              background: "var(--black)",
+              color: "var(--white)",
               fontSize: "13px",
               fontFamily: "var(--font-inter)",
               outline: "none",
@@ -189,8 +189,8 @@ export default function LiveChatRoom({ gameId, compact }: LiveChatRoomProps) {
               padding: "8px 16px",
               borderRadius: "6px",
               border: "none",
-              background: input.trim() ? "#FF6B35" : "#333",
-              color: "#fff",
+              background: input.trim() ? "#FF6B35" : "var(--border-color)",
+              color: "var(--white)",
               fontSize: "13px",
               fontWeight: "600",
               cursor: input.trim() ? "pointer" : "default",

@@ -94,7 +94,7 @@ export default function LoginPage() {
         <div style={{
         width: "100%",
         maxWidth: "420px",
-        background: "#1A1A1A",
+        background: "var(--dark-gray)",
         borderRadius: "12px",
         border: "1px solid #333",
         padding: "40px",
@@ -108,7 +108,7 @@ export default function LoginPage() {
           }}>
             SIGN IN
           </h1>
-          <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "14px" }}>
+          <p style={{ color: "var(--text-muted)", fontSize: "14px" }}>
             Join the basketball conversation
           </p>
         </div>
@@ -122,7 +122,7 @@ export default function LoginPage() {
             borderRadius: "8px",
             border: "1px solid #444",
             background: "#fff",
-            color: "#333",
+            color: "var(--border-color)",
             fontSize: "15px",
             fontWeight: "600",
             cursor: "pointer",
@@ -147,12 +147,12 @@ export default function LoginPage() {
           alignItems: "center",
           gap: "12px",
           margin: "24px 0",
-          color: "rgba(255,255,255,0.3)",
+          color: "var(--text-faint)",
           fontSize: "13px",
         }}>
-          <div style={{ flex: 1, height: "1px", background: "#333" }} />
+          <div style={{ flex: 1, height: "1px", background: "var(--border-color)" }} />
           OR
-          <div style={{ flex: 1, height: "1px", background: "#333" }} />
+          <div style={{ flex: 1, height: "1px", background: "var(--border-color)" }} />
         </div>
 
         {/* Credentials form */}
@@ -172,7 +172,7 @@ export default function LoginPage() {
           )}
 
           <div style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", color: "rgba(255,255,255,0.7)", fontSize: "13px", marginBottom: "6px", fontFamily: "var(--font-inter)" }}>
+            <label style={{ display: "block", color: "var(--text-secondary)", fontSize: "13px", marginBottom: "6px", fontFamily: "var(--font-inter)" }}>
               Email
             </label>
             <input
@@ -185,8 +185,8 @@ export default function LoginPage() {
                 padding: "10px 14px",
                 borderRadius: "8px",
                 border: "1px solid #333",
-                background: "#0D0D0D",
-                color: "#fff",
+                background: "var(--black)",
+                color: "var(--white)",
                 fontSize: "15px",
                 fontFamily: "var(--font-inter)",
                 outline: "none",
@@ -197,7 +197,7 @@ export default function LoginPage() {
           </div>
 
           <div style={{ marginBottom: "24px" }}>
-            <label style={{ display: "block", color: "rgba(255,255,255,0.7)", fontSize: "13px", marginBottom: "6px", fontFamily: "var(--font-inter)" }}>
+            <label style={{ display: "block", color: "var(--text-secondary)", fontSize: "13px", marginBottom: "6px", fontFamily: "var(--font-inter)" }}>
               Password
             </label>
             <input
@@ -210,8 +210,8 @@ export default function LoginPage() {
                 padding: "10px 14px",
                 borderRadius: "8px",
                 border: "1px solid #333",
-                background: "#0D0D0D",
-                color: "#fff",
+                background: "var(--black)",
+                color: "var(--white)",
                 fontSize: "15px",
                 fontFamily: "var(--font-inter)",
                 outline: "none",
@@ -230,7 +230,7 @@ export default function LoginPage() {
               borderRadius: "8px",
               border: "none",
               background: loading ? "#995030" : "#FF6B35",
-              color: "#fff",
+              color: "var(--white)",
               fontSize: "16px",
               fontWeight: "700",
               cursor: loading ? "not-allowed" : "pointer",
@@ -246,7 +246,7 @@ export default function LoginPage() {
         <p style={{
           textAlign: "center",
           marginTop: "24px",
-          color: "rgba(255,255,255,0.5)",
+          color: "var(--text-muted)",
           fontSize: "14px",
           fontFamily: "var(--font-inter)",
         }}>

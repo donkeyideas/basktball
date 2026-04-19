@@ -70,7 +70,7 @@ export default function AdminContentPage() {
     background: "#111",
     border: "1px solid #333",
     borderRadius: "6px",
-    color: "#fff",
+    color: "var(--white)",
     fontSize: "14px",
     fontFamily: "inherit",
     outline: "none",
@@ -87,14 +87,14 @@ export default function AdminContentPage() {
     display: "block",
     fontSize: "13px",
     fontWeight: 600,
-    color: "rgba(255,255,255,0.7)",
+    color: "var(--text-secondary)",
     marginBottom: "6px",
     letterSpacing: "0.5px",
     textTransform: "uppercase",
   };
 
   const sectionStyle: React.CSSProperties = {
-    background: "#1A1A1A",
+    background: "var(--dark-gray)",
     border: "1px solid #2a2a2a",
     borderRadius: "8px",
     padding: "24px",
@@ -129,7 +129,7 @@ export default function AdminContentPage() {
         </div>
         <div className="admin-content">
           <div style={{ textAlign: "center", padding: "60px" }}>
-            <p style={{ color: "rgba(255,255,255,0.5)" }}>Loading content...</p>
+            <p style={{ color: "var(--text-muted)" }}>Loading content...</p>
           </div>
         </div>
       </>
@@ -146,7 +146,7 @@ export default function AdminContentPage() {
             disabled={isSaving}
             style={{
               background: "#FF6B35",
-              color: "#fff",
+              color: "var(--white)",
               border: "none",
               padding: "10px 28px",
               borderRadius: "6px",
@@ -195,7 +195,7 @@ export default function AdminContentPage() {
           {/* Hero Section */}
           <div style={sectionStyle}>
             <div style={sectionTitleStyle}>HERO SECTION</div>
-            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "13px", marginBottom: "20px", marginTop: "-12px" }}>
+            <p style={{ color: "var(--text-faint)", fontSize: "13px", marginBottom: "20px", marginTop: "-12px" }}>
               The main banner area at the top of the homepage
             </p>
 
@@ -282,7 +282,7 @@ export default function AdminContentPage() {
           {/* App Download Links */}
           <div style={sectionStyle}>
             <div style={sectionTitleStyle}>APP DOWNLOAD LINKS</div>
-            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "13px", marginBottom: "20px", marginTop: "-12px" }}>
+            <p style={{ color: "var(--text-faint)", fontSize: "13px", marginBottom: "20px", marginTop: "-12px" }}>
               Links to your mobile app on app stores. Leave blank to hide a badge.
             </p>
 
@@ -295,7 +295,7 @@ export default function AdminContentPage() {
                 onChange={(e) => updateField("content_google_play_url", e.target.value)}
                 placeholder="https://play.google.com/store/apps/details?id=com.basktball.app"
               />
-              <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "12px", marginTop: "4px" }}>
+              <p style={{ color: "var(--text-faint)", fontSize: "12px", marginTop: "4px" }}>
                 Shows the Google Play badge in the header, hero, and Court page
               </p>
             </div>
@@ -309,7 +309,7 @@ export default function AdminContentPage() {
                 onChange={(e) => updateField("content_apple_store_url", e.target.value)}
                 placeholder="https://apps.apple.com/app/basktball/id..."
               />
-              <p style={{ color: "rgba(255,255,255,0.3)", fontSize: "12px", marginTop: "4px" }}>
+              <p style={{ color: "var(--text-faint)", fontSize: "12px", marginTop: "4px" }}>
                 Shows the App Store badge in the header, hero, and Court page
               </p>
             </div>
@@ -318,7 +318,7 @@ export default function AdminContentPage() {
           {/* Social Proof Stats */}
           <div style={sectionStyle}>
             <div style={sectionTitleStyle}>SOCIAL PROOF STATS</div>
-            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "13px", marginBottom: "20px", marginTop: "-12px" }}>
+            <p style={{ color: "var(--text-faint)", fontSize: "13px", marginBottom: "20px", marginTop: "-12px" }}>
               The three stat boxes shown on the homepage
             </p>
 
@@ -408,7 +408,7 @@ export default function AdminContentPage() {
           {/* FAQ Section */}
           <div style={sectionStyle}>
             <div style={sectionTitleStyle}>FAQ SECTION</div>
-            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "13px", marginBottom: "20px", marginTop: "-12px" }}>
+            <p style={{ color: "var(--text-faint)", fontSize: "13px", marginBottom: "20px", marginTop: "-12px" }}>
               Frequently asked questions shown at the bottom of the homepage
             </p>
 
@@ -423,7 +423,7 @@ export default function AdminContentPage() {
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
                   <span style={{
                     background: "#FF6B35",
-                    color: "#fff",
+                    color: "var(--white)",
                     width: "24px",
                     height: "24px",
                     borderRadius: "50%",
@@ -434,7 +434,7 @@ export default function AdminContentPage() {
                     fontWeight: 700,
                     flexShrink: 0,
                   }}>{num}</span>
-                  <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "13px", fontWeight: 600 }}>FAQ #{num}</span>
+                  <span style={{ color: "var(--text-muted)", fontSize: "13px", fontWeight: 600 }}>FAQ #{num}</span>
                 </div>
                 <div style={fieldGroupStyle}>
                   <label style={labelStyle}>Question</label>
@@ -462,7 +462,7 @@ export default function AdminContentPage() {
           {/* Footer */}
           <div style={sectionStyle}>
             <div style={sectionTitleStyle}>FOOTER</div>
-            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "13px", marginBottom: "20px", marginTop: "-12px" }}>
+            <p style={{ color: "var(--text-faint)", fontSize: "13px", marginBottom: "20px", marginTop: "-12px" }}>
               Text shown at the bottom of every page
             </p>
 
@@ -497,7 +497,7 @@ export default function AdminContentPage() {
               disabled={isSaving}
               style={{
                 background: "#FF6B35",
-                color: "#fff",
+                color: "var(--white)",
                 border: "none",
                 padding: "14px 40px",
                 borderRadius: "6px",

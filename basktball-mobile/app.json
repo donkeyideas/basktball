@@ -22,7 +22,11 @@
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
         },
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIBackgroundModes": ["remote-notification", "fetch"]
+      },
+      "entitlements": {
+        "aps-environment": "production"
       },
       "buildNumber": "14"
     },

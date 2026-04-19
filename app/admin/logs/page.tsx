@@ -97,9 +97,9 @@ export default function AdminLogsPage() {
         <h1>API LOGS</h1>
         <div style={{ display: "flex", gap: "10px" }}>
           <button className="btn" onClick={handleExport} style={{
-            background: "rgba(255,255,255,0.08)",
-            border: "1px solid rgba(255,255,255,0.15)",
-            color: "rgba(255,255,255,0.8)",
+            background: "var(--border-subtle)",
+            border: "1px solid var(--border-color)",
+            color: "var(--text-secondary)",
             padding: "8px 16px",
             borderRadius: "6px",
             cursor: "pointer",
@@ -157,9 +157,9 @@ export default function AdminLogsPage() {
                 padding: "5px 14px",
                 borderRadius: "20px",
                 border: "1px solid",
-                borderColor: !endpointFilter ? "var(--orange)" : "rgba(255,255,255,0.15)",
+                borderColor: !endpointFilter ? "var(--orange)" : "var(--border-color)",
                 background: !endpointFilter ? "rgba(255, 107, 53, 0.15)" : "transparent",
-                color: !endpointFilter ? "var(--orange)" : "rgba(255,255,255,0.5)",
+                color: !endpointFilter ? "var(--orange)" : "var(--text-muted)",
                 cursor: "pointer",
                 fontSize: "12px",
               }}
@@ -174,9 +174,9 @@ export default function AdminLogsPage() {
                   padding: "5px 14px",
                   borderRadius: "20px",
                   border: "1px solid",
-                  borderColor: endpointFilter === ep.endpoint ? "var(--orange)" : "rgba(255,255,255,0.15)",
+                  borderColor: endpointFilter === ep.endpoint ? "var(--orange)" : "var(--border-color)",
                   background: endpointFilter === ep.endpoint ? "rgba(255, 107, 53, 0.15)" : "transparent",
-                  color: endpointFilter === ep.endpoint ? "var(--orange)" : "rgba(255,255,255,0.5)",
+                  color: endpointFilter === ep.endpoint ? "var(--orange)" : "var(--text-muted)",
                   cursor: "pointer",
                   fontSize: "12px",
                   fontFamily: "var(--font-roboto-mono), monospace",
@@ -193,7 +193,7 @@ export default function AdminLogsPage() {
           <div className="section-title">
             Log Entries
             {data && (
-              <span style={{ fontWeight: 400, fontSize: "13px", color: "rgba(255,255,255,0.4)", marginLeft: "10px" }}>
+              <span style={{ fontWeight: 400, fontSize: "13px", color: "var(--text-faint)", marginLeft: "10px" }}>
                 {data.pagination.totalCount.toLocaleString()} total
               </span>
             )}
@@ -201,7 +201,7 @@ export default function AdminLogsPage() {
 
           {loading && !data ? (
             <div style={{ textAlign: "center", padding: "40px" }}>
-              <p style={{ color: "rgba(255,255,255,0.5)" }}>Loading logs...</p>
+              <p style={{ color: "var(--text-muted)" }}>Loading logs...</p>
             </div>
           ) : data && data.logs.length > 0 ? (
             <>
@@ -221,7 +221,7 @@ export default function AdminLogsPage() {
                   {data.logs.map((log) => (
                     <tr key={log.id}>
                       <td>
-                        <span style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>
+                        <span style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "12px", color: "var(--text-muted)" }}>
                           {new Date(log.timestamp).toLocaleString()}
                         </span>
                       </td>
@@ -273,7 +273,7 @@ export default function AdminLogsPage() {
                             {log.error.length > 60 ? log.error.slice(0, 57) + "..." : log.error}
                           </span>
                         ) : (
-                          <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.2)" }}>—</span>
+                          <span style={{ fontSize: "12px", color: "var(--text-faint)" }}>—</span>
                         )}
                       </td>
                     </tr>
@@ -296,9 +296,9 @@ export default function AdminLogsPage() {
                     disabled={page <= 1}
                     style={{
                       padding: "6px 14px",
-                      background: page <= 1 ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.1)",
-                      border: "1px solid rgba(255,255,255,0.15)",
-                      color: page <= 1 ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.7)",
+                      background: page <= 1 ? "var(--border-subtle)" : "var(--border-color)",
+                      border: "1px solid var(--border-color)",
+                      color: page <= 1 ? "var(--text-faint)" : "var(--text-secondary)",
                       borderRadius: "4px",
                       cursor: page <= 1 ? "default" : "pointer",
                       fontSize: "13px",
@@ -309,7 +309,7 @@ export default function AdminLogsPage() {
                   <span style={{
                     fontFamily: "var(--font-roboto-mono), monospace",
                     fontSize: "13px",
-                    color: "rgba(255,255,255,0.5)",
+                    color: "var(--text-muted)",
                   }}>
                     Page {data.pagination.page} of {data.pagination.totalPages}
                   </span>
@@ -318,9 +318,9 @@ export default function AdminLogsPage() {
                     disabled={page >= data.pagination.totalPages}
                     style={{
                       padding: "6px 14px",
-                      background: page >= data.pagination.totalPages ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.1)",
-                      border: "1px solid rgba(255,255,255,0.15)",
-                      color: page >= data.pagination.totalPages ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.7)",
+                      background: page >= data.pagination.totalPages ? "var(--border-subtle)" : "var(--border-color)",
+                      border: "1px solid var(--border-color)",
+                      color: page >= data.pagination.totalPages ? "var(--text-faint)" : "var(--text-secondary)",
                       borderRadius: "4px",
                       cursor: page >= data.pagination.totalPages ? "default" : "pointer",
                       fontSize: "13px",
@@ -333,7 +333,7 @@ export default function AdminLogsPage() {
             </>
           ) : (
             <div style={{ textAlign: "center", padding: "40px" }}>
-              <p style={{ color: "rgba(255,255,255,0.5)" }}>No logs match the current filters.</p>
+              <p style={{ color: "var(--text-muted)" }}>No logs match the current filters.</p>
             </div>
           )}
         </div>

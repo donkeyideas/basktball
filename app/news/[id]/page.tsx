@@ -101,10 +101,10 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
         <Header />
         <main style={{ minHeight: "100vh", padding: "40px 20px" }}>
           <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-            <div style={{ height: "400px", background: "rgba(255,255,255,0.05)", marginBottom: "30px" }} />
-            <div style={{ height: "20px", background: "rgba(255,255,255,0.1)", width: "80px", marginBottom: "20px" }} />
-            <div style={{ height: "40px", background: "rgba(255,255,255,0.1)", marginBottom: "15px" }} />
-            <div style={{ height: "100px", background: "rgba(255,255,255,0.05)" }} />
+            <div style={{ height: "400px", background: "var(--input-bg)", marginBottom: "30px" }} />
+            <div style={{ height: "20px", background: "var(--border-color)", width: "80px", marginBottom: "20px" }} />
+            <div style={{ height: "40px", background: "var(--border-color)", marginBottom: "15px" }} />
+            <div style={{ height: "100px", background: "var(--input-bg)" }} />
           </div>
         </main>
         <Footer />
@@ -117,7 +117,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
       <>
         <Header />
         <main style={{ minHeight: "100vh", padding: "80px 20px", textAlign: "center" }}>
-          <p style={{ color: "rgba(255,255,255,0.5)", fontSize: "18px", marginBottom: "20px" }}>
+          <p style={{ color: "var(--text-muted)", fontSize: "18px", marginBottom: "20px" }}>
             {error || "Article not found"}
           </p>
           <Link href="/news" style={{ color: "var(--orange)", textDecoration: "none", fontWeight: "600" }}>
@@ -141,7 +141,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
           <Link
             href="/news"
             style={{
-              color: "rgba(255,255,255,0.5)",
+              color: "var(--text-muted)",
               textDecoration: "none",
               fontSize: "14px",
               display: "inline-flex",
@@ -151,7 +151,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
               transition: "color 0.2s",
             }}
             onMouseOver={(e) => (e.currentTarget.style.color = "var(--orange)")}
-            onMouseOut={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.5)")}
+            onMouseOut={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
           >
             &larr; Back to News
           </Link>
@@ -164,7 +164,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
                 height: "400px",
                 overflow: "hidden",
                 marginBottom: "30px",
-                background: "rgba(255,255,255,0.03)",
+                background: "var(--input-bg)",
               }}
             >
               <img
@@ -194,7 +194,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
             >
               {leagueLabel}
             </span>
-            <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "13px", fontFamily: "var(--font-roboto-mono), monospace" }}>
+            <span style={{ color: "var(--text-faint)", fontSize: "13px", fontFamily: "var(--font-roboto-mono), monospace" }}>
               {formatDate(article.pubDate)}
             </span>
           </div>
@@ -213,12 +213,12 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
 
           {/* Source */}
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "30px" }}>
-            <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "14px" }}>via</span>
-            <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "14px", fontWeight: "600" }}>{article.source}</span>
+            <span style={{ color: "var(--text-faint)", fontSize: "14px" }}>via</span>
+            <span style={{ color: "var(--text-secondary)", fontSize: "14px", fontWeight: "600" }}>{article.source}</span>
           </div>
 
           {/* Divider */}
-          <div style={{ height: "1px", background: "rgba(255,255,255,0.1)", marginBottom: "30px" }} />
+          <div style={{ height: "1px", background: "var(--border-color)", marginBottom: "30px" }} />
 
           {/* Article content */}
           <div style={{ marginBottom: "40px" }}>
@@ -226,7 +226,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
               <p
                 key={i}
                 style={{
-                  color: "rgba(255,255,255,0.8)",
+                  color: "var(--text-secondary)",
                   fontSize: "17px",
                   lineHeight: "1.8",
                   marginBottom: "20px",
@@ -266,13 +266,13 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
             <Link
               href="/news"
               style={{
-                color: "rgba(255,255,255,0.4)",
+                color: "var(--text-faint)",
                 textDecoration: "none",
                 fontSize: "14px",
                 transition: "color 0.2s",
               }}
               onMouseOver={(e) => (e.currentTarget.style.color = "var(--orange)")}
-              onMouseOut={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.4)")}
+              onMouseOut={(e) => (e.currentTarget.style.color = "var(--text-faint)")}
             >
               &larr; Back to News
             </Link>

@@ -188,13 +188,13 @@ function ConferenceTable({
                         seed <= 6
                           ? "var(--white)"
                           : seed <= 10
-                            ? "rgba(255,255,255,0.7)"
-                            : "rgba(255,255,255,0.4)",
+                            ? "var(--text-secondary)"
+                            : "var(--text-faint)",
                       borderBottom: isPlayoffCutoff
                         ? "3px solid var(--orange)"
                         : isPlayInCutoff
                           ? "2px dashed var(--orange)"
-                          : "1px solid rgba(255,255,255,0.1)",
+                          : "1px solid var(--border-color)",
                     }}
                   >
                     {seed}
@@ -208,7 +208,7 @@ function ConferenceTable({
                         ? "3px solid var(--orange)"
                         : isPlayInCutoff
                           ? "2px dashed var(--orange)"
-                          : "1px solid rgba(255,255,255,0.1)",
+                          : "1px solid var(--border-color)",
                     }}
                   >
                     <div
@@ -260,7 +260,7 @@ function ConferenceTable({
                             ? "3px solid var(--orange)"
                             : isPlayInCutoff
                               ? "2px dashed var(--orange)"
-                              : "1px solid rgba(255,255,255,0.1)",
+                              : "1px solid var(--border-color)",
                         }}
                       >
                         {value !== undefined && value !== null
@@ -297,7 +297,7 @@ function ConferenceTable({
           <span
             style={{
               fontSize: "12px",
-              color: "rgba(255,255,255,0.5)",
+              color: "var(--text-muted)",
               fontFamily: "var(--font-roboto-mono), monospace",
             }}
           >
@@ -316,7 +316,7 @@ function ConferenceTable({
           <span
             style={{
               fontSize: "12px",
-              color: "rgba(255,255,255,0.5)",
+              color: "var(--text-muted)",
               fontFamily: "var(--font-roboto-mono), monospace",
             }}
           >
@@ -339,7 +339,7 @@ const thBase: React.CSSProperties = {
   letterSpacing: "1.5px",
   color: "var(--orange)",
   textTransform: "uppercase",
-  borderBottom: "2px solid rgba(255,255,255,0.15)",
+  borderBottom: "2px solid var(--border-color)",
   whiteSpace: "nowrap",
   background: "rgba(0,0,0,0.3)",
   position: "sticky",
@@ -348,7 +348,7 @@ const thBase: React.CSSProperties = {
 
 const tdBase: React.CSSProperties = {
   padding: "12px 12px",
-  borderBottom: "1px solid rgba(255,255,255,0.1)",
+  borderBottom: "1px solid var(--border-color)",
   whiteSpace: "nowrap",
 };
 
@@ -425,7 +425,7 @@ export default function StandingsPage() {
               ></span>
             </h1>
             <p style={{
-              color: "rgba(255,255,255,0.5)",
+              color: "var(--text-muted)",
               fontSize: "15px",
               maxWidth: "650px",
               margin: "16px auto 0",
@@ -458,7 +458,7 @@ export default function StandingsPage() {
                   borderColor:
                     selectedLeague === league.id
                       ? "var(--orange)"
-                      : "rgba(255,255,255,0.1)",
+                      : "var(--border-color)",
                   color: "var(--white)",
                   fontFamily: "var(--font-inter), sans-serif",
                   fontSize: "16px",
@@ -517,7 +517,7 @@ export default function StandingsPage() {
                 style={{
                   width: "48px",
                   height: "48px",
-                  border: "4px solid rgba(255,255,255,0.1)",
+                  border: "4px solid var(--border-color)",
                   borderTop: "4px solid var(--orange)",
                   borderRadius: "50%",
                   animation: "spin 0.8s linear infinite",
@@ -526,7 +526,7 @@ export default function StandingsPage() {
               />
               <p
                 style={{
-                  color: "rgba(255,255,255,0.5)",
+                  color: "var(--text-muted)",
                   fontSize: "16px",
                   fontFamily: "var(--font-roboto-mono), monospace",
                 }}
@@ -567,7 +567,7 @@ export default function StandingsPage() {
             <div style={{ textAlign: "center", padding: "80px 20px" }}>
               <p
                 style={{
-                  color: "rgba(255,255,255,0.5)",
+                  color: "var(--text-muted)",
                   fontSize: "18px",
                 }}
               >
@@ -576,7 +576,7 @@ export default function StandingsPage() {
               </p>
               <p
                 style={{
-                  color: "rgba(255,255,255,0.3)",
+                  color: "var(--text-faint)",
                   marginTop: "10px",
                 }}
               >

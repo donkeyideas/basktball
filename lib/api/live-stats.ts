@@ -90,15 +90,15 @@ const ESPN_STAT_MAP: Record<StatCategory, string> = {
   three_pct: "threePointFieldGoalPct",
 };
 
-// ESPN leader category IDs
+// ESPN leader category name fragments (matched via .includes())
 const ESPN_CATEGORY_MAP: Record<StatCategory, string> = {
-  ppg: "points",
-  rpg: "rebounds",
-  apg: "assists",
-  spg: "steals",
-  bpg: "blocks",
-  fg_pct: "fieldGoalPct",
-  three_pct: "threePointPct",
+  ppg: "pointsPerGame",
+  rpg: "reboundsPerGame",
+  apg: "assistsPerGame",
+  spg: "stealsPerGame",
+  bpg: "blocksPerGame",
+  fg_pct: "fieldGoalPer",
+  three_pct: "3PointPct",
 };
 
 interface EspnLeaderResponse {
@@ -108,9 +108,9 @@ interface EspnLeaderResponse {
     leaders: Array<{
       displayValue: string;
       value: number;
-      athlete: {
-        $ref: string;
-      };
+      athlete: { $ref: string };
+      team?: { $ref: string };
+      statistics?: { $ref: string };
     }>;
   }>;
 }
@@ -170,7 +170,7 @@ export async function getLeagueLeaders(
       return [];
     }
 
-    // Resolve athlete details in parallel (batch of 25 max)
+    // Resolve athlete + stats details in parallel (batch of 25 max)
     const leaderEntries = categoryData.leaders.slice(0, Math.min(limit, 25));
     const leaders: LiveLeader[] = [];
 
@@ -180,14 +180,28 @@ export async function getLeagueLeaders(
       const batch = leaderEntries.slice(i, i + batchSize);
       const results = await Promise.all(
         batch.map(async (entry) => {
-          const athlete = await resolveRef<EspnAthleteResponse>(entry.athlete.$ref);
+          // Fetch athlete and statistics in parallel (no extra latency)
+          const [athlete, statsData] = await Promise.all([
+            resolveRef<EspnAthleteResponse>(entry.athlete.$ref),
+            entry.statistics?.$ref
+              ? resolveRef<{
+                  splits?: {
+                    categories?: Array<{
+                      stats?: Array<{ name: string; value: number }>;
+                    }>;
+                  };
+                }>(entry.statistics.$ref)
+              : Promise.resolve(null),
+          ]);
+
           if (!athlete) return null;
 
-          // Get team info
+          // Get team info (uses team ref from the leader entry first, athlete fallback)
           let teamAbbr = "FA";
           let teamName = "Free Agent";
-          if (athlete.team?.$ref) {
-            const team = await resolveRef<EspnTeamRef>(athlete.team.$ref);
+          const teamRef = entry.team?.$ref || athlete.team?.$ref;
+          if (teamRef) {
+            const team = await resolveRef<EspnTeamRef>(teamRef);
             if (team) {
               teamAbbr = team.abbreviation || "FA";
               teamName = team.displayName || team.name || "Free Agent";
@@ -197,13 +211,25 @@ export async function getLeagueLeaders(
           // Use ESPN headshot or fallback to NBA CDN
           const imageUrl = athlete.headshot?.href || getNbaHeadshot(athlete.id);
 
+          // Extract GP from statistics (search all categories for gamesPlayed)
+          let gamesPlayed = 0;
+          if (statsData?.splits?.categories) {
+            for (const cat of statsData.splits.categories) {
+              const gpStat = cat.stats?.find((s) => s.name === "gamesPlayed");
+              if (gpStat) {
+                gamesPlayed = gpStat.value;
+                break;
+              }
+            }
+          }
+
           return {
             playerId: athlete.id,
             name: athlete.displayName,
             team: teamAbbr,
             teamName,
             value: Math.round(entry.value * 10) / 10,
-            gamesPlayed: 0, // ESPN leaders endpoint doesn't include GP directly
+            gamesPlayed,
             imageUrl,
             position: athlete.position?.abbreviation,
           };

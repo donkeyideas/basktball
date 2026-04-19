@@ -105,14 +105,14 @@ export default function RecommendationsTab({ data }: { data: RecommendationsData
         gap: "10px",
         marginBottom: "25px",
         padding: "16px",
-        background: "rgba(255,255,255,0.03)",
+        background: "var(--border-subtle)",
         borderRadius: "8px",
-        border: "1px solid rgba(255,255,255,0.08)",
+        border: "1px solid var(--border-subtle)",
         alignItems: "center",
       }}>
         <div style={{ flex: 1 }}>
           <div style={{ fontWeight: 600, fontSize: "14px", marginBottom: "4px" }}>Export Issues</div>
-          <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>
+          <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>
             Copy all {filtered.length} issues as formatted markdown to paste into Claude, ChatGPT, or share with a developer.
           </div>
         </div>
@@ -128,9 +128,9 @@ export default function RecommendationsTab({ data }: { data: RecommendationsData
           onClick={handleDownload}
           style={{
             whiteSpace: "nowrap",
-            background: "rgba(255,255,255,0.08)",
-            border: "1px solid rgba(255,255,255,0.15)",
-            color: "rgba(255,255,255,0.8)",
+            background: "var(--border-subtle)",
+            border: "1px solid var(--border-color)",
+            color: "var(--text-secondary)",
             padding: "8px 16px",
             borderRadius: "6px",
             cursor: "pointer",
@@ -187,9 +187,9 @@ export default function RecommendationsTab({ data }: { data: RecommendationsData
               padding: "6px 16px",
               borderRadius: "20px",
               border: "1px solid",
-              borderColor: categoryFilter === cat ? "var(--orange)" : "rgba(255,255,255,0.15)",
+              borderColor: categoryFilter === cat ? "var(--orange)" : "var(--border-color)",
               background: categoryFilter === cat ? "rgba(255, 107, 53, 0.15)" : "transparent",
-              color: categoryFilter === cat ? "var(--orange)" : "rgba(255,255,255,0.6)",
+              color: categoryFilter === cat ? "var(--orange)" : "var(--text-muted)",
               cursor: "pointer",
               fontSize: "13px",
               fontWeight: 500,
@@ -219,8 +219,8 @@ export default function RecommendationsTab({ data }: { data: RecommendationsData
                 fontSize: "11px",
                 padding: "2px 8px",
                 borderRadius: "10px",
-                background: "rgba(255,255,255,0.08)",
-                color: "rgba(255,255,255,0.5)",
+                background: "var(--border-subtle)",
+                color: "var(--text-muted)",
               }}>
                 {rec.category}
               </span>
@@ -228,12 +228,12 @@ export default function RecommendationsTab({ data }: { data: RecommendationsData
                 fontSize: "11px",
                 padding: "2px 8px",
                 borderRadius: "10px",
-                background: rec.impact === "high" ? "rgba(244,67,54,0.1)" : rec.impact === "medium" ? "rgba(255,152,0,0.1)" : "rgba(255,255,255,0.05)",
-                color: rec.impact === "high" ? "var(--red)" : rec.impact === "medium" ? "var(--yellow)" : "rgba(255,255,255,0.5)",
+                background: rec.impact === "high" ? "rgba(244,67,54,0.1)" : rec.impact === "medium" ? "rgba(255,152,0,0.1)" : "var(--border-subtle)",
+                color: rec.impact === "high" ? "var(--red)" : rec.impact === "medium" ? "var(--yellow)" : "var(--text-muted)",
               }}>
                 {rec.impact} impact
               </span>
-              <span style={{ marginLeft: "auto", color: "rgba(255,255,255,0.3)", fontSize: "14px" }}>
+              <span style={{ marginLeft: "auto", color: "var(--text-faint)", fontSize: "14px" }}>
                 {expandedRec === rec.id ? "\u25B2" : "\u25BC"}
               </span>
             </div>
@@ -244,12 +244,12 @@ export default function RecommendationsTab({ data }: { data: RecommendationsData
             {/* Expanded Content */}
             {expandedRec === rec.id && (
               <div style={{ marginTop: "12px" }}>
-                <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.6)", lineHeight: "1.6", marginBottom: "12px" }}>
+                <div style={{ fontSize: "13px", color: "var(--text-muted)", lineHeight: "1.6", marginBottom: "12px" }}>
                   {rec.description}
                 </div>
 
                 <div style={{
-                  background: "rgba(255,255,255,0.04)",
+                  background: "var(--border-subtle)",
                   borderRadius: "6px",
                   padding: "12px",
                   borderLeft: "3px solid var(--orange)",
@@ -258,14 +258,14 @@ export default function RecommendationsTab({ data }: { data: RecommendationsData
                   <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--orange)", marginBottom: "4px", textTransform: "uppercase", letterSpacing: "1px" }}>
                     How to Fix
                   </div>
-                  <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)", lineHeight: "1.6" }}>
+                  <div style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: "1.6" }}>
                     {rec.fix}
                   </div>
                 </div>
 
                 {rec.affectedPages && rec.affectedPages.length > 0 && (
                   <div>
-                    <div style={{ fontSize: "11px", fontWeight: 700, color: "rgba(255,255,255,0.5)", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "1px" }}>
+                    <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-muted)", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "1px" }}>
                       Affected Pages ({rec.affectedPages.length})
                     </div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
@@ -277,15 +277,15 @@ export default function RecommendationsTab({ data }: { data: RecommendationsData
                             fontFamily: "var(--font-roboto-mono), monospace",
                             padding: "3px 8px",
                             borderRadius: "4px",
-                            background: "rgba(255,255,255,0.06)",
-                            color: "rgba(255,255,255,0.6)",
+                            background: "var(--border-subtle)",
+                            color: "var(--text-muted)",
                           }}
                         >
                           {page}
                         </span>
                       ))}
                       {rec.affectedPages.length > 10 && (
-                        <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>
+                        <span style={{ fontSize: "11px", color: "var(--text-faint)" }}>
                           +{rec.affectedPages.length - 10} more
                         </span>
                       )}
@@ -298,7 +298,7 @@ export default function RecommendationsTab({ data }: { data: RecommendationsData
         ))}
 
         {filtered.length === 0 && (
-          <div style={{ textAlign: "center", padding: "40px", color: "rgba(255,255,255,0.5)" }}>
+          <div style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
             No recommendations match the selected filters.
           </div>
         )}

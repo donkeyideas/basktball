@@ -1,5 +1,6 @@
 import React from 'react';
 import { Text, Linking, StyleSheet } from 'react-native';
+import { router } from 'expo-router';
 import { Colors, Fonts } from '@/constants/Colors';
 
 const TOKEN_REGEX = /(https?:\/\/[^\s<>"{}|\\^`[\]]+)|(@[a-zA-Z0-9_]+)/gi;
@@ -46,10 +47,12 @@ export function LinkifiedText({ text, style }: LinkifiedTextProps) {
         </Text>
       );
     } else if (token.startsWith('@')) {
+      const handle = token.slice(1);
       parts.push(
         <Text
           key={`m-${match.index}`}
           style={linkStyles.mention}
+          onPress={() => router.push(`/user/${handle}`)}
         >
           {token}
         </Text>

@@ -120,7 +120,7 @@ export default function AdminAdsPage() {
 
         {isLoading ? (
           <div style={{ textAlign: "center", padding: "60px" }}>
-            <p style={{ color: "rgba(255,255,255,0.5)" }}>Loading campaigns...</p>
+            <p style={{ color: "var(--text-muted)" }}>Loading campaigns...</p>
           </div>
         ) : error ? (
           <div style={{ textAlign: "center", padding: "60px" }}>
@@ -143,7 +143,7 @@ export default function AdminAdsPage() {
               <tbody>
                 {campaigns.length === 0 ? (
                   <tr>
-                    <td colSpan={6} style={{ textAlign: "center", color: "rgba(255,255,255,0.5)" }}>
+                    <td colSpan={6} style={{ textAlign: "center", color: "var(--text-muted)" }}>
                       No campaigns created
                     </td>
                   </tr>
@@ -152,7 +152,7 @@ export default function AdminAdsPage() {
                     <tr key={campaign.id}>
                       <td>
                         <div style={{ fontWeight: "600" }}>{campaign.name}</div>
-                        <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>
+                        <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>
                           {campaign.placements.length} placement(s)
                         </div>
                       </td>

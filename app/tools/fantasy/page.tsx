@@ -121,7 +121,7 @@ export default function FantasyPage() {
           </h1>
           <p style={{
             textAlign: "center",
-            color: "rgba(255,255,255,0.6)",
+            color: "var(--text-muted)",
             marginBottom: "40px"
           }}>
             Maximize your fantasy lineup with smart player recommendations.
@@ -132,19 +132,19 @@ export default function FantasyPage() {
               <div style={{
                 width: "40px",
                 height: "40px",
-                border: "3px solid rgba(255,255,255,0.1)",
+                border: "3px solid var(--border-color)",
                 borderTopColor: "var(--orange)",
                 borderRadius: "50%",
                 margin: "0 auto 20px",
                 animation: "spin 1s linear infinite"
               }} />
-              <p style={{ color: "rgba(255,255,255,0.6)" }}>Loading player data...</p>
+              <p style={{ color: "var(--text-muted)" }}>Loading player data...</p>
               <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
             </div>
           ) : players.length === 0 ? (
             <div className="section" style={{ textAlign: "center", padding: "60px 20px" }}>
-              <p style={{ color: "rgba(255,255,255,0.6)", marginBottom: "10px" }}>No player data available at this time.</p>
-              <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "14px" }}>Check back later for updated projections.</p>
+              <p style={{ color: "var(--text-muted)", marginBottom: "10px" }}>No player data available at this time.</p>
+              <p style={{ color: "var(--text-faint)", fontSize: "14px" }}>Check back later for updated projections.</p>
             </div>
           ) : (
           <div className="team-analytics-layout">
@@ -156,7 +156,7 @@ export default function FantasyPage() {
                 {/* Salary Cap Bar */}
                 <div style={{ marginBottom: "20px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                    <span style={{ fontSize: "14px", color: "rgba(255,255,255,0.5)" }}>Salary Used</span>
+                    <span style={{ fontSize: "14px", color: "var(--text-muted)" }}>Salary Used</span>
                     <span style={{
                       fontFamily: "var(--font-roboto-mono), monospace",
                       color: totalSalary > SALARY_CAP ? "var(--red)" : "inherit"
@@ -164,7 +164,7 @@ export default function FantasyPage() {
                       ${totalSalary.toLocaleString()} / ${SALARY_CAP.toLocaleString()}
                     </span>
                   </div>
-                  <div style={{ height: "8px", background: "rgba(255,255,255,0.1)", borderRadius: "4px", overflow: "hidden" }}>
+                  <div style={{ height: "8px", background: "var(--border-color)", borderRadius: "4px", overflow: "hidden" }}>
                     <div style={{
                       width: `${Math.min(100, (totalSalary / SALARY_CAP) * 100)}%`,
                       height: "100%",
@@ -172,7 +172,7 @@ export default function FantasyPage() {
                       transition: "width 0.3s ease"
                     }} />
                   </div>
-                  <div style={{ marginTop: "5px", fontSize: "14px", color: "rgba(255,255,255,0.5)" }}>
+                  <div style={{ marginTop: "5px", fontSize: "14px", color: "var(--text-muted)" }}>
                     Remaining: ${remainingSalary.toLocaleString()}
                   </div>
                 </div>
@@ -185,7 +185,7 @@ export default function FantasyPage() {
                     padding: "12px",
                     background: "rgba(0,0,0,0.3)",
                     marginBottom: "8px",
-                    border: lineup[index] ? "1px solid var(--green)" : "1px solid rgba(255,255,255,0.1)"
+                    border: lineup[index] ? "1px solid var(--green)" : "1px solid var(--border-color)"
                   }}>
                     <div style={{
                       width: "40px",
@@ -203,7 +203,7 @@ export default function FantasyPage() {
                       <div style={{ flex: 1, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                         <div>
                           <div style={{ fontWeight: "bold" }}>{lineup[index]?.name}</div>
-                          <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>
+                          <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>
                             ${lineup[index]?.salary.toLocaleString()} | {lineup[index]?.projectedPts.toFixed(1)} pts
                           </div>
                         </div>
@@ -221,7 +221,7 @@ export default function FantasyPage() {
                         </button>
                       </div>
                     ) : (
-                      <span style={{ color: "rgba(255,255,255,0.3)" }}>Select player...</span>
+                      <span style={{ color: "var(--text-faint)" }}>Select player...</span>
                     )}
                   </div>
                 ))}
@@ -234,7 +234,7 @@ export default function FantasyPage() {
                   border: "1px solid var(--green)",
                   textAlign: "center"
                 }}>
-                  <div style={{ color: "rgba(255,255,255,0.5)", marginBottom: "5px" }}>Projected Points</div>
+                  <div style={{ color: "var(--text-muted)", marginBottom: "5px" }}>Projected Points</div>
                   <div style={{
                     fontFamily: "var(--font-roboto-mono), monospace",
                     fontSize: "36px",
@@ -254,7 +254,7 @@ export default function FantasyPage() {
                     flex: 1,
                     padding: "12px",
                     background: "transparent",
-                    border: "1px solid rgba(255,255,255,0.2)",
+                    border: "1px solid var(--text-faint)",
                     color: "var(--white)",
                     cursor: "pointer"
                   }}>
@@ -277,7 +277,7 @@ export default function FantasyPage() {
                       padding: "8px 15px",
                       background: positionFilter === "all" ? "var(--orange)" : "transparent",
                       border: "1px solid",
-                      borderColor: positionFilter === "all" ? "var(--orange)" : "rgba(255,255,255,0.2)",
+                      borderColor: positionFilter === "all" ? "var(--orange)" : "var(--text-faint)",
                       color: "var(--white)",
                       cursor: "pointer"
                     }}
@@ -292,7 +292,7 @@ export default function FantasyPage() {
                         padding: "8px 15px",
                         background: positionFilter === pos ? "var(--orange)" : "transparent",
                         border: "1px solid",
-                        borderColor: positionFilter === pos ? "var(--orange)" : "rgba(255,255,255,0.2)",
+                        borderColor: positionFilter === pos ? "var(--orange)" : "var(--text-faint)",
                         color: "var(--white)",
                         cursor: "pointer"
                       }}
@@ -308,7 +308,7 @@ export default function FantasyPage() {
                   style={{
                     padding: "8px 15px",
                     background: "rgba(0,0,0,0.3)",
-                    border: "1px solid rgba(255,255,255,0.2)",
+                    border: "1px solid var(--text-faint)",
                     color: "var(--white)"
                   }}
                 >
@@ -349,7 +349,7 @@ export default function FantasyPage() {
 
                       return (
                         <tr key={player.id} style={{
-                          borderBottom: "1px solid rgba(255,255,255,0.1)",
+                          borderBottom: "1px solid var(--border-color)",
                           opacity: player.status === "out" ? 0.5 : 1
                         }}>
                           <td style={{ padding: "12px", fontWeight: "bold" }}>{player.name}</td>
@@ -388,9 +388,9 @@ export default function FantasyPage() {
                               disabled={!canAdd}
                               style={{
                                 padding: "6px 12px",
-                                background: canAdd ? "var(--green)" : "rgba(255,255,255,0.1)",
+                                background: canAdd ? "var(--green)" : "var(--border-color)",
                                 border: "none",
-                                color: canAdd ? "var(--white)" : "rgba(255,255,255,0.3)",
+                                color: canAdd ? "var(--white)" : "var(--text-faint)",
                                 cursor: canAdd ? "pointer" : "not-allowed",
                                 fontSize: "12px"
                               }}
@@ -411,7 +411,7 @@ export default function FantasyPage() {
           {/* Disclaimer */}
           <p style={{
             textAlign: "center",
-            color: "rgba(255,255,255,0.35)",
+            color: "var(--text-faint)",
             fontSize: "12px",
             marginTop: "30px",
             fontStyle: "italic"

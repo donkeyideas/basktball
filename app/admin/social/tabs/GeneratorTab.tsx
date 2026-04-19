@@ -162,9 +162,9 @@ export default function GeneratorTab() {
             width: "100%",
             padding: "10px 14px",
             background: "rgba(0,0,0,0.3)",
-            border: "1px solid rgba(255,255,255,0.1)",
+            border: "1px solid var(--border-color)",
             borderRadius: "8px",
-            color: "white",
+            color: "var(--white)",
             fontSize: "14px",
           }}
         />
@@ -180,10 +180,10 @@ export default function GeneratorTab() {
               onClick={() => setTone(t.id)}
               style={{
                 padding: "8px 20px",
-                background: tone === t.id ? "var(--orange)" : "rgba(255,255,255,0.05)",
-                border: `1px solid ${tone === t.id ? "var(--orange)" : "rgba(255,255,255,0.1)"}`,
+                background: tone === t.id ? "var(--orange)" : "var(--border-subtle)",
+                border: `1px solid ${tone === t.id ? "var(--orange)" : "var(--border-color)"}`,
                 borderRadius: "6px",
-                color: tone === t.id ? "black" : "rgba(255,255,255,0.7)",
+                color: tone === t.id ? "black" : "var(--text-secondary)",
                 fontWeight: tone === t.id ? 700 : 400,
                 cursor: "pointer",
                 fontSize: "13px",
@@ -208,12 +208,12 @@ export default function GeneratorTab() {
                 alignItems: "center",
                 gap: "8px",
                 padding: "8px 16px",
-                background: selectedPlatforms.includes(p.id) ? "rgba(255,107,53,0.1)" : "rgba(255,255,255,0.03)",
-                border: `1px solid ${selectedPlatforms.includes(p.id) ? "rgba(255,107,53,0.3)" : "rgba(255,255,255,0.1)"}`,
+                background: selectedPlatforms.includes(p.id) ? "rgba(255,107,53,0.1)" : "var(--border-subtle)",
+                border: `1px solid ${selectedPlatforms.includes(p.id) ? "rgba(255,107,53,0.3)" : "var(--border-color)"}`,
                 borderRadius: "6px",
                 cursor: "pointer",
                 fontSize: "13px",
-                color: selectedPlatforms.includes(p.id) ? "var(--orange)" : "rgba(255,255,255,0.7)",
+                color: selectedPlatforms.includes(p.id) ? "var(--orange)" : "var(--text-secondary)",
               }}
             >
               <input
@@ -264,7 +264,7 @@ export default function GeneratorTab() {
                       style={{
                         fontSize: "12px",
                         fontFamily: "'Roboto Mono', monospace",
-                        color: overLimit ? "var(--red)" : "rgba(255,255,255,0.4)",
+                        color: overLimit ? "var(--red)" : "var(--text-faint)",
                       }}
                     >
                       {content.length} / {limit}
@@ -279,9 +279,9 @@ export default function GeneratorTab() {
                       width: "100%",
                       padding: "10px",
                       background: "rgba(0,0,0,0.3)",
-                      border: `1px solid ${overLimit ? "rgba(239,68,68,0.3)" : "rgba(255,255,255,0.1)"}`,
+                      border: `1px solid ${overLimit ? "rgba(239,68,68,0.3)" : "var(--border-color)"}`,
                       borderRadius: "6px",
-                      color: "white",
+                      color: "var(--white)",
                       fontSize: "13px",
                       resize: "vertical",
                       fontFamily: "inherit",
@@ -289,7 +289,7 @@ export default function GeneratorTab() {
                   />
 
                   {draft.hashtags.length > 0 && (
-                    <div style={{ marginTop: "8px", fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>
+                    <div style={{ marginTop: "8px", fontSize: "12px", color: "var(--text-muted)" }}>
                       {draft.hashtags.map((tag) => (
                         <span key={tag} style={{ marginRight: "8px", color: "var(--blue, #3B82F6)" }}>
                           #{tag}
@@ -299,7 +299,7 @@ export default function GeneratorTab() {
                   )}
 
                   {draft.imagePrompt && (
-                    <div style={{ marginTop: "8px", fontSize: "12px", color: "rgba(255,255,255,0.4)", fontStyle: "italic" }}>
+                    <div style={{ marginTop: "8px", fontSize: "12px", color: "var(--text-faint)", fontStyle: "italic" }}>
                       Image: {draft.imagePrompt}
                     </div>
                   )}

@@ -174,9 +174,9 @@ export default function OverviewTab({ data, recsData, aeoCroData }: { data: Over
           <div style={{ width: "100%", height: 300 }}>
             <ResponsiveContainer>
               <RadarChart data={data.seoRadar}>
-                <PolarGrid stroke="rgba(255,255,255,0.1)" />
-                <PolarAngleAxis dataKey="axis" tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 11 }} />
-                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 10 }} />
+                <PolarGrid stroke="var(--border-color)" />
+                <PolarAngleAxis dataKey="axis" tick={{ fill: "var(--text-secondary)", fontSize: 11 }} />
+                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: "var(--text-faint)", fontSize: 10 }} />
                 <Radar name="SEO" dataKey="value" stroke="#FF6B35" fill="#FF6B35" fillOpacity={0.3} />
               </RadarChart>
             </ResponsiveContainer>
@@ -188,9 +188,9 @@ export default function OverviewTab({ data, recsData, aeoCroData }: { data: Over
           <div style={{ width: "100%", height: 300 }}>
             <ResponsiveContainer>
               <RadarChart data={data.geoRadar}>
-                <PolarGrid stroke="rgba(255,255,255,0.1)" />
-                <PolarAngleAxis dataKey="axis" tick={{ fill: "rgba(255,255,255,0.7)", fontSize: 11 }} />
-                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 10 }} />
+                <PolarGrid stroke="var(--border-color)" />
+                <PolarAngleAxis dataKey="axis" tick={{ fill: "var(--text-secondary)", fontSize: 11 }} />
+                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: "var(--text-faint)", fontSize: 10 }} />
                 <Radar name="GEO" dataKey="value" stroke="#4A90D9" fill="#4A90D9" fillOpacity={0.3} />
               </RadarChart>
             </ResponsiveContainer>
@@ -204,16 +204,16 @@ export default function OverviewTab({ data, recsData, aeoCroData }: { data: Over
         <div style={{ width: "100%", height: 300 }}>
           <ResponsiveContainer>
             <LineChart data={data.trendData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
               <XAxis
                 dataKey="date"
-                tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }}
+                tick={{ fill: "var(--text-muted)", fontSize: 10 }}
                 tickFormatter={(v: string) => v.slice(5)}
               />
-              <YAxis domain={[0, 100]} tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 10 }} />
+              <YAxis domain={[0, 100]} tick={{ fill: "var(--text-muted)", fontSize: 10 }} />
               <Tooltip
-                contentStyle={{ background: "#1a1a2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "8px" }}
-                labelStyle={{ color: "rgba(255,255,255,0.7)" }}
+                contentStyle={{ background: "#1a1a2e", border: "1px solid var(--border-color)", borderRadius: "8px" }}
+                labelStyle={{ color: "var(--text-secondary)" }}
               />
               <Legend />
               <Line type="monotone" dataKey="seoScore" stroke="#FF6B35" strokeWidth={2} name="SEO Score" dot={false} />
@@ -234,10 +234,10 @@ export default function OverviewTab({ data, recsData, aeoCroData }: { data: Over
                   <span className={`seo-severity-badge seo-severity-${rec.severity}`}>
                     {rec.severity.toUpperCase()}
                   </span>
-                  <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>{rec.category}</span>
+                  <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>{rec.category}</span>
                 </div>
                 <div style={{ fontWeight: 600, marginBottom: "4px" }}>{rec.title}</div>
-                <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.6)" }}>{rec.fix}</div>
+                <div style={{ fontSize: "13px", color: "var(--text-muted)" }}>{rec.fix}</div>
               </div>
             ))}
           </div>

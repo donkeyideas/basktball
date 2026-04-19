@@ -110,7 +110,7 @@ export default function DraftPage() {
           </h1>
           <p style={{
             textAlign: "center",
-            color: "rgba(255,255,255,0.6)",
+            color: "var(--text-muted)",
             marginBottom: "40px"
           }}>
             2026 NBA Draft prospect analysis and big board rankings.
@@ -121,19 +121,19 @@ export default function DraftPage() {
               <div style={{
                 width: "40px",
                 height: "40px",
-                border: "3px solid rgba(255,255,255,0.1)",
+                border: "3px solid var(--border-color)",
                 borderTopColor: "var(--orange)",
                 borderRadius: "50%",
                 margin: "0 auto 20px",
                 animation: "spin 1s linear infinite"
               }} />
-              <p style={{ color: "rgba(255,255,255,0.6)" }}>Loading draft prospects...</p>
+              <p style={{ color: "var(--text-muted)" }}>Loading draft prospects...</p>
               <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
             </div>
           ) : prospects.length === 0 ? (
             <div className="section" style={{ textAlign: "center", padding: "60px 20px" }}>
-              <p style={{ color: "rgba(255,255,255,0.6)", marginBottom: "10px" }}>No draft prospects available.</p>
-              <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "14px" }}>Draft data can be managed from the admin panel.</p>
+              <p style={{ color: "var(--text-muted)", marginBottom: "10px" }}>No draft prospects available.</p>
+              <p style={{ color: "var(--text-faint)", fontSize: "14px" }}>Draft data can be managed from the admin panel.</p>
             </div>
           ) : (
           <div style={{ display: "grid", gridTemplateColumns: "400px 1fr", gap: "30px" }}>
@@ -152,7 +152,7 @@ export default function DraftPage() {
                     width: "100%",
                     padding: "12px",
                     background: "rgba(0,0,0,0.3)",
-                    border: "1px solid rgba(255,255,255,0.1)",
+                    border: "1px solid var(--border-color)",
                     color: "var(--white)",
                     marginBottom: "10px"
                   }}
@@ -166,7 +166,7 @@ export default function DraftPage() {
                         padding: "6px 12px",
                         background: positionFilter === pos ? "var(--orange)" : "transparent",
                         border: "1px solid",
-                        borderColor: positionFilter === pos ? "var(--orange)" : "rgba(255,255,255,0.2)",
+                        borderColor: positionFilter === pos ? "var(--orange)" : "var(--text-faint)",
                         color: "var(--white)",
                         cursor: "pointer",
                         fontSize: "12px"
@@ -199,7 +199,7 @@ export default function DraftPage() {
                       <div style={{
                         width: "40px",
                         height: "40px",
-                        background: prospect.rank <= 3 ? "var(--orange)" : "rgba(255,255,255,0.1)",
+                        background: prospect.rank <= 3 ? "var(--orange)" : "var(--border-color)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -218,7 +218,7 @@ export default function DraftPage() {
                         overflow: "hidden",
                         marginRight: "12px",
                         flexShrink: 0,
-                        background: "rgba(255,255,255,0.1)",
+                        background: "var(--border-color)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -244,12 +244,12 @@ export default function DraftPage() {
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontWeight: "bold", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{prospect.name}</div>
-                        <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>
+                        <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>
                           {prospect.position} | {prospect.school}
                         </div>
                       </div>
                       <div style={{ textAlign: "right", flexShrink: 0 }}>
-                        <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>Projected</div>
+                        <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>Projected</div>
                         <div style={{ fontFamily: "var(--font-roboto-mono), monospace", color: "var(--green)" }}>
                           #{prospect.projectedPick}
                         </div>
@@ -269,7 +269,7 @@ export default function DraftPage() {
                   <div style={{
                     width: "150px",
                     height: "150px",
-                    background: "rgba(255,255,255,0.05)",
+                    background: "var(--border-subtle)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -321,24 +321,24 @@ export default function DraftPage() {
                         {selectedProspect.name}
                       </h2>
                     </div>
-                    <div style={{ color: "rgba(255,255,255,0.6)", marginBottom: "15px" }}>
+                    <div style={{ color: "var(--text-muted)", marginBottom: "15px" }}>
                       {selectedProspect.position} | {selectedProspect.school}
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "15px" }}>
                       <div>
-                        <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>Height</div>
+                        <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>Height</div>
                         <div style={{ fontFamily: "var(--font-roboto-mono), monospace", fontWeight: "bold" }}>{selectedProspect.height}</div>
                       </div>
                       <div>
-                        <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>Weight</div>
+                        <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>Weight</div>
                         <div style={{ fontFamily: "var(--font-roboto-mono), monospace", fontWeight: "bold" }}>{selectedProspect.weight} lbs</div>
                       </div>
                       <div>
-                        <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>Age</div>
+                        <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>Age</div>
                         <div style={{ fontFamily: "var(--font-roboto-mono), monospace", fontWeight: "bold" }}>{selectedProspect.age}</div>
                       </div>
                       <div>
-                        <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>Projected</div>
+                        <div style={{ fontSize: "12px", color: "var(--text-muted)" }}>Projected</div>
                         <div style={{ fontFamily: "var(--font-roboto-mono), monospace", fontWeight: "bold", color: "var(--green)" }}>
                           Pick #{selectedProspect.projectedPick}
                         </div>
@@ -362,7 +362,7 @@ export default function DraftPage() {
                       <div style={{ fontFamily: "var(--font-roboto-mono), monospace", fontSize: "24px", fontWeight: "bold" }}>
                         {stat.value.toFixed(1)}
                       </div>
-                      <div style={{ color: "rgba(255,255,255,0.5)", fontSize: "14px" }}>{stat.label}</div>
+                      <div style={{ color: "var(--text-muted)", fontSize: "14px" }}>{stat.label}</div>
                     </div>
                   ))}
                 </div>

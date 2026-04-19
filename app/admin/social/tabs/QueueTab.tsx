@@ -105,7 +105,7 @@ export default function QueueTab() {
   }
 
   if (isLoading) {
-    return <div style={{ textAlign: "center", padding: "40px", color: "rgba(255,255,255,0.5)" }}>Loading queue...</div>;
+    return <div style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>Loading queue...</div>;
   }
 
   return (
@@ -134,9 +134,9 @@ export default function QueueTab() {
           style={{
             padding: "8px 12px",
             background: "rgba(0,0,0,0.3)",
-            border: "1px solid rgba(255,255,255,0.1)",
+            border: "1px solid var(--border-color)",
             borderRadius: "6px",
-            color: "white",
+            color: "var(--white)",
             fontSize: "13px",
           }}
         >
@@ -152,9 +152,9 @@ export default function QueueTab() {
           style={{
             padding: "8px 12px",
             background: "rgba(0,0,0,0.3)",
-            border: "1px solid rgba(255,255,255,0.1)",
+            border: "1px solid var(--border-color)",
             borderRadius: "6px",
-            color: "white",
+            color: "var(--white)",
             fontSize: "13px",
           }}
         >
@@ -170,7 +170,7 @@ export default function QueueTab() {
 
       {/* Posts Table */}
       {posts.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "40px", color: "rgba(255,255,255,0.4)" }}>
+        <div style={{ textAlign: "center", padding: "40px", color: "var(--text-faint)" }}>
           No posts in queue. Use the Generator tab to create content.
         </div>
       ) : (
@@ -192,7 +192,7 @@ export default function QueueTab() {
                     {post.content.substring(0, 100)}{post.content.length > 100 ? "..." : ""}
                   </div>
                   {post.topic && (
-                    <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)", marginTop: "4px" }}>
+                    <div style={{ fontSize: "11px", color: "var(--text-faint)", marginTop: "4px" }}>
                       Topic: {post.topic}
                     </div>
                   )}
@@ -207,7 +207,7 @@ export default function QueueTab() {
                     {post.status}
                   </span>
                 </td>
-                <td style={{ fontSize: "12px", fontFamily: "'Roboto Mono', monospace", color: "rgba(255,255,255,0.5)" }}>
+                <td style={{ fontSize: "12px", fontFamily: "'Roboto Mono', monospace", color: "var(--text-muted)" }}>
                   {new Date(post.createdAt).toLocaleDateString()}
                 </td>
                 <td>
@@ -246,7 +246,7 @@ export default function QueueTab() {
           >
             Previous
           </button>
-          <span style={{ color: "rgba(255,255,255,0.5)", fontSize: "13px", alignSelf: "center" }}>
+          <span style={{ color: "var(--text-muted)", fontSize: "13px", alignSelf: "center" }}>
             Page {page}
           </span>
           <button

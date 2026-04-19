@@ -205,7 +205,7 @@ export default function AdminHistoryPage() {
               padding: "10px 20px",
               background: activeTab === "records" ? "var(--orange)" : "var(--dark-gray)",
               border: "2px solid",
-              borderColor: activeTab === "records" ? "var(--orange)" : "rgba(255,255,255,0.1)",
+              borderColor: activeTab === "records" ? "var(--orange)" : "var(--border-color)",
               color: "var(--white)",
               cursor: "pointer"
             }}
@@ -218,7 +218,7 @@ export default function AdminHistoryPage() {
               padding: "10px 20px",
               background: activeTab === "seasons" ? "var(--orange)" : "var(--dark-gray)",
               border: "2px solid",
-              borderColor: activeTab === "seasons" ? "var(--orange)" : "rgba(255,255,255,0.1)",
+              borderColor: activeTab === "seasons" ? "var(--orange)" : "var(--border-color)",
               color: "var(--white)",
               cursor: "pointer"
             }}
@@ -236,71 +236,71 @@ export default function AdminHistoryPage() {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "15px", marginBottom: "20px" }}>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>Category</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>Category</label>
                 <input
                   type="text"
                   value={recordForm.category}
                   placeholder="e.g., Career Points"
                   onChange={e => setRecordForm(prev => ({ ...prev, category: e.target.value }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>Record Value</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>Record Value</label>
                 <input
                   type="text"
                   value={recordForm.record}
                   placeholder="e.g., 38,387"
                   onChange={e => setRecordForm(prev => ({ ...prev, record: e.target.value }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>Record Holder</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>Record Holder</label>
                 <input
                   type="text"
                   value={recordForm.holder}
                   placeholder="e.g., LeBron James"
                   onChange={e => setRecordForm(prev => ({ ...prev, holder: e.target.value }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>Date/Era</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>Date/Era</label>
                 <input
                   type="text"
                   value={recordForm.date}
                   placeholder="e.g., Active or 1984-2003"
                   onChange={e => setRecordForm(prev => ({ ...prev, date: e.target.value }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
             </div>
 
             <div style={{ marginBottom: "20px" }}>
-              <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>Details</label>
+              <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>Details</label>
               <input
                 type="text"
                 value={recordForm.details || ""}
                 placeholder="Additional details about the record"
                 onChange={e => setRecordForm(prev => ({ ...prev, details: e.target.value }))}
-                style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
               />
             </div>
 
             <div style={{ marginBottom: "20px" }}>
-              <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>Sort Order</label>
+              <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>Sort Order</label>
               <input
                 type="number"
                 value={recordForm.sortOrder}
                 onChange={e => setRecordForm(prev => ({ ...prev, sortOrder: parseInt(e.target.value) || 0 }))}
-                style={{ width: "150px", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                style={{ width: "150px", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
               />
             </div>
 
             <div style={{ display: "flex", gap: "10px" }}>
               <button onClick={saveRecord} className="btn btn-primary">Save Record</button>
-              <button onClick={cancelRecordEdit} style={{ padding: "10px 20px", background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "var(--white)", cursor: "pointer" }}>Cancel</button>
+              <button onClick={cancelRecordEdit} style={{ padding: "10px 20px", background: "transparent", border: "1px solid var(--text-faint)", color: "var(--white)", cursor: "pointer" }}>Cancel</button>
             </div>
           </div>
         )}
@@ -314,70 +314,70 @@ export default function AdminHistoryPage() {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "15px", marginBottom: "20px" }}>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>Year</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>Year</label>
                 <input
                   type="text"
                   value={seasonForm.year}
                   placeholder="e.g., 2025-26"
                   onChange={e => setSeasonForm(prev => ({ ...prev, year: e.target.value }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>Champion</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>Champion</label>
                 <input
                   type="text"
                   value={seasonForm.champion}
                   placeholder="e.g., Boston Celtics"
                   onChange={e => setSeasonForm(prev => ({ ...prev, champion: e.target.value }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>Finals Score</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>Finals Score</label>
                 <input
                   type="text"
                   value={seasonForm.finalsScore}
                   placeholder="e.g., 4-1 vs Dallas"
                   onChange={e => setSeasonForm(prev => ({ ...prev, finalsScore: e.target.value }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>MVP</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>MVP</label>
                 <input
                   type="text"
                   value={seasonForm.mvp}
                   placeholder="e.g., Nikola Jokic"
                   onChange={e => setSeasonForm(prev => ({ ...prev, mvp: e.target.value }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>Top Scorer</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>Top Scorer</label>
                 <input
                   type="text"
                   value={seasonForm.topScorer}
                   placeholder="e.g., Luka Doncic"
                   onChange={e => setSeasonForm(prev => ({ ...prev, topScorer: e.target.value }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
               <div>
-                <label style={{ display: "block", marginBottom: "5px", color: "rgba(255,255,255,0.6)" }}>Top Scorer PPG</label>
+                <label style={{ display: "block", marginBottom: "5px", color: "var(--text-muted)" }}>Top Scorer PPG</label>
                 <input
                   type="number"
                   step="0.1"
                   value={seasonForm.topScorerPpg}
                   onChange={e => setSeasonForm(prev => ({ ...prev, topScorerPpg: parseFloat(e.target.value) || 0 }))}
-                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid rgba(255,255,255,0.1)", color: "var(--white)" }}
+                  style={{ width: "100%", padding: "10px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border-color)", color: "var(--white)" }}
                 />
               </div>
             </div>
 
             <div style={{ display: "flex", gap: "10px" }}>
               <button onClick={saveSeason} className="btn btn-primary">Save Season</button>
-              <button onClick={cancelSeasonEdit} style={{ padding: "10px 20px", background: "transparent", border: "1px solid rgba(255,255,255,0.2)", color: "var(--white)", cursor: "pointer" }}>Cancel</button>
+              <button onClick={cancelSeasonEdit} style={{ padding: "10px 20px", background: "transparent", border: "1px solid var(--text-faint)", color: "var(--white)", cursor: "pointer" }}>Cancel</button>
             </div>
           </div>
         )}
@@ -385,7 +385,7 @@ export default function AdminHistoryPage() {
         {/* Content */}
         {isLoading ? (
           <div style={{ textAlign: "center", padding: "60px" }}>
-            <p style={{ color: "rgba(255,255,255,0.5)" }}>Loading history...</p>
+            <p style={{ color: "var(--text-muted)" }}>Loading history...</p>
           </div>
         ) : error ? (
           <div style={{ textAlign: "center", padding: "60px" }}>
@@ -396,7 +396,7 @@ export default function AdminHistoryPage() {
           records.length === 0 ? (
             <div className="section">
               <div style={{ textAlign: "center", padding: "40px" }}>
-                <p style={{ color: "rgba(255,255,255,0.5)" }}>No records yet. Add your first record!</p>
+                <p style={{ color: "var(--text-muted)" }}>No records yet. Add your first record!</p>
               </div>
             </div>
           ) : (
@@ -415,12 +415,12 @@ export default function AdminHistoryPage() {
                 </thead>
                 <tbody>
                   {records.map(record => (
-                    <tr key={record.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+                    <tr key={record.id} style={{ borderBottom: "1px solid var(--border-color)" }}>
                       <td style={{ padding: "12px", fontWeight: "bold", color: "var(--orange)" }}>{record.category}</td>
                       <td style={{ padding: "12px", textAlign: "center", fontFamily: "var(--font-roboto-mono)", fontSize: "18px", fontWeight: "bold" }}>{record.record}</td>
                       <td style={{ padding: "12px", fontWeight: "bold" }}>{record.holder}</td>
                       <td style={{ padding: "12px", textAlign: "center" }}>{record.date}</td>
-                      <td style={{ padding: "12px", color: "rgba(255,255,255,0.6)", fontSize: "14px" }}>{record.details}</td>
+                      <td style={{ padding: "12px", color: "var(--text-muted)", fontSize: "14px" }}>{record.details}</td>
                       <td style={{ padding: "12px", textAlign: "right" }}>
                         <button
                           onClick={() => startEditRecord(record)}
@@ -445,7 +445,7 @@ export default function AdminHistoryPage() {
           seasons.length === 0 ? (
             <div className="section">
               <div style={{ textAlign: "center", padding: "40px" }}>
-                <p style={{ color: "rgba(255,255,255,0.5)" }}>No seasons yet. Add your first season!</p>
+                <p style={{ color: "var(--text-muted)" }}>No seasons yet. Add your first season!</p>
               </div>
             </div>
           ) : (
@@ -464,7 +464,7 @@ export default function AdminHistoryPage() {
                 </thead>
                 <tbody>
                   {seasons.map(season => (
-                    <tr key={season.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+                    <tr key={season.id} style={{ borderBottom: "1px solid var(--border-color)" }}>
                       <td style={{ padding: "12px", fontFamily: "var(--font-roboto-mono)", fontWeight: "bold", color: "var(--orange)" }}>{season.year}</td>
                       <td style={{ padding: "12px", fontWeight: "bold" }}>{season.champion}</td>
                       <td style={{ padding: "12px", textAlign: "center" }}>{season.finalsScore}</td>
