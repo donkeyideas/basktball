@@ -15,13 +15,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, usePathname } from 'expo-router';
 import { Image as ExpoImage } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
-import * as SecureStore from 'expo-secure-store';
 import { Colors, Fonts } from '@/constants/Colors';
 import { useTheme } from '@/lib/theme/ThemeContext';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { api } from '@/lib/api/client';
 import { GifPicker } from '@/components/feed/GifPicker';
 import { MentionAutocomplete } from '@/components/feed/MentionAutocomplete';
+import { uploadImage } from '@/lib/upload/imageUpload';
 
 const API_BASE = 'https://www.basktball.com';
 
@@ -136,42 +136,12 @@ export default function ComposeFAB() {
       if (result.canceled || !result.assets?.[0]) return;
 
       const asset = result.assets[0];
-      const uri = asset.uri;
-      const mimeType = asset.mimeType || 'image/jpeg';
-      const fileSize = asset.fileSize || 0;
-
       setUploading(true);
-      const authToken = await SecureStore.getItemAsync('auth_token');
-      if (!authToken) {
-        showAlert('Error', 'Please sign in again.');
-        setUploading(false);
-        return;
-      }
-
-      // Get presigned upload URL
-      const presignRes = await fetch(`${API_BASE}/api/mobile/upload`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${authToken}`,
-        },
-        body: JSON.stringify({ contentType: mimeType, fileSize }),
-      });
-      if (!presignRes.ok) {
-        const err = await presignRes.json().catch(() => ({}));
-        throw new Error(err.error || 'Failed to get upload URL');
-      }
-      const { uploadUrl, publicUrl } = await presignRes.json();
-
-      // Upload file to R2
-      const blob = await fetch(uri).then((r) => r.blob());
-      const uploadRes = await fetch(uploadUrl, {
-        method: 'PUT',
-        headers: { 'Content-Type': mimeType },
-        body: blob,
-      });
-      if (!uploadRes.ok) throw new Error('Upload failed');
-
+      const { publicUrl } = await uploadImage(
+        asset.uri,
+        asset.mimeType || 'image/jpeg',
+        asset.fileSize || 0,
+      );
       setComposeMediaUrl(publicUrl);
     } catch (err: any) {
       showAlert('Upload Error', err?.message || 'Failed to upload image.');

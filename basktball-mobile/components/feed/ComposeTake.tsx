@@ -11,11 +11,11 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
-import * as SecureStore from 'expo-secure-store';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Fonts } from '@/constants/Colors';
 import { GifPicker } from './GifPicker';
 import { MentionAutocomplete } from './MentionAutocomplete';
+import { uploadImage } from '@/lib/upload/imageUpload';
 
 const MAX_CHARS = 280;
 const DURATION_OPTIONS = [
@@ -123,55 +123,13 @@ export function ComposeTake({ onSubmit, onCancel, userName, apiBase = 'https://w
     if (result.canceled || !result.assets?.[0]) return;
 
     const asset = result.assets[0];
-    const uri = asset.uri;
-    const mimeType = asset.mimeType || 'image/jpeg';
-    const fileSize = asset.fileSize || 0;
-
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
-    if (!allowedTypes.includes(mimeType)) {
-      Alert.alert('Invalid format', 'Only JPEG, PNG, WebP, and GIF images are allowed.');
-      return;
-    }
-
-    if (fileSize > 10 * 1024 * 1024) {
-      Alert.alert('Too large', 'Image must be under 10 MB.');
-      return;
-    }
-
     setUploading(true);
     try {
-      // Get presigned URL from our API
-      const token = await SecureStore.getItemAsync('auth_token');
-      const presignRes = await fetch(`${apiBase}/mobile/upload`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ contentType: mimeType, fileSize }),
-      });
-
-      if (!presignRes.ok) {
-        const err = await presignRes.json().catch(() => ({ error: 'Upload failed' }));
-        throw new Error(err.error || 'Failed to get upload URL');
-      }
-
-      const { uploadUrl, publicUrl } = await presignRes.json();
-
-      // Read file and upload to R2
-      const fileRes = await fetch(uri);
-      const blob = await fileRes.blob();
-
-      const uploadRes = await fetch(uploadUrl, {
-        method: 'PUT',
-        headers: { 'Content-Type': mimeType },
-        body: blob,
-      });
-
-      if (!uploadRes.ok) {
-        throw new Error('Upload to storage failed');
-      }
-
+      const { publicUrl } = await uploadImage(
+        asset.uri,
+        asset.mimeType || 'image/jpeg',
+        asset.fileSize || 0,
+      );
       setMediaUrl(publicUrl);
     } catch (err) {
       Alert.alert('Upload failed', err instanceof Error ? err.message : 'Could not upload image.');
