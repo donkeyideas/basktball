@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
-import { requireMobileUser } from "@/lib/mobile-auth";
+import { requireMobileUser, AuthError } from "@/lib/mobile-auth";
 
 const VALID_REASONS = ["SPAM", "HARASSMENT", "OFFENSIVE", "OFF_TOPIC", "MISINFORMATION", "OTHER"] as const;
 
@@ -67,8 +67,8 @@ export async function POST(
 
     return NextResponse.json({ reported: true });
   } catch (error: any) {
-    if (error.message === "Unauthorized") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (error instanceof AuthError) {
+      return NextResponse.json({ message: error.message }, { status: 401 });
     }
     console.error("Report take error:", error);
     return NextResponse.json(

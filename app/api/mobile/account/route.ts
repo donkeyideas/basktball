@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
-import { requireMobileUser } from "@/lib/mobile-auth";
+import { requireMobileUser, AuthError } from "@/lib/mobile-auth";
 
 export async function DELETE(request: Request) {
   try {
@@ -17,8 +17,8 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ message: "Account deleted" });
   } catch (error: unknown) {
-    if (error instanceof Error && error.message === "Unauthorized") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (error instanceof AuthError) {
+      return NextResponse.json({ message: error.message }, { status: 401 });
     }
     console.error("Delete account error:", error);
     return NextResponse.json({ message: "Failed to delete account" }, { status: 500 });

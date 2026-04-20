@@ -1,6 +1,16 @@
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/db/prisma";
 
+/** Thrown by requireMobileUser — catch with `instanceof AuthError` (never match on message strings). */
+export class AuthError extends Error {
+  public readonly reason: string;
+  constructor(message: string, reason: string) {
+    super(message);
+    this.name = "AuthError";
+    this.reason = reason;
+  }
+}
+
 // Primary secret for signing NEW tokens
 export const JWT_SIGN_SECRET =
   process.env.JWT_SECRET || process.env.AUTH_SECRET || "basktball-jwt-secret";
@@ -120,12 +130,13 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   server_error: "Authentication error. Please try again.",
 };
 
-// Returns user or throws "Unauthorized" (matches catch blocks in all mobile routes)
+// Returns user or throws AuthError — catch with `instanceof AuthError`, never string-match.
 export async function requireMobileUser(request: Request) {
   const { user, reason } = await authenticateMobileUser(request);
   if (!user) {
     console.warn("[mobile-auth] Rejected:", reason);
-    throw new Error("Unauthorized");
+    const message = AUTH_ERROR_MESSAGES[reason] || "Unauthorized";
+    throw new AuthError(message, reason);
   }
   return user;
 }

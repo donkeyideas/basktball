@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireMobileUser } from "@/lib/mobile-auth";
+import { requireMobileUser, AuthError } from "@/lib/mobile-auth";
 import { cache } from "@/lib/cache/redis";
 import {
   createPresignedUploadUrl,
@@ -81,8 +81,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ uploadUrl, publicUrl });
   } catch (error: unknown) {
-    if (error instanceof Error && error.message === "Unauthorized") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (error instanceof AuthError) {
+      return NextResponse.json({ message: error.message }, { status: 401 });
     }
     console.error("Mobile upload presign error:", error);
     return NextResponse.json(

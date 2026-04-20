@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
-import { getMobileUser, requireMobileUser } from "@/lib/mobile-auth";
+import { getMobileUser, requireMobileUser, AuthError } from "@/lib/mobile-auth";
 
 // GET /api/mobile/takes/[id] - Get take with replies
 export async function GET(
@@ -85,8 +85,8 @@ export async function DELETE(
 
     return NextResponse.json({ message: "Take deleted" });
   } catch (error: unknown) {
-    if (error instanceof Error && error.message === "Unauthorized") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (error instanceof AuthError) {
+      return NextResponse.json({ message: error.message }, { status: 401 });
     }
     console.error("Delete take error:", error);
     return NextResponse.json({ message: "Failed to delete take" }, { status: 500 });

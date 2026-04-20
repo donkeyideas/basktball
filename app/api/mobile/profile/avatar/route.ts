@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
-import { requireMobileUser } from "@/lib/mobile-auth";
+import { requireMobileUser, AuthError } from "@/lib/mobile-auth";
 import { uploadAvatar } from "@/lib/supabase-storage";
 
 export async function POST(request: Request) {
@@ -26,8 +26,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ avatarUrl });
   } catch (error: unknown) {
-    if (error instanceof Error && error.message === "Unauthorized") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (error instanceof AuthError) {
+      return NextResponse.json({ message: error.message }, { status: 401 });
     }
     const detail = error instanceof Error ? error.message : String(error);
     console.error("Avatar upload error:", detail, error);

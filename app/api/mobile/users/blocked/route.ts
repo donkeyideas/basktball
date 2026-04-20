@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
-import { requireMobileUser } from "@/lib/mobile-auth";
+import { requireMobileUser, AuthError } from "@/lib/mobile-auth";
 
 export async function GET(request: NextRequest) {
   try {
@@ -32,8 +32,8 @@ export async function GET(request: NextRequest) {
       })),
     });
   } catch (error: any) {
-    if (error.message === "Unauthorized") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (error instanceof AuthError) {
+      return NextResponse.json({ message: error.message }, { status: 401 });
     }
     console.error("Blocked users error:", error);
     return NextResponse.json(

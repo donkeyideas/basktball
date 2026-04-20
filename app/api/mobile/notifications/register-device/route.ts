@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireMobileUser } from "@/lib/mobile-auth";
+import { requireMobileUser, AuthError } from "@/lib/mobile-auth";
 import { prisma } from "@/lib/db/prisma";
 
 export async function POST(request: Request) {
@@ -32,8 +32,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
-    if (error instanceof Error && error.message === "Unauthorized") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (error instanceof AuthError) {
+      return NextResponse.json({ message: error.message }, { status: 401 });
     }
     console.error("Device registration error:", error);
     return NextResponse.json({ message: "Internal error" }, { status: 500 });

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
-import { requireMobileUser } from "@/lib/mobile-auth";
+import { requireMobileUser, AuthError } from "@/lib/mobile-auth";
 
 // GET /api/mobile/profile - Get current user's profile
 export async function GET(request: Request) {
@@ -37,8 +37,8 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ profile });
   } catch (error: unknown) {
-    if (error instanceof Error && error.message === "Unauthorized") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (error instanceof AuthError) {
+      return NextResponse.json({ message: error.message }, { status: 401 });
     }
     console.error("Get mobile profile error:", error);
     return NextResponse.json({ message: "Failed to load profile" }, { status: 500 });
@@ -131,8 +131,8 @@ export async function PATCH(request: Request) {
 
     return NextResponse.json({ profile: updated });
   } catch (error: unknown) {
-    if (error instanceof Error && error.message === "Unauthorized") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (error instanceof AuthError) {
+      return NextResponse.json({ message: error.message }, { status: 401 });
     }
     console.error("Update mobile profile error:", error);
     return NextResponse.json({ message: "Failed to update profile" }, { status: 500 });

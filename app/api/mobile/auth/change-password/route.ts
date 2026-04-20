@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db/prisma";
-import { requireMobileUser } from "@/lib/mobile-auth";
+import { requireMobileUser, AuthError } from "@/lib/mobile-auth";
 
 export async function POST(request: Request) {
   try {
@@ -43,8 +43,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ message: "Password changed successfully" });
   } catch (error: unknown) {
-    if (error instanceof Error && error.message === "Unauthorized") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (error instanceof AuthError) {
+      return NextResponse.json({ message: error.message }, { status: 401 });
     }
     console.error("Change password error:", error);
     return NextResponse.json({ message: "Failed to change password" }, { status: 500 });

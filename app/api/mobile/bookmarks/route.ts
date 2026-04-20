@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
-import { requireMobileUser } from "@/lib/mobile-auth";
+import { requireMobileUser, AuthError } from "@/lib/mobile-auth";
 
 // GET /api/mobile/bookmarks - Get user's bookmarked takes
 export async function GET(request: Request) {
@@ -35,8 +35,8 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ takes });
   } catch (error: unknown) {
-    if (error instanceof Error && error.message === "Unauthorized") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (error instanceof AuthError) {
+      return NextResponse.json({ message: error.message }, { status: 401 });
     }
     console.error("Bookmarks error:", error);
     return NextResponse.json(

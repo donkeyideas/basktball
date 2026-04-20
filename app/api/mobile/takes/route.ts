@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
-import { requireMobileUser } from "@/lib/mobile-auth";
+import { requireMobileUser, AuthError } from "@/lib/mobile-auth";
 import { detectPrediction } from "@/lib/court/prediction-detector";
 import { createNotification } from "@/lib/notifications/service";
 import { extractFirstUrl } from "@/lib/content/url-parser";
@@ -121,8 +121,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json(take, { status: 201 });
   } catch (error: unknown) {
-    if (error instanceof Error && error.message === "Unauthorized") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (error instanceof AuthError) {
+      return NextResponse.json({ message: error.message }, { status: 401 });
     }
     console.error("Create take error:", error);
     return NextResponse.json({ message: "Failed to create take" }, { status: 500 });

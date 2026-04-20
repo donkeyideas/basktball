@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
-import { requireMobileUser } from "@/lib/mobile-auth";
+import { requireMobileUser, AuthError } from "@/lib/mobile-auth";
 import { createNotification } from "@/lib/notifications/service";
 
 // POST /api/mobile/takes/[id]/react - Toggle fire/brick reaction
@@ -56,8 +56,8 @@ export async function POST(
       return NextResponse.json({ action: "added", type });
     }
   } catch (error: unknown) {
-    if (error instanceof Error && error.message === "Unauthorized") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (error instanceof AuthError) {
+      return NextResponse.json({ message: error.message }, { status: 401 });
     }
     console.error("React error:", error);
     return NextResponse.json({ message: "Failed to react" }, { status: 500 });
