@@ -629,17 +629,18 @@ export const LinkPreview = memo(function LinkPreview({ content }: LinkPreviewPro
 
     // Instagram �� iframe wrapper, outer View clips below video
     if (videoEmbed.platform === 'instagram') {
-      const clipHeight = embedHeight || 480;
       return (
-        <View style={[styles.videoContainer, { height: clipHeight }]}>
+        <View style={[styles.videoContainer, { height: embedHeight || 480 }]}>
           <WebView
-            source={{ html: buildEmbedWrapper(videoEmbed.embedUrl) }}
+            source={{ uri: videoEmbed.embedUrl }}
             style={{ flex: 1, backgroundColor: '#000' }}
             allowsInlineMediaPlayback
             mediaPlaybackRequiresUserAction={false}
             javaScriptEnabled
             domStorageEnabled
             allowsFullscreenVideo
+            sharedCookiesEnabled
+            thirdPartyCookiesEnabled
             originWhitelist={['*']}
             mixedContentMode="always"
             scrollEnabled={false}
@@ -650,19 +651,20 @@ export const LinkPreview = memo(function LinkPreview({ content }: LinkPreviewPro
       );
     }
 
-    // TikTok — iframe wrapper, outer View clips below video
+    // TikTok — load embed URL directly
     if (videoEmbed.platform === 'tiktok') {
-      const clipHeight = embedHeight || 500;
       return (
-        <View style={[styles.videoContainer, { height: clipHeight }]}>
+        <View style={[styles.videoContainer, { height: embedHeight || 500 }]}>
           <WebView
-            source={{ html: buildEmbedWrapper(videoEmbed.embedUrl) }}
+            source={{ uri: videoEmbed.embedUrl }}
             style={{ flex: 1, backgroundColor: '#000' }}
             allowsInlineMediaPlayback
             mediaPlaybackRequiresUserAction={false}
             javaScriptEnabled
             domStorageEnabled
             allowsFullscreenVideo
+            sharedCookiesEnabled
+            thirdPartyCookiesEnabled
             originWhitelist={['*']}
             mixedContentMode="always"
             scrollEnabled={false}
