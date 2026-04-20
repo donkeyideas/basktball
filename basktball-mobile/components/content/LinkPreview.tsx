@@ -322,14 +322,27 @@ interface VideoEmbed {
   embedUrl: string;
 }
 
+// Base URL for YouTube IFrame API — must be a real third-party domain so
+// the WebView origin matches the `origin` playerVar YouTube checks.
+const YT_PLAYER_BASE_URL = 'https://lonelycpp.github.io';
+
 function buildYouTubeHtml(videoId: string): string {
   return `<!DOCTYPE html><html><head>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<style>*{margin:0;padding:0;overflow:hidden}body{background:#000}
-iframe{width:100%;height:100%;border:none;position:absolute;top:0;left:0}</style>
+<style>*{margin:0;padding:0;overflow:hidden}body{background:#000}#player{width:100vw;height:100vh}</style>
 </head><body>
-<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&playsinline=1&rel=0&modestbranding=1"
- allow="autoplay;encrypted-media;fullscreen;picture-in-picture" allowfullscreen></iframe>
+<div id="player"></div>
+<script>
+var tag=document.createElement('script');
+tag.src='https://www.youtube.com/iframe_api';
+document.head.appendChild(tag);
+function onYouTubeIframeAPIReady(){
+new YT.Player('player',{
+videoId:'${videoId}',
+playerVars:{playsinline:1,autoplay:1,rel:0,modestbranding:1,fs:1,origin:'${YT_PLAYER_BASE_URL}'},
+events:{onReady:function(e){e.target.playVideo()}}
+});}
+</script>
 </body></html>`;
 }
 
@@ -568,10 +581,14 @@ export const LinkPreview = memo(function LinkPreview({ content }: LinkPreviewPro
           style={{ flex: 1, backgroundColor: '#1a1a1a' }}
           javaScriptEnabled
           domStorageEnabled
+          allowsInlineMediaPlayback
+          mediaPlaybackRequiresUserAction={false}
+          allowsFullscreenVideo
           originWhitelist={['*']}
           mixedContentMode="always"
           scrollEnabled={false}
           onMessage={handleTweetHeight}
+          userAgent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         />
       </View>
     );
@@ -590,12 +607,12 @@ export const LinkPreview = memo(function LinkPreview({ content }: LinkPreviewPro
       } catch {}
     };
 
-    // YouTube: iframe embed works on both iOS and Android
+    // YouTube: use IFrame API with third-party baseUrl for proper origin matching
     if (videoEmbed.platform === 'youtube') {
       return (
         <View style={styles.videoContainer}>
           <WebView
-            source={{ html: buildYouTubeHtml(videoEmbed.embedUrl) }}
+            source={{ html: buildYouTubeHtml(videoEmbed.embedUrl), baseUrl: YT_PLAYER_BASE_URL }}
             style={styles.videoWebView}
             allowsInlineMediaPlayback
             mediaPlaybackRequiresUserAction={false}
