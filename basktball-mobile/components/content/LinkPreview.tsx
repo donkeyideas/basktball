@@ -1,7 +1,6 @@
 import { memo, useEffect, useMemo, useState } from 'react';
 import {
   Linking,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -10,7 +9,6 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { WebView } from 'react-native-webview';
-import * as WebBrowser from 'expo-web-browser';
 import { Colors, Fonts } from '@/constants/Colors';
 
 interface OgData {
@@ -612,7 +610,7 @@ export const LinkPreview = memo(function LinkPreview({ content }: LinkPreviewPro
       );
     }
 
-    // Instagram — iframe wrapper, outer View clips below video
+    // Instagram �� iframe wrapper, outer View clips below video
     if (videoEmbed.platform === 'instagram') {
       const clipHeight = embedHeight || 480;
       return (
@@ -629,6 +627,7 @@ export const LinkPreview = memo(function LinkPreview({ content }: LinkPreviewPro
             mixedContentMode="always"
             scrollEnabled={false}
             onMessage={handleHeightMessage}
+            userAgent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
           />
         </View>
       );
@@ -650,7 +649,7 @@ export const LinkPreview = memo(function LinkPreview({ content }: LinkPreviewPro
             originWhitelist={['*']}
             mixedContentMode="always"
             scrollEnabled={false}
-            userAgent="Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+            userAgent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
             onMessage={handleHeightMessage}
           />
         </View>
@@ -690,15 +689,7 @@ export const LinkPreview = memo(function LinkPreview({ content }: LinkPreviewPro
       style={styles.card}
       onPress={() => {
         if (videoEmbed) {
-          // Instagram, TikTok, and Twitter embeds don't play in iOS WebView —
-          // open them in the in-app browser instead
-          const openInBrowser = Platform.OS === 'ios' &&
-            (videoEmbed.platform === 'instagram' || videoEmbed.platform === 'tiktok' || videoEmbed.platform === 'twitter');
-          if (openInBrowser) {
-            WebBrowser.openBrowserAsync(effectiveOgData.url);
-          } else {
-            setPlaying(true);
-          }
+          setPlaying(true);
         } else {
           Linking.openURL(effectiveOgData.url);
         }
