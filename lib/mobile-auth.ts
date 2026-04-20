@@ -120,12 +120,12 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
   server_error: "Authentication error. Please try again.",
 };
 
-// Returns user or throws with descriptive error message
+// Returns user or throws "Unauthorized" (matches catch blocks in all mobile routes)
 export async function requireMobileUser(request: Request) {
   const { user, reason } = await authenticateMobileUser(request);
   if (!user) {
-    const message = AUTH_ERROR_MESSAGES[reason] || "Unauthorized";
-    throw new Error(message);
+    console.warn("[mobile-auth] Rejected:", reason);
+    throw new Error("Unauthorized");
   }
   return user;
 }
