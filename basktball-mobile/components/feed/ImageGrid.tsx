@@ -7,14 +7,13 @@ import {
   Dimensions,
   StatusBar,
   Text,
+  PanResponder,
   FlatList,
 } from 'react-native';
 import { Image } from 'expo-image';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
-const CARD_PADDING = 14;
-const IMAGE_WIDTH = SCREEN_WIDTH - 2 * CARD_PADDING - 2;
 const RADIUS = 12;
 
 interface ImageGridProps {
@@ -24,11 +23,9 @@ interface ImageGridProps {
 /** Single image that auto-sizes to its natural aspect ratio */
 function AutoSizedImage({
   uri,
-  width,
   onPress,
 }: {
   uri: string;
-  width: number;
   onPress?: () => void;
 }) {
   const [aspect, setAspect] = useState(1.5);
@@ -36,7 +33,7 @@ function AutoSizedImage({
   const img = (
     <Image
       source={{ uri }}
-      style={{ width, aspectRatio: aspect }}
+      style={{ width: '100%', aspectRatio: aspect }}
       contentFit="cover"
       onLoad={(e) => {
         const { width: w, height: h } = e.source;
@@ -59,6 +56,30 @@ export function ImageGrid({ urls }: ImageGridProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Refs for PanResponder closure
+  const urlsLenRef = useRef(urls.length);
+  urlsLenRef.current = urls.length;
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => false,
+      onMoveShouldSetPanResponder: (_, { dx, dy }) => {
+        // Only capture horizontal swipes (not vertical scroll)
+        return Math.abs(dx) > Math.abs(dy) * 1.5 && Math.abs(dx) > 20;
+      },
+      onPanResponderTerminationRequest: () => false,
+      onPanResponderRelease: (_, { dx }) => {
+        if (dx < -50) {
+          // Swipe left → next
+          setCurrentIndex((prev) => Math.min(prev + 1, urlsLenRef.current - 1));
+        } else if (dx > 50) {
+          // Swipe right → prev
+          setCurrentIndex((prev) => Math.max(prev - 1, 0));
+        }
+      },
+    })
+  ).current;
+
   if (urls.length === 0) return null;
 
   const openLightbox = (index: number) => setLightboxIndex(index);
@@ -69,11 +90,7 @@ export function ImageGrid({ urls }: ImageGridProps) {
     return (
       <>
         <View style={styles.singleContainer}>
-          <AutoSizedImage
-            uri={urls[0]}
-            width={IMAGE_WIDTH}
-            onPress={() => openLightbox(0)}
-          />
+          <AutoSizedImage uri={urls[0]} onPress={() => openLightbox(0)} />
         </View>
         <Lightbox
           urls={urls}
@@ -85,33 +102,16 @@ export function ImageGrid({ urls }: ImageGridProps) {
     );
   }
 
-  // Multiple images — swipeable carousel, each at natural aspect ratio
+  // Multiple images — state-based carousel with swipe
   return (
     <>
       <View style={styles.carouselContainer}>
-        <FlatList
-          data={urls}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onMomentumScrollEnd={(e) => {
-            const idx = Math.round(e.nativeEvent.contentOffset.x / IMAGE_WIDTH);
-            setCurrentIndex(idx);
-          }}
-          keyExtractor={(_, i) => i.toString()}
-          getItemLayout={(_, index) => ({
-            length: IMAGE_WIDTH,
-            offset: IMAGE_WIDTH * index,
-            index,
-          })}
-          renderItem={({ item, index }) => (
-            <AutoSizedImage
-              uri={item}
-              width={IMAGE_WIDTH}
-              onPress={() => openLightbox(index)}
-            />
-          )}
-        />
+        <View {...panResponder.panHandlers}>
+          <AutoSizedImage
+            uri={urls[currentIndex]}
+            onPress={() => openLightbox(currentIndex)}
+          />
+        </View>
 
         {/* Counter badge */}
         <View style={styles.counterBadge}>
@@ -119,19 +119,16 @@ export function ImageGrid({ urls }: ImageGridProps) {
             {currentIndex + 1}/{urls.length}
           </Text>
         </View>
+      </View>
 
-        {/* Dot indicators */}
-        <View style={styles.dots}>
-          {urls.map((_, i) => (
-            <View
-              key={i}
-              style={[
-                styles.dot,
-                i === currentIndex && styles.dotActive,
-              ]}
-            />
-          ))}
-        </View>
+      {/* Dot indicators */}
+      <View style={styles.dots}>
+        {urls.map((_, i) => (
+          <View
+            key={i}
+            style={[styles.dot, i === currentIndex && styles.dotActive]}
+          />
+        ))}
       </View>
 
       <Lightbox
@@ -180,7 +177,9 @@ function Lightbox({
             index,
           })}
           onMomentumScrollEnd={(e) => {
-            const idx = Math.round(e.nativeEvent.contentOffset.x / SCREEN_WIDTH);
+            const idx = Math.round(
+              e.nativeEvent.contentOffset.x / SCREEN_WIDTH
+            );
             setCurrentIndex(idx);
           }}
           keyExtractor={(_, i) => i.toString()}
@@ -240,11 +239,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   dots: {
-    position: 'absolute',
-    bottom: 10,
-    alignSelf: 'center',
     flexDirection: 'row',
+    justifyContent: 'center',
     gap: 6,
+    marginBottom: 8,
   },
   dot: {
     width: 6,
