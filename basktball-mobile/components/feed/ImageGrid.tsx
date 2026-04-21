@@ -13,35 +13,68 @@ import { Image } from 'expo-image';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
-const CARD_PADDING = 14; // matches TakeCard padding
-const IMAGE_WIDTH = SCREEN_WIDTH - 2 * CARD_PADDING - 2; // account for card border
+const CARD_PADDING = 14;
+const IMAGE_WIDTH = SCREEN_WIDTH - 2 * CARD_PADDING - 2;
 const RADIUS = 12;
 
 interface ImageGridProps {
   urls: string[];
 }
 
+/** Single image that auto-sizes to its natural aspect ratio */
+function AutoSizedImage({
+  uri,
+  width,
+  onPress,
+}: {
+  uri: string;
+  width: number;
+  onPress?: () => void;
+}) {
+  const [aspect, setAspect] = useState(1.5);
+
+  const img = (
+    <Image
+      source={{ uri }}
+      style={{ width, aspectRatio: aspect }}
+      contentFit="cover"
+      onLoad={(e) => {
+        const { width: w, height: h } = e.source;
+        if (w && h) setAspect(w / h);
+      }}
+    />
+  );
+
+  if (onPress) {
+    return (
+      <TouchableOpacity activeOpacity={0.9} onPress={onPress}>
+        {img}
+      </TouchableOpacity>
+    );
+  }
+  return img;
+}
+
 export function ImageGrid({ urls }: ImageGridProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const flatListRef = useRef<FlatList>(null);
 
   if (urls.length === 0) return null;
 
   const openLightbox = (index: number) => setLightboxIndex(index);
   const closeLightbox = () => setLightboxIndex(null);
 
-  // Single image — full width
+  // Single image — full width, natural aspect ratio
   if (urls.length === 1) {
     return (
       <>
-        <TouchableOpacity activeOpacity={0.9} onPress={() => openLightbox(0)}>
-          <Image
-            source={{ uri: urls[0] }}
-            style={styles.single}
-            contentFit="cover"
+        <View style={styles.singleContainer}>
+          <AutoSizedImage
+            uri={urls[0]}
+            width={IMAGE_WIDTH}
+            onPress={() => openLightbox(0)}
           />
-        </TouchableOpacity>
+        </View>
         <Lightbox
           urls={urls}
           visible={lightboxIndex !== null}
@@ -52,12 +85,11 @@ export function ImageGrid({ urls }: ImageGridProps) {
     );
   }
 
-  // Multiple images — swipeable carousel
+  // Multiple images — swipeable carousel, each at natural aspect ratio
   return (
     <>
       <View style={styles.carouselContainer}>
         <FlatList
-          ref={flatListRef}
           data={urls}
           horizontal
           pagingEnabled
@@ -73,17 +105,11 @@ export function ImageGrid({ urls }: ImageGridProps) {
             index,
           })}
           renderItem={({ item, index }) => (
-            <TouchableOpacity
-              activeOpacity={0.9}
+            <AutoSizedImage
+              uri={item}
+              width={IMAGE_WIDTH}
               onPress={() => openLightbox(index)}
-              style={{ width: IMAGE_WIDTH }}
-            >
-              <Image
-                source={{ uri: item }}
-                style={styles.carouselImage}
-                contentFit="cover"
-              />
-            </TouchableOpacity>
+            />
           )}
         />
 
@@ -188,10 +214,9 @@ function Lightbox({
 }
 
 const styles = StyleSheet.create({
-  single: {
-    width: '100%',
-    aspectRatio: 1.5,
+  singleContainer: {
     borderRadius: RADIUS,
+    overflow: 'hidden',
     marginBottom: 8,
   },
   carouselContainer: {
@@ -199,10 +224,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginBottom: 8,
     position: 'relative',
-  },
-  carouselImage: {
-    width: '100%',
-    aspectRatio: 1.2,
   },
   counterBadge: {
     position: 'absolute',
