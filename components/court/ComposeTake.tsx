@@ -9,7 +9,7 @@ import GifPicker from "./GifPicker";
 
 interface ComposeTakeProps {
   onClose: () => void;
-  onSubmit: (take: { content: string; tags: string[]; parentId?: string; gameId?: string; pollOptions?: string[]; pollDuration?: number; mediaUrl?: string }) => void;
+  onSubmit: (take: { content: string; tags: string[]; parentId?: string; gameId?: string; pollOptions?: string[]; pollDuration?: number; mediaUrls?: string[] }) => void;
   parentId?: string;
   gameId?: string;
 }
@@ -33,7 +33,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
   const [showPoll, setShowPoll] = useState(false);
   const [pollOptions, setPollOptions] = useState<string[]>(["", ""]);
   const [pollDuration, setPollDuration] = useState(24);
-  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
+  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   const [showGifPicker, setShowGifPicker] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [mentionQuery, setMentionQuery] = useState("");
@@ -45,7 +45,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
   const isOverLimit = charCount > MAX_CHARS;
   const validPollOptions = pollOptions.filter((o) => o.trim().length > 0);
   const pollValid = !showPoll || validPollOptions.length >= 2;
-  const canPost = content.trim().length > 0 && !isOverLimit && !submitting && pollValid;
+  const canPost = (content.trim().length > 0 || mediaUrls.length > 0) && !isOverLimit && !submitting && pollValid;
 
   const userName = session?.user?.name || "User";
   const userImage = session?.user?.image || null;
@@ -114,7 +114,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
         body.pollOptions = validPollOptions.map((o) => o.trim());
         body.pollDuration = pollDuration;
       }
-      if (mediaUrl) body.mediaUrl = mediaUrl;
+      if (mediaUrls.length > 0) body.mediaUrls = mediaUrls;
 
       const res = await fetch("/api/court/takes", {
         method: "POST",
@@ -138,7 +138,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
     } finally {
       setSubmitting(false);
     }
-  }, [canPost, content, tags, parentId, gameId, showPoll, validPollOptions, pollDuration, mediaUrl, onSubmit, onClose]);
+  }, [canPost, content, tags, parentId, gameId, showPoll, validPollOptions, pollDuration, mediaUrls, onSubmit, onClose]);
 
   // Handle @mention selection
   const handleMentionSelect = useCallback((handle: string) => {
@@ -159,61 +159,58 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
     }, 0);
   }, [content]);
 
-  // Handle image file selection and upload to R2
+  // Handle image file selection and upload to R2 (supports multiple)
   const handleImageSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     // Reset input so the same file can be re-selected
     e.target.value = "";
 
     const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
-    if (!allowedTypes.includes(file.type)) {
-      alert("Only JPEG, PNG, WebP, and GIF images are allowed.");
-      return;
-    }
-
     const maxSize = 10 * 1024 * 1024; // 10 MB
-    if (file.size > maxSize) {
-      alert("Image must be under 10 MB.");
-      return;
+    const remaining = 4 - mediaUrls.length;
+    const filesToUpload = Array.from(files).slice(0, remaining);
+
+    // Validate all files first
+    for (const file of filesToUpload) {
+      if (!allowedTypes.includes(file.type)) {
+        alert("Only JPEG, PNG, WebP, and GIF images are allowed.");
+        return;
+      }
+      if (file.size > maxSize) {
+        alert("Each image must be under 10 MB.");
+        return;
+      }
     }
 
     setUploading(true);
     try {
-      // Get presigned URL from our API
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contentType: file.type, fileSize: file.size }),
-      });
+      const uploadedUrls: string[] = [];
+      for (const file of filesToUpload) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await fetch("/api/upload/file", {
+          method: "POST",
+          body: formData,
+        });
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to get upload URL");
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || "Upload failed");
+        }
+
+        const { publicUrl } = await res.json();
+        uploadedUrls.push(publicUrl);
       }
-
-      const { uploadUrl, publicUrl } = await res.json();
-
-      // Upload directly to R2 via presigned URL
-      const uploadRes = await fetch(uploadUrl, {
-        method: "PUT",
-        headers: { "Content-Type": file.type },
-        body: file,
-      });
-
-      if (!uploadRes.ok) {
-        throw new Error("Upload failed");
-      }
-
-      setMediaUrl(publicUrl);
+      setMediaUrls((prev) => [...prev, ...uploadedUrls]);
     } catch (err) {
       console.error("Image upload error:", err);
       alert(err instanceof Error ? err.message : "Failed to upload image. Please try again.");
     } finally {
       setUploading(false);
     }
-  }, []);
+  }, [mediaUrls.length]);
 
   // Close on Escape
   useEffect(() => {
@@ -470,31 +467,56 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
         )}
 
         {/* Media preview */}
-        {mediaUrl && (
-          <div style={{ padding: "0 16px 8px", position: "relative" }}>
-            <img src={mediaUrl} alt="Attached media" style={{ maxWidth: "100%", maxHeight: "250px", borderRadius: "12px", display: "block" }} />
-            <button
-              type="button"
-              onClick={() => setMediaUrl(null)}
-              style={{
-                position: "absolute",
-                top: "8px",
-                right: "24px",
-                width: "24px",
-                height: "24px",
-                borderRadius: "50%",
-                backgroundColor: "rgba(0,0,0,0.7)",
-                color: "var(--white)",
-                border: "none",
-                cursor: "pointer",
-                fontSize: "14px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              &times;
-            </button>
+        {mediaUrls.length > 0 && (
+          <div style={{ padding: "0 16px 8px" }}>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: mediaUrls.length === 1 ? "1fr" : "1fr 1fr",
+              gap: "4px",
+              borderRadius: "12px",
+              overflow: "hidden",
+            }}>
+              {mediaUrls.map((url, i) => (
+                <div key={i} style={{
+                  position: "relative",
+                  ...(mediaUrls.length === 3 && i === 0 ? { gridRow: "1 / 3" } : {}),
+                }}>
+                  <img
+                    src={url}
+                    alt={`Attached ${i + 1}`}
+                    style={{
+                      width: "100%",
+                      height: mediaUrls.length === 1 ? "auto" : "120px",
+                      maxHeight: mediaUrls.length === 1 ? "250px" : undefined,
+                      objectFit: mediaUrls.length === 1 ? "contain" : "cover",
+                      display: "block",
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setMediaUrls((prev) => prev.filter((_, j) => j !== i))}
+                    style={{
+                      position: "absolute",
+                      top: "4px",
+                      right: "4px",
+                      width: "22px",
+                      height: "22px",
+                      borderRadius: "50%",
+                      backgroundColor: "rgba(0,0,0,0.7)",
+                      color: "var(--white)",
+                      border: "none",
+                      cursor: "pointer",
+                      fontSize: "13px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    &times;
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -653,7 +675,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
           {showGifPicker && (
             <GifPicker
               onSelect={(gifUrl) => {
-                setMediaUrl(gifUrl);
+                setMediaUrls([gifUrl]);
                 setShowGifPicker(false);
               }}
               onClose={() => setShowGifPicker(false)}
@@ -690,18 +712,19 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
             ref={fileInputRef}
             type="file"
             accept="image/jpeg,image/png,image/webp,image/gif"
+            multiple
             style={{ display: "none" }}
             onChange={handleImageSelect}
           />
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            disabled={!!mediaUrl || uploading}
+            disabled={mediaUrls.length >= 4 || uploading}
             style={{
               background: "none",
               border: "1px solid rgba(255,107,53,0.3)",
-              color: (mediaUrl || uploading) ? "var(--text-faint)" : "#FF6B35",
-              cursor: (mediaUrl || uploading) ? "not-allowed" : "pointer",
+              color: (mediaUrls.length >= 4 || uploading) ? "var(--text-faint)" : "#FF6B35",
+              cursor: (mediaUrls.length >= 4 || uploading) ? "not-allowed" : "pointer",
               fontSize: "11px",
               fontFamily: "var(--font-inter), sans-serif",
               fontWeight: 700,
@@ -710,20 +733,20 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
               textTransform: "uppercase",
               letterSpacing: "0.3px",
               flexShrink: 0,
-              opacity: (mediaUrl || uploading) ? 0.4 : 1,
+              opacity: (mediaUrls.length >= 4 || uploading) ? 0.4 : 1,
             }}
           >
-            IMG
+            {mediaUrls.length > 0 ? `IMG ${mediaUrls.length}/4` : "IMG"}
           </button>
           <button
             type="button"
             onClick={() => setShowGifPicker(!showGifPicker)}
-            disabled={!!mediaUrl || uploading}
+            disabled={mediaUrls.length > 0 || uploading}
             style={{
               background: "none",
               border: "1px solid rgba(255,107,53,0.3)",
-              color: (mediaUrl || uploading) ? "var(--text-faint)" : "#FF6B35",
-              cursor: (mediaUrl || uploading) ? "not-allowed" : "pointer",
+              color: (mediaUrls.length > 0 || uploading) ? "var(--text-faint)" : "#FF6B35",
+              cursor: (mediaUrls.length > 0 || uploading) ? "not-allowed" : "pointer",
               fontSize: "11px",
               fontFamily: "var(--font-inter), sans-serif",
               fontWeight: 700,
@@ -732,7 +755,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
               textTransform: "uppercase",
               letterSpacing: "0.3px",
               flexShrink: 0,
-              opacity: (mediaUrl || uploading) ? 0.4 : 1,
+              opacity: (mediaUrls.length > 0 || uploading) ? 0.4 : 1,
             }}
           >
             GIF

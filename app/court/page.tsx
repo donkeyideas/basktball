@@ -58,7 +58,7 @@ export default function CourtPage() {
   const [composeMentionQuery, setComposeMentionQuery] = useState("");
   const [composeShowMentions, setComposeShowMentions] = useState(false);
   const [composeShowGif, setComposeShowGif] = useState(false);
-  const [composeMediaUrl, setComposeMediaUrl] = useState<string | null>(null);
+  const [composeMediaUrls, setComposeMediaUrls] = useState<string[]>([]);
   const [composeUploading, setComposeUploading] = useState(false);
   const composeTextareaRef = useRef<HTMLTextAreaElement>(null);
   const composeFileInputRef = useRef<HTMLInputElement>(null);
@@ -72,7 +72,7 @@ export default function CourtPage() {
   const composeIsOverLimit = composeCharCount > 2000;
   const composeValidPollOptions = composePollOptions.filter((o) => o.trim().length > 0);
   const composePollValid = !composeShowPoll || composeValidPollOptions.length >= 2;
-  const composeCanPost = composeContent.trim().length > 0 && !composeIsOverLimit && !composeSubmitting && composePollValid;
+  const composeCanPost = (composeContent.trim().length > 0 || composeMediaUrls.length > 0) && !composeIsOverLimit && !composeSubmitting && composePollValid;
 
   // Fetch feed from API
   const fetchFeed = useCallback(async (tab: FeedTab, cursor?: string) => {
@@ -416,46 +416,52 @@ export default function CourtPage() {
   );
 
   const handleComposeImageSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
     e.target.value = "";
 
     const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
-    if (!allowedTypes.includes(file.type)) {
-      alert("Only JPEG, PNG, WebP, and GIF images are allowed.");
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      alert("Image must be under 10 MB.");
-      return;
-    }
+    const validFiles = files.filter((file) => {
+      if (!allowedTypes.includes(file.type)) {
+        alert(`${file.name}: Only JPEG, PNG, WebP, and GIF images are allowed.`);
+        return false;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        alert(`${file.name}: Image must be under 10 MB.`);
+        return false;
+      }
+      return true;
+    }).slice(0, 4 - composeMediaUrls.length);
+
+    if (validFiles.length === 0) return;
 
     setComposeUploading(true);
+    const newUrls: string[] = [];
     try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contentType: file.type, fileSize: file.size }),
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to get upload URL");
+      for (const file of validFiles) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await fetch("/api/upload/file", {
+          method: "POST",
+          body: formData,
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || "Upload failed");
+        }
+        const { publicUrl } = await res.json();
+        newUrls.push(publicUrl);
       }
-      const { uploadUrl, publicUrl } = await res.json();
-      const uploadRes = await fetch(uploadUrl, {
-        method: "PUT",
-        headers: { "Content-Type": file.type },
-        body: file,
-      });
-      if (!uploadRes.ok) throw new Error("Upload failed");
-      setComposeMediaUrl(publicUrl);
     } catch (err) {
       console.error("Image upload error:", err);
       alert(err instanceof Error ? err.message : "Failed to upload image.");
     } finally {
+      if (newUrls.length > 0) {
+        setComposeMediaUrls((prev) => [...prev, ...newUrls].slice(0, 4));
+      }
       setComposeUploading(false);
     }
-  }, []);
+  }, [composeMediaUrls.length]);
 
   const handleInlinePost = useCallback(async () => {
     if (!composeCanPost) return;
@@ -472,8 +478,8 @@ export default function CourtPage() {
         body.pollOptions = composeValidPollOptions.map((o) => o.trim());
         body.pollDuration = composePollDuration;
       }
-      if (composeMediaUrl) {
-        body.mediaUrl = composeMediaUrl;
+      if (composeMediaUrls.length > 0) {
+        body.mediaUrls = composeMediaUrls;
       }
       const res = await fetch("/api/court/takes", {
         method: "POST",
@@ -490,7 +496,7 @@ export default function CourtPage() {
         setComposeTagInput("");
         setComposeShowPoll(false);
         setComposePollOptions(["", ""]);
-        setComposeMediaUrl(null);
+        setComposeMediaUrls([]);
         setComposeShowGif(false);
         if (composeTextareaRef.current) {
           composeTextareaRef.current.style.height = "auto";
@@ -501,7 +507,7 @@ export default function CourtPage() {
     } finally {
       setComposeSubmitting(false);
     }
-  }, [composeCanPost, composeContent, composeTags, activeTab, liveGames, composeShowPoll, composeValidPollOptions, composePollDuration, composeMediaUrl]);
+  }, [composeCanPost, composeContent, composeTags, activeTab, liveGames, composeShowPoll, composeValidPollOptions, composePollDuration, composeMediaUrls]);
 
   const handleFollow = useCallback(async (targetUserId: string) => {
     if (!session?.user) return;
@@ -791,7 +797,7 @@ export default function CourtPage() {
                   {composeShowGif && (
                     <GifPicker
                       onSelect={(gifUrl) => {
-                        setComposeMediaUrl(gifUrl);
+                        setComposeMediaUrls([gifUrl]);
                         setComposeShowGif(false);
                       }}
                       onClose={() => setComposeShowGif(false)}
@@ -816,42 +822,47 @@ export default function CourtPage() {
                     </div>
                   )}
 
-                  {/* Media Preview */}
-                  {composeMediaUrl && (
-                    <div style={{ padding: "8px 0 0 52px", position: "relative", display: "inline-block" }}>
-                      <img
-                        src={composeMediaUrl}
-                        alt="Attached media"
-                        style={{
-                          maxWidth: "100%",
-                          maxHeight: "250px",
-                          borderRadius: "12px",
-                          display: "block",
-                        }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setComposeMediaUrl(null)}
-                        style={{
-                          position: "absolute",
-                          top: "16px",
-                          right: "8px",
-                          width: "24px",
-                          height: "24px",
-                          borderRadius: "50%",
-                          background: "rgba(0,0,0,0.7)",
-                          color: "var(--white)",
-                          border: "none",
-                          cursor: "pointer",
-                          fontSize: "12px",
-                          lineHeight: 1,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
-                        &times;
-                      </button>
+                  {/* Media Preview Grid */}
+                  {composeMediaUrls.length > 0 && (
+                    <div style={{ padding: "8px 0 0 52px", display: "flex", flexWrap: "wrap", gap: "4px" }}>
+                      {composeMediaUrls.map((url, i) => (
+                        <div key={url} style={{
+                          position: "relative",
+                          width: composeMediaUrls.length === 1 ? "100%" : "calc(50% - 2px)",
+                          height: composeMediaUrls.length === 1 ? "200px" : "120px",
+                          borderRadius: "10px",
+                          overflow: "hidden",
+                        }}>
+                          <img
+                            src={url}
+                            alt="Attached media"
+                            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setComposeMediaUrls((prev) => prev.filter((_, idx) => idx !== i))}
+                            style={{
+                              position: "absolute",
+                              top: "6px",
+                              right: "6px",
+                              width: "22px",
+                              height: "22px",
+                              borderRadius: "50%",
+                              background: "rgba(0,0,0,0.7)",
+                              color: "var(--white)",
+                              border: "none",
+                              cursor: "pointer",
+                              fontSize: "12px",
+                              lineHeight: 1,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            &times;
+                          </button>
+                        </div>
+                      ))}
                     </div>
                   )}
 
@@ -1085,18 +1096,19 @@ export default function CourtPage() {
                       ref={composeFileInputRef}
                       type="file"
                       accept="image/jpeg,image/png,image/webp,image/gif"
+                      multiple
                       style={{ display: "none" }}
                       onChange={handleComposeImageSelect}
                     />
                     <button
                       type="button"
                       onClick={() => composeFileInputRef.current?.click()}
-                      disabled={!!composeMediaUrl || composeUploading}
+                      disabled={composeMediaUrls.length >= 4 || composeUploading}
                       style={{
                         background: "none",
                         border: "1px solid rgba(255,107,53,0.3)",
-                        color: (composeMediaUrl || composeUploading) ? "var(--text-faint)" : "#FF6B35",
-                        cursor: (composeMediaUrl || composeUploading) ? "not-allowed" : "pointer",
+                        color: (composeMediaUrls.length >= 4 || composeUploading) ? "var(--text-faint)" : "#FF6B35",
+                        cursor: (composeMediaUrls.length >= 4 || composeUploading) ? "not-allowed" : "pointer",
                         fontSize: "11px",
                         fontFamily: FONT,
                         fontWeight: 700,
@@ -1105,20 +1117,20 @@ export default function CourtPage() {
                         textTransform: "uppercase",
                         letterSpacing: "0.3px",
                         flexShrink: 0,
-                        opacity: (composeMediaUrl || composeUploading) ? 0.4 : 1,
+                        opacity: (composeMediaUrls.length >= 4 || composeUploading) ? 0.4 : 1,
                       }}
                     >
-                      IMG
+                      IMG{composeMediaUrls.length > 0 ? ` ${composeMediaUrls.length}/4` : ""}
                     </button>
                     <button
                       type="button"
                       onClick={() => setComposeShowGif(!composeShowGif)}
-                      disabled={!!composeMediaUrl || composeUploading}
+                      disabled={composeMediaUrls.length > 0 || composeUploading}
                       style={{
                         background: composeShowGif ? "rgba(255,107,53,0.15)" : "none",
                         border: "1px solid rgba(255,107,53,0.3)",
-                        color: (composeMediaUrl || composeUploading) ? "var(--text-faint)" : "#FF6B35",
-                        cursor: (composeMediaUrl || composeUploading) ? "not-allowed" : "pointer",
+                        color: (composeMediaUrls.length > 0 || composeUploading) ? "var(--text-faint)" : "#FF6B35",
+                        cursor: (composeMediaUrls.length > 0 || composeUploading) ? "not-allowed" : "pointer",
                         fontSize: "11px",
                         fontFamily: FONT,
                         fontWeight: 700,
@@ -1127,7 +1139,7 @@ export default function CourtPage() {
                         textTransform: "uppercase",
                         letterSpacing: "0.3px",
                         flexShrink: 0,
-                        opacity: (composeMediaUrl || composeUploading) ? 0.4 : 1,
+                        opacity: (composeMediaUrls.length > 0 || composeUploading) ? 0.4 : 1,
                       }}
                     >
                       GIF

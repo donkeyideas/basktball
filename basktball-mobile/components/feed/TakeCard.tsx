@@ -5,10 +5,11 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from 'react-native';
-import { Image } from 'expo-image';
 import { Colors, Fonts } from '@/constants/Colors';
 import { LinkifiedText } from '@/components/content/LinkifiedText';
 import { LinkPreviewCard } from '@/components/content/LinkPreviewCard';
+import { AutoImage } from '@/components/feed/AutoImage';
+import { ImageGrid } from '@/components/feed/ImageGrid';
 
 interface Author {
   name: string;
@@ -42,6 +43,7 @@ export interface Take {
   repostCount: number;
   createdAt: string;
   mediaUrl?: string | null;
+  mediaUrls?: string[];
   linkPreview?: {
     url: string;
     title: string | null;
@@ -219,11 +221,11 @@ export function TakeCard({ take, onPress, onFire, onBrick, onPollVote }: TakeCar
         style={styles.body}
       />
 
-      {take.mediaUrl && (
-        <View style={{ borderRadius: 10, overflow: 'hidden', marginBottom: 8 }}>
-          <Image source={{ uri: take.mediaUrl }} style={{ width: '100%', height: 200 }} contentFit="contain" />
-        </View>
-      )}
+      {(take.mediaUrls?.length ?? 0) > 0 ? (
+        <ImageGrid urls={take.mediaUrls!} />
+      ) : take.mediaUrl ? (
+        <AutoImage source={{ uri: take.mediaUrl }} />
+      ) : null}
 
       {take.linkPreview && <LinkPreviewCard preview={take.linkPreview} />}
 

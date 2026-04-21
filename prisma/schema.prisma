@@ -972,6 +972,7 @@ model Take {
   parentId    String?
   tags        String[]
   mediaUrl    String?
+  mediaUrls   String[]    @default([])
   linkPreview Json?
 
   // Denormalized counts

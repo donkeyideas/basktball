@@ -32,7 +32,7 @@ interface ComposeTakeProps {
     content: string;
     pollOptions?: string[];
     pollDuration?: number;
-    mediaUrl?: string;
+    mediaUrls?: string[];
   }) => void;
   onCancel: () => void;
   userName?: string;
@@ -54,8 +54,9 @@ export function ComposeTake({ onSubmit, onCancel, userName, apiBase = 'https://w
   const [pollOptions, setPollOptions] = useState<string[]>(['', '']);
   const [pollDuration, setPollDuration] = useState(24);
   const [showDurationPicker, setShowDurationPicker] = useState(false);
-  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
+  const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [uploadingCount, setUploadingCount] = useState(0);
   const [showGifPicker, setShowGifPicker] = useState(false);
   const [mentionQuery, setMentionQuery] = useState('');
   const [showMentions, setShowMentions] = useState(false);
@@ -63,7 +64,7 @@ export function ComposeTake({ onSubmit, onCancel, userName, apiBase = 'https://w
 
   const charCount = content.length;
   const isOverLimit = charCount > MAX_CHARS;
-  const isEmpty = content.trim().length === 0;
+  const isEmpty = content.trim().length === 0 && mediaUrls.length === 0;
   const validPollOptions = pollOptions.filter((o) => o.trim().length > 0);
   const pollValid = !showPoll || validPollOptions.length >= 2;
   const canSubmit = !isEmpty && !isOverLimit && pollValid && !uploading;
@@ -73,14 +74,14 @@ export function ComposeTake({ onSubmit, onCancel, userName, apiBase = 'https://w
 
   const handleSubmit = () => {
     if (!canSubmit) return;
-    const data: { content: string; pollOptions?: string[]; pollDuration?: number; mediaUrl?: string } = {
+    const data: { content: string; pollOptions?: string[]; pollDuration?: number; mediaUrls?: string[] } = {
       content: content.trim(),
     };
     if (showPoll && validPollOptions.length >= 2) {
       data.pollOptions = validPollOptions.map((o) => o.trim());
       data.pollDuration = pollDuration;
     }
-    if (mediaUrl) data.mediaUrl = mediaUrl;
+    if (mediaUrls.length > 0) data.mediaUrls = mediaUrls;
     onSubmit(data);
   };
 
@@ -105,7 +106,7 @@ export function ComposeTake({ onSubmit, onCancel, userName, apiBase = 'https://w
   };
 
   const handleImagePick = async () => {
-    if (uploading || mediaUrl) return;
+    if (uploading || mediaUrls.length >= 4) return;
 
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
@@ -113,29 +114,44 @@ export function ComposeTake({ onSubmit, onCancel, userName, apiBase = 'https://w
       return;
     }
 
+    const remaining = 4 - mediaUrls.length;
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
-      allowsEditing: true,
+      allowsMultipleSelection: true,
+      selectionLimit: remaining,
       quality: 0.8,
       exif: false,
     });
 
-    if (result.canceled || !result.assets?.[0]) return;
+    if (result.canceled || !result.assets?.length) return;
 
-    const asset = result.assets[0];
     setUploading(true);
-    try {
-      const { publicUrl } = await uploadImage(
-        asset.uri,
-        asset.mimeType || 'image/jpeg',
-        asset.fileSize || 0,
-      );
-      setMediaUrl(publicUrl);
-    } catch (err) {
-      Alert.alert('Upload failed', err instanceof Error ? err.message : 'Could not upload image.');
-    } finally {
-      setUploading(false);
+    setUploadingCount(result.assets.length);
+    const newUrls: string[] = [];
+
+    for (const asset of result.assets) {
+      try {
+        const { publicUrl } = await uploadImage(
+          asset.uri,
+          asset.mimeType || 'image/jpeg',
+          asset.fileSize || 0,
+        );
+        newUrls.push(publicUrl);
+      } catch (err) {
+        Alert.alert('Upload failed', err instanceof Error ? err.message : 'Could not upload image.');
+        break;
+      }
     }
+
+    if (newUrls.length > 0) {
+      setMediaUrls((prev) => [...prev, ...newUrls].slice(0, 4));
+    }
+    setUploading(false);
+    setUploadingCount(0);
+  };
+
+  const removeImage = (index: number) => {
+    setMediaUrls((prev) => prev.filter((_, i) => i !== index));
   };
 
   const updateOption = (index: number, value: string) => {
@@ -202,20 +218,26 @@ export function ComposeTake({ onSubmit, onCancel, userName, apiBase = 'https://w
         {uploading && (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginHorizontal: 16, marginBottom: 8 }}>
             <ActivityIndicator size="small" color={Colors.orange} />
-            <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: Colors.textTertiary }}>Uploading image...</Text>
+            <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: Colors.textTertiary }}>
+              Uploading {uploadingCount > 1 ? `${uploadingCount} images` : 'image'}...
+            </Text>
           </View>
         )}
 
-        {/* Media preview (image or GIF) */}
-        {mediaUrl && (
-          <View style={{ marginHorizontal: 16, marginBottom: 8, position: 'relative' }}>
-            <Image source={{ uri: mediaUrl }} style={{ width: '100%', height: 200, borderRadius: 10 }} contentFit="cover" />
-            <TouchableOpacity
-              onPress={() => setMediaUrl(null)}
-              style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: 14, backgroundColor: 'rgba(0,0,0,0.7)', alignItems: 'center', justifyContent: 'center' }}
-            >
-              <Text style={{ color: '#fff', fontSize: 16 }}>✕</Text>
-            </TouchableOpacity>
+        {/* Media preview grid */}
+        {mediaUrls.length > 0 && (
+          <View style={{ marginHorizontal: 16, marginBottom: 8, flexDirection: 'row', flexWrap: 'wrap', gap: 4 }}>
+            {mediaUrls.map((url, i) => (
+              <View key={url} style={{ width: mediaUrls.length === 1 ? '100%' : '48%', height: mediaUrls.length === 1 ? 200 : 120, borderRadius: 10, overflow: 'hidden', position: 'relative' }}>
+                <Image source={{ uri: url }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+                <TouchableOpacity
+                  onPress={() => removeImage(i)}
+                  style={{ position: 'absolute', top: 6, right: 6, width: 24, height: 24, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.7)', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <Text style={{ color: '#fff', fontSize: 14 }}>✕</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
           </View>
         )}
 
@@ -326,7 +348,7 @@ export function ComposeTake({ onSubmit, onCancel, userName, apiBase = 'https://w
       {showGifPicker && (
         <GifPicker
           onSelect={(gifUrl) => {
-            setMediaUrl(gifUrl);
+            setMediaUrls([gifUrl]);
             setShowGifPicker(false);
           }}
           onClose={() => setShowGifPicker(false)}
@@ -338,12 +360,14 @@ export function ComposeTake({ onSubmit, onCancel, userName, apiBase = 'https://w
           <TouchableOpacity
             onPress={() => setShowGifPicker(!showGifPicker)}
             activeOpacity={0.7}
-            disabled={!!mediaUrl || uploading}
+            disabled={mediaUrls.length > 0 || uploading}
           >
-            <Text style={[styles.attachIcon, showGifPicker && styles.attachIconActive, (mediaUrl || uploading) && styles.attachIconDisabled]}>GIF</Text>
+            <Text style={[styles.attachIcon, showGifPicker && styles.attachIconActive, (mediaUrls.length > 0 || uploading) && styles.attachIconDisabled]}>GIF</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleImagePick} activeOpacity={0.7} disabled={!!mediaUrl || uploading}>
-            <Text style={[styles.attachIcon, (mediaUrl || uploading) && styles.attachIconDisabled]}>IMG</Text>
+          <TouchableOpacity onPress={handleImagePick} activeOpacity={0.7} disabled={mediaUrls.length >= 4 || uploading}>
+            <Text style={[styles.attachIcon, (mediaUrls.length >= 4 || uploading) && styles.attachIconDisabled]}>
+              IMG{mediaUrls.length > 0 ? ` ${mediaUrls.length}/4` : ''}
+            </Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => {

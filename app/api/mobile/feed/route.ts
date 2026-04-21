@@ -19,6 +19,7 @@ export async function GET(request: Request) {
       parentId: true,
       tags: true,
       mediaUrl: true,
+      mediaUrls: true,
       linkPreview: true,
       fireCount: true,
       brickCount: true,

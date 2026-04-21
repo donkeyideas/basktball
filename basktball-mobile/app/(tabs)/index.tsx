@@ -13,6 +13,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Image as ExpoImage } from 'expo-image';
+import { AutoImage } from '@/components/feed/AutoImage';
+import { ImageGrid } from '@/components/feed/ImageGrid';
 import { Colors, Fonts } from '@/constants/Colors';
 import { useTheme } from '@/lib/theme/ThemeContext';
 import { LinkifiedText } from '@/components/content/LinkifiedText';
@@ -64,6 +66,7 @@ interface TrendingTake {
   replyCount: number;
   createdAt: string;
   mediaUrl?: string | null;
+  mediaUrls?: string[];
   linkPreview?: {
     url: string;
     title: string | null;
@@ -422,13 +425,11 @@ export default function HomeScreen() {
                   style={styles.takeText}
                 />
                 </TouchableOpacity>
-                {take.mediaUrl && (
-                  <ExpoImage
-                    source={{ uri: take.mediaUrl }}
-                    style={{ width: '100%', height: 200, borderRadius: 8, marginTop: 8 }}
-                    contentFit="contain"
-                  />
-                )}
+                {(take.mediaUrls?.length ?? 0) > 0 ? (
+                  <View style={{ marginTop: 8 }}><ImageGrid urls={take.mediaUrls!} /></View>
+                ) : take.mediaUrl ? (
+                  <AutoImage source={{ uri: take.mediaUrl }} style={{ marginTop: 8 }} />
+                ) : null}
                 {/* Link Preview (same component used on court page) */}
                 <LinkPreview content={take.content} />
                 <View style={styles.takeActions}>

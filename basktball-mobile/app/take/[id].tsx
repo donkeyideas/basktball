@@ -21,6 +21,8 @@ import { useAuth } from '@/lib/auth/AuthContext';
 import { api } from '@/lib/api/client';
 import { LinkPreview, extractFirstUrl, stripFirstUrl } from '@/components/content/LinkPreview';
 import { LinkifiedText } from '@/components/content/LinkifiedText';
+import { AutoImage } from '@/components/feed/AutoImage';
+import { ImageGrid } from '@/components/feed/ImageGrid';
 
 const API_BASE = 'https://www.basktball.com';
 
@@ -43,6 +45,8 @@ interface TakeData {
   viewCount?: number;
   createdAt: string;
   tags: string[];
+  mediaUrl?: string | null;
+  mediaUrls?: string[];
   author: Author;
   poll?: {
     id: string;
@@ -256,6 +260,13 @@ export default function TakeDetailScreen() {
 
         {/* Link Preview */}
         <LinkPreview content={item.content} />
+
+        {/* Media Images */}
+        {(item.mediaUrls?.length ?? 0) > 0 ? (
+          <View style={{ marginBottom: 12 }}><ImageGrid urls={item.mediaUrls!} /></View>
+        ) : item.mediaUrl ? (
+          <AutoImage source={{ uri: item.mediaUrl }} style={{ marginBottom: 12 }} />
+        ) : null}
 
         {/* Tags */}
         {item.tags && item.tags.length > 0 && (

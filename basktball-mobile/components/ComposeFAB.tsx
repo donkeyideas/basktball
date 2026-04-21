@@ -50,7 +50,7 @@ export default function ComposeFAB() {
   const [showPoll, setShowPoll] = useState(false);
   const [pollOptions, setPollOptions] = useState<string[]>(['', '']);
   const [pollDuration, setPollDuration] = useState(24);
-  const [composeMediaUrl, setComposeMediaUrl] = useState<string | null>(null);
+  const [composeMediaUrls, setComposeMediaUrls] = useState<string[]>([]);
   const [showGifPicker, setShowGifPicker] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [mentionQuery, setMentionQuery] = useState('');
@@ -96,7 +96,7 @@ export default function ComposeFAB() {
     setShowPoll(false);
     setPollOptions(['', '']);
     setPollDuration(24);
-    setComposeMediaUrl(null);
+    setComposeMediaUrls([]);
     setShowGifPicker(false);
     setShowMentions(false);
     setMentionQuery('');
@@ -122,27 +122,41 @@ export default function ComposeFAB() {
   }
 
   async function handleImagePick() {
+    if (composeMediaUrls.length >= 4) return;
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
         showAlert('Permission Needed', 'Please allow photo access to attach images.');
         return;
       }
+      const remaining = 4 - composeMediaUrls.length;
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
-        allowsEditing: true,
+        allowsMultipleSelection: true,
+        selectionLimit: remaining,
         quality: 0.8,
+        exif: false,
       });
-      if (result.canceled || !result.assets?.[0]) return;
+      if (result.canceled || !result.assets?.length) return;
 
-      const asset = result.assets[0];
       setUploading(true);
-      const { publicUrl } = await uploadImage(
-        asset.uri,
-        asset.mimeType || 'image/jpeg',
-        asset.fileSize || 0,
-      );
-      setComposeMediaUrl(publicUrl);
+      const newUrls: string[] = [];
+      for (const asset of result.assets) {
+        try {
+          const { publicUrl } = await uploadImage(
+            asset.uri,
+            asset.mimeType || 'image/jpeg',
+            asset.fileSize || 0,
+          );
+          newUrls.push(publicUrl);
+        } catch (err: any) {
+          showAlert('Upload Error', err?.message || 'Failed to upload image.');
+          break;
+        }
+      }
+      if (newUrls.length > 0) {
+        setComposeMediaUrls(prev => [...prev, ...newUrls].slice(0, 4));
+      }
     } catch (err: any) {
       showAlert('Upload Error', err?.message || 'Failed to upload image.');
     } finally {
@@ -151,7 +165,7 @@ export default function ComposeFAB() {
   }
 
   async function handlePost() {
-    if (!composeText.trim()) return;
+    if (!composeText.trim() && composeMediaUrls.length === 0) return;
     if (composeText.length > 2000) {
       showAlert('Too Long', 'Takes must be 2,000 characters or less.');
       return;
@@ -166,8 +180,8 @@ export default function ComposeFAB() {
     setPosting(true);
     try {
       const body: any = { content: composeText.trim() };
-      if (composeMediaUrl) {
-        body.mediaUrl = composeMediaUrl;
+      if (composeMediaUrls.length > 0) {
+        body.mediaUrls = composeMediaUrls;
       }
       if (showPoll) {
         body.pollOptions = pollOptions.filter((o) => o.trim().length > 0);
@@ -223,9 +237,9 @@ export default function ComposeFAB() {
               <TouchableOpacity
                 style={[
                   styles.composePostBtn,
-                  (!composeText.trim() || posting || uploading) && styles.composePostBtnDisabled,
+                  ((!composeText.trim() && composeMediaUrls.length === 0) || posting || uploading) && styles.composePostBtnDisabled,
                 ]}
-                disabled={!composeText.trim() || posting || uploading}
+                disabled={(!composeText.trim() && composeMediaUrls.length === 0) || posting || uploading}
                 onPress={handlePost}
               >
                 {posting ? (
@@ -257,27 +271,35 @@ export default function ComposeFAB() {
 
               <Text style={styles.charCount}>{composeText.length}/2000</Text>
 
-              {/* GIF Preview */}
-              {composeMediaUrl && (
-                <View style={{ marginBottom: 8 }}>
-                  <View style={{ position: 'relative', alignSelf: 'flex-start' }}>
-                    <ExpoImage
-                      source={{ uri: composeMediaUrl }}
-                      style={{ width: 160, height: 120, borderRadius: 8 }}
-                      contentFit="cover"
-                    />
-                    <TouchableOpacity
-                      onPress={() => setComposeMediaUrl(null)}
-                      style={{
-                        position: 'absolute', top: 4, right: 4,
-                        width: 22, height: 22, borderRadius: 11,
-                        backgroundColor: 'rgba(0,0,0,0.7)',
-                        alignItems: 'center', justifyContent: 'center',
-                      }}
-                    >
-                      <Ionicons name="close" size={14} color="#fff" />
-                    </TouchableOpacity>
-                  </View>
+              {/* Media Preview Grid */}
+              {composeMediaUrls.length > 0 && (
+                <View style={{ marginBottom: 8, flexDirection: 'row', flexWrap: 'wrap', gap: 4 }}>
+                  {composeMediaUrls.map((url, i) => (
+                    <View key={url} style={{
+                      width: composeMediaUrls.length === 1 ? '100%' : '48%',
+                      height: composeMediaUrls.length === 1 ? 160 : 100,
+                      borderRadius: 8,
+                      overflow: 'hidden',
+                      position: 'relative',
+                    }}>
+                      <ExpoImage
+                        source={{ uri: url }}
+                        style={{ width: '100%', height: '100%' }}
+                        contentFit="cover"
+                      />
+                      <TouchableOpacity
+                        onPress={() => setComposeMediaUrls(prev => prev.filter((_, idx) => idx !== i))}
+                        style={{
+                          position: 'absolute', top: 4, right: 4,
+                          width: 22, height: 22, borderRadius: 11,
+                          backgroundColor: 'rgba(0,0,0,0.7)',
+                          alignItems: 'center', justifyContent: 'center',
+                        }}
+                      >
+                        <Ionicons name="close" size={14} color="#fff" />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
                 </View>
               )}
 
@@ -293,14 +315,14 @@ export default function ComposeFAB() {
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                 <TouchableOpacity
                   onPress={() => setShowGifPicker(!showGifPicker)}
-                  disabled={!!composeMediaUrl || uploading}
+                  disabled={composeMediaUrls.length > 0 || uploading}
                   style={{
                     paddingHorizontal: 10, paddingVertical: 5,
                     borderWidth: 1,
                     borderColor: showGifPicker ? Colors.orange : 'rgba(255,107,53,0.3)',
                     borderRadius: 6,
                     backgroundColor: showGifPicker ? 'rgba(255,107,53,0.15)' : 'transparent',
-                    opacity: (composeMediaUrl || uploading) ? 0.4 : 1,
+                    opacity: (composeMediaUrls.length > 0 || uploading) ? 0.4 : 1,
                   }}
                 >
                   <Text style={{ fontFamily: Fonts.barlowSemiBold, fontSize: 13, color: Colors.orange, fontWeight: '600' }}>GIF</Text>
@@ -308,18 +330,20 @@ export default function ComposeFAB() {
 
                 <TouchableOpacity
                   onPress={handleImagePick}
-                  disabled={!!composeMediaUrl || uploading}
+                  disabled={composeMediaUrls.length >= 4 || uploading}
                   style={{
                     flexDirection: 'row', alignItems: 'center', gap: 4,
                     paddingHorizontal: 10, paddingVertical: 5,
                     borderWidth: 1,
                     borderColor: 'rgba(255,107,53,0.3)',
                     borderRadius: 6,
-                    opacity: (composeMediaUrl || uploading) ? 0.4 : 1,
+                    opacity: (composeMediaUrls.length >= 4 || uploading) ? 0.4 : 1,
                   }}
                 >
                   <Ionicons name="image-outline" size={14} color={Colors.orange} />
-                  <Text style={{ fontFamily: Fonts.barlowSemiBold, fontSize: 13, color: Colors.orange, fontWeight: '600' }}>IMG</Text>
+                  <Text style={{ fontFamily: Fonts.barlowSemiBold, fontSize: 13, color: Colors.orange, fontWeight: '600' }}>
+                    {composeMediaUrls.length > 0 ? `IMG ${composeMediaUrls.length}/4` : 'IMG'}
+                  </Text>
                 </TouchableOpacity>
 
                 {!showPoll && (
@@ -417,7 +441,7 @@ export default function ComposeFAB() {
             {showGifPicker && (
               <GifPicker
                 onSelect={(gifUrl) => {
-                  setComposeMediaUrl(gifUrl);
+                  setComposeMediaUrls([gifUrl]);
                   setShowGifPicker(false);
                 }}
                 onClose={() => setShowGifPicker(false)}

@@ -49,6 +49,9 @@ export async function GET(
         createdAt: true,
         parentId: true,
         tags: true,
+        mediaUrl: true,
+        mediaUrls: true,
+        linkPreview: true,
         author: {
           select: {
             id: true,

@@ -12,6 +12,79 @@ import LinkifiedText from "@/components/court/LinkifiedText";
 import LinkPreviewCard from "@/components/court/LinkPreviewCard";
 import { extractFirstUrl, detectVideoProvider } from "@/lib/content/url-parser";
 
+function DetailImageCarousel({ urls }: { urls: string[] }) {
+  const [current, setCurrent] = useState(0);
+
+  const goTo = useCallback((e: React.MouseEvent, index: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrent(Math.max(0, Math.min(index, urls.length - 1)));
+  }, [urls.length]);
+
+  return (
+    <div style={{ marginBottom: "16px", position: "relative" }}>
+      <div style={{ borderRadius: "16px", overflow: "hidden", position: "relative" }}>
+        <img
+          src={urls[current]}
+          alt=""
+          style={{ width: "100%", display: "block" }}
+        />
+        {current > 0 && (
+          <button
+            onClick={(e) => goTo(e, current - 1)}
+            style={{
+              position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)",
+              background: "none", border: "none", color: "#FF6B35",
+              cursor: "pointer", fontSize: "52px", fontWeight: "bold",
+              lineHeight: 1, padding: 0,
+              filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))",
+            }}
+          >
+            ‹
+          </button>
+        )}
+        {current < urls.length - 1 && (
+          <button
+            onClick={(e) => goTo(e, current + 1)}
+            style={{
+              position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)",
+              background: "none", border: "none", color: "#FF6B35",
+              cursor: "pointer", fontSize: "52px", fontWeight: "bold",
+              lineHeight: 1, padding: 0,
+              filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.5))",
+            }}
+          >
+            ›
+          </button>
+        )}
+        <div style={{
+          position: "absolute", top: "10px", right: "10px",
+          backgroundColor: "rgba(0,0,0,0.6)", color: "#fff",
+          borderRadius: "12px", padding: "3px 10px", fontSize: "13px", fontWeight: "600",
+        }}>
+          {current + 1}/{urls.length}
+        </div>
+      </div>
+      <div style={{ display: "flex", justifyContent: "center", gap: "6px", marginTop: "8px" }}>
+        {urls.map((_, i) => (
+          <div
+            key={i}
+            onClick={(e) => goTo(e, i)}
+            style={{
+              width: current === i ? "8px" : "6px",
+              height: current === i ? "8px" : "6px",
+              borderRadius: "50%",
+              backgroundColor: current === i ? "#FF6B35" : "var(--text-faint)",
+              transition: "all 0.2s",
+              cursor: "pointer",
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function TakeDetailPage() {
   const { data: session } = useSession();
   const params = useParams();
@@ -55,6 +128,7 @@ export default function TakeDetailPage() {
           poll: t.poll || null,
           statCheck: t.statCheck || null,
           mediaUrl: t.mediaUrl || null,
+          mediaUrls: t.mediaUrls || [],
           linkPreview: t.linkPreview || null,
         });
         setReplies(
@@ -74,6 +148,7 @@ export default function TakeDetailPage() {
             userBookmarked: ((r.bookmarks as unknown[])?.length || 0) > 0,
             userReposted: false,
             mediaUrl: (r.mediaUrl as string) || null,
+            mediaUrls: (r.mediaUrls as string[]) || [],
             linkPreview: (r.linkPreview as Record<string, unknown>) || null,
           }))
         );
@@ -520,12 +595,25 @@ export default function TakeDetailPage() {
               />
             </div>
 
-            {/* GIF */}
-            {mainTake.mediaUrl && (
-              <div style={{ marginBottom: "16px" }}>
-                <img src={mainTake.mediaUrl} alt="" style={{ width: "100%", maxHeight: "400px", objectFit: "contain", display: "block", borderRadius: "12px" }} />
-              </div>
-            )}
+            {/* Media Images */}
+            {(() => {
+              const urls = (mainTake.mediaUrls?.length ?? 0) > 0
+                ? mainTake.mediaUrls!
+                : mainTake.mediaUrl
+                  ? [mainTake.mediaUrl]
+                  : [];
+              if (urls.length === 0) return null;
+              if (urls.length === 1) {
+                return (
+                  <div style={{ marginBottom: "16px", borderRadius: "16px", overflow: "hidden" }}>
+                    <img src={urls[0]} alt="" style={{ width: "100%", display: "block" }} />
+                  </div>
+                );
+              }
+              return (
+                <DetailImageCarousel urls={urls} />
+              );
+            })()}
 
             {/* Link Preview — server-side or client-side video fallback */}
             {(() => {

@@ -11,26 +11,32 @@ import { extractMentions, resolveMentionedUserIds } from "@/lib/content/mention-
 export async function POST(request: Request) {
   try {
     const user = await requireMobileUser(request);
-    const { content, gameId, parentId, tags, pollOptions, pollDuration, quarter, gameClock, mediaUrl } = await request.json();
+    const { content, gameId, parentId, tags, pollOptions, pollDuration, quarter, gameClock, mediaUrl, mediaUrls } = await request.json();
 
-    if (!content || content.trim().length === 0) {
-      return NextResponse.json({ message: "Content is required" }, { status: 400 });
+    // Support both mediaUrls (array, new) and mediaUrl (string, legacy)
+    const resolvedMediaUrls: string[] = mediaUrls && Array.isArray(mediaUrls)
+      ? mediaUrls.slice(0, 4).filter((u: string) => typeof u === "string" && u.length > 0)
+      : mediaUrl ? [mediaUrl] : [];
+
+    if ((!content || content.trim().length === 0) && resolvedMediaUrls.length === 0) {
+      return NextResponse.json({ message: "Content or media is required" }, { status: 400 });
     }
 
-    if (content.length > 2000) {
+    if (content && content.length > 2000) {
       return NextResponse.json({ message: "Take must be 2,000 characters or less" }, { status: 400 });
     }
 
     const take = await prisma.take.create({
       data: {
-        content: content.trim(),
+        content: (content || "").trim(),
         authorId: user.id,
         gameId: gameId || null,
         parentId: parentId || null,
         tags: tags || [],
         quarter: quarter || null,
         gameClock: gameClock || null,
-        mediaUrl: mediaUrl || null,
+        mediaUrl: resolvedMediaUrls[0] || null,
+        mediaUrls: resolvedMediaUrls,
       },
       include: {
         author: {

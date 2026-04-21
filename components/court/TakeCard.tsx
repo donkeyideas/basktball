@@ -1,11 +1,100 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import LinkifiedText from "./LinkifiedText";
 import LinkPreviewCard from "./LinkPreviewCard";
 import { extractFirstUrl, detectVideoProvider } from "@/lib/content/url-parser";
+
+// --- Image Carousel ---
+
+function ImageCarousel({ urls }: { urls: string[] }) {
+  const [current, setCurrent] = useState(0);
+
+  const goTo = useCallback((e: React.MouseEvent, index: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrent(Math.max(0, Math.min(index, urls.length - 1)));
+  }, [urls.length]);
+
+  if (urls.length === 1) {
+    return (
+      <div style={{ margin: "8px 0", borderRadius: "16px", overflow: "hidden" }} onClick={(e) => e.stopPropagation()}>
+        <img src={urls[0]} alt="" style={{ width: "100%", display: "block" }} />
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ margin: "8px 0", position: "relative" }} onClick={(e) => e.stopPropagation()}>
+      <div style={{ borderRadius: "16px", overflow: "hidden", position: "relative" }}>
+        <img
+          src={urls[current]}
+          alt=""
+          style={{ width: "100%", display: "block" }}
+        />
+        {/* Left arrow */}
+        {current > 0 && (
+          <button
+            onClick={(e) => goTo(e, current - 1)}
+            style={{
+              position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)",
+              background: "none", border: "none", color: "#FF6B35",
+              cursor: "pointer", padding: "8px",
+              fontSize: "52px", fontWeight: "bold",
+              filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.7))",
+              zIndex: 2, lineHeight: 1,
+            }}
+          >
+            ‹
+          </button>
+        )}
+        {/* Right arrow */}
+        {current < urls.length - 1 && (
+          <button
+            onClick={(e) => goTo(e, current + 1)}
+            style={{
+              position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)",
+              background: "none", border: "none", color: "#FF6B35",
+              cursor: "pointer", padding: "8px",
+              fontSize: "52px", fontWeight: "bold",
+              filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.7))",
+              zIndex: 2, lineHeight: 1,
+            }}
+          >
+            ›
+          </button>
+        )}
+        {/* Counter badge */}
+        <div style={{
+          position: "absolute", top: "10px", right: "10px",
+          backgroundColor: "rgba(0,0,0,0.6)", color: "#fff",
+          borderRadius: "12px", padding: "3px 10px", fontSize: "13px", fontWeight: "600",
+        }}>
+          {current + 1}/{urls.length}
+        </div>
+      </div>
+      {/* Dot indicators */}
+      <div style={{ display: "flex", justifyContent: "center", gap: "6px", marginTop: "8px" }}>
+        {urls.map((_, i) => (
+          <div
+            key={i}
+            onClick={(e) => goTo(e, i)}
+            style={{
+              width: current === i ? "8px" : "6px",
+              height: current === i ? "8px" : "6px",
+              borderRadius: "50%",
+              backgroundColor: current === i ? "#FF6B35" : "var(--text-faint)",
+              transition: "all 0.2s",
+              cursor: "pointer",
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 // --- Types ---
 
@@ -71,6 +160,7 @@ export interface Take {
   userBookmarked: boolean;
   userReposted: boolean;
   mediaUrl?: string | null;
+  mediaUrls?: string[];
   linkPreview?: {
     url: string;
     title: string | null;
@@ -663,12 +753,18 @@ export default function TakeCard({ take, currentUserId, currentUserRole, onReact
         style={contentStyle}
       />
 
-      {/* GIF / Media */}
-      {take.mediaUrl && (
-        <div style={{ margin: "8px 0", textAlign: "center" }} onClick={(e) => e.stopPropagation()}>
-          <img src={take.mediaUrl} alt="" style={{ maxWidth: "100%", maxHeight: "400px", borderRadius: "12px", display: "inline-block" }} />
-        </div>
-      )}
+      {/* Media Images */}
+      {(() => {
+        const urls = (take.mediaUrls?.length ?? 0) > 0
+          ? take.mediaUrls!
+          : take.mediaUrl
+            ? [take.mediaUrl]
+            : [];
+        if (urls.length === 0) return null;
+        return (
+          <ImageCarousel urls={urls} />
+        );
+      })()}
 
       {/* Link Preview — server-side data or client-side video detection fallback */}
       {take.linkPreview ? (

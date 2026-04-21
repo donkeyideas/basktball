@@ -25,6 +25,7 @@ export async function GET(request: Request) {
           id: true,
           content: true,
           mediaUrl: true,
+          mediaUrls: true,
           linkPreview: true,
           fireCount: true,
           brickCount: true,
