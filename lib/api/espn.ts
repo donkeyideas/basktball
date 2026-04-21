@@ -162,7 +162,7 @@ function normalizeEspnTeam(team: EspnTeam): NormalizedTeam {
   };
 }
 
-function normalizeEspnGame(event: EspnEvent): NormalizedGame | null {
+function normalizeEspnGame(event: EspnEvent, league?: "nba" | "wnba" | "ncaam" | "ncaaw"): NormalizedGame | null {
   const competition = event.competitions[0];
   if (!competition) return null;
 
@@ -204,6 +204,19 @@ function normalizeEspnGame(event: EspnEvent): NormalizedGame | null {
     .filter(Boolean);
   const broadcast = broadcastNames.length > 0 ? broadcastNames.join(", ") : undefined;
 
+  // Detect playoffs from event name or status description
+  const eventName = (event.name || "").toLowerCase();
+  const statusDesc = (status.type?.description || "").toLowerCase();
+  const shortDetail = (status.type?.shortDetail || "").toLowerCase();
+  const isPlayoffs =
+    eventName.includes("playoff") ||
+    eventName.includes("postseason") ||
+    statusDesc.includes("playoff") ||
+    shortDetail.includes("playoff") ||
+    // NBA-specific: series game indicators
+    / - game \d/i.test(event.name || "") ||
+    /gm \d/i.test(status.type?.shortDetail || "");
+
   return {
     id: event.id,
     homeTeam: normalizeEspnTeam(homeComp.team),
@@ -214,8 +227,9 @@ function normalizeEspnGame(event: EspnEvent): NormalizedGame | null {
     quarter: period > 0 ? `Q${period}` : undefined,
     clock: status.displayClock || undefined,
     gameDate: new Date(event.date),
-    isPlayoffs: false,
+    isPlayoffs,
     broadcast,
+    league,
   };
 }
 
@@ -233,7 +247,7 @@ export class EspnApiClient {
     try {
       const data = await fetchEspn<EspnScoreboard>(`/nba/scoreboard${dateParam}`);
       const games = data.events
-        .map(normalizeEspnGame)
+        .map((e) => normalizeEspnGame(e, "nba"))
         .filter((g): g is NormalizedGame => g !== null);
 
       setCache(cacheKey, games, 30000); // 30 second cache
@@ -257,7 +271,7 @@ export class EspnApiClient {
     try {
       const data = await fetchEspn<EspnScoreboard>(`/wnba/scoreboard${dateParam}`);
       const games = data.events
-        .map(normalizeEspnGame)
+        .map((e) => normalizeEspnGame(e, "wnba"))
         .filter((g): g is NormalizedGame => g !== null);
 
       setCache(cacheKey, games, 30000);
@@ -283,7 +297,7 @@ export class EspnApiClient {
         `/mens-college-basketball/scoreboard${dateParam}`
       );
       const games = data.events
-        .map(normalizeEspnGame)
+        .map((e) => normalizeEspnGame(e, "ncaam"))
         .filter((g): g is NormalizedGame => g !== null);
 
       setCache(cacheKey, games, 30000);
@@ -309,7 +323,7 @@ export class EspnApiClient {
         `/womens-college-basketball/scoreboard${dateParam}`
       );
       const games = data.events
-        .map(normalizeEspnGame)
+        .map((e) => normalizeEspnGame(e, "ncaaw"))
         .filter((g): g is NormalizedGame => g !== null);
 
       setCache(cacheKey, games, 30000);

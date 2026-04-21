@@ -66,15 +66,47 @@ async function fetchLatestNews(): Promise<NewsArticle[]> {
 
 // ── Build message from real data ────────────────────────────
 
+const LEAGUE_NAMES: Record<string, string> = {
+  nba: "NBA",
+  wnba: "WNBA",
+  ncaam: "NCAA",
+  ncaaw: "NCAAW",
+};
+
+/** Pick the primary league (most games, prefer NBA) */
+function getPrimaryLeague(games: NormalizedGame[]): string {
+  const counts: Record<string, number> = {};
+  for (const g of games) {
+    const l = g.league || "nba";
+    counts[l] = (counts[l] || 0) + 1;
+  }
+  // Prefer NBA if it has games, otherwise pick the league with the most games
+  if (counts["nba"] && counts["nba"] > 0) return "nba";
+  let best = "nba";
+  let bestCount = 0;
+  for (const [league, count] of Object.entries(counts)) {
+    if (count > bestCount) {
+      best = league;
+      bestCount = count;
+    }
+  }
+  return best;
+}
+
 function buildGameDayMessage(games: NormalizedGame[]): { title: string; body: string } | null {
   if (games.length === 0) return null;
 
-  const live = games.filter((g) => g.status === "live");
-  const scheduled = games.filter((g) => g.status === "scheduled");
-  const final_ = games.filter((g) => g.status === "final");
+  // Focus on the primary league (NBA during NBA season)
+  const primaryLeague = getPrimaryLeague(games);
+  const leagueName = LEAGUE_NAMES[primaryLeague] || "NBA";
+  const primaryGames = games.filter((g) => (g.league || "nba") === primaryLeague);
+
+  const live = primaryGames.filter((g) => g.status === "live");
+  const scheduled = primaryGames.filter((g) => g.status === "scheduled");
+  const final_ = primaryGames.filter((g) => g.status === "final");
 
   // Detect playoffs
-  const hasPlayoffs = games.some((g) => g.isPlayoffs);
+  const hasPlayoffs = primaryGames.some((g) => g.isPlayoffs);
 
   // ── Live games happening now ──
   if (live.length > 0) {
@@ -83,7 +115,7 @@ function buildGameDayMessage(games: NormalizedGame[]): { title: string; body: st
     const extra = live.length > 1 ? ` and ${live.length - 1} more game${live.length > 2 ? "s" : ""}` : "";
 
     return {
-      title: hasPlayoffs ? "Playoff Games LIVE Now" : "Games Are LIVE Right Now",
+      title: hasPlayoffs ? `${leagueName} Playoff Games LIVE Now` : `${leagueName} Games Are LIVE Right Now`,
       body: `${score}${topGame.quarter ? ` (${topGame.quarter}${topGame.clock ? ` ${topGame.clock}` : ""})` : ""}${extra}. Open BASKTBALL for live scores and stats.`,
     };
   }
@@ -103,8 +135,8 @@ function buildGameDayMessage(games: NormalizedGame[]): { title: string; body: st
         .map((g) => `${g.awayTeam.abbreviation} @ ${g.homeTeam.abbreviation}`)
         .join(", ");
       return {
-        title: `${scheduled.length} Playoff Game${scheduled.length > 1 ? "s" : ""} Today`,
-        body: `${matchups}${sorted.length > 3 ? ` +${sorted.length - 3} more` : ""}. First tip at ${firstTime} ET. Make your predictions now!`,
+        title: `${scheduled.length} ${leagueName} Playoff Game${scheduled.length > 1 ? "s" : ""} Today`,
+        body: `Catch ${matchups}${sorted.length > 3 ? ` and ${sorted.length - 3} more` : ""}. First tip at ${firstTime} ET.`,
       };
     }
 
@@ -113,8 +145,8 @@ function buildGameDayMessage(games: NormalizedGame[]): { title: string; body: st
       .map((g) => `${g.awayTeam.abbreviation}@${g.homeTeam.abbreviation}`)
       .join(", ");
     return {
-      title: `${scheduled.length} Games on Today's Schedule`,
-      body: `${matchups}${sorted.length > 4 ? ` +${sorted.length - 4} more` : ""}. Tip-off starts at ${firstTime} ET. Check the full schedule on BASKTBALL.`,
+      title: `${scheduled.length} ${leagueName} Game${scheduled.length > 1 ? "s" : ""} Today`,
+      body: `Catch ${matchups}${sorted.length > 4 ? ` and ${sorted.length - 4} more` : ""}. Tip-off starts at ${firstTime} ET.`,
     };
   }
 
@@ -130,8 +162,8 @@ function buildGameDayMessage(games: NormalizedGame[]): { title: string; body: st
     const score = `${highlight.awayTeam.abbreviation} ${highlight.awayScore} - ${highlight.homeScore} ${highlight.homeTeam.abbreviation}`;
 
     return {
-      title: hasPlayoffs ? "Playoff Results Are In" : "Today's Games Are Final",
-      body: `${winner.name} wins! ${score}${final_.length > 1 ? `. ${final_.length} total games wrapped up today` : ""}. Check full box scores and stats on BASKTBALL.`,
+      title: hasPlayoffs ? `${leagueName} Playoff Results Are In` : `Today's ${leagueName} Games Are Final`,
+      body: `${winner.name} wins! ${score}${final_.length > 1 ? `. ${final_.length} total games wrapped up today` : ""}. Check box scores on BASKTBALL.`,
     };
   }
 
@@ -171,12 +203,16 @@ async function polishWithAI(
       [
         {
           role: "system",
-          content: `You are a push notification copywriter for BASKTBALL, a basketball social app. You will be given a draft notification based on real basketball data. Your job is to make it punchier and more engaging while keeping ALL facts accurate. Do NOT invent any scores, teams, or information. Only rephrase what is given.
+          content: `You are a push notification copywriter for BASKTBALL, a basketball social app. You will be given a draft notification based on real basketball data. Your job is to make it punchier and more engaging while keeping ALL facts 100% accurate.
 
-Rules:
+STRICT RULES:
 - Title: 5-12 words max, catchy
 - Body: 1-2 sentences, 20-50 words
-- Keep every team name, score, and stat exactly as provided
+- NEVER change the game count number — if it says "4 NBA Games", keep it as 4
+- NEVER change or add league names — if it says "NBA", keep "NBA", don't change to "Basketball"
+- NEVER change team abbreviations or matchups
+- NEVER add team matchups that are not in the draft
+- Keep every score, stat, and time exactly as provided
 - Tone: energetic but factual
 - Never use emojis or markdown
 - Return ONLY valid JSON: {"title": "...", "body": "..."}`,
@@ -186,15 +222,23 @@ Rules:
           content: `Context: ${context}\n\nDraft title: ${rawTitle}\nDraft body: ${rawBody}\n\nPolish this notification. Keep all facts accurate.`,
         },
       ],
-      { temperature: 0.7, maxTokens: 150 }
+      { temperature: 0.3, maxTokens: 150 }
     );
 
     const parsed = JSON.parse(result.content.trim());
     if (parsed.title && parsed.body) {
-      return {
-        title: parsed.title.replace(/[*#_~`>-]{2,}/g, "").trim(),
-        body: parsed.body.replace(/[*#_~`>-]{2,}/g, "").trim(),
-      };
+      const polishedTitle = parsed.title.replace(/[*#_~`>-]{2,}/g, "").trim();
+      const polishedBody = parsed.body.replace(/[*#_~`>-]{2,}/g, "").trim();
+
+      // Validate: if the raw title had a number, make sure the AI didn't change it
+      const rawNumberMatch = rawTitle.match(/^(\d+)\s/);
+      const polishedNumberMatch = polishedTitle.match(/(\d+)/);
+      if (rawNumberMatch && polishedNumberMatch && rawNumberMatch[1] !== polishedNumberMatch[1]) {
+        console.warn(`[auto-broadcast] AI changed game count from ${rawNumberMatch[1]} to ${polishedNumberMatch[1]}, using raw message`);
+        return { title: rawTitle, body: rawBody };
+      }
+
+      return { title: polishedTitle, body: polishedBody };
     }
   } catch {
     // AI polish failed — use raw message

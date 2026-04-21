@@ -106,6 +106,7 @@ export interface NormalizedGame {
   isPlayoffs: boolean;
   season?: string;
   broadcast?: string;
+  league?: League;
 }
 
 export interface NormalizedPlayer {
