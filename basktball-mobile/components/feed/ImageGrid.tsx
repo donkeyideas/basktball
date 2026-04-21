@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -13,7 +13,8 @@ import { Image } from 'expo-image';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SCREEN_HEIGHT = Dimensions.get('window').height;
-const GAP = 4;
+const CARD_PADDING = 14; // matches TakeCard padding
+const IMAGE_WIDTH = SCREEN_WIDTH - 2 * CARD_PADDING - 2; // account for card border
 const RADIUS = 12;
 
 interface ImageGridProps {
@@ -22,13 +23,15 @@ interface ImageGridProps {
 
 export function ImageGrid({ urls }: ImageGridProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const flatListRef = useRef<FlatList>(null);
 
   if (urls.length === 0) return null;
 
   const openLightbox = (index: number) => setLightboxIndex(index);
   const closeLightbox = () => setLightboxIndex(null);
 
-  // Single image — full width, auto aspect
+  // Single image — full width
   if (urls.length === 1) {
     return (
       <>
@@ -49,82 +52,62 @@ export function ImageGrid({ urls }: ImageGridProps) {
     );
   }
 
-  // Two images — side by side
-  if (urls.length === 2) {
-    return (
-      <>
-        <View style={styles.row}>
-          <TouchableOpacity style={styles.half} activeOpacity={0.9} onPress={() => openLightbox(0)}>
-            <Image source={{ uri: urls[0] }} style={styles.fill} contentFit="cover" />
-          </TouchableOpacity>
-          <View style={{ width: GAP }} />
-          <TouchableOpacity style={styles.half} activeOpacity={0.9} onPress={() => openLightbox(1)}>
-            <Image source={{ uri: urls[1] }} style={styles.fill} contentFit="cover" />
-          </TouchableOpacity>
-        </View>
-        <Lightbox
-          urls={urls}
-          visible={lightboxIndex !== null}
-          initialIndex={lightboxIndex ?? 0}
-          onClose={closeLightbox}
-        />
-      </>
-    );
-  }
-
-  // Three images — 1 big left + 2 small right
-  if (urls.length === 3) {
-    return (
-      <>
-        <View style={styles.row}>
-          <TouchableOpacity style={styles.twoThirds} activeOpacity={0.9} onPress={() => openLightbox(0)}>
-            <Image source={{ uri: urls[0] }} style={styles.fill} contentFit="cover" />
-          </TouchableOpacity>
-          <View style={{ width: GAP }} />
-          <View style={styles.oneThird}>
-            <TouchableOpacity style={styles.stackTop} activeOpacity={0.9} onPress={() => openLightbox(1)}>
-              <Image source={{ uri: urls[1] }} style={styles.fill} contentFit="cover" />
-            </TouchableOpacity>
-            <View style={{ height: GAP }} />
-            <TouchableOpacity style={styles.stackBottom} activeOpacity={0.9} onPress={() => openLightbox(2)}>
-              <Image source={{ uri: urls[2] }} style={styles.fill} contentFit="cover" />
-            </TouchableOpacity>
-          </View>
-        </View>
-        <Lightbox
-          urls={urls}
-          visible={lightboxIndex !== null}
-          initialIndex={lightboxIndex ?? 0}
-          onClose={closeLightbox}
-        />
-      </>
-    );
-  }
-
-  // Four images — 2x2 grid
+  // Multiple images — swipeable carousel
   return (
     <>
-      <View style={styles.grid}>
-        <View style={styles.gridRow}>
-          <TouchableOpacity style={styles.gridCell} activeOpacity={0.9} onPress={() => openLightbox(0)}>
-            <Image source={{ uri: urls[0] }} style={styles.fill} contentFit="cover" />
-          </TouchableOpacity>
-          <View style={{ width: GAP }} />
-          <TouchableOpacity style={styles.gridCell} activeOpacity={0.9} onPress={() => openLightbox(1)}>
-            <Image source={{ uri: urls[1] }} style={styles.fill} contentFit="cover" />
-          </TouchableOpacity>
+      <View style={styles.carouselContainer}>
+        <FlatList
+          ref={flatListRef}
+          data={urls}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={(e) => {
+            const idx = Math.round(e.nativeEvent.contentOffset.x / IMAGE_WIDTH);
+            setCurrentIndex(idx);
+          }}
+          keyExtractor={(_, i) => i.toString()}
+          getItemLayout={(_, index) => ({
+            length: IMAGE_WIDTH,
+            offset: IMAGE_WIDTH * index,
+            index,
+          })}
+          renderItem={({ item, index }) => (
+            <TouchableOpacity
+              activeOpacity={0.9}
+              onPress={() => openLightbox(index)}
+              style={{ width: IMAGE_WIDTH }}
+            >
+              <Image
+                source={{ uri: item }}
+                style={styles.carouselImage}
+                contentFit="cover"
+              />
+            </TouchableOpacity>
+          )}
+        />
+
+        {/* Counter badge */}
+        <View style={styles.counterBadge}>
+          <Text style={styles.counterText}>
+            {currentIndex + 1}/{urls.length}
+          </Text>
         </View>
-        <View style={{ height: GAP }} />
-        <View style={styles.gridRow}>
-          <TouchableOpacity style={styles.gridCell} activeOpacity={0.9} onPress={() => openLightbox(2)}>
-            <Image source={{ uri: urls[2] }} style={styles.fill} contentFit="cover" />
-          </TouchableOpacity>
-          <View style={{ width: GAP }} />
-          <TouchableOpacity style={styles.gridCell} activeOpacity={0.9} onPress={() => openLightbox(3)}>
-            <Image source={{ uri: urls[3] }} style={styles.fill} contentFit="cover" />
-          </TouchableOpacity>
+
+        {/* Dot indicators */}
+        <View style={styles.dots}>
+          {urls.map((_, i) => (
+            <View
+              key={i}
+              style={[
+                styles.dot,
+                i === currentIndex && styles.dotActive,
+              ]}
+            />
+          ))}
         </View>
       </View>
+
       <Lightbox
         urls={urls}
         visible={lightboxIndex !== null}
@@ -211,43 +194,48 @@ const styles = StyleSheet.create({
     borderRadius: RADIUS,
     marginBottom: 8,
   },
-  row: {
-    flexDirection: 'row',
-    height: 200,
+  carouselContainer: {
     borderRadius: RADIUS,
     overflow: 'hidden',
     marginBottom: 8,
+    position: 'relative',
   },
-  half: {
-    flex: 1,
-  },
-  twoThirds: {
-    flex: 2,
-  },
-  oneThird: {
-    flex: 1,
-  },
-  stackTop: {
-    flex: 1,
-  },
-  stackBottom: {
-    flex: 1,
-  },
-  fill: {
+  carouselImage: {
     width: '100%',
-    height: '100%',
+    aspectRatio: 1.2,
   },
-  grid: {
-    borderRadius: RADIUS,
-    overflow: 'hidden',
-    marginBottom: 8,
+  counterBadge: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
   },
-  gridRow: {
+  counterText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  dots: {
+    position: 'absolute',
+    bottom: 10,
+    alignSelf: 'center',
     flexDirection: 'row',
-    height: 120,
+    gap: 6,
   },
-  gridCell: {
-    flex: 1,
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(255,255,255,0.4)',
+  },
+  dotActive: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#FF6B35',
   },
 });
 
