@@ -472,6 +472,75 @@ export class EspnApiClient {
         return [];
     }
   }
+
+  // Get NBA standings (conference rankings, records, playoff status)
+  async getNbaStandings(): Promise<{
+    eastern: Array<{ team: string; abbreviation: string; wins: number; losses: number; seed: number; clincher: string }>;
+    western: Array<{ team: string; abbreviation: string; wins: number; losses: number; seed: number; clincher: string }>;
+  }> {
+    const cacheKey = "espn:nba:standings";
+    const cached = getFromCache<{
+      eastern: Array<{ team: string; abbreviation: string; wins: number; losses: number; seed: number; clincher: string }>;
+      western: Array<{ team: string; abbreviation: string; wins: number; losses: number; seed: number; clincher: string }>;
+    }>(cacheKey);
+    if (cached) return cached;
+
+    try {
+      const response = await fetch(
+        "https://site.api.espn.com/apis/v2/sports/basketball/nba/standings",
+        { headers: { Accept: "application/json" } }
+      );
+      if (!response.ok) throw new Error(`ESPN standings: ${response.status}`);
+      const data = await response.json();
+
+      const result: {
+        eastern: Array<{ team: string; abbreviation: string; wins: number; losses: number; seed: number; clincher: string }>;
+        western: Array<{ team: string; abbreviation: string; wins: number; losses: number; seed: number; clincher: string }>;
+      } = { eastern: [], western: [] };
+
+      // data.children contains conference groups
+      for (const conference of data.children || []) {
+        const confName = (conference.name || "").toLowerCase();
+        const isEast = confName.includes("east");
+        const entries = conference.standings?.entries || [];
+
+        for (const entry of entries) {
+          const team = entry.team;
+          const stats = entry.stats || [];
+
+          const getStat = (name: string) => {
+            const s = stats.find((st: { name: string }) => st.name === name);
+            return s?.value ?? s?.displayValue ?? "";
+          };
+
+          const parsed = {
+            team: `${team?.location || ""} ${team?.name || ""}`.trim(),
+            abbreviation: team?.abbreviation || "",
+            wins: parseInt(String(getStat("wins"))) || 0,
+            losses: parseInt(String(getStat("losses"))) || 0,
+            seed: parseInt(String(getStat("playoffSeed"))) || 0,
+            clincher: String(getStat("clincher") || ""),
+          };
+
+          if (isEast) {
+            result.eastern.push(parsed);
+          } else {
+            result.western.push(parsed);
+          }
+        }
+      }
+
+      // Sort by seed
+      result.eastern.sort((a, b) => a.seed - b.seed);
+      result.western.sort((a, b) => a.seed - b.seed);
+
+      setCache(cacheKey, result, 1800000); // 30 min cache
+      return result;
+    } catch (error) {
+      console.error("ESPN standings fetch error:", error);
+      return { eastern: [], western: [] };
+    }
+  }
 }
 
 // Export singleton

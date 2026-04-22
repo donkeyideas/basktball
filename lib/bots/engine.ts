@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
 import { getNbaTeam, getTeamFullName, type NbaTeamInfo } from "@/lib/bots/nba-teams";
+import { espnApi } from "@/lib/api/espn";
 
 interface BotPersonality {
   tone: string;
@@ -186,6 +187,51 @@ function getFallbackTake(personality: BotPersonality): string {
 
 // ====== AI GENERATION (Google Gemini) ======
 
+async function fetchStandingsContext(): Promise<string> {
+  try {
+    const standings = await espnApi.getNbaStandings();
+    if (standings.eastern.length === 0 && standings.western.length === 0) return "";
+
+    const clinchLabel = (c: string) => {
+      if (c === "z") return " (clinched conf)";
+      if (c === "y") return " (clinched div)";
+      if (c === "x" || c === "xp") return " (clinched playoff)";
+      if (c === "pb") return " (play-in)";
+      if (c === "e") return " (ELIMINATED)";
+      return "";
+    };
+
+    const formatConf = (teams: typeof standings.eastern) =>
+      teams.map((t) => `  ${t.seed}. ${t.abbreviation} (${t.wins}-${t.losses})${clinchLabel(t.clincher)}`).join("\n");
+
+    return `\n\nCURRENT NBA STANDINGS (use these as ground truth for playoff status):\nEastern Conference:\n${formatConf(standings.eastern)}\nWestern Conference:\n${formatConf(standings.western)}`;
+  } catch {
+    return "";
+  }
+}
+
+async function fetchTeamRoster(teamAbbreviation: string): Promise<string> {
+  try {
+    // Find the team in DB by abbreviation
+    const team = await prisma.team.findFirst({
+      where: { abbreviation: teamAbbreviation, league: "NBA" },
+      select: { id: true, name: true },
+    });
+    if (!team) return "";
+
+    const players = await prisma.player.findMany({
+      where: { teamId: team.id },
+      select: { name: true, position: true },
+      orderBy: { name: "asc" },
+    });
+    if (players.length === 0) return "";
+
+    return `\n\nCurrent ${team.name} roster: ${players.map((p) => `${p.name}${p.position ? ` (${p.position})` : ""}`).join(", ")}`;
+  } catch {
+    return "";
+  }
+}
+
 async function fetchRecentNewsHeadlines(): Promise<string[]> {
   try {
     const res = await fetch("https://www.espn.com/espn/rss/nba/news", { signal: AbortSignal.timeout(5000) });
@@ -249,7 +295,9 @@ IMPORTANT RULES:
 - NEVER repeat or paraphrase something already posted on the timeline (listed below)
 - Your take must be UNIQUE and ORIGINAL - not something anyone else has said
 - Vary your style - sometimes ask a question, sometimes make a bold claim, sometimes a hot prediction
-- Reference specific player names, game scores, stats, or dates when possible${teamDirective}`;
+- Reference specific player names, game scores, stats, or dates when possible
+- CRITICAL: ONLY use the standings, roster, and game data provided below as ground truth. If the standings show a team is ELIMINATED, do NOT say they are in the playoffs. If a player is NOT listed on a team's current roster, do NOT reference them as being on that team. Never invent or assume playoff matchups, player rosters, or team records - use ONLY the data given to you.
+- If current standings data is provided, use it to determine which teams are in the playoffs, which are eliminated, and what seed they are. Do NOT rely on your training data for this - use ONLY the provided standings.${teamDirective}`;
 
   const userPrompt = `Given this context about what's happening in basketball RIGHT NOW, write a fresh, timely hot take:\n\n${context}${newsContext}`;
 
@@ -473,6 +521,15 @@ export async function generateBotTake(botUserId: string): Promise<string | null>
 
   // Look up bot's favorite team from hardcoded NBA teams
   const favoriteTeam = bot.favoriteTeamId ? getNbaTeam(bot.favoriteTeamId) || null : null;
+
+  // Fetch current standings and team roster for accurate context
+  const standingsContext = await fetchStandingsContext();
+  if (standingsContext) context += standingsContext;
+
+  if (favoriteTeam) {
+    const rosterContext = await fetchTeamRoster(favoriteTeam.abbreviation);
+    if (rosterContext) context += rosterContext;
+  }
 
   // Try AI generation (up to 2 attempts)
   const aiContent = await generateWithAI(personality, context, favoriteTeam);
