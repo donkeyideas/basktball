@@ -55,6 +55,13 @@ interface TakeData {
     options: Array<{ id: string; text: string; voteCount: number; position: number }>;
   } | null;
   statCheck?: { overallStatus: string; claims: unknown } | null;
+  userFired?: boolean;
+  userBricked?: boolean;
+  userBookmarked?: boolean;
+  userReposted?: boolean;
+  reactions?: Array<{ type: string }>;
+  bookmarks?: Array<{ id: string }>;
+  reposts?: Array<{ id: string }>;
 }
 
 interface TakeDetail extends TakeData {
@@ -95,11 +102,23 @@ export default function TakeDetailScreen() {
     fetchTake();
   }, [id]);
 
+  function parseInteractionState(t: any): TakeData {
+    return {
+      ...t,
+      userFired: t.reactions?.some((r: any) => r.type === 'FIRE') ?? false,
+      userBricked: t.reactions?.some((r: any) => r.type === 'BRICK') ?? false,
+      userBookmarked: (t.bookmarks?.length ?? 0) > 0,
+      userReposted: (t.reposts?.length ?? 0) > 0,
+    };
+  }
+
   async function fetchTake() {
     try {
-      const data = await api.get<{ take: TakeDetail }>(`/court/takes/${id}`);
+      const data = await api.get<{ take: any }>(`/court/takes/${id}`);
       if (data.take) {
-        setTake(data.take);
+        const parsed = parseInteractionState(data.take);
+        const replies = (data.take.replies || []).map(parseInteractionState);
+        setTake({ ...parsed, replies });
         setError(false);
       } else {
         setError(true);
@@ -138,23 +157,55 @@ export default function TakeDetailScreen() {
     }
   }
 
+  function updateTakeState(takeId: string, updater: (t: TakeData) => TakeData) {
+    setTake(prev => {
+      if (!prev) return prev;
+      if (prev.id === takeId) return { ...updater(prev), replies: prev.replies };
+      const replies = prev.replies?.map(r => r.id === takeId ? updater(r) : r);
+      return { ...prev, replies };
+    });
+  }
+
   async function handleReaction(takeId: string, type: 'FIRE' | 'BRICK') {
     if (!requireAuth()) return;
+    updateTakeState(takeId, (t) => {
+      const wasFired = t.userFired;
+      const wasBricked = t.userBricked;
+      if (type === 'FIRE') {
+        return {
+          ...t,
+          userFired: !wasFired,
+          userBricked: false,
+          fireCount: t.fireCount + (wasFired ? -1 : 1),
+          brickCount: t.brickCount + (wasBricked ? -1 : 0),
+        };
+      }
+      return {
+        ...t,
+        userBricked: !wasBricked,
+        userFired: false,
+        brickCount: t.brickCount + (wasBricked ? -1 : 1),
+        fireCount: t.fireCount + (wasFired ? -1 : 0),
+      };
+    });
     try {
       await api.post(`/mobile/takes/${takeId}/react`, { type });
-      fetchTake();
     } catch {
-      // silently fail
+      fetchTake();
     }
   }
 
   async function handleRepost(takeId: string) {
     if (!requireAuth()) return;
+    updateTakeState(takeId, (t) => ({
+      ...t,
+      userReposted: !t.userReposted,
+      repostCount: t.repostCount + (t.userReposted ? -1 : 1),
+    }));
     try {
       await api.post(`/mobile/takes/${takeId}/repost`, {});
-      fetchTake();
     } catch {
-      // silently fail
+      fetchTake();
     }
   }
 
@@ -176,11 +227,14 @@ export default function TakeDetailScreen() {
 
   async function handleBookmark(takeId: string) {
     if (!requireAuth()) return;
+    updateTakeState(takeId, (t) => ({
+      ...t,
+      userBookmarked: !t.userBookmarked,
+    }));
     try {
       await api.post(`/mobile/takes/${takeId}/bookmark`, {});
-      Alert.alert('Done', 'Bookmark toggled.');
     } catch {
-      // silently fail
+      fetchTake();
     }
   }
 
@@ -301,12 +355,12 @@ export default function TakeDetailScreen() {
         {/* Reactions Row */}
         <View style={styles.reactionsRow}>
           <TouchableOpacity style={styles.reactionItem} activeOpacity={0.7} onPress={() => handleReaction(item.id, 'FIRE')}>
-            <Ionicons name="flame-outline" size={isMainTake ? 20 : 16} color={Colors.orange} />
+            <Ionicons name={item.userFired ? 'flame' : 'flame-outline'} size={isMainTake ? 20 : 16} color={Colors.orange} />
             <Text style={[styles.reactionCount, styles.fireCount]}>{formatCount(item.fireCount)}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.reactionItem} activeOpacity={0.7} onPress={() => handleReaction(item.id, 'BRICK')}>
-            <Ionicons name="square-outline" size={isMainTake ? 20 : 16} color={colors.textTertiary} />
-            <Text style={styles.reactionCount}>{formatCount(item.brickCount)}</Text>
+            <Ionicons name={item.userBricked ? 'square' : 'square-outline'} size={isMainTake ? 20 : 16} color={item.userBricked ? '#EF4444' : colors.textTertiary} />
+            <Text style={[styles.reactionCount, item.userBricked && { color: '#EF4444' }]}>{formatCount(item.brickCount)}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.reactionItem} activeOpacity={0.7} onPress={() => {
             if (!isMainTake) {
@@ -317,11 +371,11 @@ export default function TakeDetailScreen() {
             <Text style={styles.reactionCount}>{formatCount(item.replyCount)}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.reactionItem} activeOpacity={0.7} onPress={() => handleRepost(item.id)}>
-            <Ionicons name="repeat-outline" size={isMainTake ? 20 : 16} color={colors.textTertiary} />
-            <Text style={styles.reactionCount}>{formatCount(item.repostCount)}</Text>
+            <Ionicons name={item.userReposted ? 'repeat' : 'repeat-outline'} size={isMainTake ? 20 : 16} color={item.userReposted ? '#22C55E' : colors.textTertiary} />
+            <Text style={[styles.reactionCount, item.userReposted && { color: '#22C55E' }]}>{formatCount(item.repostCount)}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.reactionItem} activeOpacity={0.7} onPress={() => handleBookmark(item.id)}>
-            <Ionicons name="bookmark-outline" size={isMainTake ? 20 : 16} color={colors.textTertiary} />
+            <Ionicons name={item.userBookmarked ? 'bookmark' : 'bookmark-outline'} size={isMainTake ? 20 : 16} color={item.userBookmarked ? Colors.orange : colors.textTertiary} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.reactionItem}

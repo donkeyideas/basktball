@@ -65,6 +65,7 @@ export default function UserProfileScreen() {
   const [selectedTab, setSelectedTab] = useState('TAKES');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('User not found');
   const [isFollowing, setIsFollowing] = useState(false);
   const [isSelf, setIsSelf] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
@@ -76,25 +77,32 @@ export default function UserProfileScreen() {
 
   async function fetchProfile() {
     if (!id) return;
+    setLoading(true);
+    setError(false);
     try {
-      const [profileRes, takesRes] = await Promise.all([
-        fetch(`${API_BASE}/api/mobile/users/${id}`, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        }),
-        fetch(`${API_BASE}/api/mobile/users/${id}/takes?limit=20`),
-      ]);
+      const profileRes = await fetch(`${API_BASE}/api/mobile/users/${id}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       const profileData = await profileRes.json();
-      const takesData = await takesRes.json();
       if (profileData.user) {
         setProfile(profileData.user);
         setIsFollowing(!!profileData.isFollowing);
         setIsSelf(!!profileData.isSelf);
         setIsBlocked(!!profileData.isBlocked);
+        // Fetch takes separately so profile still shows if takes fail
+        try {
+          const takesRes = await fetch(`${API_BASE}/api/mobile/users/${id}/takes?limit=20`);
+          const takesData = await takesRes.json();
+          if (takesData.takes) setTakes(takesData.takes);
+        } catch {
+          // Silently fail on takes
+        }
       } else {
+        setErrorMessage(profileRes.status === 404 ? 'User not found' : 'Failed to load profile');
         setError(true);
       }
-      if (takesData.takes) setTakes(takesData.takes);
     } catch {
+      setErrorMessage('Network error. Check your connection and try again.');
       setError(true);
     } finally {
       setLoading(false);
@@ -239,7 +247,11 @@ export default function UserProfileScreen() {
           </TouchableOpacity>
         </View>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>User not found</Text>
+          <Ionicons name="alert-circle-outline" size={48} color={colors.textTertiary} />
+          <Text style={styles.errorText}>{errorMessage}</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={fetchProfile}>
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     );
@@ -650,11 +662,27 @@ function makeStyles(colors: any) {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
+      paddingHorizontal: 32,
     },
     errorText: {
       fontFamily: Fonts.barlow,
       fontSize: 16,
       color: colors.textTertiary,
+      textAlign: 'center',
+      marginTop: 12,
+    },
+    retryButton: {
+      marginTop: 16,
+      backgroundColor: Colors.orange,
+      paddingHorizontal: 24,
+      paddingVertical: 10,
+      borderRadius: 8,
+    },
+    retryButtonText: {
+      fontFamily: Fonts.barlowBold,
+      fontWeight: '700' as const,
+      fontSize: 14,
+      color: '#FFFFFF',
     },
   });
 }
