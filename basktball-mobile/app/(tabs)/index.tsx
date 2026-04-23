@@ -819,6 +819,7 @@ function makeStyles(colors: any) {
   takeActions: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 10,
     borderTopWidth: 1,
     borderTopColor: colors.border,

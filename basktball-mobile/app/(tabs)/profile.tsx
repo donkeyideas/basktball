@@ -22,6 +22,8 @@ import { useAuth } from '@/lib/auth/AuthContext';
 import { api } from '@/lib/api/client';
 import { AutoImage } from '@/components/feed/AutoImage';
 import { ImageGrid } from '@/components/feed/ImageGrid';
+import { LinkifiedText } from '@/components/content/LinkifiedText';
+import { LinkPreview, extractFirstUrl, stripFirstUrl } from '@/components/content/LinkPreview';
 
 const PROFILE_SEGMENTS = ['TAKES', 'REPLIES', 'CHALLENGES', 'PREDICTIONS', 'AGING', 'BOOKMARKS'];
 
@@ -232,12 +234,18 @@ export default function ProfileScreen() {
         activeOpacity={0.7}
         onPress={() => router.push(`/take/${item.id}`)}
       >
-        {item.content ? <Text style={styles.takeText}>{item.content}</Text> : null}
+        {item.content ? (
+          <LinkifiedText
+            text={extractFirstUrl(item.content) ? stripFirstUrl(item.content) : item.content}
+            style={styles.takeText}
+          />
+        ) : null}
         {(item.mediaUrls?.length ?? 0) > 0 ? (
           <View style={{ marginBottom: 8 }}><ImageGrid urls={item.mediaUrls!} /></View>
         ) : item.mediaUrl ? (
           <AutoImage source={{ uri: item.mediaUrl }} style={{ marginBottom: 8 }} />
         ) : null}
+        {item.content ? <LinkPreview content={item.content} /> : null}
         <View style={styles.takeActions}>
           <View style={styles.takeAction}>
             <Ionicons name="flame-outline" size={16} color={Colors.orange} />
@@ -693,6 +701,7 @@ function makeStyles(colors: any) {
   takeActions: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: 10,
     borderTopWidth: 1,
     borderTopColor: colors.border,
