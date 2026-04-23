@@ -31,6 +31,8 @@ interface Take {
   fireCount: number;
   brickCount: number;
   replyCount: number;
+  repostCount: number;
+  viewCount: number;
   createdAt: string;
   parentId?: string | null;
   mediaUrl?: string | null;
@@ -236,22 +238,39 @@ export default function ProfileScreen() {
         ) : item.mediaUrl ? (
           <AutoImage source={{ uri: item.mediaUrl }} style={{ marginBottom: 8 }} />
         ) : null}
-        <View style={styles.takeFooter}>
-          <View style={styles.takeActions}>
-            <View style={styles.takeAction}>
-              <Ionicons name="flame-outline" size={16} color={Colors.orange} />
-              <Text style={[styles.takeActionCount, styles.fireCount]}>{item.fireCount}</Text>
-            </View>
-            <View style={styles.takeAction}>
-              <Ionicons name="square-outline" size={16} color={colors.textSecondary} />
-              <Text style={styles.takeActionCount}>{item.brickCount}</Text>
-            </View>
-            <View style={styles.takeAction}>
-              <Ionicons name="chatbubble-outline" size={16} color={colors.textSecondary} />
-              <Text style={styles.takeActionCount}>{item.replyCount}</Text>
-            </View>
+        <View style={styles.takeActions}>
+          <View style={styles.takeAction}>
+            <Ionicons name="flame-outline" size={16} color={Colors.orange} />
+            <Text style={[styles.takeActionCount, styles.fireCount]}>{item.fireCount}</Text>
           </View>
-          <Text style={styles.takeTime}>{timeAgo(item.createdAt)}</Text>
+          <View style={styles.takeAction}>
+            <Ionicons name="square-outline" size={16} color={colors.textSecondary} />
+            <Text style={styles.takeActionCount}>{item.brickCount}</Text>
+          </View>
+          <View style={styles.takeAction}>
+            <Ionicons name="chatbubble-outline" size={16} color={colors.textSecondary} />
+            <Text style={styles.takeActionCount}>{item.replyCount}</Text>
+          </View>
+          <View style={styles.takeAction}>
+            <Ionicons name="repeat-outline" size={16} color={colors.textSecondary} />
+            <Text style={styles.takeActionCount}>{item.repostCount ?? 0}</Text>
+          </View>
+          <View style={styles.takeAction}>
+            <Ionicons name="bookmark-outline" size={16} color={colors.textSecondary} />
+          </View>
+          <View style={styles.takeAction}>
+            <Ionicons name="search" size={14} color={colors.textTertiary} />
+          </View>
+          <View style={styles.takeAction}>
+            <Ionicons name="flag-outline" size={14} color={colors.textTertiary} />
+          </View>
+          <View style={styles.takeAction}>
+            <Ionicons name="time-outline" size={14} color={colors.textTertiary} />
+          </View>
+          <View style={styles.takeAction}>
+            <Ionicons name="eye-outline" size={14} color={colors.textTertiary} />
+            <Text style={[styles.takeActionCount, { color: colors.textTertiary, fontSize: 12 }]}>{item.viewCount ?? 0}</Text>
+          </View>
         </View>
       </TouchableOpacity>
     );
@@ -671,14 +690,13 @@ function makeStyles(colors: any) {
     lineHeight: 22,
     marginBottom: 10,
   },
-  takeFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
   takeActions: {
     flexDirection: 'row',
-    gap: 20,
+    alignItems: 'center',
+    gap: 10,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: 10,
   },
   takeAction: {
     flexDirection: 'row',
@@ -692,11 +710,6 @@ function makeStyles(colors: any) {
   },
   fireCount: {
     color: Colors.orange,
-  },
-  takeTime: {
-    fontFamily: Fonts.mono,
-    fontSize: 12,
-    color: colors.textTertiary,
   },
   logoutButton: {
     flexDirection: 'row',

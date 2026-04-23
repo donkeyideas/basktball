@@ -49,6 +49,7 @@ export async function GET(
         brickCount: true,
         replyCount: true,
         repostCount: true,
+        viewCount: true,
         createdAt: true,
         parentId: true,
         tags: true,

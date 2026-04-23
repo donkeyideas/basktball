@@ -456,6 +456,15 @@ export default function HomeScreen() {
                     <Ionicons name="bookmark-outline" size={16} color={colors.textSecondary} />
                   </View>
                   <View style={styles.takeAction}>
+                    <Ionicons name="search" size={14} color={colors.textTertiary} />
+                  </View>
+                  <View style={styles.takeAction}>
+                    <Ionicons name="flag-outline" size={14} color={colors.textTertiary} />
+                  </View>
+                  <View style={styles.takeAction}>
+                    <Ionicons name="time-outline" size={14} color={colors.textTertiary} />
+                  </View>
+                  <View style={styles.takeAction}>
                     <Ionicons name="eye-outline" size={14} color={colors.textTertiary} />
                     <Text style={[styles.takeActionCount, { color: colors.textTertiary, fontSize: 12 }]}>{take.viewCount ?? 0}</Text>
                   </View>
@@ -810,7 +819,10 @@ function makeStyles(colors: any) {
   takeActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 20,
+    gap: 10,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingTop: 10,
   },
   takeAction: {
     flexDirection: 'row',
