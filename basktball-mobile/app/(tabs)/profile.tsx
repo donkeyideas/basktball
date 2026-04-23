@@ -20,6 +20,8 @@ import { Colors, Fonts } from '@/constants/Colors';
 import { useTheme } from '@/lib/theme/ThemeContext';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { api } from '@/lib/api/client';
+import { AutoImage } from '@/components/feed/AutoImage';
+import { ImageGrid } from '@/components/feed/ImageGrid';
 
 const PROFILE_SEGMENTS = ['TAKES', 'REPLIES', 'CHALLENGES', 'PREDICTIONS', 'AGING', 'BOOKMARKS'];
 
@@ -31,6 +33,8 @@ interface Take {
   replyCount: number;
   createdAt: string;
   parentId?: string | null;
+  mediaUrl?: string | null;
+  mediaUrls?: string[];
   author?: {
     name: string | null;
     displayName: string | null;
@@ -226,7 +230,12 @@ export default function ProfileScreen() {
         activeOpacity={0.7}
         onPress={() => router.push(`/take/${item.id}`)}
       >
-        <Text style={styles.takeText}>{item.content}</Text>
+        {item.content ? <Text style={styles.takeText}>{item.content}</Text> : null}
+        {(item.mediaUrls?.length ?? 0) > 0 ? (
+          <View style={{ marginBottom: 8 }}><ImageGrid urls={item.mediaUrls!} /></View>
+        ) : item.mediaUrl ? (
+          <AutoImage source={{ uri: item.mediaUrl }} style={{ marginBottom: 8 }} />
+        ) : null}
         <View style={styles.takeFooter}>
           <View style={styles.takeActions}>
             <View style={styles.takeAction}>

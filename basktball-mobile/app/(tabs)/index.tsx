@@ -63,7 +63,10 @@ interface TrendingTake {
   id: string;
   content: string;
   fireCount: number;
+  brickCount: number;
   replyCount: number;
+  repostCount: number;
+  viewCount: number;
   createdAt: string;
   mediaUrl?: string | null;
   mediaUrls?: string[];
@@ -438,14 +441,23 @@ export default function HomeScreen() {
                     <Text style={styles.takeActionCount}>{take.fireCount}</Text>
                   </View>
                   <View style={styles.takeAction}>
+                    <Ionicons name="square-outline" size={16} color={colors.textSecondary} />
+                    <Text style={styles.takeActionCount}>{take.brickCount ?? 0}</Text>
+                  </View>
+                  <View style={styles.takeAction}>
                     <Ionicons name="chatbubble-outline" size={16} color={colors.textSecondary} />
                     <Text style={styles.takeActionCount}>{take.replyCount}</Text>
                   </View>
                   <View style={styles.takeAction}>
-                    <Ionicons name="share-outline" size={16} color={colors.textSecondary} />
+                    <Ionicons name="repeat-outline" size={16} color={colors.textSecondary} />
+                    <Text style={styles.takeActionCount}>{take.repostCount ?? 0}</Text>
                   </View>
                   <View style={styles.takeAction}>
                     <Ionicons name="bookmark-outline" size={16} color={colors.textSecondary} />
+                  </View>
+                  <View style={styles.takeAction}>
+                    <Ionicons name="eye-outline" size={14} color={colors.textTertiary} />
+                    <Text style={[styles.takeActionCount, { color: colors.textTertiary, fontSize: 12 }]}>{take.viewCount ?? 0}</Text>
                   </View>
                 </View>
               </View>

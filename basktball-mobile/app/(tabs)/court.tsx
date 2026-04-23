@@ -1227,7 +1227,7 @@ function makeStyles(colors: any) {
   pollOptionTappableText: { fontFamily: Fonts.barlow, fontSize: 14, color: colors.text },
   pollFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 8 },
   pollFooterText: { fontFamily: Fonts.barlow, fontSize: 13, color: colors.textTertiary },
-  takeActions: { flexDirection: 'row', alignItems: 'center', gap: 12, flexWrap: 'wrap', borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 10 },
+  takeActions: { flexDirection: 'row', alignItems: 'center', gap: 10, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 10 },
   takeAction: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   takeActionCount: { fontFamily: Fonts.mono, fontSize: 13, color: colors.textSecondary },
   fireCount: { color: Colors.orange },
