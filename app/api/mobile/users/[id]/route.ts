@@ -11,9 +11,6 @@ export async function GET(
     const { id } = await params;
     const viewer = await getMobileUser(request);
 
-    // Support lookup by UUID or by username/handle
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
-
     const userSelect = {
       id: true,
       name: true,
@@ -28,15 +25,19 @@ export async function GET(
       createdAt: true,
     };
 
-    let user = isUuid
-      ? await prisma.user.findUnique({ where: { id }, select: userSelect })
-      : await prisma.user.findFirst({
-          where: { name: { equals: id, mode: "insensitive" }, status: "ACTIVE" },
-          select: userSelect,
-        });
+    // Try direct ID lookup first (works for both CUID and UUID)
+    let user = await prisma.user.findUnique({ where: { id }, select: userSelect });
+
+    // Fallback: try username lookup
+    if (!user) {
+      user = await prisma.user.findFirst({
+        where: { name: { equals: id, mode: "insensitive" }, status: "ACTIVE" },
+        select: userSelect,
+      });
+    }
 
     // Fallback: try handle lookup
-    if (!user && !isUuid) {
+    if (!user) {
       user = await prisma.user.findFirst({
         where: { handle: { equals: id, mode: "insensitive" }, status: "ACTIVE" },
         select: userSelect,

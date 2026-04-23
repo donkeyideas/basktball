@@ -13,10 +13,13 @@ export async function GET(
     const limit = Math.min(Number(searchParams.get("limit")) || 30, 50);
     const includeReplies = searchParams.get("replies") === "true";
 
-    // Support lookup by UUID or by username/handle
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    // Resolve user ID: try direct ID first, then username/handle fallback
     let authorId = id;
-    if (!isUuid) {
+    const directUser = await prisma.user.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (!directUser) {
       const user = await prisma.user.findFirst({
         where: {
           OR: [

@@ -691,7 +691,8 @@ function makeStyles(colors: any) {
   reactionsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 24,
+    gap: 14,
+    flexWrap: 'wrap',
   },
   reactionItem: {
     flexDirection: 'row',
