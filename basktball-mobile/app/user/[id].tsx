@@ -16,6 +16,10 @@ import { Colors, Fonts } from '@/constants/Colors';
 import { useTheme } from '@/lib/theme/ThemeContext';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { api } from '@/lib/api/client';
+import { AutoImage } from '@/components/feed/AutoImage';
+import { ImageGrid } from '@/components/feed/ImageGrid';
+import { LinkifiedText } from '@/components/content/LinkifiedText';
+import { LinkPreview, extractFirstUrl, stripFirstUrl } from '@/components/content/LinkPreview';
 
 const API_BASE = 'https://www.basktball.com';
 
@@ -38,8 +42,12 @@ interface UserTake {
   fireCount: number;
   brickCount: number;
   replyCount: number;
+  repostCount: number;
+  viewCount: number;
   createdAt: string;
   tags: string[];
+  mediaUrl?: string | null;
+  mediaUrls?: string[];
 }
 
 function timeAgo(dateStr: string): string {
@@ -373,8 +381,19 @@ export default function UserProfileScreen() {
                   activeOpacity={0.7}
                   onPress={() => router.push(`/take/${take.id}`)}
                 >
-                  <Text style={[styles.takeContent, { color: colors.text }]}>{take.content}</Text>
-                  {take.tags.length > 0 && (
+                  {take.content ? (
+                    <LinkifiedText
+                      text={extractFirstUrl(take.content) ? stripFirstUrl(take.content) : take.content}
+                      style={[styles.takeContent, { color: colors.text }]}
+                    />
+                  ) : null}
+                  {(take.mediaUrls?.length ?? 0) > 0 ? (
+                    <View style={{ marginBottom: 8 }}><ImageGrid urls={take.mediaUrls!} /></View>
+                  ) : take.mediaUrl ? (
+                    <AutoImage source={{ uri: take.mediaUrl }} style={{ marginBottom: 8 }} />
+                  ) : null}
+                  {take.content ? <LinkPreview content={take.content} /> : null}
+                  {take.tags && take.tags.length > 0 && (
                     <View style={styles.tagsRow}>
                       {take.tags.map((tag) => (
                         <Text key={tag} style={styles.tag}>#{tag}</Text>
@@ -383,14 +402,37 @@ export default function UserProfileScreen() {
                   )}
                   <View style={styles.takeActions}>
                     <View style={styles.takeAction}>
-                      <Ionicons name="flame-outline" size={14} color={colors.textTertiary} />
-                      <Text style={[styles.takeActionCount, { color: colors.textTertiary }]}>{take.fireCount}</Text>
+                      <Ionicons name="flame-outline" size={16} color={Colors.orange} />
+                      <Text style={[styles.takeActionCount, { color: Colors.orange }]}>{take.fireCount}</Text>
                     </View>
                     <View style={styles.takeAction}>
-                      <Ionicons name="chatbubble-outline" size={14} color={colors.textTertiary} />
-                      <Text style={[styles.takeActionCount, { color: colors.textTertiary }]}>{take.replyCount}</Text>
+                      <Ionicons name="square-outline" size={16} color={colors.textSecondary} />
+                      <Text style={[styles.takeActionCount, { color: colors.textSecondary }]}>{take.brickCount}</Text>
                     </View>
-                    <Text style={[styles.takeTime, { color: colors.textTertiary }]}>{timeAgo(take.createdAt)}</Text>
+                    <View style={styles.takeAction}>
+                      <Ionicons name="chatbubble-outline" size={16} color={colors.textSecondary} />
+                      <Text style={[styles.takeActionCount, { color: colors.textSecondary }]}>{take.replyCount}</Text>
+                    </View>
+                    <View style={styles.takeAction}>
+                      <Ionicons name="repeat-outline" size={16} color={colors.textSecondary} />
+                      <Text style={[styles.takeActionCount, { color: colors.textSecondary }]}>{take.repostCount ?? 0}</Text>
+                    </View>
+                    <View style={styles.takeAction}>
+                      <Ionicons name="bookmark-outline" size={16} color={colors.textSecondary} />
+                    </View>
+                    <View style={styles.takeAction}>
+                      <Ionicons name="search" size={14} color={colors.textTertiary} />
+                    </View>
+                    <View style={styles.takeAction}>
+                      <Ionicons name="flag-outline" size={14} color={colors.textTertiary} />
+                    </View>
+                    <View style={styles.takeAction}>
+                      <Ionicons name="time-outline" size={14} color={colors.textTertiary} />
+                    </View>
+                    <View style={styles.takeAction}>
+                      <Ionicons name="eye-outline" size={14} color={colors.textTertiary} />
+                      <Text style={[styles.takeActionCount, { color: colors.textTertiary, fontSize: 12 }]}>{take.viewCount ?? 0}</Text>
+                    </View>
                   </View>
                 </TouchableOpacity>
               ))
@@ -642,7 +684,12 @@ function makeStyles(colors: any) {
     takeActions: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 16,
+      justifyContent: 'center',
+      gap: 10,
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      paddingTop: 10,
+      marginTop: 4,
     },
     takeAction: {
       flexDirection: 'row',
