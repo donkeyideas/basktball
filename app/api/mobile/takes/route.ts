@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 
     // Support both mediaUrls (array, new) and mediaUrl (string, legacy)
     const resolvedMediaUrls: string[] = mediaUrls && Array.isArray(mediaUrls)
-      ? mediaUrls.slice(0, 4).filter((u: string) => typeof u === "string" && u.length > 0)
+      ? mediaUrls.slice(0, 20).filter((u: string) => typeof u === "string" && u.length > 0)
       : mediaUrl ? [mediaUrl] : [];
 
     if ((!content || content.trim().length === 0) && resolvedMediaUrls.length === 0) {

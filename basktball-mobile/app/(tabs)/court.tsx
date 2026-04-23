@@ -481,14 +481,14 @@ export default function CourtScreen() {
   }
 
   async function handleImagePick() {
-    if (composeMediaUrls.length >= 4) return;
+    if (composeMediaUrls.length >= 20) return;
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
         showAlert('Permission Needed', 'Please allow photo access to attach images.');
         return;
       }
-      const remaining = 4 - composeMediaUrls.length;
+      const remaining = 20 - composeMediaUrls.length;
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
         allowsMultipleSelection: true,
@@ -513,7 +513,7 @@ export default function CourtScreen() {
         }
       }
       if (newUrls.length > 0) {
-        setComposeMediaUrls(prev => [...prev, ...newUrls].slice(0, 4));
+        setComposeMediaUrls(prev => [...prev, ...newUrls].slice(0, 20));
       }
     } catch (err: any) {
       showAlert('Upload Error', err?.message || 'Failed to upload image.');
@@ -947,19 +947,19 @@ export default function CourtScreen() {
 
               <TouchableOpacity
                 onPress={handleImagePick}
-                disabled={composeMediaUrls.length >= 4 || uploading}
+                disabled={composeMediaUrls.length >= 20 || uploading}
                 style={{
                   flexDirection: 'row', alignItems: 'center', gap: 4,
                   paddingHorizontal: 10, paddingVertical: 5,
                   borderWidth: 1,
                   borderColor: 'rgba(255,107,53,0.3)',
                   borderRadius: 6,
-                  opacity: (composeMediaUrls.length >= 4 || uploading) ? 0.4 : 1,
+                  opacity: (composeMediaUrls.length >= 20 || uploading) ? 0.4 : 1,
                 }}
               >
                 <Ionicons name="image-outline" size={14} color={Colors.orange} />
                 <Text style={{ fontFamily: Fonts.barlowSemiBold, fontSize: 13, color: Colors.orange, fontWeight: '600' }}>
-                  IMG{composeMediaUrls.length > 0 ? ` ${composeMediaUrls.length}/4` : ''}
+                  IMG{composeMediaUrls.length > 0 ? ` ${composeMediaUrls.length}/20` : ''}
                 </Text>
               </TouchableOpacity>
 
