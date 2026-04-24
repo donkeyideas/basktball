@@ -36,7 +36,7 @@
     },
     "android": {
       "package": "com.basktball.app",
-      "versionCode": 31,
+      "versionCode": 33,
       "googleServicesFile": "./google-services.json",
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
