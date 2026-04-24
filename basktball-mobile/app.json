@@ -22,6 +22,7 @@
         "NSAppTransportSecurity": {
           "NSAllowsArbitraryLoads": true
         },
+        "NSPhotoLibraryUsageDescription": "BASKTBALL needs access to your photo library so you can select and upload images to include in your posts and takes.",
         "ITSAppUsesNonExemptEncryption": false,
         "UIBackgroundModes": [
           "remote-notification",
@@ -31,7 +32,7 @@
       "entitlements": {
         "aps-environment": "production"
       },
-      "buildNumber": "25"
+      "buildNumber": "26"
     },
     "android": {
       "package": "com.basktball.app",
@@ -77,7 +78,13 @@
       "./plugins/withSwiftConcurrencyMinimal",
       "./plugins/withRealpathFix",
       "expo-image",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "BASKTBALL needs access to your photo library so you can select and upload images to include in your posts and takes."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

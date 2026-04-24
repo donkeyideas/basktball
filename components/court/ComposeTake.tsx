@@ -169,7 +169,7 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
 
     const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
     const maxSize = 10 * 1024 * 1024; // 10 MB
-    const remaining = 4 - mediaUrls.length;
+    const remaining = 20 - mediaUrls.length;
     const filesToUpload = Array.from(files).slice(0, remaining);
 
     // Validate all files first
@@ -719,12 +719,12 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            disabled={mediaUrls.length >= 4 || uploading}
+            disabled={mediaUrls.length >= 20 || uploading}
             style={{
               background: "none",
               border: "1px solid rgba(255,107,53,0.3)",
-              color: (mediaUrls.length >= 4 || uploading) ? "var(--text-faint)" : "#FF6B35",
-              cursor: (mediaUrls.length >= 4 || uploading) ? "not-allowed" : "pointer",
+              color: (mediaUrls.length >= 20 || uploading) ? "var(--text-faint)" : "#FF6B35",
+              cursor: (mediaUrls.length >= 20 || uploading) ? "not-allowed" : "pointer",
               fontSize: "11px",
               fontFamily: "var(--font-inter), sans-serif",
               fontWeight: 700,
@@ -733,10 +733,10 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
               textTransform: "uppercase",
               letterSpacing: "0.3px",
               flexShrink: 0,
-              opacity: (mediaUrls.length >= 4 || uploading) ? 0.4 : 1,
+              opacity: (mediaUrls.length >= 20 || uploading) ? 0.4 : 1,
             }}
           >
-            {mediaUrls.length > 0 ? `IMG ${mediaUrls.length}/4` : "IMG"}
+            {mediaUrls.length > 0 ? `IMG ${mediaUrls.length}/20` : "IMG"}
           </button>
           <button
             type="button"

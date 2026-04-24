@@ -106,7 +106,7 @@ export function ComposeTake({ onSubmit, onCancel, userName, apiBase = 'https://w
   };
 
   const handleImagePick = async () => {
-    if (uploading || mediaUrls.length >= 4) return;
+    if (uploading || mediaUrls.length >= 20) return;
 
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
@@ -114,7 +114,7 @@ export function ComposeTake({ onSubmit, onCancel, userName, apiBase = 'https://w
       return;
     }
 
-    const remaining = 4 - mediaUrls.length;
+    const remaining = 20 - mediaUrls.length;
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsMultipleSelection: true,
@@ -144,7 +144,7 @@ export function ComposeTake({ onSubmit, onCancel, userName, apiBase = 'https://w
     }
 
     if (newUrls.length > 0) {
-      setMediaUrls((prev) => [...prev, ...newUrls].slice(0, 4));
+      setMediaUrls((prev) => [...prev, ...newUrls].slice(0, 20));
     }
     setUploading(false);
     setUploadingCount(0);
@@ -364,9 +364,9 @@ export function ComposeTake({ onSubmit, onCancel, userName, apiBase = 'https://w
           >
             <Text style={[styles.attachIcon, showGifPicker && styles.attachIconActive, (mediaUrls.length > 0 || uploading) && styles.attachIconDisabled]}>GIF</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleImagePick} activeOpacity={0.7} disabled={mediaUrls.length >= 4 || uploading}>
-            <Text style={[styles.attachIcon, (mediaUrls.length >= 4 || uploading) && styles.attachIconDisabled]}>
-              IMG{mediaUrls.length > 0 ? ` ${mediaUrls.length}/4` : ''}
+          <TouchableOpacity onPress={handleImagePick} activeOpacity={0.7} disabled={mediaUrls.length >= 20 || uploading}>
+            <Text style={[styles.attachIcon, (mediaUrls.length >= 20 || uploading) && styles.attachIconDisabled]}>
+              IMG{mediaUrls.length > 0 ? ` ${mediaUrls.length}/20` : ''}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity

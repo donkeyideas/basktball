@@ -431,7 +431,7 @@ export default function CourtPage() {
         return false;
       }
       return true;
-    }).slice(0, 4 - composeMediaUrls.length);
+    }).slice(0, 20 - composeMediaUrls.length);
 
     if (validFiles.length === 0) return;
 
@@ -457,7 +457,7 @@ export default function CourtPage() {
       alert(err instanceof Error ? err.message : "Failed to upload image.");
     } finally {
       if (newUrls.length > 0) {
-        setComposeMediaUrls((prev) => [...prev, ...newUrls].slice(0, 4));
+        setComposeMediaUrls((prev) => [...prev, ...newUrls].slice(0, 20));
       }
       setComposeUploading(false);
     }
@@ -1103,12 +1103,12 @@ export default function CourtPage() {
                     <button
                       type="button"
                       onClick={() => composeFileInputRef.current?.click()}
-                      disabled={composeMediaUrls.length >= 4 || composeUploading}
+                      disabled={composeMediaUrls.length >= 20 || composeUploading}
                       style={{
                         background: "none",
                         border: "1px solid rgba(255,107,53,0.3)",
-                        color: (composeMediaUrls.length >= 4 || composeUploading) ? "var(--text-faint)" : "#FF6B35",
-                        cursor: (composeMediaUrls.length >= 4 || composeUploading) ? "not-allowed" : "pointer",
+                        color: (composeMediaUrls.length >= 20 || composeUploading) ? "var(--text-faint)" : "#FF6B35",
+                        cursor: (composeMediaUrls.length >= 20 || composeUploading) ? "not-allowed" : "pointer",
                         fontSize: "11px",
                         fontFamily: FONT,
                         fontWeight: 700,
@@ -1117,10 +1117,10 @@ export default function CourtPage() {
                         textTransform: "uppercase",
                         letterSpacing: "0.3px",
                         flexShrink: 0,
-                        opacity: (composeMediaUrls.length >= 4 || composeUploading) ? 0.4 : 1,
+                        opacity: (composeMediaUrls.length >= 20 || composeUploading) ? 0.4 : 1,
                       }}
                     >
-                      IMG{composeMediaUrls.length > 0 ? ` ${composeMediaUrls.length}/4` : ""}
+                      IMG{composeMediaUrls.length > 0 ? ` ${composeMediaUrls.length}/20` : ""}
                     </button>
                     <button
                       type="button"
