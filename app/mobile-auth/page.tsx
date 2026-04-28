@@ -3,8 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import {
   signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
   onAuthStateChanged,
 } from "firebase/auth";
 import { auth as firebaseAuth, googleProvider } from "@/lib/firebase/config";
@@ -20,14 +18,23 @@ export default function MobileAuthPage() {
     const scheme = params.get("scheme");
     const sid = params.get("sid");
     if (scheme) {
-      sessionStorage.setItem("mobile_auth_scheme", scheme);
+      document.cookie = `mobile_auth_scheme=${scheme}; path=/; max-age=600; SameSite=Lax`;
     }
     if (sid) {
-      sessionStorage.setItem("mobile_auth_sid", sid);
+      document.cookie = `mobile_auth_sid=${sid}; path=/; max-age=600; SameSite=Lax`;
     }
 
     handleAuth();
   }, []);
+
+  function getCookie(name: string): string | null {
+    const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+    return match ? match[2] : null;
+  }
+
+  function clearCookie(name: string) {
+    document.cookie = `${name}=; path=/; max-age=0`;
+  }
 
   async function exchangeAndStore(idToken: string) {
     if (handled.current) return;
@@ -46,7 +53,7 @@ export default function MobileAuthPage() {
     }
 
     const data = await res.json();
-    const sid = sessionStorage.getItem("mobile_auth_sid");
+    const sid = getCookie("mobile_auth_sid");
 
     if (sid) {
       // Store token server-side so the app can retrieve it
@@ -57,25 +64,13 @@ export default function MobileAuthPage() {
       });
     }
 
-    sessionStorage.removeItem("mobile_auth_scheme");
-    sessionStorage.removeItem("mobile_auth_sid");
+    clearCookie("mobile_auth_scheme");
+    clearCookie("mobile_auth_sid");
     setSuccess(true);
   }
 
   async function handleAuth() {
-    // 1. Try getRedirectResult first
-    try {
-      const result = await getRedirectResult(firebaseAuth);
-      if (result) {
-        const idToken = await result.user.getIdToken();
-        await exchangeAndStore(idToken);
-        return;
-      }
-    } catch (err: unknown) {
-      console.error("getRedirectResult error:", err);
-    }
-
-    // 2. Fallback: check if Firebase auth state has a user
+    // Check if Firebase auth state already has a user (e.g. returning from auth)
     try {
       const user = await new Promise<any>((resolve) => {
         const unsubscribe = onAuthStateChanged(firebaseAuth, (u) => {
@@ -85,7 +80,7 @@ export default function MobileAuthPage() {
         setTimeout(() => resolve(null), 3000);
       });
 
-      if (user && sessionStorage.getItem("mobile_auth_sid")) {
+      if (user && getCookie("mobile_auth_sid")) {
         const idToken = await user.getIdToken();
         await exchangeAndStore(idToken);
         return;
@@ -101,24 +96,17 @@ export default function MobileAuthPage() {
     setError("");
     setLoading(true);
 
-    // Try signInWithPopup first
     try {
       const result = await signInWithPopup(firebaseAuth, googleProvider);
       const idToken = await result.user.getIdToken();
       await exchangeAndStore(idToken);
-      return;
-    } catch (popupErr: unknown) {
-      const popupError = popupErr as { code?: string };
-      console.warn("Popup failed, trying redirect:", popupError.code);
-    }
-
-    try {
-      await signInWithRedirect(firebaseAuth, googleProvider);
     } catch (err: unknown) {
-      const firebaseError = err as { message?: string };
-      setError(
-        firebaseError.message || "Google sign-in failed. Please try again."
-      );
+      const firebaseError = err as { code?: string; message?: string };
+      if (firebaseError.code === "auth/popup-closed-by-user" || firebaseError.code === "auth/cancelled-popup-request") {
+        // User cancelled — do nothing
+      } else {
+        setError("Google sign-in failed. Please try again.");
+      }
       setLoading(false);
     }
   }
@@ -242,7 +230,7 @@ export default function MobileAuthPage() {
               borderRadius: "12px",
               border: "none",
               background: "#fff",
-              color: "var(--border-color)",
+              color: "#333",
               fontSize: "16px",
               fontWeight: "600",
               cursor: "pointer",

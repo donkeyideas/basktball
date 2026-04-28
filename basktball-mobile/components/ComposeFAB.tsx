@@ -218,9 +218,9 @@ export default function ComposeFAB() {
       </TouchableOpacity>
 
       {/* Compose Modal */}
-      <Modal visible={showCompose} animationType="slide" transparent>
+      <Modal visible={showCompose} animationType="slide" transparent statusBarTranslucent>
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.modalOverlay}
         >
           <View style={styles.composeContainer}>

@@ -32,11 +32,11 @@
       "entitlements": {
         "aps-environment": "production"
       },
-      "buildNumber": "26"
+      "buildNumber": "28"
     },
     "android": {
       "package": "com.basktball.app",
-      "versionCode": 33,
+      "versionCode": 35,
       "googleServicesFile": "./google-services.json",
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
