@@ -35,7 +35,7 @@ jobs:
     # Custom plugins (withSwiftConcurrencyMinimal, withRealpathFix)
     # handle Expo SDK 55 compatibility with Xcode 16.x.
     runs-on: macos-15
-    timeout-minutes: 90
+    timeout-minutes: 120
 
     steps:
       - name: Checkout
@@ -118,6 +118,7 @@ jobs:
         run: |
           eas submit \
             --non-interactive \
+            --no-wait \
             --platform ios \
             --profile ${{ github.event.inputs.profile }} \
             --path ./build/basktball-${{ github.event.inputs.profile }}.ipa
