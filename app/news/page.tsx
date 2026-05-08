@@ -98,7 +98,7 @@ export default function NewsPage() {
 
           {/* Content */}
           {loading ? (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))", gap: "30px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(350px, 100%), 1fr))", gap: "30px" }}>
               {[1, 2, 3, 4, 5, 6].map(i => (
                 <div key={i} style={{ background: "var(--dark-gray)", opacity: 0.5, overflow: "hidden" }}>
                   <div style={{ height: "180px", background: "var(--input-bg)" }} />
@@ -120,7 +120,7 @@ export default function NewsPage() {
             </div>
           ) : (
             <>
-              <div key={`page-${page}`} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(350px, 1fr))", gap: "30px" }}>
+              <div key={`page-${page}`} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(350px, 100%), 1fr))", gap: "30px" }}>
                 {paged.map(article => (
                   <Link
                     key={article.id}

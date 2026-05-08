@@ -3,9 +3,15 @@
 import { useState, useEffect, useRef } from "react";
 import {
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   onAuthStateChanged,
 } from "firebase/auth";
 import { auth as firebaseAuth, googleProvider } from "@/lib/firebase/config";
+
+function isAndroid(): boolean {
+  return /android/i.test(navigator.userAgent);
+}
 
 export default function MobileAuthPage() {
   const [error, setError] = useState("");
@@ -70,7 +76,19 @@ export default function MobileAuthPage() {
   }
 
   async function handleAuth() {
-    // Check if Firebase auth state already has a user (e.g. returning from auth)
+    // 1. Check if returning from a signInWithRedirect (Android flow)
+    try {
+      const redirectResult = await getRedirectResult(firebaseAuth);
+      if (redirectResult?.user && getCookie("mobile_auth_sid")) {
+        const idToken = await redirectResult.user.getIdToken();
+        await exchangeAndStore(idToken);
+        return;
+      }
+    } catch (err: unknown) {
+      console.error("Redirect result error:", err);
+    }
+
+    // 2. Check if Firebase auth state already has a user
     try {
       const user = await new Promise<any>((resolve) => {
         const unsubscribe = onAuthStateChanged(firebaseAuth, (u) => {
@@ -97,6 +115,13 @@ export default function MobileAuthPage() {
     setLoading(true);
 
     try {
+      if (isAndroid()) {
+        // Android: Chrome Custom Tab blocks popups, use redirect instead
+        await signInWithRedirect(firebaseAuth, googleProvider);
+        // Page will reload after redirect — getRedirectResult handles it in handleAuth
+        return;
+      }
+      // iOS / other: popups work fine
       const result = await signInWithPopup(firebaseAuth, googleProvider);
       const idToken = await result.user.getIdToken();
       await exchangeAndStore(idToken);
@@ -105,6 +130,7 @@ export default function MobileAuthPage() {
       if (firebaseError.code === "auth/popup-closed-by-user" || firebaseError.code === "auth/cancelled-popup-request") {
         // User cancelled — do nothing
       } else {
+        console.error("Google sign-in error:", firebaseError.code, firebaseError.message);
         setError("Google sign-in failed. Please try again.");
       }
       setLoading(false);

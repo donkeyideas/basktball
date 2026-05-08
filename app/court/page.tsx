@@ -1386,7 +1386,7 @@ export default function CourtPage() {
             </div>
 
             {/* Sidebar */}
-            <aside style={{ position: "sticky", top: "140px", alignSelf: "start" }}>
+            <aside className="court-right-sidebar" style={{ position: "sticky", top: "140px", alignSelf: "start" }}>
               {/* Live Scores */}
               {liveGames.length > 0 && (
                 <div style={{
@@ -1817,12 +1817,15 @@ export default function CourtPage() {
         )}
 
         <style>{`
-          @media (max-width: 1100px) {
+          @media (max-width: 1200px) {
             .court-features-sidebar { display: none !important; }
-            .court-grid { grid-template-columns: 1fr 320px !important; }
+            .court-grid { grid-template-columns: 1fr 280px !important; }
+          }
+          @media (max-width: 1024px) {
+            .court-grid { grid-template-columns: 1fr !important; }
           }
           @media (max-width: 768px) {
-            .court-grid { grid-template-columns: 1fr !important; }
+            .court-right-sidebar { display: none !important; }
           }
           @keyframes spin {
             to { transform: rotate(360deg); }
@@ -1831,7 +1834,7 @@ export default function CourtPage() {
 
         {/* Age Take Modal */}
         {ageModal && (
-          <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }} onClick={() => setAgeModal(null)}>
+          <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", padding: "16px" }} onClick={() => setAgeModal(null)}>
             <div
               style={{ background: "var(--dark-gray)", border: "1px solid var(--border-color)", borderRadius: "16px", padding: "28px", width: "100%", maxWidth: "400px", boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }}
               onClick={(e) => e.stopPropagation()}
@@ -1859,7 +1862,7 @@ export default function CourtPage() {
 
         {/* Challenge Modal */}
         {challengeModal && (
-          <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)" }} onClick={() => setChallengeModal(null)}>
+          <div style={{ position: "fixed", inset: 0, zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", padding: "16px" }} onClick={() => setChallengeModal(null)}>
             <div
               style={{ background: "var(--dark-gray)", border: "1px solid var(--border-color)", borderRadius: "16px", padding: "28px", width: "100%", maxWidth: "440px", boxShadow: "0 20px 60px rgba(0,0,0,0.5)" }}
               onClick={(e) => e.stopPropagation()}

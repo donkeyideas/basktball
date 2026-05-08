@@ -715,11 +715,11 @@ export default function UserProfilePage() {
         </div>
 
         <style>{`
-          @media (max-width: 1100px) {
+          @media (max-width: 1200px) {
             .profile-left-sidebar { display: none !important; }
-            .profile-grid { grid-template-columns: 1fr 320px !important; }
+            .profile-grid { grid-template-columns: 1fr 280px !important; }
           }
-          @media (max-width: 768px) {
+          @media (max-width: 1024px) {
             .profile-grid { grid-template-columns: 1fr !important; }
           }
         `}</style>
