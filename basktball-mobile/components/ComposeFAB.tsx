@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -24,11 +24,9 @@ import { MentionAutocomplete } from '@/components/feed/MentionAutocomplete';
 import { uploadImage } from '@/lib/upload/imageUpload';
 
 let _speechModule: any = null;
-let _useSpeechRecognitionEvent: any = null;
 try {
   const sr = require('expo-speech-recognition');
   _speechModule = sr.ExpoSpeechRecognitionModule ?? null;
-  _useSpeechRecognitionEvent = sr.useSpeechRecognitionEvent ?? null;
 } catch {}
 
 const API_BASE = 'https://www.basktball.com';
@@ -101,17 +99,23 @@ export default function ComposeFAB() {
   }
 
   // Speech-to-text event listeners
-  if (_useSpeechRecognitionEvent) {
-    _useSpeechRecognitionEvent('result', (event: any) => {
+  useEffect(() => {
+    if (!_speechModule) return;
+    const resultSub = _speechModule.addListener('result', (event: any) => {
       const text = event.results?.[0]?.transcript ?? '';
       const isFinal = event.isFinal ?? event.results?.[0]?.isFinal ?? false;
       if (isFinal && text.trim()) {
         setComposeText((prev: string) => (prev ? `${prev} ${text.trim()}` : text.trim()));
       }
     });
-    _useSpeechRecognitionEvent('end', () => setMicListening(false));
-    _useSpeechRecognitionEvent('error', () => setMicListening(false));
-  }
+    const endSub = _speechModule.addListener('end', () => setMicListening(false));
+    const errorSub = _speechModule.addListener('error', () => setMicListening(false));
+    return () => {
+      resultSub?.remove();
+      endSub?.remove();
+      errorSub?.remove();
+    };
+  }, []);
 
   async function handleMicToggle() {
     if (!_speechModule) {
@@ -264,11 +268,16 @@ export default function ComposeFAB() {
 
       {/* Compose Modal */}
       <Modal visible={showCompose} animationType="slide" transparent statusBarTranslucent>
-        <KeyboardAvoidingView
-          behavior="padding"
-          style={styles.modalOverlay}
-        >
-          <View style={styles.composeContainer}>
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity
+            style={{ flex: 1 }}
+            activeOpacity={1}
+            onPress={() => { setShowCompose(false); resetCompose(); }}
+          />
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          >
+            <View style={styles.composeContainer}>
             <View style={styles.composeHeader}>
               <TouchableOpacity
                 onPress={() => {
@@ -511,8 +520,9 @@ export default function ComposeFAB() {
                 onClose={() => setShowGifPicker(false)}
               />
             )}
-          </View>
-        </KeyboardAvoidingView>
+            </View>
+          </KeyboardAvoidingView>
+        </View>
       </Modal>
 
       {/* Themed alert modal */}

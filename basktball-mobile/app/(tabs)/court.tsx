@@ -857,8 +857,14 @@ export default function CourtScreen() {
 
       {/* Compose Modal */}
       <Modal visible={showCompose} animationType="slide" transparent statusBarTranslucent>
-        <KeyboardAvoidingView behavior="padding" style={styles.modalOverlay}>
-          <View style={styles.composeContainer}>
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity
+            style={{ flex: 1 }}
+            activeOpacity={1}
+            onPress={() => { setShowCompose(false); resetCompose(); }}
+          />
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+            <View style={styles.composeContainer}>
             <View style={styles.composeHeader}>
               <TouchableOpacity onPress={() => { setShowCompose(false); resetCompose(); }}>
                 <Text style={styles.composeCancel}>Cancel</Text>
@@ -1044,8 +1050,9 @@ export default function CourtScreen() {
                 onClose={() => setShowGifPicker(false)}
               />
             )}
-          </View>
-        </KeyboardAvoidingView>
+            </View>
+          </KeyboardAvoidingView>
+        </View>
       </Modal>
 
       {/* Age Take Modal */}
