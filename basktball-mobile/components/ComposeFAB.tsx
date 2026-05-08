@@ -23,6 +23,14 @@ import { GifPicker } from '@/components/feed/GifPicker';
 import { MentionAutocomplete } from '@/components/feed/MentionAutocomplete';
 import { uploadImage } from '@/lib/upload/imageUpload';
 
+let _speechModule: any = null;
+let _useSpeechRecognitionEvent: any = null;
+try {
+  const sr = require('expo-speech-recognition');
+  _speechModule = sr.ExpoSpeechRecognitionModule ?? null;
+  _useSpeechRecognitionEvent = sr.useSpeechRecognitionEvent ?? null;
+} catch {}
+
 const API_BASE = 'https://www.basktball.com';
 
 // Routes where the FAB should NOT appear
@@ -47,6 +55,7 @@ export default function ComposeFAB() {
   const [showCompose, setShowCompose] = useState(false);
   const [composeText, setComposeText] = useState('');
   const [posting, setPosting] = useState(false);
+  const [micListening, setMicListening] = useState(false);
   const [showPoll, setShowPoll] = useState(false);
   const [pollOptions, setPollOptions] = useState<string[]>(['', '']);
   const [pollDuration, setPollDuration] = useState(24);
@@ -89,6 +98,42 @@ export default function ComposeFAB() {
       return false;
     }
     return true;
+  }
+
+  // Speech-to-text event listeners
+  if (_useSpeechRecognitionEvent) {
+    _useSpeechRecognitionEvent('result', (event: any) => {
+      const text = event.results?.[0]?.transcript ?? '';
+      const isFinal = event.isFinal ?? event.results?.[0]?.isFinal ?? false;
+      if (isFinal && text.trim()) {
+        setComposeText((prev: string) => (prev ? `${prev} ${text.trim()}` : text.trim()));
+      }
+    });
+    _useSpeechRecognitionEvent('end', () => setMicListening(false));
+    _useSpeechRecognitionEvent('error', () => setMicListening(false));
+  }
+
+  async function handleMicToggle() {
+    if (!_speechModule) {
+      showAlert('Not Available', 'Speech recognition is not available on this device.');
+      return;
+    }
+    if (micListening) {
+      _speechModule.stop();
+      setMicListening(false);
+      return;
+    }
+    try {
+      const perm = await _speechModule.requestPermissionsAsync();
+      if (!perm.granted) {
+        showAlert('Permission Needed', 'Please allow microphone and speech recognition access.');
+        return;
+      }
+      _speechModule.start({ lang: 'en-US', interimResults: true, continuous: false });
+      setMicListening(true);
+    } catch {
+      showAlert('Error', 'Failed to start speech recognition.');
+    }
   }
 
   function resetCompose() {
@@ -345,6 +390,25 @@ export default function ComposeFAB() {
                     {composeMediaUrls.length > 0 ? `IMG ${composeMediaUrls.length}/20` : 'IMG'}
                   </Text>
                 </TouchableOpacity>
+
+                {_speechModule && (
+                  <TouchableOpacity
+                    onPress={handleMicToggle}
+                    style={{
+                      flexDirection: 'row', alignItems: 'center', gap: 4,
+                      paddingHorizontal: 10, paddingVertical: 5,
+                      borderWidth: 1,
+                      borderColor: micListening ? 'rgba(239,68,68,0.5)' : 'rgba(255,107,53,0.3)',
+                      borderRadius: 6,
+                      backgroundColor: micListening ? 'rgba(239,68,68,0.15)' : 'transparent',
+                    }}
+                  >
+                    <Ionicons name={micListening ? 'stop-circle' : 'mic-outline'} size={14} color={micListening ? '#EF4444' : Colors.orange} />
+                    <Text style={{ fontFamily: Fonts.barlowSemiBold, fontSize: 13, color: micListening ? '#EF4444' : Colors.orange, fontWeight: '600' }}>
+                      {micListening ? 'STOP' : 'MIC'}
+                    </Text>
+                  </TouchableOpacity>
+                )}
 
                 {!showPoll && (
                   <TouchableOpacity

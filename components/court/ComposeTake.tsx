@@ -4,6 +4,7 @@ import React, { useState, useRef, useCallback, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import MentionAutocomplete from "./MentionAutocomplete";
 import GifPicker from "./GifPicker";
+import { useSpeechRecognition } from "@/lib/hooks/useSpeechRecognition";
 
 // --- Types ---
 
@@ -49,6 +50,16 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
 
   const userName = session?.user?.name || "User";
   const userImage = session?.user?.image || null;
+
+  // Speech-to-text
+  const { isSupported: micSupported, isListening, interimTranscript, startListening, stopListening, audioLevel } = useSpeechRecognition({
+    onResult: (text) => {
+      setContent((prev) => (prev ? `${prev} ${text}` : text));
+    },
+    onError: (err) => {
+      console.warn("Speech error:", err);
+    },
+  });
 
   // Auto-focus textarea on mount
   useEffect(() => {
@@ -760,6 +771,42 @@ export default function ComposeTake({ onClose, onSubmit, parentId, gameId }: Com
           >
             GIF
           </button>
+          {micSupported && (
+            <button
+              type="button"
+              onClick={isListening ? stopListening : startListening}
+              title={isListening ? "Stop recording" : "Voice input"}
+              style={{
+                background: isListening ? "rgba(239,68,68,0.15)" : "none",
+                border: isListening ? "1px solid rgba(239,68,68,0.5)" : "1px solid rgba(255,107,53,0.3)",
+                color: isListening ? "#EF4444" : "#FF6B35",
+                cursor: "pointer",
+                fontSize: "11px",
+                fontFamily: "var(--font-inter), sans-serif",
+                fontWeight: 700,
+                padding: "3px 10px",
+                borderRadius: "6px",
+                textTransform: "uppercase",
+                letterSpacing: "0.3px",
+                flexShrink: 0,
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                animation: isListening ? "micPulse 1.5s ease-in-out infinite" : "none",
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+              </svg>
+              {isListening ? "STOP" : "MIC"}
+            </button>
+          )}
+          {interimTranscript && (
+            <span style={{ fontSize: "11px", color: "var(--text-muted)", fontStyle: "italic", flexShrink: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {interimTranscript}
+            </span>
+          )}
           {!showPoll && !parentId && (
             <button
               type="button"

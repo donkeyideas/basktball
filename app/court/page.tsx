@@ -10,6 +10,7 @@ import type { Take } from "@/components/court/TakeCard";
 import ComposeTake from "@/components/court/ComposeTake";
 import MentionAutocomplete from "@/components/court/MentionAutocomplete";
 import GifPicker from "@/components/court/GifPicker";
+import { useSpeechRecognition } from "@/lib/hooks/useSpeechRecognition";
 import FeedTabs from "@/components/court/FeedTabs";
 import type { FeedTab } from "@/components/court/FeedTabs";
 
@@ -62,6 +63,13 @@ export default function CourtPage() {
   const [composeUploading, setComposeUploading] = useState(false);
   const composeTextareaRef = useRef<HTMLTextAreaElement>(null);
   const composeFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Speech-to-text for inline compose
+  const { isSupported: micSupported, isListening: micListening, interimTranscript: micTranscript, startListening: micStart, stopListening: micStop } = useSpeechRecognition({
+    onResult: (text) => {
+      setComposeContent((prev) => (prev ? `${prev} ${text}` : text));
+    },
+  });
 
   // Modal state for Age and Challenge
   const [ageModal, setAgeModal] = useState<{ takeId: string; days: string } | null>(null);
@@ -1144,6 +1152,36 @@ export default function CourtPage() {
                     >
                       GIF
                     </button>
+                    {micSupported && (
+                      <button
+                        type="button"
+                        onClick={micListening ? micStop : micStart}
+                        title={micListening ? "Stop recording" : "Voice input"}
+                        style={{
+                          background: micListening ? "rgba(239,68,68,0.15)" : "none",
+                          border: micListening ? "1px solid rgba(239,68,68,0.5)" : "1px solid rgba(255,107,53,0.3)",
+                          color: micListening ? "#EF4444" : "#FF6B35",
+                          cursor: "pointer",
+                          fontSize: "11px",
+                          fontFamily: FONT,
+                          fontWeight: 700,
+                          padding: "3px 10px",
+                          borderRadius: "6px",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.3px",
+                          flexShrink: 0,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "4px",
+                        }}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                          <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                        </svg>
+                        {micListening ? "STOP" : "MIC"}
+                      </button>
+                    )}
                     <span style={{
                       fontFamily: "var(--font-mono), monospace",
                       fontSize: "12px",

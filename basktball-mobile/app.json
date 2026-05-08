@@ -23,6 +23,8 @@
           "NSAllowsArbitraryLoads": true
         },
         "NSPhotoLibraryUsageDescription": "BASKTBALL needs access to your photo library so you can select and upload images to include in your posts and takes.",
+        "NSSpeechRecognitionUsageDescription": "BASKTBALL uses speech recognition so you can dictate your takes and posts using voice input.",
+        "NSMicrophoneUsageDescription": "BASKTBALL needs microphone access for voice-to-text input when composing takes.",
         "ITSAppUsesNonExemptEncryption": false,
         "UIBackgroundModes": [
           "remote-notification",
@@ -47,6 +49,7 @@
       },
       "permissions": [
         "android.permission.POST_NOTIFICATIONS",
+        "android.permission.RECORD_AUDIO",
         "RECEIVE_BOOT_COMPLETED",
         "VIBRATE",
         "INTERNET",
@@ -84,7 +87,8 @@
         {
           "photosPermission": "BASKTBALL needs access to your photo library so you can select and upload images to include in your posts and takes."
         }
-      ]
+      ],
+      "expo-speech-recognition"
     ],
     "experiments": {
       "typedRoutes": true
