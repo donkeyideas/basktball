@@ -857,7 +857,7 @@ export default function CourtScreen() {
 
       {/* Compose Modal */}
       <Modal visible={showCompose} animationType="slide" transparent statusBarTranslucent>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.modalOverlay}>
+        <KeyboardAvoidingView behavior="padding" style={styles.modalOverlay}>
           <View style={styles.composeContainer}>
             <View style={styles.composeHeader}>
               <TouchableOpacity onPress={() => { setShowCompose(false); resetCompose(); }}>

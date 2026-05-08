@@ -148,7 +148,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ takes: formatted, nextCursor });
   } catch (error) {
-    console.error("Court feed error:", error);
-    return NextResponse.json({ message: "Failed to load feed" }, { status: 500 });
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.error("Court feed error:", errMsg, error);
+    return NextResponse.json({ message: "Failed to load feed", detail: errMsg }, { status: 500 });
   }
 }

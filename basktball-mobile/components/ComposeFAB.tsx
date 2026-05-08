@@ -220,7 +220,7 @@ export default function ComposeFAB() {
       {/* Compose Modal */}
       <Modal visible={showCompose} animationType="slide" transparent statusBarTranslucent>
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior="padding"
           style={styles.modalOverlay}
         >
           <View style={styles.composeContainer}>
