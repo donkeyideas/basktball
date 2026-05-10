@@ -43,6 +43,7 @@ interface LiveGame {
   quarter: string;
   time: string;
   isLive: boolean;
+  league: League;
 }
 
 interface Performer {
@@ -53,6 +54,7 @@ interface Performer {
   rebounds: number;
   assists: number;
   imageUrl: string | null;
+  league?: string;
 }
 
 function getInitials(name: string): string {
@@ -161,46 +163,70 @@ export default function HomeScreen() {
     fetchTodayGames(selectedLeague);
   }, [selectedLeague]);
 
+  function mapGames(games: any[], leagueId: League): LiveGame[] {
+    return games.map((g: any) => {
+      const isLive = g.status === 'live';
+      const isFinal = g.status === 'final';
+      let quarter = '';
+      let time = '';
+      if (isLive) {
+        const raw = g.quarter?.toString() || '';
+        quarter = raw.startsWith('Q') ? raw : raw ? `Q${raw}` : '';
+        time = g.clock || '';
+      } else if (isFinal) {
+        quarter = 'FINAL';
+      } else {
+        const d = new Date(g.gameDate);
+        const h = d.getHours() % 12 || 12;
+        const m = d.getMinutes().toString().padStart(2, '0');
+        const ampm = d.getHours() >= 12 ? 'PM' : 'AM';
+        quarter = `${h}:${m}`;
+        time = ampm;
+      }
+      return {
+        id: g.id,
+        away: g.awayTeam?.abbreviation || '???',
+        home: g.homeTeam?.abbreviation || '???',
+        awayLogo: g.awayTeam?.logoUrl || null,
+        homeLogo: g.homeTeam?.logoUrl || null,
+        awayScore: g.awayScore || 0,
+        homeScore: g.homeScore || 0,
+        quarter,
+        time,
+        isLive,
+        league: leagueId,
+      };
+    });
+  }
+
   async function fetchTodayGames(league: League = 'nba') {
     try {
       const now = new Date();
       const today = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')}`;
-      const res = await fetch(`${API_BASE}/api/games?date=${today}&league=${league}`);
-      const data = await res.json();
-      if (data.success && data.games) {
-        const mapped: LiveGame[] = data.games.map((g: any) => {
-          const isLive = g.status === 'live';
-          const isFinal = g.status === 'final';
-          let quarter = '';
-          let time = '';
-          if (isLive) {
-            const raw = g.quarter?.toString() || '';
-            quarter = raw.startsWith('Q') ? raw : raw ? `Q${raw}` : '';
-            time = g.clock || '';
-          } else if (isFinal) {
-            quarter = 'FINAL';
-          } else {
-            const d = new Date(g.gameDate);
-            const h = d.getHours() % 12 || 12;
-            const m = d.getMinutes().toString().padStart(2, '0');
-            const ampm = d.getHours() >= 12 ? 'PM' : 'AM';
-            quarter = `${h}:${m}`;
-            time = ampm;
-          }
-          return {
-            id: g.id,
-            away: g.awayTeam?.abbreviation || '???',
-            home: g.homeTeam?.abbreviation || '???',
-            awayLogo: g.awayTeam?.logoUrl || null,
-            homeLogo: g.homeTeam?.logoUrl || null,
-            awayScore: g.awayScore || 0,
-            homeScore: g.homeScore || 0,
-            quarter,
-            time,
-            isLive,
-          };
+
+      // For NBA and WNBA, fetch both and combine
+      if (league === 'nba' || league === 'wnba') {
+        const [nbaRes, wnbaRes] = await Promise.all([
+          fetch(`${API_BASE}/api/games?date=${today}&league=nba`),
+          fetch(`${API_BASE}/api/games?date=${today}&league=wnba`),
+        ]);
+        const [nbaData, wnbaData] = await Promise.all([nbaRes.json(), wnbaRes.json()]);
+        const allGames: LiveGame[] = [
+          ...mapGames(nbaData.success && nbaData.games ? nbaData.games : [], 'nba'),
+          ...mapGames(wnbaData.success && wnbaData.games ? wnbaData.games : [], 'wnba'),
+        ];
+        // Sort: live games first, then scheduled, then final
+        allGames.sort((a, b) => {
+          const order = (g: LiveGame) => g.isLive ? 0 : g.quarter === 'FINAL' ? 2 : 1;
+          return order(a) - order(b);
         });
-        setLiveGames(mapped);
+        setLiveGames(allGames);
+      } else {
+        const res = await fetch(`${API_BASE}/api/games?date=${today}&league=${league}`);
+        const data = await res.json();
+        if (data.success && data.games) {
+          setLiveGames(mapGames(data.games, league));
+        }
       }
     } catch (err) {
       console.warn('Failed to fetch games:', err);
@@ -317,7 +343,7 @@ export default function HomeScreen() {
                 key={game.id}
                 style={styles.gameCard}
                 activeOpacity={0.7}
-                onPress={() => router.push(`/game/${game.id}?league=${selectedLeague}`)}
+                onPress={() => router.push(`/game/${game.id}?league=${game.league}`)}
               >
                 <View style={styles.gameCardHeader}>
                   <Text style={[styles.gameStatus, game.quarter === 'FINAL' ? styles.gameFinal : game.isLive ? styles.gameLive : styles.gameFinal]}>
@@ -372,7 +398,10 @@ export default function HomeScreen() {
                   </View>
                 )}
                 <Text style={styles.playerName} numberOfLines={1}>{player.name}</Text>
-                <Text style={styles.playerTeam}>{player.team}</Text>
+                <Text style={styles.playerTeam}>
+                  {player.team}
+                  {player.league && player.league !== "NBA" ? ` · ${player.league}` : ""}
+                </Text>
                 <View style={styles.playerStatsRow}>
                   <View style={styles.playerStat}>
                     <Text style={styles.playerStatValue}>{player.points}</Text>

@@ -2,7 +2,14 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const ESPN_BASE = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba";
+const ESPN_LEAGUES = [
+  { slug: "nba", label: "NBA" },
+  { slug: "wnba", label: "WNBA" },
+];
+
+function espnBase(league: string) {
+  return `https://site.api.espn.com/apis/site/v2/sports/basketball/${league}`;
+}
 
 // NBA.com headshot URL helper
 const getNbaHeadshot = (nbaId: string) =>
@@ -20,6 +27,7 @@ interface TodayPerformer {
   imageUrl: string;
   gameId: string;
   gameStatus: "live" | "final";
+  league: string;
 }
 
 // In-memory cache
@@ -40,110 +48,115 @@ export async function GET() {
       });
     }
 
-    // Step 1: Fetch today's scoreboard
-    const scoreboardRes = await fetch(`${ESPN_BASE}/scoreboard`, {
-      headers: { Accept: "application/json" },
-    });
-
-    if (!scoreboardRes.ok) {
-      throw new Error(`ESPN scoreboard error: ${scoreboardRes.status}`);
-    }
-
-    const scoreboard = await scoreboardRes.json();
-    const events = scoreboard.events || [];
-
-    // Step 2: Filter to live and completed games only
-    const gamesWithStats = events.filter((event: any) => {
-      const status = event.competitions?.[0]?.status?.type;
-      return status?.state === "in" || status?.state === "post";
-    });
-
-    if (gamesWithStats.length === 0) {
-      return NextResponse.json({
-        success: true,
-        performers: [],
-        source: "no_games",
-        date: today,
-        message: "No completed or live games today yet",
-      });
-    }
-
-    // Step 3: Fetch box scores for each game (in parallel, max 6 concurrent)
     const allPerformers: TodayPerformer[] = [];
-    const batchSize = 6;
 
-    for (let i = 0; i < gamesWithStats.length; i += batchSize) {
-      const batch = gamesWithStats.slice(i, i + batchSize);
-      const results = await Promise.allSettled(
-        batch.map(async (event: any) => {
-          const gameId = event.id;
-          const competition = event.competitions?.[0];
-          const gameState = competition?.status?.type?.state;
+    // Fetch scoreboards from all leagues in parallel
+    const leagueResults = await Promise.allSettled(
+      ESPN_LEAGUES.map(async ({ slug, label }) => {
+        const base = espnBase(slug);
 
-          const summaryRes = await fetch(
-            `${ESPN_BASE}/summary?event=${gameId}`,
-            { headers: { Accept: "application/json" } }
-          );
+        // Step 1: Fetch today's scoreboard
+        const scoreboardRes = await fetch(`${base}/scoreboard`, {
+          headers: { Accept: "application/json" },
+        });
+        if (!scoreboardRes.ok) return [];
 
-          if (!summaryRes.ok) return [];
+        const scoreboard = await scoreboardRes.json();
+        const events = scoreboard.events || [];
 
-          const summary = await summaryRes.json();
-          const players: TodayPerformer[] = [];
+        // Step 2: Filter to live and completed games only
+        const gamesWithStats = events.filter((event: any) => {
+          const status = event.competitions?.[0]?.status?.type;
+          return status?.state === "in" || status?.state === "post";
+        });
 
-          // Stat labels from ESPN box score
-          const defaultLabels = ["MIN", "FG", "3PT", "FT", "OREB", "DREB", "REB", "AST", "STL", "BLK", "TO", "PF", "PTS"];
+        if (gamesWithStats.length === 0) return [];
 
-          for (const teamPlayers of summary.boxscore?.players || []) {
-            const teamInfo = teamPlayers.team;
+        // Step 3: Fetch box scores for each game (in parallel, max 6 concurrent)
+        const leaguePerformers: TodayPerformer[] = [];
+        const batchSize = 6;
 
-            for (const statCategory of teamPlayers.statistics || []) {
-              const labels = statCategory.labels || defaultLabels;
-              const ptsIdx = labels.indexOf("PTS");
-              const rebIdx = labels.indexOf("REB");
-              const astIdx = labels.indexOf("AST");
+        for (let i = 0; i < gamesWithStats.length; i += batchSize) {
+          const batch = gamesWithStats.slice(i, i + batchSize);
+          const results = await Promise.allSettled(
+            batch.map(async (event: any) => {
+              const gameId = event.id;
+              const competition = event.competitions?.[0];
+              const gameState = competition?.status?.type?.state;
 
-              for (const athlete of statCategory.athletes || []) {
-                if (athlete.didNotPlay) continue;
+              const summaryRes = await fetch(
+                `${base}/summary?event=${gameId}`,
+                { headers: { Accept: "application/json" } }
+              );
+              if (!summaryRes.ok) return [];
 
-                const stats = athlete.stats || [];
-                const pts = ptsIdx >= 0 ? parseInt(stats[ptsIdx] || "0") : 0;
-                const reb = rebIdx >= 0 ? parseInt(stats[rebIdx] || "0") : 0;
-                const ast = astIdx >= 0 ? parseInt(stats[astIdx] || "0") : 0;
+              const summary = await summaryRes.json();
+              const players: TodayPerformer[] = [];
 
-                if (pts > 0) {
-                  const espnId = athlete.athlete?.id || "";
-                  players.push({
-                    playerId: espnId,
-                    name: athlete.athlete?.displayName || "Unknown",
-                    team: teamInfo?.abbreviation || "",
-                    teamName: teamInfo?.displayName || "",
-                    teamLogo: teamInfo?.logo || "",
-                    points: pts,
-                    rebounds: reb,
-                    assists: ast,
-                    imageUrl: athlete.athlete?.headshot?.href || getNbaHeadshot(espnId),
-                    gameId,
-                    gameStatus: gameState === "post" ? "final" : "live",
-                  });
+              const defaultLabels = ["MIN", "FG", "3PT", "FT", "OREB", "DREB", "REB", "AST", "STL", "BLK", "TO", "PF", "PTS"];
+
+              for (const teamPlayers of summary.boxscore?.players || []) {
+                const teamInfo = teamPlayers.team;
+
+                for (const statCategory of teamPlayers.statistics || []) {
+                  const labels = statCategory.labels || defaultLabels;
+                  const ptsIdx = labels.indexOf("PTS");
+                  const rebIdx = labels.indexOf("REB");
+                  const astIdx = labels.indexOf("AST");
+
+                  for (const athlete of statCategory.athletes || []) {
+                    if (athlete.didNotPlay) continue;
+
+                    const stats = athlete.stats || [];
+                    const pts = ptsIdx >= 0 ? parseInt(stats[ptsIdx] || "0") : 0;
+                    const reb = rebIdx >= 0 ? parseInt(stats[rebIdx] || "0") : 0;
+                    const ast = astIdx >= 0 ? parseInt(stats[astIdx] || "0") : 0;
+
+                    if (pts > 0) {
+                      const espnId = athlete.athlete?.id || "";
+                      players.push({
+                        playerId: espnId,
+                        name: athlete.athlete?.displayName || "Unknown",
+                        team: teamInfo?.abbreviation || "",
+                        teamName: teamInfo?.displayName || "",
+                        teamLogo: teamInfo?.logo || "",
+                        points: pts,
+                        rebounds: reb,
+                        assists: ast,
+                        imageUrl: athlete.athlete?.headshot?.href || (slug === "nba" ? getNbaHeadshot(espnId) : ""),
+                        gameId,
+                        gameStatus: gameState === "post" ? "final" : "live",
+                        league: label,
+                      });
+                    }
+                  }
                 }
               }
+
+              return players;
+            })
+          );
+
+          for (const result of results) {
+            if (result.status === "fulfilled" && Array.isArray(result.value)) {
+              leaguePerformers.push(...result.value);
             }
           }
-
-          return players;
-        })
-      );
-
-      for (const result of results) {
-        if (result.status === "fulfilled" && Array.isArray(result.value)) {
-          allPerformers.push(...result.value);
         }
+
+        return leaguePerformers;
+      })
+    );
+
+    for (const result of leagueResults) {
+      if (result.status === "fulfilled" && Array.isArray(result.value)) {
+        allPerformers.push(...result.value);
       }
     }
 
-    // Step 4: Sort by points (highest first) and take top 3
+    // Step 4: Sort by points (highest first) and take top 5
     allPerformers.sort((a, b) => b.points - a.points);
-    const topPerformers = allPerformers.slice(0, 3);
+    const topPerformers = allPerformers.slice(0, 5);
 
     // Cache the result
     cachedData = { performers: topPerformers, timestamp: Date.now(), date: today };
@@ -153,7 +166,6 @@ export async function GET() {
       performers: topPerformers,
       source: "live",
       date: today,
-      totalGames: gamesWithStats.length,
     });
   } catch (error) {
     console.error("Today performers API error:", error);

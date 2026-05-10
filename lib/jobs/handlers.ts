@@ -131,9 +131,10 @@ export async function dailyDataSync(): Promise<JobResult> {
     let teamsProcessed = 0;
     let playersProcessed = 0;
 
-    // Sync teams
+    // Sync teams from all leagues
     const teams = await basketballApi.getTeams();
     for (const team of teams) {
+      const leagueValue = (team.league || "nba").toUpperCase() as "NBA" | "WNBA" | "NCAAM" | "NCAAW";
       await prisma.team.upsert({
         where: { id: team.id },
         create: {
@@ -142,7 +143,7 @@ export async function dailyDataSync(): Promise<JobResult> {
           abbreviation: team.abbreviation,
           city: team.city,
           logoUrl: team.logoUrl,
-          league: "NBA",
+          league: leagueValue,
           conference: team.conference,
           division: team.division,
         },
@@ -151,6 +152,7 @@ export async function dailyDataSync(): Promise<JobResult> {
           abbreviation: team.abbreviation,
           city: team.city,
           logoUrl: team.logoUrl,
+          league: leagueValue,
           conference: team.conference,
           division: team.division,
         },

@@ -142,22 +142,44 @@ export function useGames({
     if (!enabled) return;
 
     try {
-      const response = await fetch(`/api/games?league=${league}`);
+      let allGames: Game[] = [];
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch games: ${response.status}`);
-      }
+      if (league === "nba" || league === "wnba") {
+        // Fetch both NBA and WNBA games together
+        const [nbaRes, wnbaRes] = await Promise.all([
+          fetch("/api/games?league=nba"),
+          fetch("/api/games?league=wnba"),
+        ]);
+        const [nbaData, wnbaData] = await Promise.all([nbaRes.json(), wnbaRes.json()]);
 
-      const data = await response.json();
+        if (nbaData.success && nbaData.games) {
+          allGames.push(...nbaData.games.map(transformGame));
+        }
+        if (wnbaData.success && wnbaData.games) {
+          allGames.push(...wnbaData.games.map(transformGame));
+        }
 
-      if (data.success && data.games) {
-        const transformedGames = data.games.map(transformGame);
-        setGames(transformedGames);
-        setError(null);
-        setLastUpdated(new Date());
+        // Sort: live first, then scheduled, then final
+        allGames.sort((a, b) => {
+          const order = (g: Game) => g.status === "live" ? 0 : g.status === "scheduled" ? 1 : 2;
+          return order(a) - order(b);
+        });
       } else {
-        throw new Error(data.error || "Unknown error");
+        const response = await fetch(`/api/games?league=${league}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch games: ${response.status}`);
+        }
+        const data = await response.json();
+        if (data.success && data.games) {
+          allGames = data.games.map(transformGame);
+        } else {
+          throw new Error(data.error || "Unknown error");
+        }
       }
+
+      setGames(allGames);
+      setError(null);
+      setLastUpdated(new Date());
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Failed to fetch games"));
     } finally {

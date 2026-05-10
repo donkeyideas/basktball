@@ -8,8 +8,8 @@ import {
   ActivityIndicator,
   Modal,
   TextInput,
-  KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router, usePathname } from 'expo-router';
@@ -62,6 +62,16 @@ export default function ComposeFAB() {
   const [uploading, setUploading] = useState(false);
   const [mentionQuery, setMentionQuery] = useState('');
   const [showMentions, setShowMentions] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  // Track keyboard height for compose modal positioning
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvent, (e) => setKeyboardHeight(e.endCoordinates.height));
+    const hideSub = Keyboard.addListener(hideEvent, () => setKeyboardHeight(0));
+    return () => { showSub.remove(); hideSub.remove(); };
+  }, []);
 
   const [alertConfig, setAlertConfig] = useState<{
     visible: boolean;
@@ -274,10 +284,7 @@ export default function ComposeFAB() {
             activeOpacity={1}
             onPress={() => { setShowCompose(false); resetCompose(); }}
           />
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          >
-            <View style={styles.composeContainer}>
+          <View style={[styles.composeContainer, { paddingBottom: keyboardHeight > 0 ? keyboardHeight : 20 }]}>
             <View style={styles.composeHeader}>
               <TouchableOpacity
                 onPress={() => {
@@ -520,8 +527,7 @@ export default function ComposeFAB() {
                 onClose={() => setShowGifPicker(false)}
               />
             )}
-            </View>
-          </KeyboardAvoidingView>
+          </View>
         </View>
       </Modal>
 

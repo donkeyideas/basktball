@@ -12,8 +12,8 @@ import {
   ActivityIndicator,
   Modal,
   TextInput,
-  KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -126,6 +126,7 @@ export default function CourtScreen() {
   const [pollDuration, setPollDuration] = useState(24);
   const [mentionQuery, setMentionQuery] = useState('');
   const [showMentions, setShowMentions] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
 
@@ -252,6 +253,15 @@ export default function CourtScreen() {
   useEffect(() => {
     fetchFeed();
   }, [selectedSegment]);
+
+  // Track keyboard height for compose modal
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showSub = Keyboard.addListener(showEvent, (e) => setKeyboardHeight(e.endCoordinates.height));
+    const hideSub = Keyboard.addListener(hideEvent, () => setKeyboardHeight(0));
+    return () => { showSub.remove(); hideSub.remove(); };
+  }, []);
 
   // Refresh feed when navigating back (e.g. after replying from take detail)
   useFocusEffect(
@@ -863,8 +873,7 @@ export default function CourtScreen() {
             activeOpacity={1}
             onPress={() => { setShowCompose(false); resetCompose(); }}
           />
-          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-            <View style={styles.composeContainer}>
+          <View style={[styles.composeContainer, { paddingBottom: keyboardHeight > 0 ? keyboardHeight : 20 }]}>
             <View style={styles.composeHeader}>
               <TouchableOpacity onPress={() => { setShowCompose(false); resetCompose(); }}>
                 <Text style={styles.composeCancel}>Cancel</Text>
@@ -1050,8 +1059,7 @@ export default function CourtScreen() {
                 onClose={() => setShowGifPicker(false)}
               />
             )}
-            </View>
-          </KeyboardAvoidingView>
+          </View>
         </View>
       </Modal>
 

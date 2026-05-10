@@ -16,6 +16,7 @@ interface TodayPerformer {
   imageUrl: string;
   gameId: string;
   gameStatus: "live" | "final";
+  league?: string;
 }
 
 interface SeasonLeader {
@@ -193,7 +194,23 @@ export function FeaturedPlayers() {
                   )}
                 </div>
                 <h3>{player.name}</h3>
-                <p className="player-team">{player.teamName}</p>
+                <p className="player-team">
+                  {player.teamName}
+                  {player.league && player.league !== "NBA" && (
+                    <span style={{
+                      marginLeft: "6px",
+                      fontSize: "10px",
+                      fontWeight: 700,
+                      background: "var(--orange)",
+                      color: "var(--white)",
+                      padding: "2px 6px",
+                      borderRadius: "3px",
+                      verticalAlign: "middle",
+                    }}>
+                      {player.league}
+                    </span>
+                  )}
+                </p>
                 <div className="player-stats">
                   <div className="stat">
                     <div className="stat-value">{player.points}</div>
