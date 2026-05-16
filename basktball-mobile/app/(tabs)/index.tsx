@@ -388,7 +388,7 @@ export default function HomeScreen() {
                 key={`${player.playerId}-${index}`}
                 style={styles.playerCard}
                 activeOpacity={0.7}
-                onPress={() => router.push(`/player/${player.playerId}`)}
+                onPress={() => router.push(`/player/${player.playerId}?league=${(player.league || 'NBA').toLowerCase()}`)}
               >
                 {player.imageUrl ? (
                   <Image source={{ uri: player.imageUrl }} style={styles.playerHeadshot} />

@@ -9,15 +9,24 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    const league = request.nextUrl.searchParams.get("league") || "nba";
+
+    const sportSlugs: Record<string, string> = {
+      nba: "basketball/nba",
+      wnba: "basketball/wnba",
+      ncaam: "basketball/mens-college-basketball",
+      ncaaw: "basketball/womens-college-basketball",
+    };
+    const sportSlug = sportSlugs[league] || "basketball/nba";
 
     // Fetch player info and stats overview from ESPN in parallel
     const [athleteRes, overviewRes] = await Promise.all([
       fetch(
-        `https://site.api.espn.com/apis/common/v3/sports/basketball/nba/athletes/${id}`,
+        `https://site.api.espn.com/apis/common/v3/sports/${sportSlug}/athletes/${id}`,
         { headers: { Accept: "application/json" } }
       ),
       fetch(
-        `https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/athletes/${id}/overview`,
+        `https://site.web.api.espn.com/apis/common/v3/sports/${sportSlug}/athletes/${id}/overview`,
         { headers: { Accept: "application/json" } }
       ),
     ]);

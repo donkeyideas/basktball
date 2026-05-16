@@ -48,7 +48,7 @@ function getInitials(name: string): string {
 export default function PlayerDetailScreen() {
   const { colors } = useTheme();
   const styles = React.useMemo(() => makeStyles(colors), [colors]);
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, league } = useLocalSearchParams<{ id: string; league?: string }>();
   const [player, setPlayer] = useState<PlayerData | null>(null);
   const [stats, setStats] = useState<PlayerStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -60,7 +60,7 @@ export default function PlayerDetailScreen() {
 
   async function fetchPlayer() {
     try {
-      const res = await fetch(`${API_BASE}/api/players/${id}`);
+      const res = await fetch(`${API_BASE}/api/players/${id}?league=${league || 'nba'}`);
       const data = await res.json();
       if (data.success) {
         setPlayer(data.player);

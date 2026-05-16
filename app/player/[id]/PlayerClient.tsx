@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, use } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { Header, Footer } from "@/components";
@@ -132,6 +133,8 @@ function ShootingChart({ fgPct, fg3Pct, ftPct }: { fgPct: number; fg3Pct: number
 
 export default function PlayerClient({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const searchParams = useSearchParams();
+  const league = searchParams.get("league") || "nba";
   const [data, setData] = useState<PlayerDetailsResponse | null>(null);
   const [dbStats, setDbStats] = useState<{
     ppg: number;
@@ -153,7 +156,7 @@ export default function PlayerClient({ params }: { params: Promise<{ id: string 
     async function fetchPlayer() {
       try {
         // First try the new endpoint that handles NBA.com IDs with fallback data
-        const playerRes = await fetch(`/api/players/${id}`);
+        const playerRes = await fetch(`/api/players/${id}?league=${league}`);
         const playerData = await playerRes.json();
 
         if (playerData.success) {

@@ -151,7 +151,7 @@ export function FeaturedPlayers() {
             {todayPerformers.map((player) => (
               <Link
                 key={`${player.playerId}-${player.gameId}`}
-                href={`/player/${player.playerId}`}
+                href={`/player/${player.playerId}?league=${(player.league || "NBA").toLowerCase()}`}
                 className="player-card"
                 style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}
               >
@@ -282,7 +282,7 @@ export function FeaturedPlayers() {
         </p>
         <div className="players-grid">
           {seasonLeaders.map((player) => (
-            <Link key={player.playerId} href={`/player/${player.playerId}`} className="player-card" style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}>
+            <Link key={player.playerId} href={`/player/${player.playerId}?league=nba`} className="player-card" style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}>
               <div className="player-image" style={{ overflow: "hidden", position: "relative" }}>
                 {player.imageUrl ? (
                   <Image
