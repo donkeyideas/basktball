@@ -144,8 +144,8 @@ export function useGames({
     try {
       let allGames: Game[] = [];
 
-      if (league === "nba" || league === "wnba") {
-        // Fetch both NBA and WNBA games together
+      if (league === "nba") {
+        // When NBA is selected, also show WNBA games alongside
         const [nbaRes, wnbaRes] = await Promise.all([
           fetch("/api/games?league=nba"),
           fetch("/api/games?league=wnba"),

@@ -204,8 +204,8 @@ export default function HomeScreen() {
       const now = new Date();
       const today = `${now.getFullYear()}-${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')}`;
 
-      // For NBA and WNBA, fetch both and combine
-      if (league === 'nba' || league === 'wnba') {
+      // When NBA is selected, also show WNBA games alongside
+      if (league === 'nba') {
         const [nbaRes, wnbaRes] = await Promise.all([
           fetch(`${API_BASE}/api/games?date=${today}&league=nba`),
           fetch(`${API_BASE}/api/games?date=${today}&league=wnba`),

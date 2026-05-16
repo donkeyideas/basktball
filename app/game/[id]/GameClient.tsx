@@ -724,7 +724,7 @@ function BoxScoreTable({ players, teamName }: { players: PlayerStat[]; teamName:
   const bench = players.filter(p => !p.starter && !p.dnp);
   const dnp = players.filter(p => p.dnp);
 
-  const statColumns = ["MIN", "PTS", "REB", "AST", "FG", "3PT", "FT", "STL", "BLK", "TO"];
+  const statColumns = ["MIN", "PTS", "REB", "AST", "FG", "3PT", "FT", "STL", "BLK", "TO", "+/-"];
 
   const renderPlayerRow = (player: PlayerStat) => (
     <tr key={player.id} style={{ borderBottom: "1px solid var(--border-color)" }}>
@@ -768,24 +768,62 @@ function BoxScoreTable({ players, teamName }: { players: PlayerStat[]; teamName:
           )}
         </Link>
       </td>
-      {statColumns.map(col => (
-        <td key={col} style={{ padding: "12px 8px", textAlign: "center", fontSize: "14px" }}>
-          {player.stats[col] || "-"}
-        </td>
-      ))}
+      {statColumns.map(col => {
+        if (col === "+/-") {
+          const raw = player.stats["+/-"];
+          const val = raw ? parseInt(raw, 10) : NaN;
+          const color = !isNaN(val) && val > 0 ? "#22c55e" : !isNaN(val) && val < 0 ? "#ef4444" : undefined;
+          const display = !isNaN(val) ? (val > 0 ? `+${val}` : `${val}`) : "-";
+          return (
+            <td key={col} style={{ padding: "12px 8px", textAlign: "center", fontSize: "14px", color }}>
+              {display}
+            </td>
+          );
+        }
+        return (
+          <td key={col} style={{ padding: "12px 8px", textAlign: "center", fontSize: "14px" }}>
+            {player.stats[col] || "-"}
+          </td>
+        );
+      })}
     </tr>
   );
+
+  // Best/worst +/- calculation
+  const activePlayers = players.filter(p => !p.dnp);
+  const plusMinusValues = activePlayers
+    .map(p => ({ name: p.shortName, val: parseInt(p.stats["+/-"] || "", 10) }))
+    .filter(p => !isNaN(p.val));
+  const bestPM = plusMinusValues.length > 0 ? plusMinusValues.reduce((a, b) => a.val > b.val ? a : b) : null;
+  const worstPM = plusMinusValues.length > 0 ? plusMinusValues.reduce((a, b) => a.val < b.val ? a : b) : null;
+  const showPMSummary = bestPM && worstPM && (bestPM.val !== 0 || worstPM.val !== 0);
 
   return (
     <div style={{ marginBottom: "40px" }}>
       <h3 style={{
         fontFamily: "var(--font-anton), Anton, sans-serif",
         fontSize: "24px",
-        marginBottom: "20px",
+        marginBottom: showPMSummary ? "12px" : "20px",
         color: "var(--orange)",
       }}>
         {teamName}
       </h3>
+      {showPMSummary && (
+        <div style={{
+          display: "flex",
+          gap: "24px",
+          marginBottom: "16px",
+          fontSize: "13px",
+          fontFamily: "'Roboto Mono', monospace",
+        }}>
+          <span style={{ color: "#22c55e" }}>
+            ▲ Best: {bestPM!.name} ({bestPM!.val > 0 ? "+" : ""}{bestPM!.val})
+          </span>
+          <span style={{ color: "#ef4444" }}>
+            ▼ Worst: {worstPM!.name} ({worstPM!.val > 0 ? "+" : ""}{worstPM!.val})
+          </span>
+        </div>
+      )}
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "800px" }}>
           <thead>

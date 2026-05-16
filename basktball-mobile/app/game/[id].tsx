@@ -169,6 +169,7 @@ export default function GameDetailScreen() {
         <Text style={styles.boxHeaderCell}>REB</Text>
         <Text style={styles.boxHeaderCell}>AST</Text>
         <Text style={styles.boxHeaderCell}>FG</Text>
+        <Text style={styles.boxHeaderCell}>+/-</Text>
       </View>
     );
   }
@@ -192,11 +193,26 @@ export default function GameDetailScreen() {
         <Text style={[styles.boxCell, styles.boxStatMono]}>{player.stats.REB || '0'}</Text>
         <Text style={[styles.boxCell, styles.boxStatMono]}>{player.stats.AST || '0'}</Text>
         <Text style={[styles.boxCell, styles.boxStatMono]}>{player.stats.FG || '-'}</Text>
+        {(() => {
+          const raw = player.stats['+/-'];
+          const val = raw ? parseInt(raw, 10) : NaN;
+          const pmColor = !isNaN(val) && val > 0 ? '#22c55e' : !isNaN(val) && val < 0 ? '#ef4444' : colors.textSecondary;
+          const display = !isNaN(val) ? (val > 0 ? `+${val}` : `${val}`) : '-';
+          return <Text style={[styles.boxCell, styles.boxStatMono, { color: pmColor, fontFamily: Fonts.monoBold }]}>{display}</Text>;
+        })()}
       </View>
     );
   }
 
   function renderTeamBoxScore(teamData: TeamPlayerStats, teamInfo: TeamInfo) {
+    const activePlayers = teamData.players.filter(p => !p.dnp);
+    const pmValues = activePlayers
+      .map(p => ({ name: p.shortName, val: parseInt(p.stats['+/-'] || '', 10) }))
+      .filter(p => !isNaN(p.val));
+    const bestPM = pmValues.length > 0 ? pmValues.reduce((a, b) => a.val > b.val ? a : b) : null;
+    const worstPM = pmValues.length > 0 ? pmValues.reduce((a, b) => a.val < b.val ? a : b) : null;
+    const showPM = bestPM && worstPM && (bestPM.val !== 0 || worstPM.val !== 0);
+
     return (
       <View style={styles.teamBoxSection}>
         <View style={styles.teamBoxHeader}>
@@ -207,6 +223,16 @@ export default function GameDetailScreen() {
           )}
           <Text style={styles.teamBoxName}>{teamData.teamName}</Text>
         </View>
+        {showPM && (
+          <View style={{ flexDirection: 'row', gap: 16, paddingVertical: 6, paddingHorizontal: 4 }}>
+            <Text style={{ fontFamily: Fonts.mono, fontSize: 11, color: '#22c55e' }}>
+              ▲ {bestPM!.name} ({bestPM!.val > 0 ? '+' : ''}{bestPM!.val})
+            </Text>
+            <Text style={{ fontFamily: Fonts.mono, fontSize: 11, color: '#ef4444' }}>
+              ▼ {worstPM!.name} ({worstPM!.val > 0 ? '+' : ''}{worstPM!.val})
+            </Text>
+          </View>
+        )}
         {renderBoxScoreHeader()}
         {teamData.players.map((player, i) => renderPlayerRow(player, i))}
       </View>
@@ -673,7 +699,7 @@ function makeStyles(colors: any) {
   // Box Score
   boxScoreContainer: {
     paddingHorizontal: 16,
-    minWidth: 500,
+    minWidth: 550,
   },
   teamBoxSection: {
     marginBottom: 20,
