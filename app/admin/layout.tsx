@@ -156,6 +156,15 @@ const navItems = [
     ),
   },
   {
+    href: "/admin/weekly-kpis",
+    label: "Weekly KPIs",
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+      </svg>
+    ),
+  },
+  {
     href: "/admin/logs",
     label: "Logs",
     icon: (

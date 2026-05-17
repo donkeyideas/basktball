@@ -1321,3 +1321,26 @@ model NotificationLog {
   @@index([createdAt])
   @@index([sentByUserId])
 }
+
+// ─── Weekly KPI Snapshots ────────────────────────────────────────────────────
+// One row per Monday-of-week. Tracks DAU, retention, sessions, ARPDAU,
+// rating, crash rate against 2026 casual-mobile-game industry benchmarks.
+// Populated manually via /admin/weekly-kpis or auto-fetched from Google
+// Analytics 4 via the fetch endpoint.
+model WeeklyKpiSnapshot {
+  id             String   @id @default(cuid())
+  weekOf         DateTime @unique @map("week_of") // Monday date for this week
+  dau            Int
+  d1Retention    Float    @map("d1_retention")
+  d7Retention    Float    @map("d7_retention")
+  d30Retention   Float    @map("d30_retention")
+  sessionsPerDau Float    @map("sessions_per_dau")
+  avgSessionSecs Int      @map("avg_session_secs")
+  arpdau         Float
+  rating         Float
+  crashRate      Float    @map("crash_rate")
+  notes          String?
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  @@map("weekly_kpi_snapshots")
+}
