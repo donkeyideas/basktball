@@ -15,8 +15,7 @@ import {
  * Weekly KPI tracker — ported from donkeyideas/marble-admin.
  *
  * One row per Monday-of-week. Tracks DAU, retention, sessions, ARPDAU,
- * rating, crash rate. Industry benchmarks color-code each cell from
- * bad → ok → good → excellent. Auto-fetch from GA4 or enter manually.
+ * rating, crash rate. Color-coded against 2026 industry benchmarks.
  */
 
 /* ─── Types & Benchmarks ──────────────────────────────────────────── */
@@ -65,16 +64,14 @@ function getBenchmarkStatus(key: MetricKey, value: number): "bad" | "ok" | "good
     if (value >= b.good) return "good";
     if (value >= b.ok) return "ok";
     return "bad";
-  } else {
-    if (value <= b.excellent) return "excellent";
-    if (value <= b.good) return "good";
-    if (value <= b.ok) return "ok";
-    return "bad";
   }
+  if (value <= b.excellent) return "excellent";
+  if (value <= b.good) return "good";
+  if (value <= b.ok) return "ok";
+  return "bad";
 }
 
-// Basktball palette via CSS vars: --red, --yellow, --green, --blue
-const STATUS_COLOR_VAR = {
+const STATUS_COLOR = {
   bad: "var(--red)",
   ok: "var(--yellow)",
   good: "var(--green)",
@@ -115,13 +112,7 @@ function getCurrentMonday(): string {
 
 /* ─── Entry Form Modal ────────────────────────────────────────────── */
 
-function EntryForm({
-  onClose,
-  onSaved,
-}: {
-  onClose: () => void;
-  onSaved: () => void;
-}) {
+function EntryForm({ onClose, onSaved }: { onClose: () => void; onSaved: () => void }) {
   const [form, setForm] = useState({
     weekOf: getCurrentMonday(),
     dau: "", d1Retention: "", d7Retention: "", d30Retention: "",
@@ -167,44 +158,55 @@ function EntryForm({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm"
-      style={{ background: "rgba(0,0,0,0.6)" }}
+      style={{
+        position: "fixed", inset: 0, zIndex: 50,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)",
+      }}
       onClick={onClose}
     >
       <div
-        className="relative w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto border-2"
-        style={{ background: "var(--card-bg)", borderColor: "var(--border-color)" }}
         onClick={(e) => e.stopPropagation()}
+        style={{
+          width: "100%", maxWidth: 560, margin: "0 16px",
+          background: "var(--card-bg)",
+          border: "2px solid var(--border-color)",
+          maxHeight: "90vh", overflowY: "auto",
+          clipPath: "polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px)",
+        }}
       >
-        <div className="px-6 pt-6 pb-4 border-b" style={{ borderColor: "var(--border-subtle)" }}>
-          <h2 className="text-lg font-semibold" style={{ color: "var(--text-primary)" }}>Log Weekly KPIs</h2>
-          <p className="text-xs mt-1" style={{ color: "var(--text-muted)" }}>
+        <div style={{ padding: "24px 30px 16px", borderBottom: "1px solid var(--border-subtle)" }}>
+          <h2 style={{ fontFamily: "'Anton', sans-serif", fontSize: 24, color: "var(--text-primary)" }}>
+            LOG WEEKLY KPIS
+          </h2>
+          <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>
             Enter metrics for this week from Google Analytics
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-6 py-4 space-y-4">
+        <form onSubmit={handleSubmit} style={{ padding: "24px 30px", display: "flex", flexDirection: "column", gap: 16 }}>
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+            <label style={{ fontSize: 11, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1, fontWeight: 700 }}>
               Week of (Monday)
             </label>
             <input
               type="date"
               value={form.weekOf}
               onChange={(e) => setForm({ ...form, weekOf: e.target.value })}
-              className="mt-1 w-full rounded-xl px-3 py-2 text-sm border-2 focus:outline-none"
               style={{
+                marginTop: 4, width: "100%",
                 background: "var(--input-bg)",
+                border: "2px solid var(--border-color)",
                 color: "var(--text-primary)",
-                borderColor: "var(--border-color)",
+                padding: "10px 12px", fontSize: 14, borderRadius: 0,
               }}
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             {fields.map((f) => (
               <div key={f.key}>
-                <label className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+                <label style={{ fontSize: 11, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1, fontWeight: 700 }}>
                   {f.label}
                 </label>
                 <input
@@ -213,11 +215,12 @@ function EntryForm({
                   placeholder={f.placeholder}
                   value={(form as any)[f.key]}
                   onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
-                  className="mt-1 w-full rounded-xl px-3 py-2 text-sm border-2 focus:outline-none"
                   style={{
+                    marginTop: 4, width: "100%",
                     background: "var(--input-bg)",
+                    border: "2px solid var(--border-color)",
                     color: "var(--text-primary)",
-                    borderColor: "var(--border-color)",
+                    padding: "10px 12px", fontSize: 14, borderRadius: 0,
                   }}
                 />
               </div>
@@ -225,7 +228,7 @@ function EntryForm({
           </div>
 
           <div>
-            <label className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+            <label style={{ fontSize: 11, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1, fontWeight: 700 }}>
               Notes (optional)
             </label>
             <textarea
@@ -233,40 +236,26 @@ function EntryForm({
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
               placeholder="Any context for this week..."
               rows={2}
-              className="mt-1 w-full rounded-xl px-3 py-2 text-sm border-2 focus:outline-none resize-none"
               style={{
+                marginTop: 4, width: "100%",
                 background: "var(--input-bg)",
+                border: "2px solid var(--border-color)",
                 color: "var(--text-primary)",
-                borderColor: "var(--border-color)",
+                padding: "10px 12px", fontSize: 14, resize: "none", borderRadius: 0,
               }}
             />
           </div>
 
-          {error && <p className="text-xs text-center" style={{ color: "var(--red)" }}>{error}</p>}
+          {error && (
+            <p style={{ fontSize: 12, color: "var(--red)", textAlign: "center" }}>{error}</p>
+          )}
 
-          <div className="flex items-center gap-3 pt-2">
-            <button
-              type="submit"
-              disabled={saving}
-              className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold border-2 transition-opacity disabled:opacity-50"
-              style={{
-                background: "var(--orange)",
-                color: "var(--white)",
-                borderColor: "var(--orange)",
-              }}
-            >
-              {saving ? "Saving..." : "Save Entry"}
+          <div style={{ display: "flex", gap: 12, paddingTop: 8 }}>
+            <button type="submit" disabled={saving} className="btn btn-primary" style={{ flex: 1 }}>
+              {saving ? "SAVING..." : "SAVE ENTRY"}
             </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold border-2 transition-colors"
-              style={{
-                color: "var(--text-muted)",
-                borderColor: "var(--border-color)",
-              }}
-            >
-              Cancel
+            <button type="button" onClick={onClose} className="btn btn-secondary" style={{ flex: 1 }}>
+              CANCEL
             </button>
           </div>
         </form>
@@ -283,24 +272,20 @@ function BenchmarkBar({ metricKey, value }: { metricKey: MetricKey; value: numbe
   const status = getBenchmarkStatus(metricKey, value);
   const segments = ["bad", "ok", "good", "excellent"] as const;
 
+  // Status label is rendered inline next to the metric value in KpiCard,
+  // so the bar itself is just the colored segments.
   return (
-    <div className="flex items-center gap-1 mt-2">
+    <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 12 }}>
       {segments.map((seg) => (
         <div
           key={seg}
-          className="h-1.5 flex-1 rounded-full"
           style={{
-            background: STATUS_COLOR_VAR[seg],
-            opacity: seg === status ? 1 : 0.3,
+            height: 6, flex: 1, borderRadius: 3,
+            background: STATUS_COLOR[seg],
+            opacity: seg === status ? 1 : 0.25,
           }}
         />
       ))}
-      <span
-        className="text-[9px] font-bold uppercase ml-1"
-        style={{ color: STATUS_COLOR_VAR[status] }}
-      >
-        {status}
-      </span>
     </div>
   );
 }
@@ -309,6 +294,7 @@ function BenchmarkBar({ metricKey, value }: { metricKey: MetricKey; value: numbe
 
 function KpiCard({ metricKey, entries }: { metricKey: MetricKey; entries: KpiEntry[] }) {
   const b = BENCHMARKS[metricKey];
+  const hasBenchmarks = !("noBenchmark" in b && b.noBenchmark);
   const latest = entries[0];
   if (!latest) return null;
   const value = latest[metricKey] as number;
@@ -316,29 +302,36 @@ function KpiCard({ metricKey, entries }: { metricKey: MetricKey; entries: KpiEnt
   const change = getChange(entries, metricKey);
 
   return (
-    <div
-      className="rounded-2xl p-4 relative overflow-hidden border-2"
-      style={{ background: "var(--card-bg)", borderColor: "var(--border-color)" }}
-    >
+    <div className="stat-card" style={{ position: "relative" }}>
       <div
-        className="absolute top-3 right-3 w-2.5 h-2.5 rounded-full"
-        style={{ background: STATUS_COLOR_VAR[status] }}
+        style={{
+          position: "absolute", top: 16, right: 16,
+          width: 10, height: 10, borderRadius: "50%",
+          background: STATUS_COLOR[status],
+        }}
       />
-      <p className="text-[10px] font-bold uppercase tracking-wider mb-1.5" style={{ color: "var(--text-muted)" }}>
-        {b.label}
-      </p>
-      <p className="text-2xl font-semibold tracking-wide leading-none" style={{ color: "var(--text-primary)" }}>
-        {formatValue(metricKey, value)}
-      </p>
+      <div className="label" style={{ marginBottom: 8 }}>{b.label}</div>
+      <div className="value" style={{ marginBottom: 8, display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
+        <span>{formatValue(metricKey, value)}</span>
+        {hasBenchmarks && (
+          <span style={{
+            fontSize: 32, fontWeight: 700, textTransform: "uppercase",
+            color: STATUS_COLOR[status],
+            fontFamily: "'Roboto Mono', monospace",
+            lineHeight: 1,
+          }}>
+            {status}
+          </span>
+        )}
+      </div>
       {change && (
-        <p
-          className="text-[11px] font-semibold mt-1.5"
-          style={{ color: change.isUp ? "var(--green)" : "var(--red)" }}
-        >
+        <div className={`change ${change.isUp ? "positive" : "negative"}`}>
           {change.isUp ? "▲" : "▼"} {change.value.toFixed(1)}% vs last week
-        </p>
+        </div>
       )}
-      {!change && <p className="text-[11px] mt-1.5" style={{ color: "var(--text-faint)" }}>No prior week</p>}
+      {!change && (
+        <div style={{ fontSize: 12, color: "var(--text-faint)" }}>No prior week</div>
+      )}
       <BenchmarkBar metricKey={metricKey} value={value} />
     </div>
   );
@@ -356,13 +349,13 @@ function TrendChart({ metricKey, entries }: { metricKey: MetricKey; entries: Kpi
   const hasBenchmarks = !("noBenchmark" in b && b.noBenchmark);
 
   return (
-    <div
-      className="rounded-2xl p-4 border-2"
-      style={{ background: "var(--card-bg)", borderColor: "var(--border-color)" }}
-    >
-      <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: "var(--text-muted)" }}>
+    <div className="stat-card" style={{ padding: 20 }}>
+      <div style={{
+        fontSize: 11, color: "var(--text-muted)", textTransform: "uppercase",
+        letterSpacing: 1, fontWeight: 700, marginBottom: 12,
+      }}>
         {b.label}
-      </p>
+      </div>
       <ResponsiveContainer width="100%" height={140}>
         <LineChart data={chartData}>
           <XAxis dataKey="week" tick={{ fontSize: 9, fill: "var(--text-faint)" }} axisLine={false} tickLine={false} />
@@ -371,7 +364,7 @@ function TrendChart({ metricKey, entries }: { metricKey: MetricKey; entries: Kpi
             contentStyle={{
               background: "var(--bg-elevated)",
               border: "1px solid var(--border-color)",
-              borderRadius: 8,
+              borderRadius: 0,
               fontSize: 11,
             }}
             labelStyle={{ color: "var(--text-muted)" }}
@@ -397,54 +390,6 @@ function TrendChart({ metricKey, entries }: { metricKey: MetricKey; entries: Kpi
   );
 }
 
-/* ─── Benchmark reference table ──────────────────────────────────── */
-
-function BenchmarkTable() {
-  const metricsWithBenchmarks = METRIC_KEYS.filter(
-    (k) => !("noBenchmark" in BENCHMARKS[k] && (BENCHMARKS[k] as any).noBenchmark),
-  );
-
-  return (
-    <div
-      className="rounded-2xl overflow-hidden border-2"
-      style={{ background: "var(--card-bg)", borderColor: "var(--border-color)" }}
-    >
-      <div className="px-4 py-3 border-b" style={{ borderColor: "var(--border-subtle)" }}>
-        <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
-          2026 Industry Benchmarks (Mobile / Web Apps)
-        </p>
-      </div>
-      <table className="w-full">
-        <thead>
-          <tr className="border-b" style={{ borderColor: "var(--border-subtle)" }}>
-            <th className="text-left px-4 py-2 text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>Metric</th>
-            <th className="text-center px-3 py-2 text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--red)" }}>Bad</th>
-            <th className="text-center px-3 py-2 text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--yellow)" }}>OK</th>
-            <th className="text-center px-3 py-2 text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--green)" }}>Good</th>
-            <th className="text-center px-3 py-2 text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--blue)" }}>Excellent</th>
-          </tr>
-        </thead>
-        <tbody>
-          {metricsWithBenchmarks.map((key) => {
-            const b = BENCHMARKS[key];
-            return (
-              <tr key={key} className="border-b" style={{ borderColor: "var(--border-subtle)" }}>
-                <td className="px-4 py-2.5 text-xs font-semibold" style={{ color: "var(--text-primary)" }}>{b.label}</td>
-                <td className="text-center px-3 py-2.5 text-xs" style={{ color: "var(--red)", opacity: 0.8 }}>
-                  {b.higher ? `<${b.bad}` : `>${b.bad}`}{b.unit}
-                </td>
-                <td className="text-center px-3 py-2.5 text-xs" style={{ color: "var(--yellow)", opacity: 0.8 }}>{b.ok}{b.unit}</td>
-                <td className="text-center px-3 py-2.5 text-xs" style={{ color: "var(--green)", opacity: 0.8 }}>{b.good}{b.unit}</td>
-                <td className="text-center px-3 py-2.5 text-xs" style={{ color: "var(--blue)", opacity: 0.8 }}>{b.excellent}+{b.unit}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
 /* ─── Page ────────────────────────────────────────────────────────── */
 
 export default function WeeklyKpisPage() {
@@ -461,15 +406,13 @@ export default function WeeklyKpisPage() {
       const data = await res.json();
       setEntries(data.entries || []);
     } catch {
-      // ignore — show empty state
+      // empty state
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => {
-    loadEntries();
-  }, [loadEntries]);
+  useEffect(() => { loadEntries(); }, [loadEntries]);
 
   const handleAutoFetch = async () => {
     setFetching(true);
@@ -488,179 +431,192 @@ export default function WeeklyKpisPage() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="p-6 max-w-6xl mx-auto">
-        <div className="flex items-center justify-center py-20">
-          <div
-            className="w-6 h-6 rounded-full animate-spin border-2"
-            style={{ borderColor: "var(--border-color)", borderTopColor: "var(--orange)" }}
-          />
-        </div>
-      </div>
-    );
-  }
+  const metricsWithBenchmarks = METRIC_KEYS.filter(
+    (k) => !("noBenchmark" in BENCHMARKS[k] && (BENCHMARKS[k] as any).noBenchmark),
+  );
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
+    <>
+      {/* Page header — matches the .admin-header pattern used across the dashboard */}
+      <div className="admin-header">
         <div>
-          <h1 className="text-xl font-semibold" style={{ color: "var(--text-primary)" }}>
-            Weekly KPIs
-          </h1>
-          <p className="text-sm mt-0.5" style={{ color: "var(--text-muted)" }}>
+          <h1>WEEKLY KPIS</h1>
+          <p style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>
             {entries.length > 0
               ? `${entries.length} week${entries.length > 1 ? "s" : ""} tracked · Last entry: ${new Date(entries[0].weekOf).toLocaleDateString()}`
               : "No data yet — fetch from GA4 or log manually"}
           </p>
-          {fetchError && <p className="text-xs mt-1" style={{ color: "var(--red)" }}>{fetchError}</p>}
+          {fetchError && (
+            <p style={{ fontSize: 12, color: "var(--red)", marginTop: 4 }}>{fetchError}</p>
+          )}
         </div>
-        <div className="flex items-center gap-2">
+        <div style={{ display: "flex", gap: 10 }}>
           <button
             onClick={handleAutoFetch}
             disabled={fetching}
-            className="px-4 py-2 rounded-xl text-xs font-bold border-2 transition-opacity disabled:opacity-50"
-            style={{
-              background: "rgba(59,130,246,0.12)",
-              color: "var(--blue)",
-              borderColor: "rgba(59,130,246,0.3)",
-            }}
+            className="btn btn-secondary"
+            style={{ opacity: fetching ? 0.5 : 1 }}
           >
-            {fetching ? "Fetching..." : "Fetch from GA4"}
+            {fetching ? "FETCHING..." : "FETCH FROM GA4"}
           </button>
-          <button
-            onClick={() => setShowForm(true)}
-            className="px-4 py-2 rounded-xl text-xs font-bold border-2 transition-opacity"
-            style={{
-              background: "var(--orange)",
-              color: "var(--white)",
-              borderColor: "var(--orange)",
-            }}
-          >
-            + Manual Entry
+          <button onClick={() => setShowForm(true)} className="btn btn-primary">
+            + MANUAL ENTRY
           </button>
         </div>
       </div>
 
-      {/* Empty state */}
-      {entries.length === 0 && (
-        <div
-          className="rounded-2xl p-12 text-center border-2"
-          style={{ background: "var(--card-bg)", borderColor: "var(--border-color)" }}
-        >
-          <p className="text-xl font-semibold mb-2" style={{ color: "var(--text-secondary)" }}>
-            No KPI Data Yet
-          </p>
-          <p className="text-sm max-w-md mx-auto mb-6" style={{ color: "var(--text-muted)" }}>
-            Every Monday morning, grab your metrics from GA4 and log them here. Track DAU,
-            retention, sessions, ARPDAU, rating, and crash rate.
-          </p>
-          <button
-            onClick={() => setShowForm(true)}
-            className="px-6 py-2.5 rounded-xl text-sm font-bold border-2"
-            style={{
-              background: "var(--orange)",
-              color: "var(--white)",
-              borderColor: "var(--orange)",
-            }}
-          >
-            Log First Week
-          </button>
-        </div>
-      )}
+      {/* Page content */}
+      <div style={{ padding: "30px 40px" }}>
+        {loading && (
+          <div style={{ display: "flex", justifyContent: "center", padding: "60px 0" }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: "50%",
+              border: "3px solid var(--border-color)",
+              borderTopColor: "var(--orange)",
+              animation: "spin 1s linear infinite",
+            }} />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          </div>
+        )}
 
-      {/* KPI cards */}
-      {entries.length > 0 && (
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-          {METRIC_KEYS.map((key) => (
-            <KpiCard key={key} metricKey={key} entries={entries} />
-          ))}
-        </div>
-      )}
-
-      {/* Benchmark reference */}
-      <BenchmarkTable />
-
-      {/* Trend charts */}
-      {entries.length >= 2 && (
-        <>
-          <div className="flex items-center gap-2 mt-2">
-            <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
-              Trends (last {entries.length} weeks)
+        {!loading && entries.length === 0 && (
+          <div className="section" style={{ textAlign: "center", padding: 60 }}>
+            <div style={{
+              fontFamily: "'Anton', sans-serif", fontSize: 28,
+              color: "var(--text-secondary)", marginBottom: 12,
+            }}>
+              NO KPI DATA YET
+            </div>
+            <p style={{ fontSize: 14, color: "var(--text-muted)", maxWidth: 480, margin: "0 auto 24px" }}>
+              Every Monday morning, grab your metrics from GA4 and log them here. Track DAU,
+              retention, sessions, ARPDAU, rating, and crash rate.
             </p>
-            <div className="flex-1 h-px" style={{ background: "var(--border-subtle)" }} />
+            <button onClick={() => setShowForm(true)} className="btn btn-primary">
+              LOG FIRST WEEK
+            </button>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {METRIC_KEYS.map((key) => (
-              <TrendChart key={key} metricKey={key} entries={entries} />
-            ))}
-          </div>
-        </>
-      )}
+        )}
 
-      {/* Weekly log */}
-      {entries.length > 0 && (
-        <div
-          className="rounded-2xl overflow-hidden border-2"
-          style={{ background: "var(--card-bg)", borderColor: "var(--border-color)" }}
-        >
-          <div className="px-4 py-3 border-b" style={{ borderColor: "var(--border-subtle)" }}>
-            <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
-              Weekly Log
-            </p>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
+        {!loading && entries.length > 0 && (
+          <>
+            {/* KPI cards section */}
+            <div className="section">
+              <div className="section-title">CURRENT WEEK SNAPSHOT</div>
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+                gap: 20,
+              }}>
+                {METRIC_KEYS.map((key) => (
+                  <KpiCard key={key} metricKey={key} entries={entries} />
+                ))}
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Benchmark reference */}
+        <div className="section">
+          <div className="section-title">2026 INDUSTRY BENCHMARKS</div>
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
-                <tr className="border-b" style={{ borderColor: "var(--border-subtle)" }}>
-                  {["Week", "DAU", "D1", "D7", "D30", "Sess", "ARPDAU", "Rating", "Crash", "Notes"].map((h, i) => (
-                    <th
-                      key={h}
-                      className={`px-3 py-2 text-[10px] font-bold uppercase tracking-wider ${
-                        i === 0 || i === 9 ? "text-left" : "text-right"
-                      }`}
-                      style={{ color: "var(--text-muted)" }}
-                    >
-                      {h}
-                    </th>
-                  ))}
+                <tr style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                  <th style={{ textAlign: "left", padding: "12px 16px", fontSize: 11, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: 1 }}>Metric</th>
+                  <th style={{ textAlign: "center", padding: "12px 16px", fontSize: 11, fontWeight: 700, color: "var(--red)", textTransform: "uppercase", letterSpacing: 1 }}>Bad</th>
+                  <th style={{ textAlign: "center", padding: "12px 16px", fontSize: 11, fontWeight: 700, color: "var(--yellow)", textTransform: "uppercase", letterSpacing: 1 }}>OK</th>
+                  <th style={{ textAlign: "center", padding: "12px 16px", fontSize: 11, fontWeight: 700, color: "var(--green)", textTransform: "uppercase", letterSpacing: 1 }}>Good</th>
+                  <th style={{ textAlign: "center", padding: "12px 16px", fontSize: 11, fontWeight: 700, color: "var(--blue)", textTransform: "uppercase", letterSpacing: 1 }}>Excellent</th>
                 </tr>
               </thead>
               <tbody>
-                {entries.map((e) => (
-                  <tr key={e.id} className="border-b" style={{ borderColor: "var(--border-subtle)" }}>
-                    <td className="px-4 py-2.5 text-xs font-semibold" style={{ color: "var(--text-primary)" }}>
-                      {new Date(e.weekOf).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                    </td>
-                    <td className="text-right px-3 py-2.5 text-xs" style={{ color: "var(--text-secondary)" }}>{e.dau.toLocaleString()}</td>
-                    <td className="text-right px-3 py-2.5 text-xs" style={{ color: "var(--text-secondary)" }}>{e.d1Retention}%</td>
-                    <td className="text-right px-3 py-2.5 text-xs" style={{ color: "var(--text-secondary)" }}>{e.d7Retention}%</td>
-                    <td className="text-right px-3 py-2.5 text-xs" style={{ color: "var(--text-secondary)" }}>{e.d30Retention}%</td>
-                    <td className="text-right px-3 py-2.5 text-xs" style={{ color: "var(--text-secondary)" }}>{e.sessionsPerDau}</td>
-                    <td className="text-right px-3 py-2.5 text-xs" style={{ color: "var(--text-secondary)" }}>${e.arpdau.toFixed(2)}</td>
-                    <td className="text-right px-3 py-2.5 text-xs" style={{ color: "var(--text-secondary)" }}>{e.rating.toFixed(1)}</td>
-                    <td className="text-right px-3 py-2.5 text-xs" style={{ color: "var(--text-secondary)" }}>{e.crashRate}%</td>
-                    <td className="px-3 py-2.5 text-xs max-w-[150px] truncate" style={{ color: "var(--text-faint)" }}>
-                      {e.notes || "—"}
-                    </td>
-                  </tr>
-                ))}
+                {metricsWithBenchmarks.map((key) => {
+                  const b = BENCHMARKS[key];
+                  return (
+                    <tr key={key} style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                      <td style={{ padding: "12px 16px", fontSize: 13, color: "var(--text-primary)", fontWeight: 600 }}>{b.label}</td>
+                      <td style={{ textAlign: "center", padding: "12px 16px", fontSize: 13, color: "var(--red)", opacity: 0.85 }}>{b.higher ? `<${b.bad}` : `>${b.bad}`}{b.unit}</td>
+                      <td style={{ textAlign: "center", padding: "12px 16px", fontSize: 13, color: "var(--yellow)", opacity: 0.85 }}>{b.ok}{b.unit}</td>
+                      <td style={{ textAlign: "center", padding: "12px 16px", fontSize: 13, color: "var(--green)", opacity: 0.85 }}>{b.good}{b.unit}</td>
+                      <td style={{ textAlign: "center", padding: "12px 16px", fontSize: 13, color: "var(--blue)", opacity: 0.85 }}>{b.excellent}+{b.unit}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         </div>
-      )}
+
+        {/* Trend charts */}
+        {!loading && entries.length >= 2 && (
+          <div className="section">
+            <div className="section-title">TRENDS — LAST {entries.length} WEEKS</div>
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))",
+              gap: 20,
+            }}>
+              {METRIC_KEYS.map((key) => (
+                <TrendChart key={key} metricKey={key} entries={entries} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Weekly log */}
+        {!loading && entries.length > 0 && (
+          <div className="section">
+            <div className="section-title">WEEKLY LOG</div>
+            <div style={{ overflowX: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                    {["Week", "DAU", "D1", "D7", "D30", "Sess", "ARPDAU", "Rating", "Crash", "Notes"].map((h, i) => (
+                      <th
+                        key={h}
+                        style={{
+                          padding: "12px 14px", fontSize: 11, fontWeight: 700,
+                          color: "var(--text-muted)", textTransform: "uppercase",
+                          letterSpacing: 1, textAlign: i === 0 || i === 9 ? "left" : "right",
+                        }}
+                      >
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {entries.map((e) => (
+                    <tr key={e.id} style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                      <td style={{ padding: "12px 14px", fontSize: 13, color: "var(--text-primary)", fontWeight: 600 }}>
+                        {new Date(e.weekOf).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                      </td>
+                      <td style={{ textAlign: "right", padding: "12px 14px", fontSize: 13, color: "var(--text-secondary)" }}>{e.dau.toLocaleString()}</td>
+                      <td style={{ textAlign: "right", padding: "12px 14px", fontSize: 13, color: "var(--text-secondary)" }}>{e.d1Retention}%</td>
+                      <td style={{ textAlign: "right", padding: "12px 14px", fontSize: 13, color: "var(--text-secondary)" }}>{e.d7Retention}%</td>
+                      <td style={{ textAlign: "right", padding: "12px 14px", fontSize: 13, color: "var(--text-secondary)" }}>{e.d30Retention}%</td>
+                      <td style={{ textAlign: "right", padding: "12px 14px", fontSize: 13, color: "var(--text-secondary)" }}>{e.sessionsPerDau}</td>
+                      <td style={{ textAlign: "right", padding: "12px 14px", fontSize: 13, color: "var(--text-secondary)" }}>${e.arpdau.toFixed(2)}</td>
+                      <td style={{ textAlign: "right", padding: "12px 14px", fontSize: 13, color: "var(--text-secondary)" }}>{e.rating.toFixed(1)}</td>
+                      <td style={{ textAlign: "right", padding: "12px 14px", fontSize: 13, color: "var(--text-secondary)" }}>{e.crashRate}%</td>
+                      <td style={{ padding: "12px 14px", fontSize: 13, color: "var(--text-faint)", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {e.notes || "—"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
 
       {showForm && (
         <EntryForm
           onClose={() => setShowForm(false)}
-          onSaved={() => {
-            setShowForm(false);
-            loadEntries();
-          }}
+          onSaved={() => { setShowForm(false); loadEntries(); }}
         />
       )}
-    </div>
+    </>
   );
 }

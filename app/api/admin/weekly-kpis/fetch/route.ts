@@ -27,26 +27,45 @@ export async function POST() {
   if (!user) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
   try {
+    // Credentials: parse the Firebase service account JSON (already in env
+    // for push notifications — same service account can read GA4 if you've
+    // granted it Viewer access in Google Analytics admin).
+    // Property ID: GA4 Property ID (9-10 digit number from GA Admin →
+    // Property Settings). NOT the Measurement ID (those start with "G-").
     const propertyId = process.env.GOOGLE_GA4_PROPERTY_ID;
-    const clientEmail = process.env.GOOGLE_CLIENT_EMAIL;
-    const privateKey = process.env.GOOGLE_PRIVATE_KEY;
+    const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT;
 
-    if (!propertyId || !clientEmail || !privateKey) {
+    if (!propertyId) {
       return NextResponse.json(
         {
           message:
-            "GA4 not configured. Set GOOGLE_GA4_PROPERTY_ID, GOOGLE_CLIENT_EMAIL, GOOGLE_PRIVATE_KEY env vars.",
+            "GA4 property ID missing. Add GOOGLE_GA4_PROPERTY_ID to your .env (find it in Google Analytics → Admin → Property Settings).",
         },
         { status: 400 },
       );
     }
+    if (!serviceAccountJson) {
+      return NextResponse.json(
+        { message: "FIREBASE_SERVICE_ACCOUNT env var missing." },
+        { status: 400 },
+      );
+    }
 
-    const client = new BetaAnalyticsDataClient({
-      credentials: {
-        client_email: clientEmail,
-        private_key: privateKey.replace(/\\n/g, "\n"),
-      },
-    });
+    let credentials: { client_email: string; private_key: string };
+    try {
+      const parsed = JSON.parse(serviceAccountJson);
+      credentials = {
+        client_email: parsed.client_email,
+        private_key: parsed.private_key,
+      };
+    } catch {
+      return NextResponse.json(
+        { message: "FIREBASE_SERVICE_ACCOUNT is not valid JSON." },
+        { status: 400 },
+      );
+    }
+
+    const client = new BetaAnalyticsDataClient({ credentials });
 
     // Date range: last 7 days
     const now = new Date();
