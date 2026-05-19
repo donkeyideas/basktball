@@ -108,23 +108,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Dynamic pages from database
   let playerPages: MetadataRoute.Sitemap = [];
   let teamPages: MetadataRoute.Sitemap = [];
-  let articlePages: MetadataRoute.Sitemap = [];
 
   try {
     const timeout = <T>(p: Promise<T>, ms: number): Promise<T | null> =>
       Promise.race([p, new Promise<null>((r) => setTimeout(() => r(null), ms))]);
 
-    const [players, teams, articles] = await Promise.all([
+    const [players, teams] = await Promise.all([
       timeout(prisma.player.findMany({
         select: { id: true, updatedAt: true },
         take: 500,
       }), 10000),
       timeout(prisma.team.findMany({
         select: { id: true, league: true, updatedAt: true },
-      }), 10000),
-      timeout(prisma.article.findMany({
-        where: { status: "PUBLISHED" },
-        select: { slug: true, updatedAt: true },
       }), 10000),
     ]);
 
@@ -141,16 +136,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly" as const,
       priority: 0.6,
     }));
-
-    articlePages = (articles || []).map((a) => ({
-      url: `${BASE_URL}/news/${a.slug}`,
-      lastModified: a.updatedAt,
-      changeFrequency: "weekly" as const,
-      priority: 0.6,
-    }));
   } catch (error) {
     console.error("Sitemap: failed to fetch dynamic pages:", error);
   }
 
-  return [...staticPages, ...toolPages, ...playerPages, ...teamPages, ...articlePages];
+  return [...staticPages, ...toolPages, ...playerPages, ...teamPages];
 }

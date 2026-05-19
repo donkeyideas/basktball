@@ -21,7 +21,12 @@ export async function generateMetadata({
         status: true,
       },
     });
-    if (!game) return { title: "Game Details" };
+    if (!game) {
+      return {
+        title: "Game Not Found",
+        robots: { index: false, follow: false },
+      };
+    }
 
     const title = `${game.awayTeam.name} vs ${game.homeTeam.name}`;
     const dateStr = game.gameDate
@@ -40,7 +45,10 @@ export async function generateMetadata({
       openGraph: { title, description: desc, type: "article" },
     };
   } catch {
-    return { title: "Game Details" };
+    return {
+      title: "Game Details",
+      robots: { index: false, follow: false },
+    };
   }
 }
 

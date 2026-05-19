@@ -22,6 +22,11 @@ const RSS_FEEDS: FeedSource[] = [
   { name: "HoopsHype", url: "https://hoopshype.com/feed/", defaultLeague: "nba" },
   // WNBA
   { name: "ESPN WNBA", url: "https://www.espn.com/espn/rss/wnba/news", defaultLeague: "wnba" },
+  { name: "CBS Sports WNBA", url: "https://www.cbssports.com/rss/headlines/wnba/", defaultLeague: "wnba" },
+  { name: "Yahoo Sports WNBA", url: "https://sports.yahoo.com/wnba/rss/", defaultLeague: "wnba" },
+  { name: "Bleacher Report WNBA", url: "https://bleacherreport.com/articles/feed?tag_id=88", defaultLeague: "wnba" },
+  { name: "Just Women's Sports", url: "https://justwomenssports.com/rss/", defaultLeague: "wnba" },
+  { name: "Swish Appeal", url: "https://www.swishappeal.com/rss/index.xml", defaultLeague: "wnba" },
   // College Basketball
   { name: "ESPN NCAAM", url: "https://www.espn.com/espn/rss/ncb/news", defaultLeague: "ncaam" },
   { name: "CBS Sports NCAAM", url: "https://www.cbssports.com/rss/headlines/college-basketball/", defaultLeague: "ncaam" },
@@ -92,10 +97,22 @@ const COLLEGE_TERMS = [
 const WNBA_TERMS = [
   "wnba", "aces", "liberty", "storm", "lynx", "connecticut sun", "chicago sky",
   "mercury", "mystics", "fever", "sparks", "wings", "dream", "valkyries",
-  "caitlin clark", "a'ja wilson", "breanna stewart", "angel reese",
+  "tigers", "golden state valkyries", "las vegas aces", "new york liberty",
+  "seattle storm", "minnesota lynx", "indiana fever", "los angeles sparks",
+  "dallas wings", "atlanta dream", "phoenix mercury", "washington mystics",
+  // Star players
+  "caitlin clark", "a'ja wilson", "aja wilson", "breanna stewart", "angel reese",
   "sabrina ionescu", "alyssa thomas", "kelsey plum", "chelsea gray",
-  "jewell loyd", "napheesa collier", "wnba draft", "wnba season",
-  "wnba playoff", "wnba finals", "commissioner's cup",
+  "jewell loyd", "napheesa collier", "paige bueckers", "cameron brink",
+  "kamilla cardoso", "rickea jackson", "rhyne howard", "arike ogunbowale",
+  "kahleah copper", "skylar diggins", "diana taurasi", "brittney griner",
+  "jackie young", "candace parker", "nneka ogwumike", "elena delle donne",
+  "dearica hamby", "satou sabally", "natasha cloud", "courtney vandersloot",
+  "jonquel jones", "kelsey mitchell", "aliyah boston", "azura stevens",
+  // WNBA-specific terms
+  "wnba draft", "wnba season", "wnba playoff", "wnba finals",
+  "commissioner's cup", "wnba all-star", "wnba mvp", "wnba rookie",
+  "wnba championship", "wnba trade", "wnba free agency",
 ];
 
 // Women's college basketball
