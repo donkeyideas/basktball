@@ -1,13 +1,11 @@
 import { ImageResponse } from "@vercel/og";
 import { NextRequest } from "next/server";
 import type { ReactElement } from "react";
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 
-// Node runtime. Fonts ship in /public/fonts/. We read them via fs (Vercel
-// bundles them into the function via outputFileTracingIncludes in next.config.ts).
-// HTTP fetch is kept as a fallback in case fs fails for any reason.
-export const runtime = "nodejs";
+// Edge runtime — Vercel's documented pattern for @vercel/og. Fonts are loaded
+// via fetch(new URL('./_fonts/X.ttf', import.meta.url)) which resolves to a
+// static asset URL at build time. Most reliable approach in Vercel serverless.
+export const runtime = "edge";
 
 type Theme = "light" | "dark" | "orange";
 type Template = "stat-line" | "comparison" | "hot-take" | "quote" | "ranking";
@@ -32,46 +30,15 @@ function paletteFor(theme: Theme) {
   }
 }
 
-async function loadFont(origin: string, filename: string): Promise<ArrayBuffer> {
-  // Prefer fonts bundled next to this route file — most reliable on Vercel.
-  // Next.js auto-traces files in the route directory into the function.
-  const adjacentPath = path.join(process.cwd(), "app", "api", "og", "card", "_fonts", filename);
-  const publicPath = path.join(process.cwd(), "public", "fonts", filename);
-
-  for (const filePath of [adjacentPath, publicPath]) {
-    try {
-      const buf = await readFile(filePath);
-      return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer;
-    } catch {
-      // try next
-    }
-  }
-
-  // Last resort: HTTP fetch from request origin (works in dev / non-Vercel).
-  const url = `${origin}/fonts/${filename}`;
+// Fonts are loaded via fetch(new URL(...)) — Edge runtime bundles them as
+// static assets at build time. This is @vercel/og's documented pattern.
+async function loadAdjacentFont(filename: string): Promise<ArrayBuffer> {
+  const url = new URL(`./_fonts/${filename}`, import.meta.url);
   const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error(`Font ${filename}: fs+http all failed (last status ${res.status})`);
-  }
+  if (!res.ok) throw new Error(`Font ${filename} failed (${res.status})`);
   return await res.arrayBuffer();
 }
 
-function getOrigin(req: NextRequest): string {
-  // Vercel serverless: req.url is often the FULL URL, but headers are more
-  // reliable for resolving the public origin (handles proxies + custom domains).
-  const xfProto = req.headers.get("x-forwarded-proto");
-  const xfHost = req.headers.get("x-forwarded-host") || req.headers.get("host");
-  if (xfHost) {
-    return `${xfProto || "https"}://${xfHost}`;
-  }
-  // Fall back to parsing req.url.
-  try {
-    return new URL(req.url).origin;
-  } catch {
-    // Last resort — use the public env var.
-    return process.env.NEXT_PUBLIC_BASE_URL || "https://www.basktball.com";
-  }
-}
 
 export async function GET(req: NextRequest) {
   try {
@@ -90,14 +57,13 @@ export async function GET(req: NextRequest) {
 
     const p = paletteFor(theme);
 
-    const origin = getOrigin(req);
     const [bebas, archivo500, archivo700, archivo800, jbMono400, jbMono700] = await Promise.all([
-      loadFont(origin, "BebasNeue-Regular.ttf"),
-      loadFont(origin, "Archivo-500.ttf"),
-      loadFont(origin, "Archivo-700.ttf"),
-      loadFont(origin, "Archivo-800.ttf"),
-      loadFont(origin, "JetBrainsMono-400.ttf"),
-      loadFont(origin, "JetBrainsMono-700.ttf"),
+      loadAdjacentFont("BebasNeue-Regular.ttf"),
+      loadAdjacentFont("Archivo-500.ttf"),
+      loadAdjacentFont("Archivo-700.ttf"),
+      loadAdjacentFont("Archivo-800.ttf"),
+      loadAdjacentFont("JetBrainsMono-400.ttf"),
+      loadAdjacentFont("JetBrainsMono-700.ttf"),
     ]);
 
     const Decoration = () => (
