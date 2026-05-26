@@ -267,12 +267,12 @@ export async function GET(req: NextRequest) {
       <div
         style={{
           fontFamily: "Archivo",
-          fontWeight: 500,
-          fontSize: 40,
-          lineHeight: 1.3,
+          fontWeight: 700,
+          fontSize: 54,
+          lineHeight: 1.25,
           color: p.fg,
-          marginTop: 36,
-          maxWidth: 720,
+          marginTop: 40,
+          maxWidth: 760,
         }}
       >
         {text}
