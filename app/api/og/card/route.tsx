@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
     const meta = searchParams.get("meta") || "";
     const handle = searchParams.get("handle") || "basktball";
     const avatar = (searchParams.get("avatar") || handle.slice(0, 2)).toUpperCase().slice(0, 2);
-    const brand = (searchParams.get("brand") || "BASKTBALL.APP").toUpperCase();
+    const brand = (searchParams.get("brand") || "BASKTBALL.COM").toUpperCase();
 
     const p = paletteFor(theme);
 
@@ -146,11 +146,11 @@ export async function GET(req: NextRequest) {
           alignItems: "flex-end",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
           <div
             style={{
-              width: 64,
-              height: 64,
+              width: 84,
+              height: 84,
               borderRadius: 9999,
               background: `linear-gradient(135deg, ${p.fg}, ${theme === "orange" ? "rgba(0,0,0,0.7)" : "rgba(255,94,26,0.9)"})`,
               border: `3px solid ${p.fg}`,
@@ -158,7 +158,7 @@ export async function GET(req: NextRequest) {
               alignItems: "center",
               justifyContent: "center",
               fontFamily: "Bebas Neue",
-              fontSize: 28,
+              fontSize: 38,
               color: theme === "orange" ? p.bg : COLORS.white,
               letterSpacing: 1,
             }}
@@ -169,10 +169,10 @@ export async function GET(req: NextRequest) {
             <div
               style={{
                 fontFamily: "JetBrains Mono",
-                fontSize: 16,
+                fontSize: 22,
                 letterSpacing: 3,
                 color: p.fg,
-                opacity: 0.6,
+                opacity: 0.65,
                 textTransform: "uppercase",
               }}
             >
@@ -182,7 +182,7 @@ export async function GET(req: NextRequest) {
               style={{
                 fontFamily: "Archivo",
                 fontWeight: 800,
-                fontSize: 28,
+                fontSize: 40,
                 color: p.fg,
                 marginTop: 4,
                 letterSpacing: -0.5,
@@ -196,10 +196,10 @@ export async function GET(req: NextRequest) {
           <div
             style={{
               fontFamily: "JetBrains Mono",
-              fontSize: 16,
+              fontSize: 22,
               letterSpacing: 3,
               color: p.fg,
-              opacity: 0.6,
+              opacity: 0.65,
               textTransform: "uppercase",
             }}
           >
@@ -208,7 +208,7 @@ export async function GET(req: NextRequest) {
           <div
             style={{
               fontFamily: "Bebas Neue",
-              fontSize: 30,
+              fontSize: 44,
               letterSpacing: 4,
               color: p.fg,
               marginTop: 4,
@@ -268,11 +268,11 @@ export async function GET(req: NextRequest) {
         style={{
           fontFamily: "Archivo",
           fontWeight: 500,
-          fontSize: 26,
-          lineHeight: 1.35,
+          fontSize: 36,
+          lineHeight: 1.3,
           color: p.fg,
-          marginTop: 28,
-          maxWidth: 800,
+          marginTop: 32,
+          maxWidth: 900,
         }}
       >
         {text}
@@ -411,11 +411,11 @@ export async function GET(req: NextRequest) {
               <div
                 style={{
                   fontFamily: "JetBrains Mono",
-                  fontSize: 18,
+                  fontSize: 26,
                   letterSpacing: 2,
                   color: p.fg,
-                  opacity: 0.55,
-                  marginTop: 24,
+                  opacity: 0.6,
+                  marginTop: 28,
                   textTransform: "uppercase",
                 }}
               >

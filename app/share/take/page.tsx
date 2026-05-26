@@ -23,7 +23,7 @@ function parseState(searchParams: Record<string, string | string[] | undefined>)
     meta: get("meta", "DEN 121  LAL 108  JAN 14, 2026"),
     handle: get("handle", "basktball"),
     avatar: get("avatar", "BB"),
-    brand: get("brand", "BASKTBALL.APP"),
+    brand: get("brand", "BASKTBALL.COM"),
     sourceUrl: get("source", ""),
   };
 }
