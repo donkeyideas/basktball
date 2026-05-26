@@ -74,10 +74,13 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ["recharts", "lucide-react"],
   },
 
-  // Ensure /public/fonts/*.ttf is bundled into the OG card serverless function.
-  // Without this Vercel strips public/ from the function and fs.readFile fails.
+  // Bundle font files into the OG card serverless function so fs.readFile
+  // works in production. (Top-level in Next 15+ — previously experimental.)
   outputFileTracingIncludes: {
-    "/api/og/card": ["./public/fonts/**/*"],
+    "/api/og/card": [
+      "./public/fonts/**/*",
+      "./app/api/og/card/_fonts/**/*",
+    ],
   },
 };
 

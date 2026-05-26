@@ -128,6 +128,35 @@ export default function TakeCardScreen() {
     Linking.openURL(url).catch(() => {});
   };
 
+  const onPostFacebook = () => {
+    // Facebook sharer scrapes the shared URL and pulls the OG image from /share/take meta.
+    const fbCaption = caption.slice(0, 280);
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(fbCaption)}`;
+    Linking.openURL(url).catch(() => {});
+  };
+
+  const onPostReddit = () => {
+    const title = (caption || `${num} ${unit}`).slice(0, 300);
+    const url = `https://www.reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(title)}`;
+    Linking.openURL(url).catch(() => {});
+  };
+
+  const onPostInstagram = async () => {
+    // Instagram has no public post-URL API. Best UX: try to open the IG app
+    // (so the user can paste/share manually); fall back to the native share
+    // sheet (which still lists IG as a destination on most phones).
+    try {
+      const canOpen = await Linking.canOpenURL('instagram://app');
+      if (canOpen) {
+        await Linking.openURL('instagram://app');
+        return;
+      }
+    } catch {
+      /* fall through */
+    }
+    await onShare();
+  };
+
   const onShare = async () => {
     try {
       await Share.share({
@@ -354,6 +383,21 @@ export default function TakeCardScreen() {
           </View>
           <Text style={styles.btnPostXText}>POST ON X</Text>
         </TouchableOpacity>
+
+        <View style={styles.socialRow}>
+          <TouchableOpacity style={[styles.socialBtn, styles.socialIG]} onPress={onPostInstagram} activeOpacity={0.85}>
+            <Ionicons name="logo-instagram" size={18} color="#fff" />
+            <Text style={styles.socialBtnText}>INSTAGRAM</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.socialBtn, styles.socialFB]} onPress={onPostFacebook} activeOpacity={0.85}>
+            <Ionicons name="logo-facebook" size={18} color="#fff" />
+            <Text style={styles.socialBtnText}>FACEBOOK</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.socialBtn, styles.socialReddit]} onPress={onPostReddit} activeOpacity={0.85}>
+            <Ionicons name="logo-reddit" size={18} color="#fff" />
+            <Text style={styles.socialBtnText}>REDDIT</Text>
+          </TouchableOpacity>
+        </View>
 
         <View style={styles.actionRow}>
           <TouchableOpacity style={[styles.btnSec, { borderColor: colors.border, backgroundColor: colors.surface }]} onPress={onShare}>
@@ -670,6 +714,26 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     fontSize: 15,
     letterSpacing: 2,
+  },
+  socialRow: { flexDirection: 'row', gap: 8, marginBottom: 8 },
+  socialBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  socialIG: { backgroundColor: '#E4405F' },
+  socialFB: { backgroundColor: '#1877F2' },
+  socialReddit: { backgroundColor: '#FF4500' },
+  socialBtnText: {
+    color: '#fff',
+    fontFamily: Fonts.barlowBold,
+    fontWeight: '700',
+    fontSize: 10,
+    letterSpacing: 1.2,
   },
   actionRow: { flexDirection: 'row', gap: 8 },
   btnSec: {

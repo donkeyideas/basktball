@@ -33,22 +33,27 @@ function paletteFor(theme: Theme) {
 }
 
 async function loadFont(origin: string, filename: string): Promise<ArrayBuffer> {
-  // Try filesystem first (bundled via outputFileTracingIncludes).
-  try {
-    const filePath = path.join(process.cwd(), "public", "fonts", filename);
-    const buf = await readFile(filePath);
-    return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer;
-  } catch (fsErr) {
-    // Fallback: HTTP fetch from the request origin.
-    const url = `${origin}/fonts/${filename}`;
-    const res = await fetch(url);
-    if (!res.ok) {
-      throw new Error(
-        `Font ${filename} fs failed (${(fsErr as Error).message}); HTTP ${res.status}`,
-      );
+  // Prefer fonts bundled next to this route file — most reliable on Vercel.
+  // Next.js auto-traces files in the route directory into the function.
+  const adjacentPath = path.join(process.cwd(), "app", "api", "og", "card", "_fonts", filename);
+  const publicPath = path.join(process.cwd(), "public", "fonts", filename);
+
+  for (const filePath of [adjacentPath, publicPath]) {
+    try {
+      const buf = await readFile(filePath);
+      return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer;
+    } catch {
+      // try next
     }
-    return await res.arrayBuffer();
   }
+
+  // Last resort: HTTP fetch from request origin (works in dev / non-Vercel).
+  const url = `${origin}/fonts/${filename}`;
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`Font ${filename}: fs+http all failed (last status ${res.status})`);
+  }
+  return await res.arrayBuffer();
 }
 
 function getOrigin(req: NextRequest): string {
