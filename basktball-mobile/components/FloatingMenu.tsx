@@ -177,6 +177,45 @@ export default function FloatingMenu() {
 
             <View style={styles.divider} />
 
+            <Text style={styles.sectionHeading}>STAT LAB</Text>
+            <TouchableOpacity
+              style={styles.navItem}
+              activeOpacity={0.7}
+              onPress={() => navigate('/stats/shot-chart')}
+            >
+              <Ionicons name="locate-outline" size={22} color={colors.text} />
+              <Text style={[styles.navLabel, styles.navLabelFlex]}>Shot Chart</Text>
+              <View style={styles.newPill}>
+                <Text style={styles.newPillText}>NEW</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.navItem}
+              activeOpacity={0.7}
+              onPress={() => navigate('/stats/ask')}
+            >
+              <Ionicons name="sparkles-outline" size={22} color={colors.text} />
+              <Text style={[styles.navLabel, styles.navLabelFlex]}>Ask the Lab</Text>
+              <View style={styles.newPill}>
+                <Text style={styles.newPillText}>NEW</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.navItem}
+              activeOpacity={0.7}
+              onPress={() => navigate('/share/take')}
+            >
+              <Ionicons name="share-social-outline" size={22} color={colors.text} />
+              <Text style={[styles.navLabel, styles.navLabelFlex]}>Take Card</Text>
+              <View style={styles.newPill}>
+                <Text style={styles.newPillText}>NEW</Text>
+              </View>
+            </TouchableOpacity>
+
+            <View style={styles.divider} />
+
             <TouchableOpacity
               style={[styles.featuresBtn, { marginTop: 6 }]}
               activeOpacity={0.7}
@@ -358,5 +397,28 @@ const makeStyles = (colors: any, topInset: number) =>
       fontWeight: '600',
       fontSize: 15,
       color: colors.text,
+    },
+    sectionHeading: {
+      fontFamily: Fonts.anton,
+      fontSize: 11,
+      letterSpacing: 2,
+      color: Colors.orange,
+      paddingHorizontal: 12,
+      paddingTop: 4,
+      paddingBottom: 8,
+    },
+    navLabelFlex: { flex: 1 },
+    newPill: {
+      backgroundColor: Colors.orange,
+      paddingHorizontal: 7,
+      paddingVertical: 2,
+      borderRadius: 3,
+    },
+    newPillText: {
+      fontFamily: Fonts.mono,
+      fontSize: 9,
+      color: '#fff',
+      letterSpacing: 1.5,
+      fontWeight: '700' as const,
     },
   });

@@ -622,6 +622,10 @@ model User {
   challengeVotes     ChallengeVote[]
   notifications      Notification[]
 
+  // Stat Lab + Take Card
+  savedLabQueries    SavedLabQuery[]
+  shareCards         ShareCard[]
+
   @@index([email])
   @@index([displayName])
   @@index([role])
@@ -1343,4 +1347,46 @@ model WeeklyKpiSnapshot {
   createdAt      DateTime @default(now()) @map("created_at")
 
   @@map("weekly_kpi_snapshots")
+}
+
+// ─── Stat Lab: Saved natural-language queries ────────────────────────────────
+// Users save queries from Ask the Lab. A cron evaluates them periodically and
+// fires a push notification when the saved query produces a new result.
+model SavedLabQuery {
+  id            String   @id @default(cuid())
+  userId        String
+  rawQuery      String   @db.Text
+  parsed        Json
+  label         String?  // Optional user-given label
+  lastRunAt     DateTime?
+  lastResultIds String[] // game/stat IDs from the last evaluation
+  notifyOnNew   Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([lastRunAt])
+}
+
+// ─── Take Cards: track virality ──────────────────────────────────────────────
+// One row per generated card. Used to surface trending takes and measure share
+// flywheel performance.
+model ShareCard {
+  id           String   @id @default(cuid())
+  userId       String?
+  template     String   // 'stat-line' | 'comparison' | 'hot-take' | 'quote' | 'ranking'
+  theme        String   // 'light' | 'dark' | 'orange'
+  payload      Json     // The raw card data so we can re-render
+  sourceUrl    String?  // Deep link back into the app
+  shareCount   Int      @default(0)
+  viewCount    Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([template])
+  @@index([createdAt])
 }

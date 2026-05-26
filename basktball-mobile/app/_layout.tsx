@@ -184,6 +184,18 @@ function ThemedStack() {
             name="article/[id]"
             options={{ headerShown: false }}
           />
+          <Stack.Screen
+            name="stats/shot-chart"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="stats/ask"
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="share/take"
+            options={{ headerShown: false }}
+          />
         </Stack>
     </NavThemeProvider>
   );

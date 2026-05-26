@@ -1,6 +1,10 @@
 import * as SecureStore from 'expo-secure-store';
 
-const API_BASE = 'https://www.basktball.com/api';
+// Default points at production. For local dev testing, set EXPO_PUBLIC_API_BASE
+// (e.g. http://192.168.1.152:3000) in basktball-mobile/.env and restart Expo.
+const API_HOST =
+  process.env.EXPO_PUBLIC_API_BASE?.replace(/\/$/, '') || 'https://www.basktball.com';
+const API_BASE = `${API_HOST}/api`;
 
 type RequestOptions = {
   method?: string;
