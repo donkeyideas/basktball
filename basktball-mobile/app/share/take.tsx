@@ -62,7 +62,38 @@ export default function TakeCardScreen() {
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
   const [includeLink, setIncludeLink] = useState(true);
-  const [showFields, setShowFields] = useState(false);
+  const [showFields, setShowFields] = useState(true);
+
+  // Per-template starter content. Shown the moment a template is picked so the
+  // preview always has something meaningful — the user edits in place.
+  const templateStarter = (id: Template): { headline?: string; num?: string; unit?: string; context?: string } => {
+    switch (id) {
+      case 'stat-line':
+        return { num: '19', unit: 'REBOUNDS', context: "Nikola Jokić grabbed 19 boards in Denver's win over the Lakers — his 15th career triple-double vs LAL." };
+      case 'comparison':
+        return { headline: 'JOKIĆ | EMBIID', context: 'Head-to-head this season. Jokić 31.4/13.2/10.8 on 64% TS. Embiid 29.1/10.4/4.2 on 61% TS in 8 fewer games.' };
+      case 'hot-take':
+        return { headline: 'JOKIĆ IS THE BEST PASSING BIG EVER', context: 'A center averaging 10+ assists through 65 games while shooting 57% from the field. That has never happened.' };
+      case 'quote':
+        return { headline: '"BEST PLAYER ALIVE."', context: "— Joel Embiid on Nikola Jokić after the Sixers vs Nuggets matchup, March 2026." };
+      case 'ranking':
+        return { headline: 'JOKIĆ | SGA | LUKA | TATUM | GIANNIS', context: 'MVP race standings through April. Voter ballots due May 5.' };
+      default:
+        return {};
+    }
+  };
+
+  const onPickTemplate = (id: Template) => {
+    setTemplate(id);
+    const starter = templateStarter(id);
+    if (id === 'stat-line') {
+      if (starter.num) setNum(starter.num);
+      if (starter.unit) setUnit(starter.unit);
+    } else if (starter.headline) {
+      setHeadline(starter.headline);
+    }
+    if (starter.context) setContext(starter.context);
+  };
 
   const seed: TakeCardSeed = useMemo(
     () => ({
@@ -248,7 +279,7 @@ export default function TakeCardScreen() {
                   { backgroundColor: colors.surface, borderColor: colors.border },
                   active && styles.chipActive,
                 ]}
-                onPress={() => setTemplate(t.id)}
+                onPress={() => onPickTemplate(t.id)}
               >
                 <Text style={[styles.chipText, { color: colors.text }, active && styles.chipTextActive]}>
                   {t.label}

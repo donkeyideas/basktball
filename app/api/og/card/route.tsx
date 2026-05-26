@@ -329,10 +329,47 @@ export async function GET(req: NextRequest) {
           {context && <Context text={context} />}
         </div>
       );
-    } else if (template === "hot-take" || template === "quote") {
+    } else if (template === "hot-take") {
       Body = (
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <Headline text={headline || "HOT TAKE"} />
+          <Headline text={headline || "ADD YOUR HOT TAKE"} />
+          {context && <Context text={context} />}
+        </div>
+      );
+    } else if (template === "quote") {
+      // Quote renders the headline wrapped in oversized opening/closing
+      // quotation marks to read as an actual pull-quote rather than a headline.
+      const quoteText = headline || "ADD A QUOTE";
+      Body = (
+        <div style={{ display: "flex", flexDirection: "column", marginTop: 20 }}>
+          <div
+            style={{
+              fontFamily: "Bebas Neue",
+              fontSize: 200,
+              lineHeight: 0.7,
+              color: p.accent,
+              opacity: 0.85,
+              display: "flex",
+              marginBottom: -30,
+            }}
+          >
+            “
+          </div>
+          <div
+            style={{
+              fontFamily: "Archivo",
+              fontWeight: 800,
+              fontStyle: "italic",
+              fontSize: 64,
+              lineHeight: 1.1,
+              letterSpacing: -1,
+              color: p.fg,
+              display: "flex",
+              paddingLeft: 24,
+            }}
+          >
+            {quoteText}
+          </div>
           {context && <Context text={context} />}
         </div>
       );
