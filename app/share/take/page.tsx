@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import TakeCardEditor, { type CardState } from "./Editor";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://basktball.com";
+// X / Twitter card scraping does NOT follow 308 redirects from basktball.com
+// to www.basktball.com — the OG image URL must point at the live host directly.
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://www.basktball.com";
 
 function parseState(searchParams: Record<string, string | string[] | undefined>): CardState {
   const get = (k: string, def = "") => {
