@@ -227,7 +227,7 @@ export async function GET(req: NextRequest) {
             theme === "light"
               ? {
                   fontFamily: "Bebas Neue",
-                  fontSize: 280,
+                  fontSize: 380,
                   lineHeight: 0.85,
                   letterSpacing: -4,
                   color: "transparent",
@@ -238,7 +238,7 @@ export async function GET(req: NextRequest) {
                 }
               : {
                   fontFamily: "Bebas Neue",
-                  fontSize: 280,
+                  fontSize: 380,
                   lineHeight: 0.85,
                   letterSpacing: -4,
                   color: p.fg,
@@ -268,11 +268,11 @@ export async function GET(req: NextRequest) {
         style={{
           fontFamily: "Archivo",
           fontWeight: 500,
-          fontSize: 36,
+          fontSize: 40,
           lineHeight: 1.3,
           color: p.fg,
-          marginTop: 32,
-          maxWidth: 900,
+          marginTop: 36,
+          maxWidth: 720,
         }}
       >
         {text}

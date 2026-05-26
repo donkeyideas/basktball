@@ -107,6 +107,9 @@ export default function TakeCardScreen() {
       meta,
       handle,
       avatar,
+      // Explicit so production (which may still cache the old default) shows
+      // the right brand even before the latest deploy lands.
+      brand: 'BASKTBALL.COM',
     }),
     [template, theme, num, unit, headline, context, meta, handle, avatar],
   );
