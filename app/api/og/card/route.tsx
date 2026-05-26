@@ -227,7 +227,7 @@ export async function GET(req: NextRequest) {
             theme === "light"
               ? {
                   fontFamily: "Bebas Neue",
-                  fontSize: 380,
+                  fontSize: 460,
                   lineHeight: 0.85,
                   letterSpacing: -4,
                   color: "transparent",
@@ -238,7 +238,7 @@ export async function GET(req: NextRequest) {
                 }
               : {
                   fontFamily: "Bebas Neue",
-                  fontSize: 380,
+                  fontSize: 460,
                   lineHeight: 0.85,
                   letterSpacing: -4,
                   color: p.fg,
@@ -251,11 +251,11 @@ export async function GET(req: NextRequest) {
         <div
           style={{
             fontFamily: "Bebas Neue",
-            fontSize: 36,
-            letterSpacing: 5,
+            fontSize: 56,
+            letterSpacing: 6,
             color: p.fg,
-            opacity: 0.7,
-            marginTop: 4,
+            opacity: 0.75,
+            marginTop: 6,
           }}
         >
           {label}
@@ -268,11 +268,12 @@ export async function GET(req: NextRequest) {
         style={{
           fontFamily: "Archivo",
           fontWeight: 700,
-          fontSize: 54,
-          lineHeight: 1.25,
+          fontSize: 66,
+          lineHeight: 1.2,
           color: p.fg,
-          marginTop: 40,
-          maxWidth: 760,
+          marginTop: 48,
+          maxWidth: 820,
+          letterSpacing: -1,
         }}
       >
         {text}
@@ -283,11 +284,11 @@ export async function GET(req: NextRequest) {
       <div
         style={{
           fontFamily: "Bebas Neue",
-          fontSize: 120,
-          lineHeight: 0.95,
-          letterSpacing: -1,
+          fontSize: 170,
+          lineHeight: 0.92,
+          letterSpacing: -2,
           color: p.fg,
-          marginTop: 28,
+          marginTop: 32,
           display: "flex",
         }}
       >
@@ -304,9 +305,9 @@ export async function GET(req: NextRequest) {
           <div
             style={{
               fontFamily: "Bebas Neue",
-              fontSize: 130,
+              fontSize: 180,
               lineHeight: 1,
-              letterSpacing: -2,
+              letterSpacing: -3,
               color: p.fg,
               display: "flex",
               flexDirection: "column",
@@ -316,10 +317,10 @@ export async function GET(req: NextRequest) {
             <div
               style={{
                 display: "flex",
-                fontSize: 60,
+                fontSize: 86,
                 color: p.accent,
-                margin: "8px 0",
-                letterSpacing: 4,
+                margin: "10px 0",
+                letterSpacing: 6,
               }}
             >
               VS
@@ -345,12 +346,12 @@ export async function GET(req: NextRequest) {
           <div
             style={{
               fontFamily: "Bebas Neue",
-              fontSize: 200,
+              fontSize: 280,
               lineHeight: 0.7,
               color: p.accent,
-              opacity: 0.85,
+              opacity: 0.9,
               display: "flex",
-              marginBottom: -30,
+              marginBottom: -40,
             }}
           >
             “
@@ -360,12 +361,12 @@ export async function GET(req: NextRequest) {
               fontFamily: "Archivo",
               fontWeight: 800,
               fontStyle: "italic",
-              fontSize: 64,
-              lineHeight: 1.1,
-              letterSpacing: -1,
+              fontSize: 88,
+              lineHeight: 1.05,
+              letterSpacing: -2,
               color: p.fg,
               display: "flex",
-              paddingLeft: 24,
+              paddingLeft: 32,
             }}
           >
             {quoteText}
@@ -448,11 +449,12 @@ export async function GET(req: NextRequest) {
               <div
                 style={{
                   fontFamily: "JetBrains Mono",
-                  fontSize: 26,
+                  fontSize: 34,
                   letterSpacing: 2,
                   color: p.fg,
                   opacity: 0.6,
-                  marginTop: 28,
+                  marginTop: "auto",
+                  paddingBottom: 12,
                   textTransform: "uppercase",
                 }}
               >
