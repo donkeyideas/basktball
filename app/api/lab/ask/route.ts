@@ -157,19 +157,38 @@ function heuristicParse(q: string): ParsedQuery {
 }
 
 async function executeQuery(p: ParsedQuery) {
-  // Resolve player by name if provided
+  // Resolve player by name. The DB has duplicate entries for many players
+  // (legacy IDs vs current ESPN IDs); the right one is the player who actually
+  // has PlayerStat rows. Filter to those and prefer active players.
   let playerId: string | null = null;
   let playerName: string | null = null;
   if (p.playerName) {
-    const player = await prisma.player.findFirst({
-      where: {
-        OR: [
-          { name: { contains: p.playerName, mode: "insensitive" } },
-          { lastName: { contains: p.playerName, mode: "insensitive" } },
-        ],
-      },
+    const nameFilter = {
+      OR: [
+        { name: { contains: p.playerName, mode: "insensitive" as const } },
+        { lastName: { contains: p.playerName, mode: "insensitive" as const } },
+      ],
+    };
+    // First try: player with name match AND at least one PlayerStat row.
+    let player = await prisma.player.findFirst({
+      where: { AND: [nameFilter, { stats: { some: {} } }, { isActive: true }] },
       select: { id: true, name: true },
+      orderBy: { name: "asc" },
     });
+    // Fall back to any active player matching the name.
+    if (!player) {
+      player = await prisma.player.findFirst({
+        where: { AND: [nameFilter, { isActive: true }] },
+        select: { id: true, name: true },
+      });
+    }
+    // Last resort: any player matching the name.
+    if (!player) {
+      player = await prisma.player.findFirst({
+        where: nameFilter,
+        select: { id: true, name: true },
+      });
+    }
     if (player) {
       playerId = player.id;
       playerName = player.name;

@@ -1,12 +1,10 @@
 import { ImageResponse } from "@vercel/og";
 import { NextRequest } from "next/server";
 import type { ReactElement } from "react";
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 
-// Node runtime — we read locally-bundled TTF files from /public/fonts.
-// (Earlier attempt fetched from Google Fonts; their CDN served WOFF2 which satori
-// can't parse, so we ship the TTFs in-repo for stability.)
+// Node runtime. Fonts ship in /public/fonts/ and we fetch them via HTTP from the
+// request origin — Vercel doesn't bundle the public/ folder into serverless
+// function filesystems, so fs.readFile fails in prod even though files exist.
 export const runtime = "nodejs";
 
 type Theme = "light" | "dark" | "orange";
@@ -32,10 +30,10 @@ function paletteFor(theme: Theme) {
   }
 }
 
-async function loadFont(filename: string): Promise<ArrayBuffer> {
-  const filePath = path.join(process.cwd(), "public", "fonts", filename);
-  const buf = await readFile(filePath);
-  return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer;
+async function loadFont(origin: string, filename: string): Promise<ArrayBuffer> {
+  const res = await fetch(`${origin}/fonts/${filename}`);
+  if (!res.ok) throw new Error(`Font fetch failed (${res.status}) for ${filename}`);
+  return await res.arrayBuffer();
 }
 
 export async function GET(req: NextRequest) {
@@ -55,13 +53,14 @@ export async function GET(req: NextRequest) {
 
     const p = paletteFor(theme);
 
+    const origin = new URL(req.url).origin;
     const [bebas, archivo500, archivo700, archivo800, jbMono400, jbMono700] = await Promise.all([
-      loadFont("BebasNeue-Regular.ttf"),
-      loadFont("Archivo-500.ttf"),
-      loadFont("Archivo-700.ttf"),
-      loadFont("Archivo-800.ttf"),
-      loadFont("JetBrainsMono-400.ttf"),
-      loadFont("JetBrainsMono-700.ttf"),
+      loadFont(origin, "BebasNeue-Regular.ttf"),
+      loadFont(origin, "Archivo-500.ttf"),
+      loadFont(origin, "Archivo-700.ttf"),
+      loadFont(origin, "Archivo-800.ttf"),
+      loadFont(origin, "JetBrainsMono-400.ttf"),
+      loadFont(origin, "JetBrainsMono-700.ttf"),
     ]);
 
     const Decoration = () => (
