@@ -185,10 +185,6 @@ function ThemedStack() {
             options={{ headerShown: false }}
           />
           <Stack.Screen
-            name="stats/shot-chart"
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen
             name="stats/ask"
             options={{ headerShown: false }}
           />

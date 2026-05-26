@@ -8,7 +8,6 @@ import {
   TextInput,
   ActivityIndicator,
 } from 'react-native';
-import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Fonts } from '@/constants/Colors';
@@ -67,7 +66,6 @@ type AskResponse = {
 };
 
 export default function AskLabScreen() {
-  const router = useRouter();
   const insets = useSafeAreaInsets();
   const { colors } = useTheme();
 
@@ -116,9 +114,8 @@ export default function AskLabScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { paddingTop: insets.top + 8, borderBottomColor: colors.border }]}>
-        <TouchableOpacity onPress={() => router.back()} hitSlop={10} style={styles.headerBtn}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </TouchableOpacity>
+        {/* Spacer — FloatingMenu's hamburger button overlays this position */}
+        <View style={styles.headerBtn} />
         <Text style={[styles.headerTitle, { color: colors.text }]}>ASK THE LAB</Text>
         <View style={styles.headerBtn} />
       </View>

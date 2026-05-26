@@ -19,7 +19,17 @@ import { useAuth } from '@/lib/auth/AuthContext';
 
 // The menu replaces the bottom tab bar, so only show it on tab routes.
 // Detail/sub-screens already have their own back button for navigation.
-const TAB_ROUTES = ['/', '/scores', '/court', '/search', '/profile', '/features', '/tools'];
+const TAB_ROUTES = [
+  '/',
+  '/scores',
+  '/court',
+  '/search',
+  '/profile',
+  '/features',
+  '/tools',
+  '/stats/ask',
+  '/share/take',
+];
 
 function shouldShowOnRoute(pathname: string | null): boolean {
   if (!pathname) return false;
@@ -178,18 +188,6 @@ export default function FloatingMenu() {
             <View style={styles.divider} />
 
             <Text style={styles.sectionHeading}>STAT LAB</Text>
-            <TouchableOpacity
-              style={styles.navItem}
-              activeOpacity={0.7}
-              onPress={() => navigate('/stats/shot-chart')}
-            >
-              <Ionicons name="locate-outline" size={22} color={colors.text} />
-              <Text style={[styles.navLabel, styles.navLabelFlex]}>Shot Chart</Text>
-              <View style={styles.newPill}>
-                <Text style={styles.newPillText}>NEW</Text>
-              </View>
-            </TouchableOpacity>
-
             <TouchableOpacity
               style={styles.navItem}
               activeOpacity={0.7}

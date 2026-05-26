@@ -11,7 +11,7 @@ import {
   TextInput,
 } from 'react-native';
 import { Image } from 'expo-image';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Fonts } from '@/constants/Colors';
@@ -38,9 +38,8 @@ const TONES: { id: Tone; label: string }[] = [
 ];
 
 export default function TakeCardScreen() {
-  const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { colors } = useTheme();
+  const { colors, isDark } = useTheme();
   const params = useLocalSearchParams<Record<string, string>>();
 
   const [theme, setTheme] = useState<Theme>((params.theme as Theme) || 'orange');
@@ -144,9 +143,8 @@ export default function TakeCardScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { paddingTop: insets.top + 8, borderBottomColor: colors.border }]}>
-        <TouchableOpacity onPress={() => router.back()} hitSlop={10} style={styles.headerBtn}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </TouchableOpacity>
+        {/* Spacer — FloatingMenu's hamburger button overlays this position */}
+        <View style={styles.headerBtn} />
         <Text style={[styles.headerTitle, { color: colors.text }]}>TAKE CARD</Text>
         <TouchableOpacity onPress={onShare} hitSlop={10} style={styles.headerBtn}>
           <Ionicons name="share-outline" size={22} color={colors.text} />
@@ -162,7 +160,7 @@ export default function TakeCardScreen() {
             </Text>
             <Text style={styles.savedTag}>● AUTO-SAVED</Text>
           </View>
-          <View style={styles.canvas}>
+          <View style={[styles.canvas, { backgroundColor: isDark ? '#050505' : '#E8E2D5' }]}>
             {!imageError && (
               <Image
                 source={{ uri: imageUrl }}

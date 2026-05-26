@@ -1,10 +1,12 @@
 import { ImageResponse } from "@vercel/og";
 import { NextRequest } from "next/server";
 import type { ReactElement } from "react";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 
-// Node runtime. Fonts ship in /public/fonts/ and we fetch them via HTTP from the
-// request origin — Vercel doesn't bundle the public/ folder into serverless
-// function filesystems, so fs.readFile fails in prod even though files exist.
+// Node runtime. Fonts ship in /public/fonts/. We read them via fs (Vercel
+// bundles them into the function via outputFileTracingIncludes in next.config.ts).
+// HTTP fetch is kept as a fallback in case fs fails for any reason.
 export const runtime = "nodejs";
 
 type Theme = "light" | "dark" | "orange";
@@ -31,9 +33,39 @@ function paletteFor(theme: Theme) {
 }
 
 async function loadFont(origin: string, filename: string): Promise<ArrayBuffer> {
-  const res = await fetch(`${origin}/fonts/${filename}`);
-  if (!res.ok) throw new Error(`Font fetch failed (${res.status}) for ${filename}`);
-  return await res.arrayBuffer();
+  // Try filesystem first (bundled via outputFileTracingIncludes).
+  try {
+    const filePath = path.join(process.cwd(), "public", "fonts", filename);
+    const buf = await readFile(filePath);
+    return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer;
+  } catch (fsErr) {
+    // Fallback: HTTP fetch from the request origin.
+    const url = `${origin}/fonts/${filename}`;
+    const res = await fetch(url);
+    if (!res.ok) {
+      throw new Error(
+        `Font ${filename} fs failed (${(fsErr as Error).message}); HTTP ${res.status}`,
+      );
+    }
+    return await res.arrayBuffer();
+  }
+}
+
+function getOrigin(req: NextRequest): string {
+  // Vercel serverless: req.url is often the FULL URL, but headers are more
+  // reliable for resolving the public origin (handles proxies + custom domains).
+  const xfProto = req.headers.get("x-forwarded-proto");
+  const xfHost = req.headers.get("x-forwarded-host") || req.headers.get("host");
+  if (xfHost) {
+    return `${xfProto || "https"}://${xfHost}`;
+  }
+  // Fall back to parsing req.url.
+  try {
+    return new URL(req.url).origin;
+  } catch {
+    // Last resort — use the public env var.
+    return process.env.NEXT_PUBLIC_BASE_URL || "https://www.basktball.com";
+  }
 }
 
 export async function GET(req: NextRequest) {
@@ -53,7 +85,7 @@ export async function GET(req: NextRequest) {
 
     const p = paletteFor(theme);
 
-    const origin = new URL(req.url).origin;
+    const origin = getOrigin(req);
     const [bebas, archivo500, archivo700, archivo800, jbMono400, jbMono700] = await Promise.all([
       loadFont(origin, "BebasNeue-Regular.ttf"),
       loadFont(origin, "Archivo-500.ttf"),
