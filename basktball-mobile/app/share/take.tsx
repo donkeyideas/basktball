@@ -202,7 +202,7 @@ export default function TakeCardScreen() {
       avatarUrl: userAvatarUrl || undefined,
       // Explicit so production (which may still cache the old default) shows
       // the right brand even before the latest deploy lands.
-      brand: 'BASKTBALL.COM',
+      brand: 'BASKTBALL',
     }),
     [template, theme, num, unit, headline, context, meta, handle, avatar, userAvatarUrl],
   );
@@ -796,7 +796,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginRight: 8,
   },
-  chipActive: { backgroundColor: Colors.orange, borderColor: Colors.orange },
+  chipActive: { backgroundColor: '#FF5E1A', borderColor: '#FF5E1A' },
   chipText: { fontFamily: Fonts.barlowBold, fontWeight: '600', fontSize: 12 },
   chipTextActive: { color: '#0a0a0a' },
   swatchRow: { flexDirection: 'row', gap: 14, marginBottom: 16, marginTop: 4 },
@@ -812,7 +812,7 @@ const styles = StyleSheet.create({
   },
   swatchLight: { backgroundColor: '#f5f1ea' },
   swatchDark: { backgroundColor: '#0a0a0a', borderColor: '#333' },
-  swatchOrange: { backgroundColor: Colors.orange },
+  swatchOrange: { backgroundColor: '#FF5E1A' },
   swatchActive: { borderColor: Colors.orange },
   swatchLabel: {
     fontFamily: Fonts.mono,
@@ -900,7 +900,7 @@ const styles = StyleSheet.create({
     padding: 2,
     justifyContent: 'center',
   },
-  toggleTrackOn: { backgroundColor: Colors.orange },
+  toggleTrackOn: { backgroundColor: '#FF5E1A' },
   toggleKnob: {
     width: 20,
     height: 20,
@@ -938,7 +938,7 @@ const styles = StyleSheet.create({
   },
   suggCardLight: { backgroundColor: '#F5F1EA' },
   suggCardDark: { backgroundColor: '#0A0A0A', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
-  suggCardOrange: { backgroundColor: Colors.orange },
+  suggCardOrange: { backgroundColor: '#FF5E1A' },
   suggCardHead: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
   suggLeague: {
     fontFamily: Fonts.mono,

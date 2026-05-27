@@ -499,7 +499,7 @@ export default function HomeScreen() {
             >
               <View style={styles.featuredCardHeader}>
                 <Text style={[styles.featuredCardBrand, onLight && styles.cardSuggestionOnLight]}>
-                  <Text style={{ color: Colors.orange }}>●</Text>  BASKTBALL.COM
+                  <Text style={{ color: Colors.orange }}>●</Text>  BASKTBALL
                 </Text>
                 <Text style={[styles.featuredCardTag, onLight && styles.cardSuggestionOnLightTag]}>
                   {s.leagueLabel}
@@ -524,7 +524,7 @@ export default function HomeScreen() {
                   TAP TO EDIT & SHARE
                 </Text>
                 <Text style={[styles.featuredCardWatermark, onLight && styles.cardSuggestionOnLight]}>
-                  BASKTBALL.COM
+                  BASKTBALL
                 </Text>
               </View>
             </TouchableOpacity>
@@ -927,7 +927,7 @@ function makeStyles(colors: any) {
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.12)',
   },
-  cardSuggestionOrange: { backgroundColor: Colors.orange },
+  cardSuggestionOrange: { backgroundColor: '#FF5E1A' },
   cardSuggestionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',

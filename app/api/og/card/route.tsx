@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
     const avatarUrl = /^https:\/\/([a-z0-9-]+\.supabase\.co\/storage\/|res\.cloudinary\.com\/|lh3\.googleusercontent\.com\/|pbs\.twimg\.com\/|avatars\.githubusercontent\.com\/|cdn\.basktball\.com\/|graph\.facebook\.com\/)/.test(avatarUrlRaw)
       ? avatarUrlRaw
       : "";
-    const brand = (searchParams.get("brand") || "BASKTBALL.COM").toUpperCase();
+    const brand = (searchParams.get("brand") || "BASKTBALL").toUpperCase();
 
     const p = paletteFor(theme);
 
