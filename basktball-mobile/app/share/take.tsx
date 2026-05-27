@@ -9,14 +9,16 @@ import {
   ActivityIndicator,
   Linking,
   TextInput,
+  Alert,
 } from 'react-native';
 import { Image } from 'expo-image';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Fonts } from '@/constants/Colors';
 import { useTheme } from '@/lib/theme/ThemeContext';
 import { api } from '@/lib/api/client';
+import { useAuth } from '@/lib/auth/AuthContext';
 import { takeCardImageUrl, takeCardShareUrl, type TakeCardSeed } from '@/lib/config/webRoutes';
 
 type Theme = 'light' | 'dark' | 'orange';
@@ -59,7 +61,23 @@ const TONES: { id: Tone; label: string }[] = [
 export default function TakeCardScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useTheme();
+  const { token } = useAuth();
   const params = useLocalSearchParams<Record<string, string>>();
+
+  // Same auth gate Court uses for posting takes. Users can freely browse and
+  // edit the card preview, but any action that publishes / saves requires login.
+  const requireAuth = (): boolean => {
+    if (token) return true;
+    Alert.alert(
+      'Sign In to Share',
+      'Create an account or sign in to post and share your take cards.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Sign In', onPress: () => router.push('/(auth)/login' as never) },
+      ],
+    );
+    return false;
+  };
 
   const [theme, setTheme] = useState<Theme>((params.theme as Theme) || 'orange');
   const [template, setTemplate] = useState<Template>(
@@ -211,11 +229,13 @@ export default function TakeCardScreen() {
   }, [caption, includeLink, shareUrl]);
 
   const onPostX = () => {
+    if (!requireAuth()) return;
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
     Linking.openURL(url).catch(() => {});
   };
 
   const onPostFacebook = () => {
+    if (!requireAuth()) return;
     // Facebook sharer scrapes the shared URL and pulls the OG image from /share/take meta.
     const fbCaption = caption.slice(0, 280);
     const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(fbCaption)}`;
@@ -223,12 +243,14 @@ export default function TakeCardScreen() {
   };
 
   const onPostReddit = () => {
+    if (!requireAuth()) return;
     const title = (caption || `${num} ${unit}`).slice(0, 300);
     const url = `https://www.reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(title)}`;
     Linking.openURL(url).catch(() => {});
   };
 
   const onPostInstagram = async () => {
+    if (!requireAuth()) return;
     // Instagram has no public post-URL API. Best UX: try to open the IG app
     // (so the user can paste/share manually); fall back to the native share
     // sheet (which still lists IG as a destination on most phones).
@@ -245,6 +267,7 @@ export default function TakeCardScreen() {
   };
 
   const onShare = async () => {
+    if (!requireAuth()) return;
     try {
       await Share.share({
         title: headline || `${num} ${unit}`,
