@@ -885,7 +885,8 @@ function makeStyles(colors: any) {
     fontFamily: Fonts.anton,
     fontSize: 32,
     letterSpacing: 0.5,
-    lineHeight: 36,
+    lineHeight: 44,
+    paddingTop: 4,
     color: '#fff',
   },
   featuredCardContext: {
