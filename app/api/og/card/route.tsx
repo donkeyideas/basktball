@@ -53,6 +53,12 @@ export async function GET(req: NextRequest) {
     const meta = searchParams.get("meta") || "";
     const handle = searchParams.get("handle") || "basktball";
     const avatar = (searchParams.get("avatar") || handle.slice(0, 2)).toUpperCase().slice(0, 2);
+    const avatarUrlRaw = searchParams.get("avatarUrl") || "";
+    // Only accept https URLs from a few trusted CDNs/hosts so we don't fetch arbitrary content.
+    // Supabase project domains all look like https://<project>.supabase.co/storage/...
+    const avatarUrl = /^https:\/\/([a-z0-9-]+\.supabase\.co\/storage\/|res\.cloudinary\.com\/|lh3\.googleusercontent\.com\/|pbs\.twimg\.com\/|avatars\.githubusercontent\.com\/|cdn\.basktball\.com\/|graph\.facebook\.com\/)/.test(avatarUrlRaw)
+      ? avatarUrlRaw
+      : "";
     const brand = (searchParams.get("brand") || "BASKTBALL.COM").toUpperCase();
 
     const p = paletteFor(theme);
@@ -147,24 +153,41 @@ export async function GET(req: NextRequest) {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-          <div
-            style={{
-              width: 84,
-              height: 84,
-              borderRadius: 9999,
-              background: `linear-gradient(135deg, ${p.fg}, ${theme === "orange" ? "rgba(0,0,0,0.7)" : "rgba(255,94,26,0.9)"})`,
-              border: `3px solid ${p.fg}`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontFamily: "Bebas Neue",
-              fontSize: 38,
-              color: theme === "orange" ? p.bg : COLORS.white,
-              letterSpacing: 1,
-            }}
-          >
-            {avatar}
-          </div>
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt=""
+              width={84}
+              height={84}
+              style={{
+                width: 84,
+                height: 84,
+                borderRadius: 9999,
+                border: `3px solid ${p.fg}`,
+                objectFit: "cover",
+                display: "block",
+              }}
+            />
+          ) : (
+            <div
+              style={{
+                width: 84,
+                height: 84,
+                borderRadius: 9999,
+                background: `linear-gradient(135deg, ${p.fg}, ${theme === "orange" ? "rgba(0,0,0,0.7)" : "rgba(255,94,26,0.9)"})`,
+                border: `3px solid ${p.fg}`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontFamily: "Bebas Neue",
+                fontSize: 38,
+                color: theme === "orange" ? p.bg : COLORS.white,
+                letterSpacing: 1,
+              }}
+            >
+              {avatar}
+            </div>
+          )}
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div
               style={{

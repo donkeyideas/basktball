@@ -21,6 +21,7 @@ export type TakeCardSeed = {
   meta?: string;
   handle?: string;
   avatar?: string;
+  avatarUrl?: string;
   brand?: string;
 };
 

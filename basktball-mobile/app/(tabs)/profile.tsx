@@ -74,6 +74,7 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(true);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editName, setEditName] = useState('');
+  const [editHandle, setEditHandle] = useState('');
   const [editBio, setEditBio] = useState('');
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -165,15 +166,26 @@ export default function ProfileScreen() {
 
   function openEditModal() {
     setEditName(user?.displayName || user?.name || '');
+    setEditHandle((user?.name || '').replace(/^@/, ''));
     setEditBio(user?.bio || '');
     setShowEditModal(true);
   }
 
   async function handleSaveProfile() {
+    const trimmedHandle = editHandle.trim().replace(/^@/, '');
+    if (trimmedHandle.length < 3 || trimmedHandle.length > 20) {
+      Alert.alert('Invalid username', 'Username must be 3-20 characters.');
+      return;
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(trimmedHandle)) {
+      Alert.alert('Invalid username', 'Use letters, numbers, and underscores only.');
+      return;
+    }
     setSaving(true);
     try {
       await api.patch('/mobile/profile', {
         displayName: editName.trim(),
+        handle: trimmedHandle,
         bio: editBio.trim(),
       });
       Alert.alert('Saved', 'Profile updated successfully.');
@@ -496,6 +508,19 @@ export default function ProfileScreen() {
                 onChangeText={setEditName}
                 placeholderTextColor={colors.textTertiary}
                 placeholder="Your display name"
+              />
+            </View>
+            <View style={styles.editField}>
+              <Text style={styles.editLabel}>Username</Text>
+              <TextInput
+                style={styles.editInput}
+                value={editHandle}
+                onChangeText={(t) => setEditHandle(t.replace(/[^a-zA-Z0-9_]/g, ''))}
+                placeholderTextColor={colors.textTertiary}
+                placeholder="username"
+                autoCapitalize="none"
+                autoCorrect={false}
+                maxLength={20}
               />
             </View>
             <View style={styles.editField}>

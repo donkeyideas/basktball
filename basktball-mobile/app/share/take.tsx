@@ -61,7 +61,7 @@ const TONES: { id: Tone; label: string }[] = [
 export default function TakeCardScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isDark } = useTheme();
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const params = useLocalSearchParams<Record<string, string>>();
 
   // Same auth gate Court uses for posting takes. Users can freely browse and
@@ -91,8 +91,20 @@ export default function TakeCardScreen() {
       "Nikola Jokić grabbed 19 boards in Denver's win over the Lakers — his 15th career triple-double vs LAL.",
   );
   const [meta, setMeta] = useState(params.meta || 'DEN 121  LAL 108');
-  const [handle] = useState(params.handle || 'basktball');
-  const [avatar] = useState((params.avatar || 'BB').toUpperCase().slice(0, 2));
+
+  // Pull handle + initials from the signed-in user so the "shared by"
+  // footer matches the real account, not the brand placeholder.
+  const userHandle = (user?.name || '').replace(/^@/, '').trim();
+  const initialsSource = (user?.displayName || user?.name || '').trim();
+  const computedInitials = (() => {
+    const parts = initialsSource.split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return initialsSource.slice(0, 2).toUpperCase();
+  })();
+  const [handle] = useState(params.handle || userHandle || 'basktball');
+  const [avatar] = useState(
+    (params.avatar || computedInitials || 'BB').toUpperCase().slice(0, 2),
+  );
   const [tone, setTone] = useState<Tone>('analytical');
   const [caption, setCaption] = useState('');
   const [captionLoading, setCaptionLoading] = useState(false);
@@ -174,6 +186,7 @@ export default function TakeCardScreen() {
     if (starter.context) setContext(starter.context);
   };
 
+  const userAvatarUrl = user?.image || user?.avatarUrl || '';
   const seed: TakeCardSeed = useMemo(
     () => ({
       template,
@@ -186,11 +199,12 @@ export default function TakeCardScreen() {
       meta,
       handle,
       avatar,
+      avatarUrl: userAvatarUrl || undefined,
       // Explicit so production (which may still cache the old default) shows
       // the right brand even before the latest deploy lands.
       brand: 'BASKTBALL.COM',
     }),
-    [template, theme, num, unit, headline, context, meta, handle, avatar],
+    [template, theme, num, unit, headline, context, meta, handle, avatar, userAvatarUrl],
   );
 
   const imageUrl = useMemo(() => takeCardImageUrl(seed), [seed]);
