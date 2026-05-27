@@ -19,6 +19,7 @@ import { Colors, Fonts } from '@/constants/Colors';
 import { useTheme } from '@/lib/theme/ThemeContext';
 import { LinkifiedText } from '@/components/content/LinkifiedText';
 import { LinkPreview, extractFirstUrl, stripFirstUrl } from '@/components/content/LinkPreview';
+import { api } from '@/lib/api/client';
 
 const API_BASE = 'https://www.basktball.com';
 
@@ -101,6 +102,25 @@ interface NewsArticle {
   imageUrl: string | null;
 }
 
+interface CardSuggestion {
+  id: string;
+  league: 'nba' | 'wnba' | 'ncaam' | 'ncaaw';
+  leagueLabel: string;
+  template: string;
+  theme: 'light' | 'dark' | 'orange';
+  tag: string;
+  seed: {
+    template?: string;
+    theme?: string;
+    tag?: string;
+    headline?: string;
+    context?: string;
+    meta?: string;
+    num?: string;
+    unit?: string;
+  };
+}
+
 function timeAgo(dateStr: string): string {
   const now = new Date();
   const date = new Date(dateStr);
@@ -135,6 +155,8 @@ export default function HomeScreen() {
   const [performersLoading, setPerformersLoading] = useState(true);
   const [trendingTakes, setTrendingTakes] = useState<TrendingTake[]>([]);
   const [takesLoading, setTakesLoading] = useState(true);
+  const [cardSuggestions, setCardSuggestions] = useState<CardSuggestion[]>([]);
+  const [cardSuggestionsLoading, setCardSuggestionsLoading] = useState(true);
   const [selectedLeague, setSelectedLeague] = useState<League>('nba');
   const [refreshing, setRefreshing] = useState(false);
 
@@ -142,6 +164,7 @@ export default function HomeScreen() {
     fetchNews();
     fetchPerformers();
     fetchTrendingTakes();
+    fetchCardSuggestions();
   }, []);
 
   const onRefresh = useCallback(async () => {
@@ -152,11 +175,24 @@ export default function HomeScreen() {
         fetchNews(),
         fetchPerformers(),
         fetchTrendingTakes(),
+        fetchCardSuggestions(),
       ]);
     } finally {
       setRefreshing(false);
     }
   }, [selectedLeague]);
+
+  async function fetchCardSuggestions() {
+    setCardSuggestionsLoading(true);
+    try {
+      const data = await api.get<{ suggestions: CardSuggestion[] }>('/cards/suggestions');
+      if (data?.suggestions?.length) setCardSuggestions(data.suggestions);
+    } catch {
+      /* optional UI */
+    } finally {
+      setCardSuggestionsLoading(false);
+    }
+  }
 
   useEffect(() => {
     setGamesLoading(true);
@@ -421,7 +457,123 @@ export default function HomeScreen() {
           </ScrollView>
         )}
 
-        {/* Trending Takes */}
+        {/* Take Cards — auto-populated from ESPN news, refreshed 3x/day */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>TAKE CARDS</Text>
+          <TouchableOpacity onPress={() => router.push('/share/take' as never)}>
+            <Text style={styles.seeAll}>See All</Text>
+          </TouchableOpacity>
+        </View>
+
+        {cardSuggestionsLoading && cardSuggestions.length === 0 ? (
+          <ActivityIndicator color={Colors.orange} style={{ marginVertical: 20 }} />
+        ) : cardSuggestions.length === 0 ? (
+          <Text style={styles.emptyText}>No card suggestions yet</Text>
+        ) : (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.horizontalScroll}
+          >
+            {cardSuggestions.map((s) => {
+              const params: Record<string, string> = {};
+              Object.entries(s.seed).forEach(([k, v]) => {
+                if (v != null && v !== '') params[k] = String(v);
+              });
+              return (
+                <TouchableOpacity
+                  key={s.id}
+                  style={[
+                    styles.cardSuggestion,
+                    s.theme === 'light' && styles.cardSuggestionLight,
+                    s.theme === 'dark' && styles.cardSuggestionDark,
+                    s.theme === 'orange' && styles.cardSuggestionOrange,
+                  ]}
+                  activeOpacity={0.85}
+                  onPress={() =>
+                    router.push({ pathname: '/share/take', params } as never)
+                  }
+                >
+                  <View style={styles.cardSuggestionHeader}>
+                    <Text
+                      style={[
+                        styles.cardSuggestionLeague,
+                        (s.theme === 'orange' || s.theme === 'light') && styles.cardSuggestionOnLight,
+                      ]}
+                    >
+                      ● BASKTBALL
+                    </Text>
+                    <Text
+                      style={[
+                        styles.cardSuggestionTag,
+                        (s.theme === 'orange' || s.theme === 'light') && styles.cardSuggestionOnLight,
+                      ]}
+                    >
+                      {s.leagueLabel}
+                    </Text>
+                  </View>
+                  <Text
+                    style={[
+                      styles.cardSuggestionHeadline,
+                      (s.theme === 'orange' || s.theme === 'light') && styles.cardSuggestionOnLight,
+                    ]}
+                    numberOfLines={5}
+                  >
+                    {s.seed.headline}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.cardSuggestionFooter,
+                      (s.theme === 'orange' || s.theme === 'light') && styles.cardSuggestionOnLight,
+                    ]}
+                  >
+                    TAP TO EDIT & SHARE
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        )}
+
+        {/* Latest News — moved above Trending Takes */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>LATEST NEWS</Text>
+          <TouchableOpacity onPress={() => router.push('/news')}>
+            <Text style={styles.seeAll}>See All</Text>
+          </TouchableOpacity>
+        </View>
+
+        {newsLoading ? (
+          <ActivityIndicator color={Colors.orange} style={{ marginVertical: 20 }} />
+        ) : newsArticles.length > 0 ? (
+          newsArticles.map((article, index) => (
+            <TouchableOpacity
+              key={`${article.id}-${index}`}
+              style={styles.newsItem}
+              activeOpacity={0.7}
+              onPress={() => router.push(`/article/${article.id}` as never)}
+            >
+              {article.imageUrl ? (
+                <Image source={{ uri: article.imageUrl }} style={styles.newsImage} />
+              ) : (
+                <View style={styles.newsImageFallback}>
+                  <Ionicons name="basketball-outline" size={28} color={colors.textTertiary} />
+                </View>
+              )}
+              <View style={styles.newsContent}>
+                <View style={[styles.newsBadge, { backgroundColor: leagueBadgeColor(article.league) }]}>
+                  <Text style={styles.newsBadgeText}>{article.league?.toUpperCase() || 'NBA'}</Text>
+                </View>
+                <Text style={styles.newsTitle} numberOfLines={2}>{article.title}</Text>
+                <Text style={styles.newsMeta}>{article.source} &middot; {timeAgo(article.pubDate)}</Text>
+              </View>
+            </TouchableOpacity>
+          ))
+        ) : (
+          <Text style={styles.newsEmpty}>No news available</Text>
+        )}
+
+        {/* Trending Takes — moved below Latest News */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>TRENDING TAKES</Text>
           <TouchableOpacity onPress={() => router.push('/(tabs)/court')}>
@@ -501,44 +653,6 @@ export default function HomeScreen() {
               </View>
             );
           })
-        )}
-
-        {/* Latest News */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>LATEST NEWS</Text>
-          <TouchableOpacity onPress={() => router.push('/news')}>
-            <Text style={styles.seeAll}>See All</Text>
-          </TouchableOpacity>
-        </View>
-
-        {newsLoading ? (
-          <ActivityIndicator color={Colors.orange} style={{ marginVertical: 20 }} />
-        ) : newsArticles.length > 0 ? (
-          newsArticles.map((article, index) => (
-            <TouchableOpacity
-              key={`${article.id}-${index}`}
-              style={styles.newsItem}
-              activeOpacity={0.7}
-              onPress={() => router.push(`/article/${article.id}` as never)}
-            >
-              {article.imageUrl ? (
-                <Image source={{ uri: article.imageUrl }} style={styles.newsImage} />
-              ) : (
-                <View style={styles.newsImageFallback}>
-                  <Ionicons name="basketball-outline" size={28} color={colors.textTertiary} />
-                </View>
-              )}
-              <View style={styles.newsContent}>
-                <View style={[styles.newsBadge, { backgroundColor: leagueBadgeColor(article.league) }]}>
-                  <Text style={styles.newsBadgeText}>{article.league?.toUpperCase() || 'NBA'}</Text>
-                </View>
-                <Text style={styles.newsTitle} numberOfLines={2}>{article.title}</Text>
-                <Text style={styles.newsMeta}>{article.source} &middot; {timeAgo(article.pubDate)}</Text>
-              </View>
-            </TouchableOpacity>
-          ))
-        ) : (
-          <Text style={styles.newsEmpty}>No news available</Text>
         )}
 
         <View style={styles.bottomSpacer} />
@@ -721,6 +835,66 @@ function makeStyles(colors: any) {
   },
   teamScoreWinning: {
     color: colors.text,
+  },
+  // Take Card suggestions (home page mini previews)
+  cardSuggestion: {
+    width: 220,
+    minHeight: 200,
+    padding: 14,
+    borderRadius: 14,
+    marginRight: 12,
+    justifyContent: 'space-between',
+  },
+  cardSuggestionLight: { backgroundColor: '#F5F1EA' },
+  cardSuggestionDark: {
+    backgroundColor: '#0A0A0A',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+  },
+  cardSuggestionOrange: { backgroundColor: Colors.orange },
+  cardSuggestionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  cardSuggestionLeague: {
+    fontFamily: Fonts.anton,
+    fontSize: 11,
+    letterSpacing: 1.5,
+    color: '#fff',
+  },
+  cardSuggestionTag: {
+    fontFamily: Fonts.mono,
+    fontSize: 9,
+    letterSpacing: 1.2,
+    color: '#fff',
+    opacity: 0.85,
+    fontWeight: '700',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.4)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 3,
+    overflow: 'hidden',
+  },
+  cardSuggestionOnLight: { color: '#0a0a0a' },
+  cardSuggestionHeadline: {
+    fontFamily: Fonts.anton,
+    fontSize: 18,
+    letterSpacing: 0.5,
+    lineHeight: 20,
+    color: '#fff',
+    flex: 1,
+  },
+  cardSuggestionFooter: {
+    fontFamily: Fonts.mono,
+    fontSize: 9,
+    letterSpacing: 1.5,
+    color: '#fff',
+    opacity: 0.7,
+    marginTop: 10,
+    fontWeight: '700',
   },
   // Player Cards
   playerCard: {
