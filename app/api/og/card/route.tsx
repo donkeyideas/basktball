@@ -263,32 +263,58 @@ export async function GET(req: NextRequest) {
       </div>
     );
 
-    const Context = ({ text }: { text: string }) => (
-      <div
-        style={{
-          fontFamily: "Archivo",
-          fontWeight: 700,
-          fontSize: 66,
-          lineHeight: 1.2,
-          color: p.fg,
-          marginTop: 48,
-          maxWidth: 820,
-          letterSpacing: -1,
-        }}
-      >
-        {text}
-      </div>
-    );
+    // Adaptive sizing — long content shouldn't blow past the footer.
+    const fitHeadline = (s: string) => {
+      const len = s.length;
+      if (len <= 18) return 200;
+      if (len <= 30) return 160;
+      if (len <= 50) return 130;
+      if (len <= 75) return 100;
+      return 80;
+    };
+    const fitContext = (s: string, hasHeadline: boolean) => {
+      const len = s.length;
+      // When paired with a big headline, leave more room and shrink the context.
+      if (hasHeadline) {
+        if (len <= 80) return 44;
+        if (len <= 140) return 38;
+        return 32;
+      }
+      // Stat Line — no competing headline, context can be larger.
+      if (len <= 90) return 60;
+      if (len <= 160) return 50;
+      return 42;
+    };
+
+    const Context = ({ text, withHeadline = false }: { text: string; withHeadline?: boolean }) => {
+      const size = fitContext(text, withHeadline);
+      return (
+        <div
+          style={{
+            fontFamily: "Archivo",
+            fontWeight: 700,
+            fontSize: size,
+            lineHeight: 1.25,
+            color: p.fg,
+            marginTop: withHeadline ? 28 : 40,
+            maxWidth: 820,
+            letterSpacing: -0.5,
+          }}
+        >
+          {text}
+        </div>
+      );
+    };
 
     const Headline = ({ text }: { text: string }) => (
       <div
         style={{
           fontFamily: "Bebas Neue",
-          fontSize: 170,
+          fontSize: fitHeadline(text),
           lineHeight: 0.92,
           letterSpacing: -2,
           color: p.fg,
-          marginTop: 32,
+          marginTop: 24,
           display: "flex",
         }}
       >
@@ -300,12 +326,15 @@ export async function GET(req: NextRequest) {
 
     if (template === "comparison") {
       const [left, right] = headline.split("|");
+      const leftText = (left || "PLAYER A").toUpperCase().trim();
+      const rightText = (right || "PLAYER B").toUpperCase().trim();
+      const nameSize = Math.max(leftText.length, rightText.length) <= 8 ? 180 : 140;
       Body = (
-        <div style={{ display: "flex", flexDirection: "column", marginTop: 30 }}>
+        <div style={{ display: "flex", flexDirection: "column", marginTop: 20 }}>
           <div
             style={{
               fontFamily: "Bebas Neue",
-              fontSize: 180,
+              fontSize: nameSize,
               lineHeight: 1,
               letterSpacing: -3,
               color: p.fg,
@@ -313,45 +342,45 @@ export async function GET(req: NextRequest) {
               flexDirection: "column",
             }}
           >
-            <div style={{ display: "flex" }}>{(left || "PLAYER A").toUpperCase()}</div>
+            <div style={{ display: "flex" }}>{leftText}</div>
             <div
               style={{
                 display: "flex",
-                fontSize: 86,
+                fontSize: nameSize * 0.5,
                 color: p.accent,
-                margin: "10px 0",
+                margin: "8px 0",
                 letterSpacing: 6,
               }}
             >
               VS
             </div>
-            <div style={{ display: "flex" }}>{(right || "PLAYER B").toUpperCase()}</div>
+            <div style={{ display: "flex" }}>{rightText}</div>
           </div>
-          {context && <Context text={context} />}
+          {context && <Context text={context} withHeadline />}
         </div>
       );
     } else if (template === "hot-take") {
       Body = (
         <div style={{ display: "flex", flexDirection: "column" }}>
           <Headline text={headline || "ADD YOUR HOT TAKE"} />
-          {context && <Context text={context} />}
+          {context && <Context text={context} withHeadline />}
         </div>
       );
     } else if (template === "quote") {
-      // Quote renders the headline wrapped in oversized opening/closing
-      // quotation marks to read as an actual pull-quote rather than a headline.
       const quoteText = headline || "ADD A QUOTE";
+      const qlen = quoteText.length;
+      const quoteSize = qlen <= 40 ? 92 : qlen <= 80 ? 72 : 56;
       Body = (
-        <div style={{ display: "flex", flexDirection: "column", marginTop: 20 }}>
+        <div style={{ display: "flex", flexDirection: "column", marginTop: 16 }}>
           <div
             style={{
               fontFamily: "Bebas Neue",
-              fontSize: 280,
+              fontSize: 260,
               lineHeight: 0.7,
               color: p.accent,
               opacity: 0.9,
               display: "flex",
-              marginBottom: -40,
+              marginBottom: -36,
             }}
           >
             “
@@ -361,17 +390,18 @@ export async function GET(req: NextRequest) {
               fontFamily: "Archivo",
               fontWeight: 800,
               fontStyle: "italic",
-              fontSize: 88,
+              fontSize: quoteSize,
               lineHeight: 1.05,
               letterSpacing: -2,
               color: p.fg,
               display: "flex",
-              paddingLeft: 32,
+              paddingLeft: 28,
+              maxWidth: 860,
             }}
           >
             {quoteText}
           </div>
-          {context && <Context text={context} />}
+          {context && <Context text={context} withHeadline />}
         </div>
       );
     } else if (template === "ranking") {
@@ -443,7 +473,16 @@ export async function GET(req: NextRequest) {
         >
           <Decoration />
           <Header />
-          <div style={{ display: "flex", flexDirection: "column", flex: 1, position: "relative" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              flex: 1,
+              position: "relative",
+              overflow: "hidden",
+              minHeight: 0,
+            }}
+          >
             {Body}
             {meta && (
               <div
