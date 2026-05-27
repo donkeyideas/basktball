@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BASKTBALL - Apple App Store Screenshots (1320x2868)</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800;900&family=Roboto+Mono:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #111; font-family: 'Inter', sans-serif; padding: 40px; }
+
+  .page-title { font-family: 'Anton', sans-serif; font-size: 48px; color: #FF6B35; text-align: center; letter-spacing: 4px; margin-bottom: 8px; }
+  .page-subtitle { text-align: center; color: rgba(255,255,255,0.4); font-size: 14px; margin-bottom: 12px; letter-spacing: 2px; text-transform: uppercase; }
+  .page-spec { text-align: center; color: rgba(255,255,255,0.25); font-family: 'Roboto Mono', monospace; font-size: 13px; margin-bottom: 40px; }
+
+  .instructions { max-width: 900px; margin: 0 auto 40px; background: #1a1a1a; border: 1px solid #333; border-radius: 12px; padding: 24px; color: #ccc; font-size: 14px; line-height: 1.6; }
+  .instructions h2 { color: #FF6B35; font-family: 'Anton', sans-serif; font-size: 24px; letter-spacing: 2px; margin-bottom: 12px; }
+  .instructions strong { color: #fff; }
+  .instructions code { background: #333; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+
+  .slide-label { text-align: center; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 3px; text-transform: uppercase; color: #FF6B35; margin-bottom: 20px; }
+
+  /* ===== SCREENSHOT SLIDE ===== */
+  .screenshot-slide {
+    width: 1320px;
+    height: 2868px;
+    position: relative;
+    overflow: hidden;
+    margin: 0 auto 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ===== PHONE FRAME ===== */
+  .phone-frame {
+    width: 380px;
+    height: 820px;
+    background: #0D0D0D;
+    border-radius: 44px;
+    overflow: hidden;
+    position: relative;
+    border: 4px solid #2a2a2a;
+    box-shadow: 0 0 0 2px #111, 0 40px 80px rgba(0,0,0,0.6), 0 20px 40px rgba(0,0,0,0.4), 0 0 120px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+  .phone-frame::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%; transform: translateX(-50%);
+    width: 160px; height: 34px;
+    background: #000;
+    border-radius: 0 0 20px 20px;
+    z-index: 10;
+  }
+
+  .headline { font-family: 'Anton', sans-serif; color: #fff; text-align: center; text-transform: uppercase; letter-spacing: 3px; line-height: 1.1; }
+  .headline .accent { color: #FF6B35; }
+  .subheadline { font-family: 'Inter', sans-serif; font-weight: 500; color: rgba(255,255,255,0.6); text-align: center; line-height: 1.4; }
+
+  /* Phone internals */
+  .status-bar { height: 50px; padding: 14px 24px 0; display: flex; justify-content: space-between; align-items: center; font-family: 'Roboto Mono', monospace; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .screen-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+  .tab-bar { height: 65px; background: #0A0A0A; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; padding-bottom: 8px; }
+  .tab-item { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .tab-letter { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 22px; color: rgba(255,255,255,0.35); }
+  .tab-letter.active { color: #FF6B35; }
+  .tab-name { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 9px; letter-spacing: 0.5px; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+  .tab-name.active { color: #FF6B35; }
+  .app-header { display: flex; justify-content: space-between; align-items: center; padding: 4px 16px 8px; }
+  .app-logo { font-family: 'Anton', sans-serif; font-size: 22px; letter-spacing: 2px; color: #fff; }
+  .bell-wrap { width: 28px; height: 28px; position: relative; }
+  .bell-wrap svg { width: 20px; height: 20px; fill: rgba(255,255,255,0.6); }
+  .bell-dot { width: 8px; height: 8px; background: #EF4444; border-radius: 50%; position: absolute; top: 0; right: 0; }
+  .section-header { font-family: 'Anton', sans-serif; font-size: 20px; letter-spacing: 2px; text-transform: uppercase; text-align: center; padding: 12px 16px 8px; color: #fff; }
+  .section-title { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; padding: 12px 16px 6px; color: #fff; }
+  .segment-control { display: flex; margin: 8px 16px; background: #1A1A1A; border-radius: 10px; padding: 3px; }
+  .segment { flex: 1; text-align: center; padding: 8px 4px; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.5); border-radius: 8px; }
+  .segment.active { background: #FF6B35; color: #fff; }
+  .league-pills { display: flex; gap: 8px; padding: 8px 16px; overflow: hidden; }
+  .league-pill { padding: 6px 14px; border-radius: 20px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 1px; border: 1px solid #FF6B35; color: #FF6B35; white-space: nowrap; }
+  .league-pill.active { background: #FF6B35; color: #fff; }
+  .live-banner { background: #EF4444; padding: 8px 16px; text-align: center; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 8px; color: #fff; }
+  .live-dot { width: 8px; height: 8px; background: #fff; border-radius: 50%; }
+  .games-scroll { display: flex; gap: 10px; padding: 8px 16px; overflow: hidden; }
+  .game-card { min-width: 155px; background: #1A1A1A; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px; }
+  .game-team { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; }
+  .team-info { display: flex; align-items: center; gap: 8px; }
+  .team-abbr { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 1px; color: rgba(255,255,255,0.5); width: 28px; }
+  .team-name { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 14px; color: #fff; }
+  .team-score { font-family: 'Roboto Mono', monospace; font-weight: 700; font-size: 18px; color: #fff; }
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 4px; font-family: 'Roboto Mono', monospace; font-weight: 700; font-size: 10px; letter-spacing: 0.5px; text-transform: uppercase; margin-top: 6px; }
+  .badge.live { background: rgba(239,68,68,0.2); color: #EF4444; border: 1px solid rgba(239,68,68,0.3); }
+  .badge.live .bdot { width: 6px; height: 6px; background: #EF4444; border-radius: 50%; }
+  .badge.final { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); }
+  .badge.scheduled { background: rgba(59,130,246,0.15); color: #3B82F6; }
+  .performers-scroll { display: flex; gap: 10px; padding: 8px 16px; overflow: hidden; }
+  .performer-card { min-width: 140px; background: #1A1A1A; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 14px; text-align: center; }
+  .performer-avatar { width: 56px; height: 56px; border-radius: 50%; border: 2px solid #FF6B35; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-family: 'Inter', sans-serif; font-weight: 800; font-size: 16px; color: #FF6B35; background: rgba(255,107,53,0.1); }
+  .performer-name { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 11px; color: #FF6B35; margin-bottom: 6px; }
+  .performer-stats { display: flex; justify-content: center; gap: 8px; font-family: 'Roboto Mono', monospace; font-weight: 700; font-size: 14px; color: #fff; }
+  .stat-label { font-size: 9px; color: rgba(255,255,255,0.4); font-weight: 400; display: block; margin-top: 2px; }
+  .take-card { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .take-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .take-avatar { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Inter', sans-serif; font-weight: 800; font-size: 16px; color: #fff; flex-shrink: 0; }
+  .take-author { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 14px; color: #fff; }
+  .take-handle { font-family: 'Inter', sans-serif; font-weight: 400; font-size: 12px; color: rgba(255,255,255,0.4); }
+  .take-time { margin-left: auto; font-family: 'Roboto Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.3); }
+  .take-content { font-family: 'Inter', sans-serif; font-weight: 500; font-size: 14px; line-height: 1.4; color: rgba(255,255,255,0.9); margin-bottom: 8px; }
+  .take-reactions { display: flex; gap: 16px; font-family: 'Roboto Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.4); }
+  .reaction { display: flex; align-items: center; gap: 4px; }
+  .reaction .r-icon { font-weight: 700; }
+  .reaction.fire .r-icon { color: #FF6B35; }
+  .take-tag { display: inline-block; padding: 3px 10px; border: 1px solid rgba(255,107,53,0.3); border-radius: 4px; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 11px; color: #FF6B35; margin-bottom: 8px; }
+  .date-strip { display: flex; justify-content: space-around; padding: 8px 16px; }
+  .date-item { text-align: center; padding: 6px 12px; border-radius: 8px; }
+  .date-item.active { background: #FF6B35; }
+  .date-day { font-family: 'Inter', sans-serif; font-weight: 400; font-size: 11px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; }
+  .date-item.active .date-day { color: #fff; }
+  .date-num { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 18px; color: rgba(255,255,255,0.6); }
+  .date-item.active .date-num { color: #fff; }
+  .scores-list { padding: 0 16px; }
+  .score-row { padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .score-team-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; }
+  .score-team-left { display: flex; align-items: center; gap: 10px; }
+  .score-abbr { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 1px; color: rgba(255,255,255,0.5); width: 30px; }
+  .score-name { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 16px; color: #fff; }
+  .score-val { font-family: 'Roboto Mono', monospace; font-weight: 700; font-size: 20px; }
+  .score-val.winner { color: #fff; }
+  .score-val.loser { color: rgba(255,255,255,0.5); }
+  .search-bar { margin: 8px 16px; background: #1A1A1A; border: 1px solid rgba(255,255,255,0.08); border-radius: 25px; padding: 12px 18px; font-family: 'Inter', sans-serif; font-size: 14px; color: rgba(255,255,255,0.4); }
+  .profile-header { text-align: center; padding: 16px; }
+  .profile-avatar { width: 80px; height: 80px; border-radius: 50%; border: 3px solid #FF6B35; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; font-family: 'Inter', sans-serif; font-weight: 800; font-size: 28px; color: #fff; background: #FF6B35; }
+  .profile-name { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 20px; color: #fff; margin-bottom: 2px; }
+  .profile-handle { font-family: 'Inter', sans-serif; font-weight: 400; font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 8px; }
+  .profile-bio { font-family: 'Inter', sans-serif; font-weight: 400; font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 12px; }
+  .profile-btn { display: inline-block; padding: 8px 24px; border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13px; letter-spacing: 1px; color: #fff; margin-bottom: 12px; }
+  .profile-stats { display: flex; justify-content: center; gap: 30px; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.06); border-bottom: 1px solid rgba(255,255,255,0.06); margin: 8px 16px; }
+  .prof-stat { text-align: center; }
+  .prof-stat-num { font-family: 'Roboto Mono', monospace; font-weight: 700; font-size: 18px; color: #fff; }
+  .prof-stat-label { font-family: 'Inter', sans-serif; font-weight: 400; font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; }
+  .player-header { text-align: center; padding: 20px 16px 12px; }
+  .player-avatar-lg { width: 80px; height: 80px; border-radius: 50%; border: 3px solid #FF6B35; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-family: 'Inter', sans-serif; font-weight: 800; font-size: 24px; color: #FF6B35; background: rgba(255,107,53,0.1); }
+  .player-name-lg { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: 1px; color: #fff; margin: 4px 0; }
+  .player-team-info { font-family: 'Inter', sans-serif; font-weight: 400; font-size: 13px; color: #FF6B35; }
+  .player-number { font-family: 'Roboto Mono', monospace; font-size: 12px; color: rgba(255,255,255,0.4); }
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 12px 16px; }
+  .stat-box { background: #1A1A1A; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 12px 8px; text-align: center; }
+  .stat-value { font-family: 'Roboto Mono', monospace; font-weight: 700; font-size: 20px; color: #fff; }
+  .stat-name { font-family: 'Inter', sans-serif; font-weight: 400; font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+  .recent-game { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-bottom: 1px solid rgba(255,255,255,0.06); color: #fff; }
+  .rg-vs { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13px; color: rgba(255,255,255,0.5); }
+  .rg-team { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 14px; color: #FF6B35; }
+  .rg-date { font-family: 'Roboto Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.3); }
+  .rg-stats { font-family: 'Roboto Mono', monospace; font-weight: 700; font-size: 14px; color: #fff; letter-spacing: 1px; }
+  .news-card { background: #1A1A1A; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; margin: 6px 16px; padding: 12px; display: flex; gap: 12px; }
+  .news-thumb { width: 80px; height: 60px; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+  .news-thumb-text { font-family: 'Anton', sans-serif; font-size: 11px; color: #fff; letter-spacing: 1px; text-align: center; line-height: 1.2; }
+  .news-body { flex: 1; }
+  .news-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 9px; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; }
+  .news-badge.nba { background: rgba(59,130,246,0.2); color: #3B82F6; }
+  .news-badge.wnba { background: rgba(168,85,247,0.2); color: #A855F7; }
+  .news-badge.ncaam { background: rgba(16,185,129,0.2); color: #10B981; }
+  .news-title { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13px; color: #fff; line-height: 1.3; margin-bottom: 4px; }
+  .news-meta { font-family: 'Roboto Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.3); }
+  .fab { position: absolute; bottom: 75px; right: 18px; width: 50px; height: 50px; border-radius: 50%; background: #FF6B35; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 700; color: #fff; box-shadow: 0 4px 12px rgba(255,107,53,0.4); }
+  .gd-score-row { display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 8px; }
+  .gd-team { text-align: center; }
+  .gd-team-logo { width: 44px; height: 44px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; margin: 0 auto 4px; font-family: 'Inter', sans-serif; font-weight: 800; font-size: 14px; color: rgba(255,255,255,0.6); background: #1A1A1A; }
+  .gd-team-name { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 1px; color: #fff; }
+  .gd-big-score { font-family: 'Roboto Mono', monospace; font-weight: 700; font-size: 36px; color: #fff; }
+  .gd-dash { font-family: 'Roboto Mono', monospace; font-weight: 700; font-size: 28px; color: rgba(255,255,255,0.3); padding: 0 4px; }
+  .gd-info { font-family: 'Roboto Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.4); text-align: center; margin-top: 4px; }
+  .box-score { padding: 0 16px; }
+  .box-team-name { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase; padding: 10px 0 6px; color: #fff; }
+  .box-header, .box-row { display: flex; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .box-header { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+  .box-row { font-family: 'Roboto Mono', monospace; font-size: 12px; color: rgba(255,255,255,0.8); }
+  .box-player { flex: 2; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13px; color: #fff; }
+  .box-col { flex: 1; text-align: right; }
+  .box-col.highlight { color: #FF6B35; font-weight: 700; }
+  .poll-container { margin: 8px 0; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; padding: 10px; }
+  .poll-option { padding: 10px 12px; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; margin-bottom: 6px; position: relative; overflow: hidden; }
+  .poll-option.voted { border-color: #FF6B35; }
+  .poll-bar { position: absolute; left: 0; top: 0; bottom: 0; background: rgba(255,107,53,0.15); border-radius: 8px; }
+  .poll-bar.voted { background: rgba(255,107,53,0.25); }
+  .poll-option-content { display: flex; justify-content: space-between; position: relative; z-index: 1; }
+  .poll-option-text { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13px; color: #fff; }
+  .poll-option-pct { font-family: 'Roboto Mono', monospace; font-weight: 700; font-size: 12px; color: rgba(255,255,255,0.6); }
+  .poll-info { font-family: 'Roboto Mono', monospace; font-size: 10px; color: rgba(255,255,255,0.3); margin-top: 6px; }
+
+  /* Decorative */
+  .deco-circle { position: absolute; border-radius: 50%; border: 3px solid rgba(255,255,255,0.15); }
+  .deco-circle-fill { position: absolute; border-radius: 50%; background: rgba(255,255,255,0.06); }
+  .deco-line { position: absolute; height: 3px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent); }
+  .deco-dot { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.3); }
+  .deco-basketball { position: absolute; border-radius: 50%; border: 3px solid rgba(255,255,255,0.2); overflow: hidden; }
+  .deco-basketball::before { content: ''; position: absolute; top: 0; left: 35%; right: 35%; bottom: 0; border-right: 2px solid rgba(255,255,255,0.2); border-left: 2px solid rgba(255,255,255,0.2); }
+  .deco-basketball::after { content: ''; position: absolute; top: 35%; bottom: 35%; left: 0; right: 0; border-top: 2px solid rgba(255,255,255,0.2); border-bottom: 2px solid rgba(255,255,255,0.2); }
+
+  .zoom-controls { position: fixed; top: 20px; right: 20px; display: flex; gap: 8px; z-index: 100; }
+  .zoom-btn { background: #FF6B35; color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 14px; cursor: pointer; }
+  .zoom-btn:hover { transform: scale(1.05); }
+  .zoom-btn.active { background: #fff; color: #FF6B35; }
+</style>
+</head>
+<body>
+
+<div class="zoom-controls">
+  <button class="zoom-btn" onclick="setZoom(0.35)">35%</button>
+  <button class="zoom-btn active" onclick="setZoom(0.5)">50%</button>
+  <button class="zoom-btn" onclick="setZoom(0.75)">75%</button>
+  <button class="zoom-btn" onclick="setZoom(1)">100%</button>
+</div>
+
+<h1 class="page-title">BASKTBALL</h1>
+<p class="page-subtitle">Apple App Store Screenshots</p>
+<p class="page-spec">iPhone 16 Pro Max 6.7" -- 1320 x 2868 px -- JPEG/PNG, no alpha</p>
+
+<div class="instructions">
+  <h2>EXPORT INSTRUCTIONS</h2>
+  <p>1. Click <strong>100%</strong> zoom above.</p>
+  <p>2. Right-click a slide and select <strong>Inspect</strong>.</p>
+  <p>3. In DevTools, right-click the <code>.screenshot-slide</code> element and select <strong>Capture node screenshot</strong>.</p>
+  <p>4. Repeat for each slide. Upload the PNGs to App Store Connect.</p>
+  <p style="margin-top:8px;">Apple will auto-scale these for smaller iPhones (6.1", 5.5").</p>
+</div>
+
+
+<!-- SLIDE 1: HERO -->
+<div class="slide-label">1 / 9 -- HERO</div>
+<div id="slide-1" class="screenshot-slide" style="background:linear-gradient(165deg,#CC4E20 0%,#FF6B35 40%,#D45520 100%);">
+  <div class="deco-circle" style="width:400px;height:400px;top:-80px;right:-100px;"></div>
+  <div class="deco-circle" style="width:250px;height:250px;bottom:200px;left:-60px;"></div>
+  <div class="deco-circle-fill" style="width:800px;height:800px;top:50%;left:50%;transform:translate(-50%,-50%);"></div>
+  <div class="deco-basketball" style="width:120px;height:120px;top:100px;right:100px;"></div>
+  <div class="deco-basketball" style="width:80px;height:80px;bottom:200px;left:80px;"></div>
+  <div class="deco-dot" style="top:250px;left:200px;"></div>
+  <div class="deco-dot" style="top:500px;right:150px;width:12px;height:12px;"></div>
+  <div class="deco-line" style="width:300px;top:200px;left:50px;transform:rotate(-15deg);"></div>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;width:100%;height:100%;">
+    <div style="padding-top:150px;text-align:center;flex-shrink:0;">
+      <img src="file:///C:/Users/beltr/Basktball/basktball-mobile/store-assets/app-icon-512.png" style="width:160px;height:160px;border-radius:36px;object-fit:contain;box-shadow:0 20px 60px rgba(255,107,53,0.3);margin-bottom:44px;" alt="BASKTBALL">
+      <div class="headline" style="font-size:92px;margin-bottom:24px;">YOUR <span class="accent">BASKETBALL</span><br>UNIVERSE</div>
+      <div class="subheadline" style="font-size:28px;">Live scores, hot takes, player stats and news<br>all in one app built for real fans.</div>
+    </div>
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:60px 0;">
+      <div class="phone-frame" style="transform:scale(2.15);">
+        <div class="status-bar"><span class="time" style="font-size:14px;">9:41</span><div style="display:flex;gap:6px;align-items:center;font-size:11px;color:rgba(255,255,255,0.6);">||||&nbsp;100%</div></div>
+        <div class="screen-content">
+          <div class="app-header"><div class="app-logo">BASKTBALL</div><div class="bell-wrap"><svg viewBox="0 0 24 24"><path d="M12 2C10.9 2 10 2.9 10 4C10 4.1 10 4.2 10 4.3C7.7 5 6 7.2 6 9.8V15L4 17V18H20V17L18 15V9.8C18 7.2 16.3 5 14 4.3C14 4.2 14 4.1 14 4C14 2.9 13.1 2 12 2ZM12 22C13.1 22 14 21.1 14 20H10C10 21.1 10.9 22 12 22Z"/></svg><div class="bell-dot"></div></div></div>
+          <div class="live-banner"><div class="live-dot"></div> 3 GAMES LIVE NOW</div>
+          <div class="section-title">LIVE SCORES</div>
+          <div class="games-scroll">
+            <div class="game-card"><div class="game-team"><div class="team-info"><span class="team-abbr">BOS</span><span class="team-name">Celtics</span></div><span class="team-score">108</span></div><div class="game-team"><div class="team-info"><span class="team-abbr">LAL</span><span class="team-name">Lakers</span></div><span class="team-score">112</span></div><div class="badge live"><span class="bdot"></span> LIVE Q4 3:22</div></div>
+            <div class="game-card"><div class="game-team"><div class="team-info"><span class="team-abbr">OKC</span><span class="team-name">Thunder</span></div><span class="team-score" style="color:rgba(255,255,255,0.4);">--</span></div><div class="game-team"><div class="team-info"><span class="team-abbr">DEN</span><span class="team-name">Nuggets</span></div><span class="team-score" style="color:rgba(255,255,255,0.4);">--</span></div><div class="badge live"><span class="bdot"></span> LIVE Q3 7:44</div></div>
+          </div>
+          <div class="league-pills"><span class="league-pill active">NBA</span><span class="league-pill">WNBA</span><span class="league-pill">NCAAM</span><span class="league-pill">NCAAW</span><span class="league-pill">EURO</span></div>
+          <div class="section-title">TOP PERFORMERS</div>
+          <div class="performers-scroll">
+            <div class="performer-card"><div class="performer-avatar">SGA</div><div class="performer-name">Shai Gilgeous-Alexander</div><div style="color:rgba(255,255,255,0.4);font-size:10px;font-family:'Inter',sans-serif;margin-bottom:4px;">OKC Thunder</div><div class="performer-stats"><div>34<span class="stat-label">PTS</span></div><div>6<span class="stat-label">REB</span></div><div>8<span class="stat-label">AST</span></div></div></div>
+            <div class="performer-card"><div class="performer-avatar">LBJ</div><div class="performer-name">LeBron James</div><div style="color:rgba(255,255,255,0.4);font-size:10px;font-family:'Inter',sans-serif;margin-bottom:4px;">LA Lakers</div><div class="performer-stats"><div>28<span class="stat-label">PTS</span></div><div>9<span class="stat-label">REB</span></div><div>11<span class="stat-label">AST</span></div></div></div>
+          </div>
+          <div class="section-title">TRENDING TAKES</div>
+          <div class="take-card"><div class="take-header"><div class="take-avatar" style="background:#3B82F6;">H</div><div><div class="take-author">HoopsFan23</div><div class="take-handle">@hoopsfan23</div></div><div class="take-time">2h</div></div><div class="take-content">SGA is the best player in the league right now and it's not even close. 34/6/8 tonight.</div><div class="take-reactions"><span class="reaction fire"><span class="r-icon">F</span> 847</span><span class="reaction"><span class="r-icon">B</span> 32</span><span class="reaction"><span class="r-icon">R</span> 156</span></div></div>
+        </div>
+        <div class="tab-bar"><div class="tab-item"><span class="tab-letter active">H</span><span class="tab-name active">HOME</span></div><div class="tab-item"><span class="tab-letter">S</span><span class="tab-name">SCORES</span></div><div class="tab-item"><span class="tab-letter">C</span><span class="tab-name">COURT</span></div><div class="tab-item"><span class="tab-letter">?</span><span class="tab-name">SEARCH</span></div><div class="tab-item"><span class="tab-letter">P</span><span class="tab-name">PROFILE</span></div></div>
+      </div>
+    </div>
+    <div style="padding-bottom:120px;flex-shrink:0;text-align:center;">
+      <div style="font-family:'Anton',sans-serif;font-size:36px;color:#FF6B35;letter-spacing:4px;">BASKTBALL</div>
+      <div style="font-family:'Inter',sans-serif;font-weight:500;font-size:22px;color:rgba(255,255,255,0.4);letter-spacing:3px;margin-top:8px;">THE GAME. THE CULTURE.</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 2: SCORES -->
+<div class="slide-label">2 / 9 -- LIVE SCORES</div>
+<div id="slide-2" class="screenshot-slide" style="background:linear-gradient(170deg,#D45520 0%,#FF7A4A 50%,#CC4E20 100%);">
+  <div class="deco-circle" style="width:500px;height:500px;top:-150px;left:-150px;"></div>
+  <div class="deco-circle" style="width:300px;height:300px;bottom:100px;right:-80px;"></div>
+  <div class="deco-basketball" style="width:100px;height:100px;top:150px;left:120px;"></div>
+  <div class="deco-basketball" style="width:150px;height:150px;bottom:180px;right:120px;"></div>
+  <div class="deco-dot" style="top:350px;right:200px;width:10px;height:10px;"></div>
+  <div class="deco-line" style="width:350px;top:300px;right:50px;transform:rotate(5deg);"></div>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;width:100%;height:100%;">
+    <div style="padding-top:150px;text-align:center;flex-shrink:0;">
+      <div class="headline" style="font-size:86px;margin-bottom:24px;">LIVE <span class="accent">SCORES</span><br>EVERY LEAGUE</div>
+      <div class="subheadline" style="font-size:26px;">NBA, WNBA, NCAA, EuroLeague and more.<br>Real-time scores with quarter-by-quarter updates.</div>
+    </div>
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:60px 0;">
+      <div class="phone-frame" style="transform:scale(2.15);">
+        <div class="status-bar"><span class="time" style="font-size:14px;">9:41</span><div style="display:flex;gap:6px;align-items:center;font-size:11px;color:rgba(255,255,255,0.6);">||||&nbsp;100%</div></div>
+        <div class="screen-content">
+          <div class="section-header">SCORES</div>
+          <div class="segment-control"><div class="segment active">SCORES</div><div class="segment">STANDINGS</div><div class="segment">SCHEDULE</div></div>
+          <div class="league-pills"><span class="league-pill active">NBA</span><span class="league-pill">WNBA</span><span class="league-pill">NCAAM</span><span class="league-pill">NCAAW</span><span class="league-pill">EURO</span></div>
+          <div class="date-strip"><div class="date-item"><div class="date-day">MON</div><div class="date-num">3</div></div><div class="date-item"><div class="date-day">TUE</div><div class="date-num">4</div></div><div class="date-item active"><div class="date-day">WED</div><div class="date-num">5</div></div><div class="date-item"><div class="date-day">THU</div><div class="date-num">6</div></div><div class="date-item"><div class="date-day">FRI</div><div class="date-num">7</div></div><div class="date-item"><div class="date-day">SAT</div><div class="date-num">8</div></div></div>
+          <div class="scores-list">
+            <div class="score-row"><div class="score-team-row"><div class="score-team-left"><span class="score-abbr">BOS</span><span class="score-name">Celtics</span></div><span class="score-val loser">108</span></div><div class="score-team-row"><div class="score-team-left"><span class="score-abbr">LAL</span><span class="score-name">Lakers</span></div><span class="score-val winner">112</span></div><div class="badge live"><span class="bdot"></span> LIVE Q4 3:22</div></div>
+            <div class="score-row"><div class="score-team-row"><div class="score-team-left"><span class="score-abbr">OKC</span><span class="score-name">Thunder</span></div><span class="score-val winner">98</span></div><div class="score-team-row"><div class="score-team-left"><span class="score-abbr">DEN</span><span class="score-name">Nuggets</span></div><span class="score-val loser">95</span></div><div class="badge live"><span class="bdot"></span> LIVE Q3 7:44</div></div>
+            <div class="score-row"><div class="score-team-row"><div class="score-team-left"><span class="score-abbr">MIL</span><span class="score-name">Bucks</span></div><span class="score-val loser">118</span></div><div class="score-team-row"><div class="score-team-left"><span class="score-abbr">NYK</span><span class="score-name">Knicks</span></div><span class="score-val winner">124</span></div><div class="badge final">FINAL</div></div>
+            <div class="score-row"><div class="score-team-row"><div class="score-team-left"><span class="score-abbr">GSW</span><span class="score-name">Warriors</span></div><span class="score-val" style="color:rgba(255,255,255,0.3);">--</span></div><div class="score-team-row"><div class="score-team-left"><span class="score-abbr">PHX</span><span class="score-name">Suns</span></div><span class="score-val" style="color:rgba(255,255,255,0.3);">--</span></div><div class="badge scheduled">10:00 PM</div></div>
+          </div>
+        </div>
+        <div class="tab-bar"><div class="tab-item"><span class="tab-letter">H</span><span class="tab-name">HOME</span></div><div class="tab-item"><span class="tab-letter active">S</span><span class="tab-name active">SCORES</span></div><div class="tab-item"><span class="tab-letter">C</span><span class="tab-name">COURT</span></div><div class="tab-item"><span class="tab-letter">?</span><span class="tab-name">SEARCH</span></div><div class="tab-item"><span class="tab-letter">P</span><span class="tab-name">PROFILE</span></div></div>
+      </div>
+    </div>
+    <div style="padding-bottom:120px;flex-shrink:0;display:flex;gap:80px;">
+      <div style="text-align:center;"><div style="font-family:'Roboto Mono',monospace;font-weight:700;font-size:48px;color:#FF6B35;">6+</div><div style="font-family:'Inter',sans-serif;font-weight:600;font-size:18px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:2px;">Leagues</div></div>
+      <div style="text-align:center;"><div style="font-family:'Roboto Mono',monospace;font-weight:700;font-size:48px;color:#FF6B35;">LIVE</div><div style="font-family:'Inter',sans-serif;font-weight:600;font-size:18px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:2px;">Updates</div></div>
+      <div style="text-align:center;"><div style="font-family:'Roboto Mono',monospace;font-weight:700;font-size:48px;color:#FF6B35;">24/7</div><div style="font-family:'Inter',sans-serif;font-weight:600;font-size:18px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:2px;">Coverage</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 3: COURT -->
+<div class="slide-label">3 / 9 -- THE COURT</div>
+<div id="slide-3" class="screenshot-slide" style="background:linear-gradient(160deg,#E05A28 0%,#FF6B35 45%,#CC4E20 100%);">
+  <div class="deco-circle" style="width:450px;height:450px;bottom:-100px;left:-100px;"></div>
+  <div class="deco-circle" style="width:350px;height:350px;top:100px;right:-80px;"></div>
+  <div class="deco-basketball" style="width:130px;height:130px;top:130px;left:80px;"></div>
+  <div class="deco-dot" style="top:400px;left:300px;width:14px;height:14px;"></div>
+  <div class="deco-line" style="width:280px;bottom:250px;left:100px;transform:rotate(-8deg);"></div>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;width:100%;height:100%;">
+    <div style="padding-top:150px;text-align:center;flex-shrink:0;">
+      <div class="headline" style="font-size:86px;margin-bottom:24px;">DROP YOUR<br><span class="accent">HOTTEST TAKES</span></div>
+      <div class="subheadline" style="font-size:26px;">The Court is where basketball fans debate,<br>predict, and share their boldest opinions.</div>
+    </div>
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:60px 0;">
+      <div class="phone-frame" style="transform:scale(2.15);">
+        <div class="status-bar"><span class="time" style="font-size:14px;">9:41</span><div style="display:flex;gap:6px;align-items:center;font-size:11px;color:rgba(255,255,255,0.6);">||||&nbsp;100%</div></div>
+        <div class="screen-content">
+          <div class="section-header">THE COURT</div>
+          <div class="segment-control"><div class="segment active">FOR YOU</div><div class="segment">FOLLOWING</div><div class="segment">LIVE</div></div>
+          <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:8px;margin:6px 16px;padding:8px 12px;display:flex;align-items:center;gap:8px;"><div style="width:8px;height:8px;background:#EF4444;border-radius:50%;"></div><span style="font-family:'Inter',sans-serif;font-weight:600;font-size:12px;color:#EF4444;">LAL 112 - BOS 108</span><span style="font-family:'Roboto Mono',monospace;font-size:10px;color:rgba(255,255,255,0.4);">Q4 3:22</span><span style="margin-left:auto;font-family:'Inter',sans-serif;font-weight:600;font-size:11px;color:#FF6B35;">JOIN</span></div>
+          <div class="take-card"><div class="take-header"><div class="take-avatar" style="background:#3B82F6;">K</div><div><div class="take-author">KingJames_Stan</div><div class="take-handle">@kingjames_stan</div></div><div class="take-time">12m</div></div><div class="take-content">LeBron at 40 years old putting up 28/9/11 is genuinely insane. This man is not human.</div><div class="take-tag">LAL vs BOS</div><div class="take-reactions"><span class="reaction fire"><span class="r-icon">F</span> 1.2K</span><span class="reaction"><span class="r-icon">B</span> 89</span><span class="reaction"><span class="r-icon">R</span> 234</span><span class="reaction"><span class="r-icon">RP</span> 156</span></div></div>
+          <div class="take-card"><div class="take-header"><div class="take-avatar" style="background:#10B981;">M</div><div><div class="take-author">MambaMentality</div><div class="take-handle">@mamba_mentality</div></div><div class="take-time">45m</div></div><div class="take-content">Hot take: The Thunder are winning it all this year. SGA is the MVP and their depth is unmatched.</div><div class="poll-container"><div class="poll-option voted"><div class="poll-bar voted" style="width:62%;"></div><div class="poll-option-content"><span class="poll-option-text">Agree - Thunder in 6</span><span class="poll-option-pct">62%</span></div></div><div class="poll-option"><div class="poll-bar" style="width:38%;"></div><div class="poll-option-content"><span class="poll-option-text">No way - Celtics repeat</span><span class="poll-option-pct">38%</span></div></div><div class="poll-info">1,847 votes -- 4h left</div></div><div class="take-reactions"><span class="reaction fire"><span class="r-icon">F</span> 623</span><span class="reaction"><span class="r-icon">B</span> 201</span><span class="reaction"><span class="r-icon">R</span> 412</span></div></div>
+        </div>
+        <div class="fab">+</div>
+        <div class="tab-bar"><div class="tab-item"><span class="tab-letter">H</span><span class="tab-name">HOME</span></div><div class="tab-item"><span class="tab-letter">S</span><span class="tab-name">SCORES</span></div><div class="tab-item"><span class="tab-letter active">C</span><span class="tab-name active">COURT</span></div><div class="tab-item"><span class="tab-letter">?</span><span class="tab-name">SEARCH</span></div><div class="tab-item"><span class="tab-letter">P</span><span class="tab-name">PROFILE</span></div></div>
+      </div>
+    </div>
+    <div style="padding-bottom:120px;flex-shrink:0;display:flex;flex-wrap:wrap;gap:16px;justify-content:center;">
+      <div style="background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.3);border-radius:30px;padding:14px 32px;font-family:'Inter',sans-serif;font-weight:700;font-size:20px;color:#FF6B35;letter-spacing:1px;">HOT TAKES</div>
+      <div style="background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.3);border-radius:30px;padding:14px 32px;font-family:'Inter',sans-serif;font-weight:700;font-size:20px;color:#FF6B35;letter-spacing:1px;">POLLS</div>
+      <div style="background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.3);border-radius:30px;padding:14px 32px;font-family:'Inter',sans-serif;font-weight:700;font-size:20px;color:#FF6B35;letter-spacing:1px;">PREDICTIONS</div>
+      <div style="background:rgba(255,107,53,0.15);border:1px solid rgba(255,107,53,0.3);border-radius:30px;padding:14px 32px;font-family:'Inter',sans-serif;font-weight:700;font-size:20px;color:#FF6B35;letter-spacing:1px;">DEBATES</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 4: PLAYER STATS -->
+<div class="slide-label">4 / 9 -- PLAYER STATS</div>
+<div id="slide-4" class="screenshot-slide" style="background:linear-gradient(175deg,#CC4E20 0%,#FF6B35 50%,#E05A28 100%);">
+  <div class="deco-circle" style="width:400px;height:400px;top:80px;left:-120px;"></div>
+  <div class="deco-circle" style="width:550px;height:550px;bottom:-150px;right:-150px;border-color:rgba(59,130,246,0.12);"></div>
+  <div class="deco-basketball" style="width:110px;height:110px;top:180px;right:130px;"></div>
+  <div class="deco-dot" style="top:300px;left:300px;width:12px;height:12px;"></div>
+  <div class="deco-line" style="width:400px;top:250px;left:200px;transform:rotate(12deg);"></div>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;width:100%;height:100%;">
+    <div style="padding-top:150px;text-align:center;flex-shrink:0;">
+      <div class="headline" style="font-size:86px;margin-bottom:24px;">TRACK<br><span class="accent">EVERY STAT</span></div>
+      <div class="subheadline" style="font-size:26px;">Deep player profiles with season averages,<br>game logs, and performance breakdowns.</div>
+    </div>
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:60px 0;">
+      <div class="phone-frame" style="transform:scale(2.15);">
+        <div class="status-bar"><span class="time" style="font-size:14px;">9:41</span><div style="display:flex;gap:6px;align-items:center;font-size:11px;color:rgba(255,255,255,0.6);">||||&nbsp;100%</div></div>
+        <div class="screen-content">
+          <div style="padding:8px 16px;"><span style="font-family:'Inter',sans-serif;font-weight:500;font-size:14px;color:#FF6B35;">< Back</span></div>
+          <div class="player-header"><div class="player-avatar-lg">SGA</div><div class="player-number">#2 -- PG</div><div class="player-name-lg">SHAI GILGEOUS-ALEXANDER</div><div class="player-team-info">Oklahoma City Thunder</div></div>
+          <div class="section-title" style="font-size:13px;">SEASON AVERAGES</div>
+          <div class="stats-grid"><div class="stat-box"><div class="stat-value">32.4</div><div class="stat-name">PPG</div></div><div class="stat-box"><div class="stat-value">5.8</div><div class="stat-name">RPG</div></div><div class="stat-box"><div class="stat-value">6.1</div><div class="stat-name">APG</div></div><div class="stat-box"><div class="stat-value">2.1</div><div class="stat-name">SPG</div></div><div class="stat-box"><div class="stat-value">53.2</div><div class="stat-name">FG%</div></div><div class="stat-box"><div class="stat-value">37.8</div><div class="stat-name">3P%</div></div></div>
+          <div class="section-title" style="font-size:13px;">RECENT GAMES</div>
+          <div class="recent-game"><div style="display:flex;align-items:center;gap:6px;"><span class="rg-vs">vs</span><span class="rg-team">LAL</span><div class="rg-date" style="margin-left:6px;">Mar 24</div></div><div class="rg-stats">34 PTS / 6 REB / 8 AST</div></div>
+          <div class="recent-game"><div style="display:flex;align-items:center;gap:6px;"><span class="rg-vs">vs</span><span class="rg-team">GSW</span><div class="rg-date" style="margin-left:6px;">Mar 22</div></div><div class="rg-stats">29 PTS / 4 REB / 7 AST</div></div>
+          <div class="recent-game"><div style="display:flex;align-items:center;gap:6px;"><span class="rg-vs">vs</span><span class="rg-team">BOS</span><div class="rg-date" style="margin-left:6px;">Mar 20</div></div><div class="rg-stats">38 PTS / 8 REB / 5 AST</div></div>
+        </div>
+        <div class="tab-bar"><div class="tab-item"><span class="tab-letter">H</span><span class="tab-name">HOME</span></div><div class="tab-item"><span class="tab-letter">S</span><span class="tab-name">SCORES</span></div><div class="tab-item"><span class="tab-letter">C</span><span class="tab-name">COURT</span></div><div class="tab-item"><span class="tab-letter active">?</span><span class="tab-name active">SEARCH</span></div><div class="tab-item"><span class="tab-letter">P</span><span class="tab-name">PROFILE</span></div></div>
+      </div>
+    </div>
+    <div style="padding-bottom:120px;flex-shrink:0;text-align:center;"><div style="font-family:'Roboto Mono',monospace;font-weight:700;font-size:64px;color:#FF6B35;">450+</div><div style="font-family:'Inter',sans-serif;font-weight:600;font-size:22px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:3px;">Active Player Profiles</div></div>
+  </div>
+</div>
+
+<!-- SLIDE 5: NEWS -->
+<div class="slide-label">5 / 9 -- LATEST NEWS</div>
+<div id="slide-5" class="screenshot-slide" style="background:linear-gradient(155deg,#D45520 0%,#FF7A4A 45%,#CC4E20 100%);">
+  <div class="deco-circle" style="width:380px;height:380px;top:50px;right:-100px;"></div>
+  <div class="deco-circle" style="width:480px;height:480px;bottom:-120px;left:-120px;"></div>
+  <div class="deco-basketball" style="width:90px;height:90px;bottom:200px;right:100px;"></div>
+  <div class="deco-dot" style="top:230px;left:200px;width:10px;height:10px;"></div>
+  <div class="deco-line" style="width:300px;top:350px;right:100px;transform:rotate(-5deg);"></div>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;width:100%;height:100%;">
+    <div style="padding-top:150px;text-align:center;flex-shrink:0;">
+      <div class="headline" style="font-size:86px;margin-bottom:24px;">NEVER MISS<br><span class="accent">A STORY</span></div>
+      <div class="subheadline" style="font-size:26px;">Curated basketball news from top sources.<br>Trades, injuries, and breaking updates.</div>
+    </div>
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:60px 0;">
+      <div class="phone-frame" style="transform:scale(2.15);">
+        <div class="status-bar"><span class="time" style="font-size:14px;">9:41</span><div style="display:flex;gap:6px;align-items:center;font-size:11px;color:rgba(255,255,255,0.6);">||||&nbsp;100%</div></div>
+        <div class="screen-content">
+          <div class="section-header">SEARCH</div>
+          <div class="search-bar">Search players, teams and takes...</div>
+          <div class="section-title" style="font-size:14px;">LATEST NEWS</div>
+          <div class="news-card"><div class="news-thumb" style="background:linear-gradient(135deg,#FF6B35,#c44d1a);"><div class="news-thumb-text">TRADE<br>ALERT</div></div><div class="news-body"><div class="news-badge nba">NBA</div><div class="news-title">Lakers acquire key wing defender in 3-team trade deal before deadline</div><div class="news-meta">ESPN -- 32m ago</div></div></div>
+          <div class="news-card"><div class="news-thumb" style="background:linear-gradient(135deg,#10B981,#065f46);"><div class="news-thumb-text">MARCH<br>MADNESS</div></div><div class="news-body"><div class="news-badge ncaam">NCAAM</div><div class="news-title">Top seed upset: #16 Fairleigh Dickinson stuns #1 Purdue in first round</div><div class="news-meta">CBS Sports -- 1h ago</div></div></div>
+          <div class="news-card"><div class="news-thumb" style="background:linear-gradient(135deg,#A855F7,#6b21a8);"><div class="news-thumb-text">WNBA<br>UPDATE</div></div><div class="news-body"><div class="news-badge wnba">WNBA</div><div class="news-title">Caitlin Clark signs record-breaking endorsement deal ahead of season</div><div class="news-meta">The Athletic -- 2h ago</div></div></div>
+          <div class="news-card"><div class="news-thumb" style="background:linear-gradient(135deg,#EF4444,#991b1b);"><div class="news-thumb-text">INJURY<br>REPORT</div></div><div class="news-body"><div class="news-badge nba">NBA</div><div class="news-title">Embiid expected to return for playoff push, team sources confirm</div><div class="news-meta">Woj (ESPN) -- 3h ago</div></div></div>
+          <div class="news-card"><div class="news-thumb" style="background:linear-gradient(135deg,#3B82F6,#1e40af);"><div class="news-thumb-text">DRAFT<br>NEWS</div></div><div class="news-body"><div class="news-badge nba">NBA</div><div class="news-title">2026 Mock Draft: Cooper Flagg projected unanimous #1 pick</div><div class="news-meta">Bleacher Report -- 5h ago</div></div></div>
+        </div>
+        <div class="tab-bar"><div class="tab-item"><span class="tab-letter">H</span><span class="tab-name">HOME</span></div><div class="tab-item"><span class="tab-letter">S</span><span class="tab-name">SCORES</span></div><div class="tab-item"><span class="tab-letter">C</span><span class="tab-name">COURT</span></div><div class="tab-item"><span class="tab-letter active">?</span><span class="tab-name active">SEARCH</span></div><div class="tab-item"><span class="tab-letter">P</span><span class="tab-name">PROFILE</span></div></div>
+      </div>
+    </div>
+    <div style="padding-bottom:120px;flex-shrink:0;display:flex;gap:50px;">
+      <div style="text-align:center;"><div style="font-family:'Inter',sans-serif;font-weight:800;font-size:22px;color:#FF6B35;text-transform:uppercase;letter-spacing:2px;">ESPN</div><div style="font-family:'Inter',sans-serif;font-weight:500;font-size:14px;color:rgba(255,255,255,0.3);margin-top:4px;">Source</div></div>
+      <div style="text-align:center;"><div style="font-family:'Inter',sans-serif;font-weight:800;font-size:22px;color:#FF6B35;text-transform:uppercase;letter-spacing:2px;">THE ATHLETIC</div><div style="font-family:'Inter',sans-serif;font-weight:500;font-size:14px;color:rgba(255,255,255,0.3);margin-top:4px;">Source</div></div>
+      <div style="text-align:center;"><div style="font-family:'Inter',sans-serif;font-weight:800;font-size:22px;color:#FF6B35;text-transform:uppercase;letter-spacing:2px;">CBS SPORTS</div><div style="font-family:'Inter',sans-serif;font-weight:500;font-size:14px;color:rgba(255,255,255,0.3);margin-top:4px;">Source</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 6: FEATURES -->
+<div class="slide-label">6 / 9 -- FEATURES</div>
+<div id="slide-6-features" class="screenshot-slide" style="background:linear-gradient(170deg,#E05A28 0%,#FF6B35 50%,#D45520 100%);">
+  <div class="deco-circle" style="width:500px;height:500px;top:-120px;right:-160px;"></div>
+  <div class="deco-circle" style="width:400px;height:400px;bottom:80px;left:-100px;"></div>
+  <div class="deco-basketball" style="width:120px;height:120px;top:180px;left:80px;"></div>
+  <div class="deco-basketball" style="width:80px;height:80px;bottom:200px;right:120px;"></div>
+  <div class="deco-line" style="width:300px;top:400px;right:100px;transform:rotate(-5deg);"></div>
+  <div class="deco-dot" style="width:8px;height:8px;top:500px;left:200px;"></div>
+  <div class="deco-dot" style="width:6px;height:6px;bottom:400px;right:250px;"></div>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;width:100%;height:100%;padding:120px 80px;">
+    <!-- Header -->
+    <div style="text-align:center;margin-bottom:80px;">
+      <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:18px;letter-spacing:6px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:16px;">EVERYTHING YOU NEED</div>
+      <div style="font-family:'Anton',sans-serif;font-size:96px;color:#fff;line-height:1;letter-spacing:2px;">PACKED WITH<br><span class="accent">FEATURES</span></div>
+    </div>
+    <!-- 3x3 Feature Grid -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:30px;width:100%;max-width:1100px;">
+      <!-- Feature 1: Live Scores -->
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:30px;text-align:center;">
+        <div style="width:56px;height:56px;border-radius:50%;background:rgba(255,107,53,0.15);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div style="font-family:'Anton',sans-serif;font-size:20px;color:#fff;letter-spacing:1px;margin-bottom:8px;">LIVE SCORES</div>
+        <div style="font-family:'Inter',sans-serif;font-size:14px;color:rgba(255,255,255,0.5);line-height:1.4;">Real-time scores across 6+ leagues</div>
+      </div>
+      <!-- Feature 2: Hot Takes -->
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:30px;text-align:center;">
+        <div style="width:56px;height:56px;border-radius:50%;background:rgba(255,107,53,0.15);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div style="font-family:'Anton',sans-serif;font-size:20px;color:#fff;letter-spacing:1px;margin-bottom:8px;">HOT TAKES</div>
+        <div style="font-family:'Inter',sans-serif;font-size:14px;color:rgba(255,255,255,0.5);line-height:1.4;">Share your basketball opinions</div>
+      </div>
+      <!-- Feature 3: Player Stats -->
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:30px;text-align:center;">
+        <div style="width:56px;height:56px;border-radius:50%;background:rgba(255,107,53,0.15);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div style="font-family:'Anton',sans-serif;font-size:20px;color:#fff;letter-spacing:1px;margin-bottom:8px;">PLAYER STATS</div>
+        <div style="font-family:'Inter',sans-serif;font-size:14px;color:rgba(255,255,255,0.5);line-height:1.4;">450+ active player profiles</div>
+      </div>
+      <!-- Feature 4: Box Scores -->
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:30px;text-align:center;">
+        <div style="width:56px;height:56px;border-radius:50%;background:rgba(255,107,53,0.15);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+        </div>
+        <div style="font-family:'Anton',sans-serif;font-size:20px;color:#fff;letter-spacing:1px;margin-bottom:8px;">BOX SCORES</div>
+        <div style="font-family:'Inter',sans-serif;font-size:14px;color:rgba(255,255,255,0.5);line-height:1.4;">Detailed game breakdowns</div>
+      </div>
+      <!-- Feature 5: Breaking News -->
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:30px;text-align:center;">
+        <div style="width:56px;height:56px;border-radius:50%;background:rgba(255,107,53,0.15);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><line x1="10" y1="6" x2="18" y2="6"/><line x1="10" y1="10" x2="18" y2="10"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+        </div>
+        <div style="font-family:'Anton',sans-serif;font-size:20px;color:#fff;letter-spacing:1px;margin-bottom:8px;">BREAKING NEWS</div>
+        <div style="font-family:'Inter',sans-serif;font-size:14px;color:rgba(255,255,255,0.5);line-height:1.4;">Curated from top sources</div>
+      </div>
+      <!-- Feature 6: Play-by-Play -->
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:30px;text-align:center;">
+        <div style="width:56px;height:56px;border-radius:50%;background:rgba(255,107,53,0.15);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </div>
+        <div style="font-family:'Anton',sans-serif;font-size:20px;color:#fff;letter-spacing:1px;margin-bottom:8px;">PLAY-BY-PLAY</div>
+        <div style="font-family:'Inter',sans-serif;font-size:14px;color:rgba(255,255,255,0.5);line-height:1.4;">Live game commentary</div>
+      </div>
+      <!-- Feature 7: User Profiles -->
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:30px;text-align:center;">
+        <div style="width:56px;height:56px;border-radius:50%;background:rgba(255,107,53,0.15);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div style="font-family:'Anton',sans-serif;font-size:20px;color:#fff;letter-spacing:1px;margin-bottom:8px;">USER PROFILES</div>
+        <div style="font-family:'Inter',sans-serif;font-size:14px;color:rgba(255,255,255,0.5);line-height:1.4;">Build your basketball identity</div>
+      </div>
+      <!-- Feature 8: Push Alerts -->
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:30px;text-align:center;">
+        <div style="width:56px;height:56px;border-radius:50%;background:rgba(255,107,53,0.15);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </div>
+        <div style="font-family:'Anton',sans-serif;font-size:20px;color:#fff;letter-spacing:1px;margin-bottom:8px;">PUSH ALERTS</div>
+        <div style="font-family:'Inter',sans-serif;font-size:14px;color:rgba(255,255,255,0.5);line-height:1.4;">Never miss a big moment</div>
+      </div>
+      <!-- Feature 9: Multi-League -->
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:20px;padding:30px;text-align:center;">
+        <div style="width:56px;height:56px;border-radius:50%;background:rgba(255,107,53,0.15);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        </div>
+        <div style="font-family:'Anton',sans-serif;font-size:20px;color:#fff;letter-spacing:1px;margin-bottom:8px;">MULTI-LEAGUE</div>
+        <div style="font-family:'Inter',sans-serif;font-size:14px;color:rgba(255,255,255,0.5);line-height:1.4;">NBA, WNBA, NCAA & more</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 7: STAT LAB / ASK THE LAB -->
+<div class="slide-label">7 / 9 -- STAT LAB</div>
+<div id="slide-7-statlab" class="screenshot-slide" style="background:linear-gradient(170deg,#D45520 0%,#FF6B35 45%,#CC4E20 100%);">
+  <div class="deco-circle" style="width:320px;height:320px;top:40px;right:-90px;"></div>
+  <div class="deco-circle" style="width:280px;height:280px;bottom:-60px;left:-70px;border-color:rgba(16,185,129,0.18);"></div>
+  <div class="deco-basketball" style="width:80px;height:80px;top:120px;left:90px;"></div>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;width:100%;height:100%;">
+    <div style="padding-top:90px;text-align:center;flex-shrink:0;">
+      <div class="headline" style="font-size:60px;margin-bottom:16px;">ASK THE LAB<br><span class="accent">ANYTHING</span></div>
+      <div class="subheadline" style="font-size:20px;">Natural-language stat queries powered by AI.<br>Plain English, every matching game.</div>
+    </div>
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:30px 0;">
+      <div class="phone-frame" style="transform:scale(1.65);">
+        <div class="status-bar"><span style="font-size:12px;">9:41</span><div style="font-size:10px;color:rgba(255,255,255,0.6);">||||&nbsp;100%</div></div>
+        <div class="screen-content">
+          <div style="padding:8px 14px 4px;">
+            <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:10px;letter-spacing:2px;color:#FF6B35;">STAT LAB &middot; AI POWERED</div>
+            <div style="font-family:'Anton',sans-serif;font-size:22px;letter-spacing:1.5px;color:#fff;margin-top:3px;">ASK ANYTHING</div>
+          </div>
+          <div style="margin:6px 14px;background:#1A1A1A;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px;font-family:'Inter',sans-serif;font-size:11px;color:#fff;line-height:1.4;">
+            Show me every game where
+            <span style="background:rgba(16,185,129,0.15);color:#10B981;padding:1px 5px;border-radius:3px;font-weight:700;">Jokic</span>
+            had
+            <span style="background:rgba(59,130,246,0.15);color:#3B82F6;padding:1px 5px;border-radius:3px;font-weight:700;">10+ assists</span>
+            <span style="background:rgba(255,107,53,0.15);color:#FF6B35;padding:1px 5px;border-radius:3px;font-weight:700;">vs a top-10 defense</span>
+          </div>
+          <div style="display:flex;gap:8px;padding:4px 14px 6px;font-family:'Roboto Mono',monospace;font-size:8px;font-weight:700;letter-spacing:0.5px;">
+            <span style="color:#10B981;">&bull; PLAYER</span><span style="color:#3B82F6;">&bull; STAT</span><span style="color:#FF6B35;">&bull; FILTER</span>
+          </div>
+          <div style="margin:4px 14px;background:rgba(255,107,53,0.06);border:1px solid rgba(255,107,53,0.25);border-radius:8px;padding:8px 10px;">
+            <div style="font-family:'Roboto Mono',monospace;font-size:8px;font-weight:800;color:#FF6B35;letter-spacing:1.5px;margin-bottom:4px;">&bull; I FOUND</div>
+            <div style="display:grid;grid-template-columns:60px 1fr;gap:4px 6px;font-family:'Inter',sans-serif;font-size:9px;line-height:1.3;">
+              <div style="color:rgba(255,255,255,0.5);font-family:'Roboto Mono',monospace;font-size:7px;letter-spacing:1px;text-transform:uppercase;">PLAYER</div><div style="color:#10B981;font-weight:700;">Nikola Jokic &middot; DEN</div>
+              <div style="color:rgba(255,255,255,0.5);font-family:'Roboto Mono',monospace;font-size:7px;letter-spacing:1px;text-transform:uppercase;">CONDITION</div><div style="color:#3B82F6;font-weight:700;">Assists &ge; 10</div>
+              <div style="color:rgba(255,255,255,0.5);font-family:'Roboto Mono',monospace;font-size:7px;letter-spacing:1px;text-transform:uppercase;">OPPONENT</div><div style="color:#FF6B35;font-weight:700;">Top-10 Def Rtg</div>
+            </div>
+          </div>
+          <div style="background:#FF6B35;margin:6px 14px;padding:7px;text-align:center;border-radius:6px;font-family:'Anton',sans-serif;font-size:11px;letter-spacing:2px;color:#fff;">&#9654; RUN QUERY</div>
+          <div style="padding:4px 14px 0;display:flex;justify-content:space-between;align-items:baseline;">
+            <span style="font-family:'Anton',sans-serif;font-size:12px;letter-spacing:1.5px;color:#fff;">RESULTS</span>
+            <span style="font-family:'Roboto Mono',monospace;font-size:8px;font-weight:700;color:#FF6B35;">14 GAMES &middot; 21.4 AVG AST</span>
+          </div>
+          <div style="padding:0 14px;font-family:'Inter',sans-serif;font-size:10px;">
+            <div style="display:grid;grid-template-columns:50px 60px 1fr;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span style="font-family:'Roboto Mono',monospace;font-size:8px;color:rgba(255,255,255,0.5);">NOV 4</span><span style="font-family:'Anton',sans-serif;font-size:10px;letter-spacing:1px;color:#fff;">DEN @ MIL</span><span style="font-family:'Roboto Mono',monospace;font-weight:700;color:#FF6B35;text-align:right;">26 / 12 / 11</span></div>
+            <div style="display:grid;grid-template-columns:50px 60px 1fr;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span style="font-family:'Roboto Mono',monospace;font-size:8px;color:rgba(255,255,255,0.5);">NOV 8</span><span style="font-family:'Anton',sans-serif;font-size:10px;letter-spacing:1px;color:#fff;">OKC vs DEN</span><span style="font-family:'Roboto Mono',monospace;font-weight:700;color:#FF6B35;text-align:right;">19 / 10 / 9</span></div>
+            <div style="display:grid;grid-template-columns:50px 60px 1fr;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span style="font-family:'Roboto Mono',monospace;font-size:8px;color:rgba(255,255,255,0.5);">DEC 2</span><span style="font-family:'Anton',sans-serif;font-size:10px;letter-spacing:1px;color:#fff;">DEN @ HOU</span><span style="font-family:'Roboto Mono',monospace;font-weight:700;color:#FF6B35;text-align:right;">31 / 11 / 12</span></div>
+          </div>
+        </div>
+        <div class="tab-bar"><div class="tab-item"><span class="tab-letter">H</span><span class="tab-name">HOME</span></div><div class="tab-item"><span class="tab-letter">S</span><span class="tab-name">SCORES</span></div><div class="tab-item"><span class="tab-letter active">L</span><span class="tab-name active">LAB</span></div><div class="tab-item"><span class="tab-letter">C</span><span class="tab-name">COURT</span></div><div class="tab-item"><span class="tab-letter">M</span><span class="tab-name">MORE</span></div></div>
+      </div>
+    </div>
+    <div style="padding-bottom:60px;flex-shrink:0;display:flex;gap:60px;align-items:center;">
+      <div style="text-align:center;"><div style="font-family:'Roboto Mono',monospace;font-weight:700;font-size:36px;color:#000;">AI</div><div style="font-family:'Inter',sans-serif;font-weight:600;font-size:14px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:2px;">Powered</div></div>
+      <div style="text-align:center;"><div style="font-family:'Anton',sans-serif;font-size:36px;color:#000;letter-spacing:2px;">REAL</div><div style="font-family:'Inter',sans-serif;font-weight:600;font-size:14px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:2px;">Game Data</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 8: TAKE CARD -->
+<div class="slide-label">8 / 9 -- TAKE CARD</div>
+<div id="slide-8-takecard" class="screenshot-slide" style="background:linear-gradient(160deg,#FF6B35 0%,#FF8C5A 50%,#CC4E20 100%);">
+  <div class="deco-circle" style="width:360px;height:360px;top:-90px;right:-80px;"></div>
+  <div class="deco-circle" style="width:260px;height:260px;bottom:80px;left:-70px;"></div>
+  <div class="deco-basketball" style="width:90px;height:90px;bottom:200px;right:90px;"></div>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;width:100%;height:100%;">
+    <div style="padding-top:90px;text-align:center;flex-shrink:0;">
+      <div class="headline" style="font-size:60px;margin-bottom:16px;">ONE TAP<br><span class="accent">VIRAL SHARES</span></div>
+      <div class="subheadline" style="font-size:20px;">Turn any stat into a shareable card.<br>Post directly to X, Instagram, Facebook, Reddit.</div>
+    </div>
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:20px 0;gap:24px;">
+      <div style="width:340px;aspect-ratio:4/5;background:#F5F1EA;border-radius:18px;padding:24px;display:flex;flex-direction:column;position:relative;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,0.35);transform:rotate(-3deg);">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:14px;letter-spacing:2.5px;color:#0a0a0a;"><span style="width:8px;height:8px;background:#FF6B35;border-radius:50%;display:inline-block;margin-right:8px;vertical-align:middle;"></span>BASKTBALL</div>
+          <div style="font-family:'Roboto Mono',monospace;font-size:9px;letter-spacing:2px;color:#0a0a0a;border:1px solid #0a0a0a;padding:2px 6px;border-radius:3px;opacity:0.7;">STAT LINE</div>
+        </div>
+        <div style="font-family:'Anton',sans-serif;font-size:160px;line-height:0.85;color:#FF6B35;margin-top:16px;letter-spacing:-3px;">19</div>
+        <div style="font-family:'Anton',sans-serif;font-size:20px;letter-spacing:4px;color:#0a0a0a;opacity:0.7;margin-top:4px;">REBOUNDS</div>
+        <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:18px;line-height:1.3;color:#0a0a0a;margin-top:20px;">Jokic grabbed 19 boards — his 15th career triple-double vs LAL.</div>
+        <div style="margin-top:auto;padding-top:16px;border-top:1px solid rgba(0,0,0,0.15);display:flex;justify-content:space-between;align-items:flex-end;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#FF6B35,#C04420);border:2px solid #0a0a0a;display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;font-size:11px;color:#fff;">BB</div>
+            <div>
+              <div style="font-family:'Roboto Mono',monospace;font-size:7px;letter-spacing:1.5px;color:#0a0a0a;opacity:0.6;text-transform:uppercase;">SHARED BY</div>
+              <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:11px;color:#0a0a0a;margin-top:2px;">@basktball</div>
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-family:'Roboto Mono',monospace;font-size:7px;letter-spacing:1.5px;color:#0a0a0a;opacity:0.6;text-transform:uppercase;">POWERED BY</div>
+            <div style="font-family:'Anton',sans-serif;font-size:13px;letter-spacing:1.5px;color:#0a0a0a;margin-top:3px;">BASKTBALL.COM</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="display:flex;align-items:center;gap:10px;background:#fff;color:#000;padding:14px 24px;border-radius:14px;font-family:'Inter',sans-serif;font-weight:800;font-size:16px;letter-spacing:1.5px;"><span style="width:24px;height:24px;background:#000;color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;font-size:14px;">X</span>POST ON X</div>
+        <div style="display:flex;align-items:center;gap:10px;background:#E4405F;color:#fff;padding:12px 24px;border-radius:14px;font-family:'Inter',sans-serif;font-weight:700;font-size:14px;letter-spacing:1.5px;">IG &nbsp; INSTAGRAM</div>
+        <div style="display:flex;align-items:center;gap:10px;background:#1877F2;color:#fff;padding:12px 24px;border-radius:14px;font-family:'Inter',sans-serif;font-weight:700;font-size:14px;letter-spacing:1.5px;">FB &nbsp; FACEBOOK</div>
+        <div style="display:flex;align-items:center;gap:10px;background:#FF4500;color:#fff;padding:12px 24px;border-radius:14px;font-family:'Inter',sans-serif;font-weight:700;font-size:14px;letter-spacing:1.5px;">RD &nbsp; REDDIT</div>
+      </div>
+    </div>
+    <div style="padding-bottom:60px;flex-shrink:0;display:flex;gap:50px;align-items:center;">
+      <div style="text-align:center;"><div style="font-family:'Roboto Mono',monospace;font-weight:700;font-size:36px;color:#000;">5</div><div style="font-family:'Inter',sans-serif;font-weight:600;font-size:14px;color:rgba(0,0,0,0.5);text-transform:uppercase;letter-spacing:2px;">Templates</div></div>
+      <div style="text-align:center;"><div style="font-family:'Roboto Mono',monospace;font-weight:700;font-size:36px;color:#000;">3</div><div style="font-family:'Inter',sans-serif;font-weight:600;font-size:14px;color:rgba(0,0,0,0.5);text-transform:uppercase;letter-spacing:2px;">Themes</div></div>
+      <div style="text-align:center;"><div style="font-family:'Roboto Mono',monospace;font-weight:700;font-size:36px;color:#000;">AI</div><div style="font-family:'Inter',sans-serif;font-weight:600;font-size:14px;color:rgba(0,0,0,0.5);text-transform:uppercase;letter-spacing:2px;">Captions</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 9: GAME DAY + PROFILE -->
+<div class="slide-label">9 / 9 -- GAME DAY</div>
+<div id="slide-6" class="screenshot-slide" style="background:linear-gradient(170deg,#CC4E20 0%,#FF6B35 50%,#CC4E20 100%);">
+  <div class="deco-circle" style="width:500px;height:500px;top:-100px;right:-150px;border-color:rgba(239,68,68,0.12);"></div>
+  <div class="deco-circle" style="width:350px;height:350px;bottom:100px;left:-80px;"></div>
+  <div class="deco-basketball" style="width:140px;height:140px;top:150px;left:100px;"></div>
+  <div class="deco-basketball" style="width:90px;height:90px;bottom:250px;right:150px;"></div>
+  <div class="deco-line" style="width:350px;bottom:200px;left:150px;transform:rotate(8deg);"></div>
+  <div style="position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;width:100%;height:100%;">
+    <div style="padding-top:150px;text-align:center;flex-shrink:0;">
+      <div class="headline" style="font-size:86px;margin-bottom:24px;">THE FULL<br><span class="accent">GAME DAY</span></div>
+      <div class="subheadline" style="font-size:26px;">Box scores, play-by-play, and community<br>reaction -- all in one place.</div>
+    </div>
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;gap:60px;padding:60px 0;">
+      <div class="phone-frame" style="transform:scale(1.55);">
+        <div class="status-bar"><span class="time" style="font-size:14px;">9:41</span><div style="display:flex;gap:6px;align-items:center;font-size:11px;color:rgba(255,255,255,0.6);">||||&nbsp;100%</div></div>
+        <div class="screen-content">
+          <div style="padding:8px 16px;"><span style="font-family:'Inter',sans-serif;font-weight:500;font-size:14px;color:#FF6B35;">< Back</span></div>
+          <div style="text-align:center;padding:8px 16px;"><div class="badge live" style="margin-bottom:8px;"><span class="bdot"></span> LIVE -- Q4 3:22</div><div class="gd-score-row"><div class="gd-team"><div class="gd-team-logo">LAL</div><div class="gd-team-name">LAL</div></div><div class="gd-big-score">112</div><div class="gd-dash">-</div><div class="gd-big-score">108</div><div class="gd-team"><div class="gd-team-logo">BOS</div><div class="gd-team-name">BOS</div></div></div><div class="gd-info">TNT -- Crypto.com Arena</div></div>
+          <div class="segment-control" style="margin-top:4px;"><div class="segment active">BOX SCORE</div><div class="segment">PLAYS</div><div class="segment">TAKES</div></div>
+          <div class="box-score"><div class="box-team-name" style="color:#FF6B35;">LAKERS</div><div class="box-header"><span class="box-player">PLAYER</span><span class="box-col">PTS</span><span class="box-col">REB</span><span class="box-col">AST</span></div><div class="box-row"><span class="box-player">L. James</span><span class="box-col highlight">28</span><span class="box-col">9</span><span class="box-col">11</span></div><div class="box-row"><span class="box-player">A. Davis</span><span class="box-col highlight">24</span><span class="box-col">12</span><span class="box-col">3</span></div><div class="box-row"><span class="box-player">A. Reaves</span><span class="box-col">18</span><span class="box-col">4</span><span class="box-col">6</span></div><div class="box-row"><span class="box-player">D. Russell</span><span class="box-col">14</span><span class="box-col">2</span><span class="box-col">8</span></div></div>
+        </div>
+        <div class="tab-bar"><div class="tab-item"><span class="tab-letter">H</span><span class="tab-name">HOME</span></div><div class="tab-item"><span class="tab-letter active">S</span><span class="tab-name active">SCORES</span></div><div class="tab-item"><span class="tab-letter">C</span><span class="tab-name">COURT</span></div><div class="tab-item"><span class="tab-letter">?</span><span class="tab-name">SEARCH</span></div><div class="tab-item"><span class="tab-letter">P</span><span class="tab-name">PROFILE</span></div></div>
+      </div>
+      <div class="phone-frame" style="transform:scale(1.55);">
+        <div class="status-bar"><span class="time" style="font-size:14px;">9:41</span><div style="display:flex;gap:6px;align-items:center;font-size:11px;color:rgba(255,255,255,0.6);">||||&nbsp;100%</div></div>
+        <div class="screen-content">
+          <div class="section-header">PROFILE</div>
+          <div class="profile-header"><div class="profile-avatar">JB</div><div class="profile-name">Jordan_Buckets</div><div class="profile-handle">@jordan_buckets</div><div class="profile-bio">Hoops analyst. Lakers die-hard. Taking the best takes since '98.</div><div class="profile-btn">EDIT PROFILE</div></div>
+          <div class="profile-stats"><div class="prof-stat"><div class="prof-stat-num">847</div><div class="prof-stat-label">TAKES</div></div><div class="prof-stat"><div class="prof-stat-num">2.1K</div><div class="prof-stat-label">FOLLOWERS</div></div><div class="prof-stat"><div class="prof-stat-num">312</div><div class="prof-stat-label">FOLLOWING</div></div></div>
+          <div class="segment-control" style="margin-top:8px;"><div class="segment active">TAKES</div><div class="segment">REPLIES</div><div class="segment">SAVED</div></div>
+          <div class="take-card"><div class="take-header"><div class="take-avatar" style="background:#FF6B35;">JB</div><div><div class="take-author">Jordan_Buckets</div><div class="take-handle">@jordan_buckets</div></div><div class="take-time">3h</div></div><div class="take-content">The Lakers are making moves and nobody is talking about it. AD is playing at an MVP level.</div><div class="take-reactions"><span class="reaction fire"><span class="r-icon">F</span> 342</span><span class="reaction"><span class="r-icon">R</span> 67</span></div></div>
+          <div class="take-card"><div class="take-header"><div class="take-avatar" style="background:#FF6B35;">JB</div><div><div class="take-author">Jordan_Buckets</div><div class="take-handle">@jordan_buckets</div></div><div class="take-time">8h</div></div><div class="take-content">SGA vs Luka for MVP is the best debate in basketball right now.</div><div class="take-reactions"><span class="reaction fire"><span class="r-icon">F</span> 891</span><span class="reaction"><span class="r-icon">R</span> 234</span></div></div>
+        </div>
+        <div class="tab-bar"><div class="tab-item"><span class="tab-letter">H</span><span class="tab-name">HOME</span></div><div class="tab-item"><span class="tab-letter">S</span><span class="tab-name">SCORES</span></div><div class="tab-item"><span class="tab-letter">C</span><span class="tab-name">COURT</span></div><div class="tab-item"><span class="tab-letter">?</span><span class="tab-name">SEARCH</span></div><div class="tab-item"><span class="tab-letter active">P</span><span class="tab-name active">PROFILE</span></div></div>
+      </div>
+    </div>
+    <div style="padding-bottom:120px;flex-shrink:0;text-align:center;">
+      <div style="font-family:'Anton',sans-serif;font-size:52px;color:#fff;letter-spacing:3px;margin-bottom:16px;">DOWNLOAD <span style="color:#FF6B35;">FREE</span></div>
+      <div style="font-family:'Inter',sans-serif;font-weight:500;font-size:22px;color:rgba(255,255,255,0.5);letter-spacing:1px;">Available on iOS</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function setZoom(level) {
+  document.querySelectorAll('.screenshot-slide').forEach(function(el) {
+    el.style.transform = 'scale(' + level + ')';
+    el.style.transformOrigin = 'top center';
+    el.style.marginBottom = (-(2868 * (1 - level)) + 60) + 'px';
+  });
+  document.querySelectorAll('.zoom-btn').forEach(function(btn) { btn.classList.remove('active'); });
+  event.target.classList.add('active');
+}
+window.addEventListener('load', function() {
+  document.querySelectorAll('.screenshot-slide').forEach(function(el) {
+    el.style.transform = 'scale(0.5)';
+    el.style.transformOrigin = 'top center';
+    el.style.marginBottom = (-(2868 * 0.5) + 60) + 'px';
+  });
+});
+</script>
+</body>
+</html>
