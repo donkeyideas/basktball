@@ -38,6 +38,10 @@
     {
       "path": "/api/cron/auto-broadcast",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/refresh-card-suggestions",
+      "schedule": "0 12,18,0 * * *"
     }
   ]
 }

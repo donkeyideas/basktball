@@ -23,6 +23,25 @@ type Theme = 'light' | 'dark' | 'orange';
 type Template = 'stat-line' | 'comparison' | 'hot-take' | 'quote' | 'ranking';
 type Tone = 'analytical' | 'hot-take' | 'short';
 
+type CardSuggestion = {
+  id: string;
+  league: 'nba' | 'wnba' | 'ncaam' | 'ncaaw';
+  leagueLabel: string;
+  template: Template;
+  theme: Theme;
+  tag: string;
+  seed: {
+    template?: string;
+    theme?: string;
+    tag?: string;
+    headline?: string;
+    context?: string;
+    meta?: string;
+    num?: string;
+    unit?: string;
+  };
+};
+
 const TEMPLATES: { id: Template; label: string; tag: string }[] = [
   { id: 'stat-line', label: 'Stat Line', tag: 'STAT LINE' },
   { id: 'comparison', label: 'Comparison', tag: 'COMPARISON' },
@@ -63,6 +82,40 @@ export default function TakeCardScreen() {
   const [imageError, setImageError] = useState(false);
   const [includeLink, setIncludeLink] = useState(true);
   const [showFields, setShowFields] = useState(true);
+
+  // Auto-populated suggestion deck (refreshed by server cron 3×/day from ESPN news).
+  const [suggestions, setSuggestions] = useState<CardSuggestion[]>([]);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setSuggestionsLoading(true);
+    api
+      .get<{ suggestions: CardSuggestion[] }>('/cards/suggestions')
+      .then((d) => {
+        if (!cancelled && d?.suggestions?.length) setSuggestions(d.suggestions);
+      })
+      .catch(() => {
+        /* silent — suggestions are optional UI */
+      })
+      .finally(() => {
+        if (!cancelled) setSuggestionsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const applySuggestion = (s: CardSuggestion) => {
+    const seed = s.seed;
+    if (seed.template) setTemplate(seed.template as Template);
+    if (seed.theme) setTheme(seed.theme as Theme);
+    if (seed.headline !== undefined) setHeadline(seed.headline);
+    if (seed.context !== undefined) setContext(seed.context);
+    if (seed.meta !== undefined) setMeta(seed.meta);
+    if (seed.num !== undefined) setNum(seed.num);
+    if (seed.unit !== undefined) setUnit(seed.unit);
+  };
 
   // Per-template starter content. Shown the moment a template is picked so the
   // preview always has something meaningful — the user edits in place.
@@ -229,6 +282,7 @@ export default function TakeCardScreen() {
                 source={{ uri: imageUrl }}
                 style={styles.image}
                 contentFit="contain"
+                cachePolicy="none"
                 onLoadStart={() => {
                   setImageLoading(true);
                   setImageError(false);
@@ -268,6 +322,65 @@ export default function TakeCardScreen() {
             )}
           </View>
         </View>
+
+        {/* Auto-populated suggestion deck */}
+        {(suggestionsLoading || suggestions.length > 0) && (
+          <>
+            <View style={styles.suggHeader}>
+              <Text style={[styles.ctrlLabel, { color: colors.textSecondary }]}>TODAY'S CARDS</Text>
+              <Text style={[styles.suggSub, { color: colors.textTertiary }]}>
+                FROM ESPN · TAP TO LOAD
+              </Text>
+            </View>
+            {suggestionsLoading && suggestions.length === 0 ? (
+              <View style={[styles.suggLoading, { backgroundColor: colors.surface }]}>
+                <ActivityIndicator color={Colors.orange} size="small" />
+              </View>
+            ) : (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.suggRow}
+              >
+                {suggestions.map((s) => (
+                  <TouchableOpacity
+                    key={s.id}
+                    style={[
+                      styles.suggCard,
+                      s.theme === 'light' && styles.suggCardLight,
+                      s.theme === 'dark' && styles.suggCardDark,
+                      s.theme === 'orange' && styles.suggCardOrange,
+                    ]}
+                    onPress={() => applySuggestion(s)}
+                    activeOpacity={0.85}
+                  >
+                    <View style={styles.suggCardHead}>
+                      <Text
+                        style={[
+                          styles.suggLeague,
+                          s.theme === 'orange' ? styles.suggOnLight : null,
+                          s.theme === 'light' ? styles.suggOnLight : null,
+                        ]}
+                      >
+                        {s.leagueLabel}
+                      </Text>
+                    </View>
+                    <Text
+                      style={[
+                        styles.suggHeadline,
+                        s.theme === 'orange' ? styles.suggOnLight : null,
+                        s.theme === 'light' ? styles.suggOnLight : null,
+                      ]}
+                      numberOfLines={4}
+                    >
+                      {s.seed.headline}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            )}
+          </>
+        )}
 
         {/* Template */}
         <Text style={[styles.ctrlLabel, { color: colors.textSecondary }]}>TEMPLATE</Text>
@@ -748,6 +861,54 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     fontSize: 15,
     letterSpacing: 2,
+  },
+  suggHeader: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    marginTop: 4,
+    marginBottom: 8,
+  },
+  suggSub: {
+    fontFamily: Fonts.mono,
+    fontSize: 10,
+    letterSpacing: 1.5,
+  },
+  suggLoading: {
+    height: 110,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  suggRow: { gap: 10, paddingBottom: 4, marginBottom: 16 },
+  suggCard: {
+    width: 200,
+    minHeight: 130,
+    padding: 12,
+    borderRadius: 10,
+    marginRight: 10,
+    overflow: 'hidden',
+  },
+  suggCardLight: { backgroundColor: '#F5F1EA' },
+  suggCardDark: { backgroundColor: '#0A0A0A', borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  suggCardOrange: { backgroundColor: Colors.orange },
+  suggCardHead: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
+  suggLeague: {
+    fontFamily: Fonts.mono,
+    fontSize: 9,
+    letterSpacing: 1.5,
+    color: '#fff',
+    opacity: 0.85,
+    fontWeight: '700',
+  },
+  suggOnLight: { color: '#0a0a0a' },
+  suggHeadline: {
+    fontFamily: Fonts.anton,
+    fontSize: 16,
+    letterSpacing: 0.5,
+    lineHeight: 18,
+    color: '#fff',
   },
   socialRow: { flexDirection: 'row', gap: 8, marginBottom: 8 },
   socialBtn: {
