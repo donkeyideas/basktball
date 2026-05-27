@@ -101,7 +101,7 @@ function articleToSuggestion(
   const tag = `${leagueLabel} · HOT TAKE`;
 
   return {
-    id: `s_${article.id}`,
+    id: `s_${leagueId}_${article.id}`,
     league: leagueId,
     leagueLabel,
     template: "hot-take",
@@ -134,13 +134,15 @@ async function buildSuggestions(): Promise<CardSuggestion[]> {
   );
 
   const suggestions: CardSuggestion[] = [];
+  const seen = new Set<string>();
   LEAGUE_MAP.forEach((lg, lgIdx) => {
     const arts = all[lgIdx] || [];
     let added = 0;
     for (const art of arts) {
       if (added >= PER_LEAGUE) break;
       const s = articleToSuggestion(art, lg.id, lg.label, suggestions.length);
-      if (s) {
+      if (s && !seen.has(s.id)) {
+        seen.add(s.id);
         suggestions.push(s);
         added++;
       }

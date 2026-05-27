@@ -111,7 +111,15 @@ export default function TakeCardScreen() {
     api
       .get<{ suggestions: CardSuggestion[] }>('/cards/suggestions')
       .then((d) => {
-        if (!cancelled && d?.suggestions?.length) setSuggestions(d.suggestions);
+        if (!cancelled && d?.suggestions?.length) {
+          const seen = new Set<string>();
+          const unique = d.suggestions.filter((s: CardSuggestion) => {
+            if (seen.has(s.id)) return false;
+            seen.add(s.id);
+            return true;
+          });
+          setSuggestions(unique);
+        }
       })
       .catch(() => {
         /* silent — suggestions are optional UI */

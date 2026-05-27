@@ -186,7 +186,15 @@ export default function HomeScreen() {
     setCardSuggestionsLoading(true);
     try {
       const data = await api.get<{ suggestions: CardSuggestion[] }>('/cards/suggestions');
-      if (data?.suggestions?.length) setCardSuggestions(data.suggestions);
+      if (data?.suggestions?.length) {
+        const seen = new Set<string>();
+        const unique = data.suggestions.filter((s: CardSuggestion) => {
+          if (seen.has(s.id)) return false;
+          seen.add(s.id);
+          return true;
+        });
+        setCardSuggestions(unique);
+      }
     } catch {
       /* optional UI */
     } finally {
@@ -469,71 +477,59 @@ export default function HomeScreen() {
           <ActivityIndicator color={Colors.orange} style={{ marginVertical: 20 }} />
         ) : cardSuggestions.length === 0 ? (
           <Text style={styles.emptyText}>No card suggestions yet</Text>
-        ) : (
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.horizontalScroll}
-          >
-            {cardSuggestions.map((s) => {
-              const params: Record<string, string> = {};
-              Object.entries(s.seed).forEach(([k, v]) => {
-                if (v != null && v !== '') params[k] = String(v);
-              });
-              return (
-                <TouchableOpacity
-                  key={s.id}
-                  style={[
-                    styles.cardSuggestion,
-                    s.theme === 'light' && styles.cardSuggestionLight,
-                    s.theme === 'dark' && styles.cardSuggestionDark,
-                    s.theme === 'orange' && styles.cardSuggestionOrange,
-                  ]}
-                  activeOpacity={0.85}
-                  onPress={() =>
-                    router.push({ pathname: '/share/take', params } as never)
-                  }
+        ) : (() => {
+          const s = cardSuggestions[0];
+          const params: Record<string, string> = {};
+          Object.entries(s.seed).forEach(([k, v]) => {
+            if (v != null && v !== '') params[k] = String(v);
+          });
+          const onLight = s.theme === 'orange' || s.theme === 'light';
+          return (
+            <TouchableOpacity
+              style={[
+                styles.featuredCard,
+                s.theme === 'light' && styles.cardSuggestionLight,
+                s.theme === 'dark' && styles.cardSuggestionDark,
+                s.theme === 'orange' && styles.cardSuggestionOrange,
+              ]}
+              activeOpacity={0.9}
+              onPress={() =>
+                router.push({ pathname: '/share/take', params } as never)
+              }
+            >
+              <View style={styles.featuredCardHeader}>
+                <Text style={[styles.featuredCardBrand, onLight && styles.cardSuggestionOnLight]}>
+                  <Text style={{ color: Colors.orange }}>●</Text>  BASKTBALL.COM
+                </Text>
+                <Text style={[styles.featuredCardTag, onLight && styles.cardSuggestionOnLightTag]}>
+                  {s.leagueLabel}
+                </Text>
+              </View>
+              <Text
+                style={[styles.featuredCardHeadline, onLight && styles.cardSuggestionOnLight]}
+                numberOfLines={4}
+              >
+                {s.seed.headline}
+              </Text>
+              {s.seed.context ? (
+                <Text
+                  style={[styles.featuredCardContext, onLight && styles.cardSuggestionOnLight]}
+                  numberOfLines={3}
                 >
-                  <View style={styles.cardSuggestionHeader}>
-                    <Text
-                      style={[
-                        styles.cardSuggestionLeague,
-                        (s.theme === 'orange' || s.theme === 'light') && styles.cardSuggestionOnLight,
-                      ]}
-                    >
-                      ● BASKTBALL
-                    </Text>
-                    <Text
-                      style={[
-                        styles.cardSuggestionTag,
-                        (s.theme === 'orange' || s.theme === 'light') && styles.cardSuggestionOnLight,
-                      ]}
-                    >
-                      {s.leagueLabel}
-                    </Text>
-                  </View>
-                  <Text
-                    style={[
-                      styles.cardSuggestionHeadline,
-                      (s.theme === 'orange' || s.theme === 'light') && styles.cardSuggestionOnLight,
-                    ]}
-                    numberOfLines={5}
-                  >
-                    {s.seed.headline}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.cardSuggestionFooter,
-                      (s.theme === 'orange' || s.theme === 'light') && styles.cardSuggestionOnLight,
-                    ]}
-                  >
-                    TAP TO EDIT & SHARE
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        )}
+                  {s.seed.context}
+                </Text>
+              ) : null}
+              <View style={styles.featuredCardFooter}>
+                <Text style={[styles.featuredCardFooterText, onLight && styles.cardSuggestionOnLight]}>
+                  TAP TO EDIT & SHARE
+                </Text>
+                <Text style={[styles.featuredCardWatermark, onLight && styles.cardSuggestionOnLight]}>
+                  BASKTBALL.COM
+                </Text>
+              </View>
+            </TouchableOpacity>
+          );
+        })()}
 
         {/* Latest News — moved above Trending Takes */}
         <View style={styles.sectionHeader}>
@@ -845,6 +841,83 @@ function makeStyles(colors: any) {
     marginRight: 12,
     justifyContent: 'space-between',
   },
+  featuredCard: {
+    marginHorizontal: 16,
+    aspectRatio: 4 / 5,
+    padding: 22,
+    borderRadius: 18,
+    justifyContent: 'flex-start',
+    shadowColor: '#000',
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 8,
+  },
+  featuredCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 18,
+  },
+  featuredCardBrand: {
+    fontFamily: Fonts.anton,
+    fontSize: 15,
+    letterSpacing: 2.5,
+    color: '#fff',
+  },
+  featuredCardTag: {
+    fontFamily: Fonts.mono,
+    fontSize: 11,
+    letterSpacing: 1.6,
+    color: '#fff',
+    fontWeight: '700',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.4)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  featuredCardHeadline: {
+    fontFamily: Fonts.anton,
+    fontSize: 32,
+    letterSpacing: 0.5,
+    lineHeight: 36,
+    color: '#fff',
+  },
+  featuredCardContext: {
+    fontFamily: Fonts.barlow,
+    fontSize: 15,
+    lineHeight: 21,
+    color: 'rgba(255,255,255,0.85)',
+    marginTop: 14,
+    fontWeight: '500',
+  },
+  featuredCardFooter: {
+    marginTop: 'auto',
+    paddingTop: 18,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.15)',
+  },
+  featuredCardFooterText: {
+    fontFamily: Fonts.mono,
+    fontSize: 10,
+    letterSpacing: 1.8,
+    color: '#fff',
+    opacity: 0.7,
+    fontWeight: '700',
+  },
+  featuredCardWatermark: {
+    fontFamily: Fonts.anton,
+    fontSize: 12,
+    letterSpacing: 1.5,
+    color: '#fff',
+    opacity: 0.7,
+  },
+  cardSuggestionOnLightTag: { color: '#0a0a0a', borderColor: 'rgba(0,0,0,0.4)' },
   cardSuggestionLight: { backgroundColor: '#F5F1EA' },
   cardSuggestionDark: {
     backgroundColor: '#0A0A0A',
