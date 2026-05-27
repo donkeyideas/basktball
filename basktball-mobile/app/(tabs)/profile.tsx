@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  FlatList,
   Image,
   ActivityIndicator,
   Modal,
@@ -339,132 +340,152 @@ export default function ProfileScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.orange} colors={[Colors.orange]} />
-        }
-      >
-        {/* Profile Header */}
-        <View style={styles.profileHeader}>
-          {user?.avatarUrl || user?.image ? (
-            <Image source={{ uri: user.avatarUrl || user.image }} style={styles.avatarImage} />
-          ) : (
-            <View style={styles.avatar}>
-              <Text style={styles.avatarText}>{initials}</Text>
+      {(() => {
+        const header = (
+          <>
+            {/* Profile Header */}
+            <View style={styles.profileHeader}>
+              {user?.avatarUrl || user?.image ? (
+                <Image source={{ uri: user.avatarUrl || user.image }} style={styles.avatarImage} />
+              ) : (
+                <View style={styles.avatar}>
+                  <Text style={styles.avatarText}>{initials}</Text>
+                </View>
+              )}
+              <Text style={styles.profileName}>{displayName}</Text>
+              <Text style={styles.profileHandle}>{handle}</Text>
+              {user?.bio ? <Text style={styles.profileBio}>{user.bio}</Text> : null}
+
+              {/* Stats Row */}
+              <View style={styles.statsRow}>
+                <TouchableOpacity style={styles.stat} activeOpacity={0.7}>
+                  <Text style={styles.statValue}>{user?.takeCount ?? 0}</Text>
+                  <Text style={styles.statLabel}>Takes</Text>
+                </TouchableOpacity>
+                <View style={styles.statDivider} />
+                <TouchableOpacity style={styles.stat} activeOpacity={0.7}>
+                  <Text style={styles.statValue}>{(user?.followerCount ?? 0).toLocaleString()}</Text>
+                  <Text style={styles.statLabel}>Followers</Text>
+                </TouchableOpacity>
+                <View style={styles.statDivider} />
+                <TouchableOpacity style={styles.stat} activeOpacity={0.7}>
+                  <Text style={styles.statValue}>{user?.followingCount ?? 0}</Text>
+                  <Text style={styles.statLabel}>Following</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Edit Profile Button */}
+              <TouchableOpacity style={styles.editButton} activeOpacity={0.7} onPress={openEditModal}>
+                <Text style={styles.editButtonText}>EDIT PROFILE</Text>
+              </TouchableOpacity>
             </View>
-          )}
-          <Text style={styles.profileName}>{displayName}</Text>
-          <Text style={styles.profileHandle}>{handle}</Text>
-          {user?.bio ? <Text style={styles.profileBio}>{user.bio}</Text> : null}
 
-          {/* Stats Row */}
-          <View style={styles.statsRow}>
-            <TouchableOpacity style={styles.stat} activeOpacity={0.7}>
-              <Text style={styles.statValue}>{user?.takeCount ?? 0}</Text>
-              <Text style={styles.statLabel}>Takes</Text>
+            {/* Segment Tabs */}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.segmentRow}>
+              {PROFILE_SEGMENTS.map((seg) => (
+                <TouchableOpacity
+                  key={seg}
+                  style={[styles.segment, selectedSegment === seg && styles.segmentActive]}
+                  onPress={() => setSelectedSegment(seg)}
+                >
+                  <Text style={[styles.segmentText, selectedSegment === seg && styles.segmentTextActive]}>
+                    {seg}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+            {loading ? (
+              <ActivityIndicator color={Colors.orange} style={{ marginTop: 30 }} />
+            ) : null}
+          </>
+        );
+
+        const footer = (
+          <>
+            <TouchableOpacity style={styles.logoutButton} activeOpacity={0.7} onPress={handleLogout}>
+              <Ionicons name="log-out-outline" size={20} color={Colors.red} />
+              <Text style={styles.logoutText}>Log Out</Text>
             </TouchableOpacity>
-            <View style={styles.statDivider} />
-            <TouchableOpacity style={styles.stat} activeOpacity={0.7}>
-              <Text style={styles.statValue}>{(user?.followerCount ?? 0).toLocaleString()}</Text>
-              <Text style={styles.statLabel}>Followers</Text>
-            </TouchableOpacity>
-            <View style={styles.statDivider} />
-            <TouchableOpacity style={styles.stat} activeOpacity={0.7}>
-              <Text style={styles.statValue}>{user?.followingCount ?? 0}</Text>
-              <Text style={styles.statLabel}>Following</Text>
-            </TouchableOpacity>
-          </View>
+            <View style={styles.bottomSpacer} />
+          </>
+        );
 
-          {/* Edit Profile Button */}
-          <TouchableOpacity style={styles.editButton} activeOpacity={0.7} onPress={openEditModal}>
-            <Text style={styles.editButtonText}>EDIT PROFILE</Text>
-          </TouchableOpacity>
+        // Pick the dataset + renderer for the current segment so a single
+        // virtualized FlatList drives the scroll on both platforms.
+        let data: any[] = [];
+        let renderItem: ({ item }: { item: any }) => React.ReactElement = () => <View />;
+        let emptyText = '';
 
-          {/* Admin Dashboard Button - hidden for production builds */}
-        </View>
-
-        {/* Segment Tabs */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.segmentRow}>
-          {PROFILE_SEGMENTS.map((seg) => (
-            <TouchableOpacity
-              key={seg}
-              style={[styles.segment, selectedSegment === seg && styles.segmentActive]}
-              onPress={() => setSelectedSegment(seg)}
-            >
-              <Text style={[styles.segmentText, selectedSegment === seg && styles.segmentTextActive]}>
-                {seg}
+        if (loading) {
+          // header shows the spinner; FlatList stays empty
+        } else if (selectedSegment === 'CHALLENGES') {
+          data = challenges;
+          emptyText = 'No challenges yet';
+          renderItem = ({ item: c }) => (
+            <TouchableOpacity style={styles.takeCard} activeOpacity={0.7} onPress={() => router.push(`/challenge/${c.id}` as never)}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+                <Text style={{ fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 12, color: c.status === 'COMPLETED' ? '#22C55E' : Colors.orange, textTransform: 'uppercase' }}>{c.status}</Text>
+                <Text style={{ fontFamily: Fonts.mono, fontSize: 12, color: colors.textTertiary }}>{timeAgo(c.createdAt)}</Text>
+              </View>
+              <Text style={styles.takeText}>{c.topic}</Text>
+              <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: colors.textSecondary }}>
+                {c.challenger?.displayName || c.challenger?.name} vs {c.challenged?.displayName || c.challenged?.name}
               </Text>
             </TouchableOpacity>
-          ))}
-        </ScrollView>
+          );
+        } else if (selectedSegment === 'PREDICTIONS') {
+          data = predictions;
+          emptyText = 'No predictions yet';
+          renderItem = ({ item: p }) => (
+            <TouchableOpacity style={styles.takeCard} activeOpacity={0.7} onPress={() => p.take && router.push(`/take/${p.take.id}`)}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+                <Text style={{ fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 12, color: p.status === 'RECEIPT' ? '#22C55E' : p.status === 'BUST' ? '#EF4444' : colors.textSecondary, textTransform: 'uppercase' }}>{p.status}</Text>
+              </View>
+              <Text style={styles.takeText}>{p.claim}</Text>
+              {p.result && <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: colors.textTertiary }}>{p.result}</Text>}
+            </TouchableOpacity>
+          );
+        } else if (selectedSegment === 'AGING') {
+          data = agingTakes;
+          emptyText = 'No aging takes yet';
+          renderItem = ({ item: at }) => (
+            <TouchableOpacity style={styles.takeCard} activeOpacity={0.7} onPress={() => router.push(`/take/${at.take?.id}`)}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+                <Text style={{ fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 12, color: at.status === 'AGED' ? '#EAB308' : at.status === 'AGING' ? '#3B82F6' : colors.textTertiary, textTransform: 'uppercase' }}>{at.status}</Text>
+              </View>
+              <Text style={styles.takeText}>{at.take?.content}</Text>
+              <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: colors.textTertiary }}>
+                Revisit: {new Date(at.revisitDate).toLocaleDateString()}
+              </Text>
+            </TouchableOpacity>
+          );
+        } else {
+          data = filteredTakes;
+          emptyText = selectedSegment === 'BOOKMARKS' ? 'No bookmarks yet' : 'No takes yet';
+          renderItem = ({ item }) => renderTakeItem(item);
+        }
 
-        {/* Content */}
-        {loading ? (
-          <ActivityIndicator color={Colors.orange} style={{ marginTop: 30 }} />
-        ) : selectedSegment === 'CHALLENGES' ? (
-          challenges.length === 0 ? (
-            <Text style={styles.emptyText}>No challenges yet</Text>
-          ) : (
-            challenges.map((c: any) => (
-              <TouchableOpacity key={c.id} style={styles.takeCard} activeOpacity={0.7} onPress={() => router.push(`/challenge/${c.id}` as never)}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <Text style={{ fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 12, color: c.status === 'COMPLETED' ? '#22C55E' : Colors.orange, textTransform: 'uppercase' }}>{c.status}</Text>
-                  <Text style={{ fontFamily: Fonts.mono, fontSize: 12, color: colors.textTertiary }}>{timeAgo(c.createdAt)}</Text>
-                </View>
-                <Text style={styles.takeText}>{c.topic}</Text>
-                <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: colors.textSecondary }}>
-                  {c.challenger?.displayName || c.challenger?.name} vs {c.challenged?.displayName || c.challenged?.name}
-                </Text>
-              </TouchableOpacity>
-            ))
-          )
-        ) : selectedSegment === 'PREDICTIONS' ? (
-          predictions.length === 0 ? (
-            <Text style={styles.emptyText}>No predictions yet</Text>
-          ) : (
-            predictions.map((p: any) => (
-              <TouchableOpacity key={p.id} style={styles.takeCard} activeOpacity={0.7} onPress={() => p.take && router.push(`/take/${p.take.id}`)}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <Text style={{ fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 12, color: p.status === 'RECEIPT' ? '#22C55E' : p.status === 'BUST' ? '#EF4444' : colors.textSecondary, textTransform: 'uppercase' }}>{p.status}</Text>
-                </View>
-                <Text style={styles.takeText}>{p.claim}</Text>
-                {p.result && <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: colors.textTertiary }}>{p.result}</Text>}
-              </TouchableOpacity>
-            ))
-          )
-        ) : selectedSegment === 'AGING' ? (
-          agingTakes.length === 0 ? (
-            <Text style={styles.emptyText}>No aging takes yet</Text>
-          ) : (
-            agingTakes.map((at: any) => (
-              <TouchableOpacity key={at.id} style={styles.takeCard} activeOpacity={0.7} onPress={() => router.push(`/take/${at.take?.id}`)}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <Text style={{ fontFamily: Fonts.barlowBold, fontWeight: '700', fontSize: 12, color: at.status === 'AGED' ? '#EAB308' : at.status === 'AGING' ? '#3B82F6' : colors.textTertiary, textTransform: 'uppercase' }}>{at.status}</Text>
-                </View>
-                <Text style={styles.takeText}>{at.take?.content}</Text>
-                <Text style={{ fontFamily: Fonts.barlow, fontSize: 13, color: colors.textTertiary }}>
-                  Revisit: {new Date(at.revisitDate).toLocaleDateString()}
-                </Text>
-              </TouchableOpacity>
-            ))
-          )
-        ) : filteredTakes.length === 0 ? (
-          <Text style={styles.emptyText}>
-            {selectedSegment === 'BOOKMARKS' ? 'No bookmarks yet' : 'No takes yet'}
-          </Text>
-        ) : (
-          filteredTakes.map((item) => renderTakeItem(item))
-        )}
-
-        {/* Logout */}
-        <TouchableOpacity style={styles.logoutButton} activeOpacity={0.7} onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={20} color={Colors.red} />
-          <Text style={styles.logoutText}>Log Out</Text>
-        </TouchableOpacity>
-
-        <View style={styles.bottomSpacer} />
-      </ScrollView>
+        return (
+          <FlatList
+            data={data}
+            keyExtractor={(item: any) => String(item.id)}
+            renderItem={renderItem}
+            ListHeaderComponent={header}
+            ListFooterComponent={footer}
+            ListEmptyComponent={!loading ? <Text style={styles.emptyText}>{emptyText}</Text> : null}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.orange} colors={[Colors.orange]} />
+            }
+            // Virtualization tuning — keeps Android scroll smooth with long take lists.
+            initialNumToRender={8}
+            maxToRenderPerBatch={6}
+            windowSize={9}
+            removeClippedSubviews
+          />
+        );
+      })()}
 
       {/* Edit Profile Modal */}
       <Modal visible={showEditModal} animationType="slide" transparent>
