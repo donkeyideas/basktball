@@ -287,6 +287,40 @@ export default function TakeCardScreen() {
     }
   };
 
+  // Whole-screen auth gate: same pattern as the Profile tab. Card creation
+  // requires an account so attributions ("@handle / shared by") match a real
+  // user. Without a token we render a Sign In prompt instead of the editor.
+  if (!token) {
+    return (
+      <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.header, { paddingTop: insets.top + 8, borderBottomColor: colors.border }]}>
+          <View style={styles.headerBtn} />
+          <Text style={[styles.headerTitle, { color: colors.text }]}>TAKE CARD</Text>
+          <View style={styles.headerBtn} />
+        </View>
+        <View style={styles.authGate}>
+          <View style={styles.authAvatar}>
+            <Ionicons name="person" size={56} color={colors.textSecondary} />
+          </View>
+          <Text style={[styles.authTitle, { color: colors.text }]}>Sign in to create a Take Card</Text>
+          <Text style={[styles.authSub, { color: colors.textSecondary }]}>
+            Build shareable stat cards, post directly to X, Instagram, Facebook, and Reddit.
+          </Text>
+          <TouchableOpacity
+            style={styles.authPrimaryBtn}
+            onPress={() => router.push('/(auth)/login' as never)}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.authPrimaryText}>SIGN IN</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/(auth)/signup' as never)} hitSlop={10}>
+            <Text style={styles.authSecondaryText}>Don't have an account? Create one</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { paddingTop: insets.top + 8, borderBottomColor: colors.border }]}>
@@ -554,26 +588,19 @@ export default function TakeCardScreen() {
           </View>
         </TouchableOpacity>
 
-        {/* Action buttons */}
-        <TouchableOpacity style={styles.btnPostX} onPress={onPostX} activeOpacity={0.85}>
-          <View style={styles.xMark}>
-            <Text style={styles.xMarkText}>X</Text>
-          </View>
-          <Text style={styles.btnPostXText}>POST ON X</Text>
-        </TouchableOpacity>
-
+        {/* Action buttons — X joins the row of 3 (4 across, equal sizing) */}
         <View style={styles.socialRow}>
+          <TouchableOpacity style={[styles.socialBtn, styles.socialX]} onPress={onPostX} activeOpacity={0.85}>
+            <Ionicons name="logo-x" size={26} color="#fff" />
+          </TouchableOpacity>
           <TouchableOpacity style={[styles.socialBtn, styles.socialIG]} onPress={onPostInstagram} activeOpacity={0.85}>
-            <Ionicons name="logo-instagram" size={18} color="#fff" />
-            <Text style={styles.socialBtnText}>INSTAGRAM</Text>
+            <Ionicons name="logo-instagram" size={26} color="#fff" />
           </TouchableOpacity>
           <TouchableOpacity style={[styles.socialBtn, styles.socialFB]} onPress={onPostFacebook} activeOpacity={0.85}>
-            <Ionicons name="logo-facebook" size={18} color="#fff" />
-            <Text style={styles.socialBtnText}>FACEBOOK</Text>
+            <Ionicons name="logo-facebook" size={26} color="#fff" />
           </TouchableOpacity>
           <TouchableOpacity style={[styles.socialBtn, styles.socialReddit]} onPress={onPostReddit} activeOpacity={0.85}>
-            <Ionicons name="logo-reddit" size={18} color="#fff" />
-            <Text style={styles.socialBtnText}>REDDIT</Text>
+            <Ionicons name="logo-reddit" size={26} color="#fff" />
           </TouchableOpacity>
         </View>
 
@@ -867,32 +894,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   toggleKnobOn: { transform: [{ translateX: 20 }], backgroundColor: '#0a0a0a' },
-  btnPostX: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    backgroundColor: '#fff',
-    paddingVertical: 16,
-    borderRadius: 14,
-    marginBottom: 10,
-  },
-  xMark: {
-    width: 26,
-    height: 26,
-    backgroundColor: '#000',
-    borderRadius: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  xMarkText: { color: '#fff', fontFamily: Fonts.anton, fontSize: 14 },
-  btnPostXText: {
-    color: '#000',
-    fontFamily: Fonts.barlowBold,
-    fontWeight: '800',
-    fontSize: 15,
-    letterSpacing: 2,
-  },
   suggHeader: {
     flexDirection: 'row',
     alignItems: 'baseline',
@@ -951,9 +952,59 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 12,
   },
+  socialX: { backgroundColor: '#0a0a0a' },
   socialIG: { backgroundColor: '#E4405F' },
   socialFB: { backgroundColor: '#1877F2' },
   socialReddit: { backgroundColor: '#FF4500' },
+  authGate: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+    paddingBottom: 80,
+  },
+  authAvatar: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(120,120,120,0.18)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 28,
+  },
+  authTitle: {
+    fontFamily: Fonts.barlowBold,
+    fontWeight: '800',
+    fontSize: 22,
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  authSub: {
+    fontFamily: Fonts.barlow,
+    fontSize: 15,
+    textAlign: 'center',
+    lineHeight: 21,
+    marginBottom: 32,
+  },
+  authPrimaryBtn: {
+    backgroundColor: Colors.orange,
+    paddingVertical: 16,
+    paddingHorizontal: 80,
+    borderRadius: 12,
+    marginBottom: 18,
+  },
+  authPrimaryText: {
+    color: '#fff',
+    fontFamily: Fonts.barlowBold,
+    fontWeight: '800',
+    fontSize: 16,
+    letterSpacing: 2,
+  },
+  authSecondaryText: {
+    color: Colors.orange,
+    fontFamily: Fonts.barlow,
+    fontSize: 14,
+  },
   socialBtnText: {
     color: '#fff',
     fontFamily: Fonts.barlowBold,

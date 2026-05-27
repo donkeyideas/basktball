@@ -143,7 +143,14 @@ export default function FloatingMenu() {
       </TouchableOpacity>
 
       {/* Side drawer */}
-      <Modal visible={open} transparent animationType="none" onRequestClose={() => closeMenu()}>
+      <Modal
+        visible={open}
+        transparent
+        animationType="none"
+        statusBarTranslucent
+        navigationBarTranslucent
+        onRequestClose={() => closeMenu()}
+      >
         <Animated.View style={[styles.backdrop, { opacity: fadeAnim }]}>
           <Pressable style={StyleSheet.absoluteFill} onPress={() => closeMenu()} />
         </Animated.View>
@@ -185,19 +192,13 @@ export default function FloatingMenu() {
               );
             })}
 
-            <View style={styles.divider} />
-
-            <Text style={styles.sectionHeading}>STAT LAB</Text>
             <TouchableOpacity
               style={styles.navItem}
               activeOpacity={0.7}
               onPress={() => navigate('/stats/ask')}
             >
               <Ionicons name="sparkles-outline" size={22} color={colors.text} />
-              <Text style={[styles.navLabel, styles.navLabelFlex]}>Ask the Lab</Text>
-              <View style={styles.newPill}>
-                <Text style={styles.newPillText}>NEW</Text>
-              </View>
+              <Text style={styles.navLabel}>Ask the Lab</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -206,13 +207,8 @@ export default function FloatingMenu() {
               onPress={() => navigate('/share/take')}
             >
               <Ionicons name="share-social-outline" size={22} color={colors.text} />
-              <Text style={[styles.navLabel, styles.navLabelFlex]}>Take Card</Text>
-              <View style={styles.newPill}>
-                <Text style={styles.newPillText}>NEW</Text>
-              </View>
+              <Text style={styles.navLabel}>Take Card</Text>
             </TouchableOpacity>
-
-            <View style={styles.divider} />
 
             <TouchableOpacity
               style={[styles.featuresBtn, { marginTop: 6 }]}
@@ -222,8 +218,6 @@ export default function FloatingMenu() {
               <Ionicons name="sparkles" size={18} color={Colors.orange} />
               <Text style={styles.featuresLabel}>FEATURES</Text>
             </TouchableOpacity>
-
-            <View style={styles.divider} />
 
             <TouchableOpacity
               style={styles.navItem}
@@ -318,6 +312,8 @@ const makeStyles = (colors: any, topInset: number) =>
       shadowOffset: { width: 4, height: 0 },
       shadowOpacity: 0.3,
       shadowRadius: 12,
+      display: 'flex',
+      flexDirection: 'column',
     },
     drawerHeader: {
       flexDirection: 'row',
@@ -378,8 +374,7 @@ const makeStyles = (colors: any, topInset: number) =>
       marginVertical: 12,
     },
     themeRow: {
-      borderTopWidth: 1,
-      borderTopColor: colors.border,
+      marginTop: 'auto',
       paddingTop: 12,
     },
     themeToggle: {
