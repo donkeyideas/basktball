@@ -844,7 +844,7 @@ function makeStyles(colors: any) {
   featuredCard: {
     marginHorizontal: 16,
     marginTop: 4,
-    aspectRatio: 4 / 5,
+    minHeight: 280,
     paddingHorizontal: 22,
     paddingTop: 28,
     paddingBottom: 22,

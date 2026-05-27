@@ -34,7 +34,7 @@
       "entitlements": {
         "aps-environment": "production"
       },
-      "buildNumber": "45"
+      "buildNumber": "47"
     },
     "android": {
       "package": "com.basktball.app",
