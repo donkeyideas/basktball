@@ -1776,19 +1776,27 @@ body.admin-page::after {
   }
 }
 
-@media (max-width: 1200px) {
+/* Tighten the desktop nav before it can collide with the logo */
+@media (max-width: 1700px) {
   .nav-links {
-    gap: 24px;
+    gap: 20px;
   }
 
   .nav-links a {
-    font-size: 15px;
+    font-size: 14px;
   }
 
   header nav {
     padding: 16px 24px !important;
   }
 
+  /* Hide the user-name pill text to reclaim horizontal space */
+  .user-name-text {
+    display: none;
+  }
+}
+
+@media (max-width: 1200px) {
   .hero h1 {
     font-size: 90px;
   }
@@ -1821,8 +1829,9 @@ body.admin-page::after {
   }
 }
 
-/* ═══ Mobile Navigation ═══ */
-@media (max-width: 900px) {
+/* ═══ Switch to hamburger menu when desktop nav can't fit ═══ */
+/* 10 top-level items + logo + user pill need ~1340px to avoid collision */
+@media (max-width: 1340px) {
   .nav-links {
     display: none;
   }
@@ -1860,12 +1869,19 @@ body.admin-page::after {
     color: var(--orange);
   }
 
-  /* Reduce nav padding on mobile */
+  .user-name-text {
+    display: none;
+  }
+}
+
+/* ═══ Smaller-screen header refinements ═══ */
+@media (max-width: 900px) {
+  /* Reduce nav padding */
   header nav {
     padding: 15px 20px !important;
   }
 
-  /* Hide "UPDATED EVERY 30 SECONDS" and app badges on mobile */
+  /* Hide "UPDATED EVERY 30 SECONDS" and app badges */
   .top-bar-update,
   .top-bar-apps {
     display: none;
@@ -1941,13 +1957,6 @@ body.admin-page::after {
   /* Reduce padding on all main sections */
   main {
     padding: 20px 12px !important;
-  }
-}
-
-/* ═══ Compact Header on Small Screens ═══ */
-@media (max-width: 900px) {
-  .user-name-text {
-    display: none;
   }
 }
 

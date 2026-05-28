@@ -113,7 +113,7 @@ export default function PostEditor({ onSubmit, placeholder = "Write your reply..
             fontFamily: "var(--font-inter)",
           }}
         >
-          {aiLoading ? "AI thinking..." : "✨ AI Help"}
+          {aiLoading ? "AI thinking..." : "AI Help"}
         </button>
 
         <button

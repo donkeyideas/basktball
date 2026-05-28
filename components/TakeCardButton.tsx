@@ -37,6 +37,59 @@ function buildHref(seed: TakeCardSeed) {
   return `/share/take?${qs.toString()}`;
 }
 
+const ORANGE = "#FF6B35";
+
+const VARIANT_STYLES: Record<Variant, { style: React.CSSProperties; iconSize: number; labelSize: number }> = {
+  default: {
+    style: {
+      background: ORANGE,
+      color: "#fff",
+      padding: "7px 12px",
+      borderRadius: "6px",
+      fontWeight: 700,
+    },
+    iconSize: 14,
+    labelSize: 12,
+  },
+  ghost: {
+    style: {
+      background: "rgba(255,107,53,0.1)",
+      color: ORANGE,
+      border: `1px solid ${ORANGE}`,
+      padding: "10px 18px",
+      borderRadius: "6px",
+      fontWeight: 700,
+      letterSpacing: "2px",
+    },
+    iconSize: 16,
+    labelSize: 13,
+  },
+  compact: {
+    style: {
+      background: "rgba(255,107,53,0.15)",
+      color: ORANGE,
+      padding: "4px 8px",
+      borderRadius: "4px",
+    },
+    iconSize: 11,
+    labelSize: 10,
+  },
+  block: {
+    style: {
+      background: ORANGE,
+      color: "#fff",
+      padding: "14px 18px",
+      borderRadius: "8px",
+      width: "100%",
+      justifyContent: "center",
+      boxShadow: "0 6px 16px rgba(255,107,53,0.3)",
+      letterSpacing: "2px",
+    },
+    iconSize: 18,
+    labelSize: 14,
+  },
+};
+
 export default function TakeCardButton({
   seed,
   variant = "default",
@@ -49,9 +102,26 @@ export default function TakeCardButton({
   className?: string;
 }) {
   const href = useMemo(() => buildHref(seed), [seed]);
+  const variantStyle = VARIANT_STYLES[variant];
 
   return (
-    <Link href={href} className={`tcb tcb-${variant} ${className || ""}`}>
+    <Link
+      href={href}
+      className={`tcb tcb-${variant} ${className || ""}`}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "6px",
+        fontFamily: "var(--font-anton), var(--font-bebas), sans-serif",
+        letterSpacing: "1.5px",
+        textDecoration: "none",
+        cursor: "pointer",
+        transition: "all 0.15s ease",
+        whiteSpace: "nowrap",
+        lineHeight: 1,
+        ...variantStyle.style,
+      }}
+    >
       <svg
         className="tcb-ico"
         viewBox="0 0 24 24"
@@ -61,70 +131,12 @@ export default function TakeCardButton({
         strokeLinecap="round"
         strokeLinejoin="round"
         aria-hidden="true"
+        style={{ width: variantStyle.iconSize, height: variantStyle.iconSize, flexShrink: 0 }}
       >
         <rect x="3" y="5" width="18" height="14" rx="2" />
         <line x1="3" y1="10" x2="21" y2="10" />
       </svg>
-      <span className="tcb-lbl">{label}</span>
-      <style jsx>{`
-        .tcb {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          font-family: var(--font-anton), var(--font-bebas), sans-serif;
-          letter-spacing: 1.5px;
-          text-decoration: none;
-          cursor: pointer;
-          transition: all 0.15s ease;
-          white-space: nowrap;
-          line-height: 1;
-        }
-        .tcb-ico { width: 14px; height: 14px; flex-shrink: 0; }
-        .tcb-lbl { font-size: 12px; }
-
-        .tcb-default {
-          background: var(--orange, #FF6B35);
-          color: #fff;
-          padding: 7px 12px;
-          border-radius: 6px;
-          font-weight: 700;
-        }
-        .tcb-default:hover { background: #ff8c5a; }
-
-        .tcb-ghost {
-          background: transparent;
-          color: var(--orange, #FF6B35);
-          border: 1px solid var(--orange, #FF6B35);
-          padding: 6px 10px;
-          border-radius: 4px;
-        }
-        .tcb-ghost:hover { background: rgba(255,107,53,0.1); }
-
-        .tcb-compact {
-          background: rgba(255,107,53,0.15);
-          color: var(--orange, #FF6B35);
-          padding: 4px 8px;
-          border-radius: 4px;
-        }
-        .tcb-compact .tcb-lbl { font-size: 10px; }
-        .tcb-compact .tcb-ico { width: 11px; height: 11px; }
-        .tcb-compact:hover { background: rgba(255,107,53,0.25); }
-
-        .tcb-block {
-          background: var(--orange, #FF6B35);
-          color: #fff;
-          padding: 14px 18px;
-          border-radius: 8px;
-          font-size: 14px;
-          letter-spacing: 2px;
-          width: 100%;
-          justify-content: center;
-          box-shadow: 0 6px 16px rgba(255,107,53,0.3);
-        }
-        .tcb-block .tcb-ico { width: 18px; height: 18px; }
-        .tcb-block .tcb-lbl { font-size: 14px; }
-        .tcb-block:hover { background: #ff8c5a; }
-      `}</style>
+      <span className="tcb-lbl" style={{ fontSize: variantStyle.labelSize }}>{label}</span>
     </Link>
   );
 }

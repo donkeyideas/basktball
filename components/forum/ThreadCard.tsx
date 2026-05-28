@@ -62,7 +62,7 @@ export default function ThreadCard({ thread, showCategory }: ThreadCardProps) {
             )}
             {thread.isHot && (
               <span style={{ fontSize: "10px", fontWeight: "700", padding: "2px 6px", borderRadius: "3px", background: "rgba(239,68,68,0.2)", color: "#EF4444" }}>
-                🔥 HOT
+                HOT
               </span>
             )}
             {thread.status === "LOCKED" && (

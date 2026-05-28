@@ -132,6 +132,7 @@ export function Header() {
           <Link href="/standings">STANDINGS</Link>
           <Link href="/schedule">SCHEDULE</Link>
           <Link href="/stats">STATS</Link>
+          <Link href="/cards">STUDIO</Link>
           <Link href="/teams">TEAMS</Link>
           <Link href="/tools">TOOLS</Link>
           <Link href="/court" style={{ color: "var(--orange)" }}>THE COURT</Link>
@@ -281,6 +282,7 @@ export function Header() {
             <Link href="/standings" onClick={handleLinkClick}>STANDINGS</Link>
             <Link href="/schedule" onClick={handleLinkClick}>SCHEDULE</Link>
             <Link href="/stats" onClick={handleLinkClick}>STATS</Link>
+            <Link href="/cards" onClick={handleLinkClick}>STUDIO</Link>
             <Link href="/teams" onClick={handleLinkClick}>TEAMS</Link>
             <Link href="/tools" onClick={handleLinkClick}>TOOLS</Link>
             <Link href="/court" onClick={handleLinkClick} style={{ color: "var(--orange)" }}>THE COURT</Link>

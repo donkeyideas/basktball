@@ -98,7 +98,7 @@ function articleToSuggestion(
     : "";
 
   const theme = pickTheme(index);
-  const tag = `${leagueLabel} · HOT TAKE`;
+  const tag = "HOT TAKE";
 
   return {
     id: `s_${leagueId}_${article.id}`,

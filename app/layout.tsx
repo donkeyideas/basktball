@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Anton, Barlow_Condensed, Inter, Roboto_Mono } from "next/font/google";
 import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -37,6 +37,16 @@ const robotoMono = Roboto_Mono({
 });
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://basktball.com";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0D0D0D" },
+    { media: "(prefers-color-scheme: light)", color: "#FFFFFF" },
+  ],
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),

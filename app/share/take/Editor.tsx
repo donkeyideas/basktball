@@ -18,6 +18,7 @@ export type CardState = {
   meta: string;
   handle: string;
   avatar: string;
+  avatarUrl: string;
   brand: string;
   sourceUrl: string;
 };
@@ -48,6 +49,7 @@ function buildOgUrl(s: CardState, baseUrl: string) {
   if (s.meta) qs.set("meta", s.meta);
   qs.set("handle", s.handle);
   qs.set("avatar", s.avatar);
+  if (s.avatarUrl) qs.set("avatarUrl", s.avatarUrl);
   qs.set("brand", s.brand);
   return `${baseUrl}/api/og/card?${qs.toString()}`;
 }
@@ -64,16 +66,38 @@ function buildShareUrl(s: CardState, baseUrl: string) {
   if (s.meta) qs.set("meta", s.meta);
   qs.set("handle", s.handle);
   qs.set("avatar", s.avatar);
+  if (s.avatarUrl) qs.set("avatarUrl", s.avatarUrl);
   qs.set("brand", s.brand);
   return `${baseUrl}/share/take?${qs.toString()}`;
 }
 
+type Suggestion = {
+  id: string;
+  league: string;
+  leagueLabel: string;
+  template: Template;
+  theme: Theme;
+  tag: string;
+  seed: {
+    template?: string;
+    theme?: string;
+    tag?: string;
+    headline?: string;
+    context?: string;
+    meta?: string;
+    num?: string;
+    unit?: string;
+  };
+};
+
 export default function TakeCardEditor({
   initial,
   baseUrl,
+  embedded = false,
 }: {
   initial: CardState;
   baseUrl: string;
+  embedded?: boolean;
 }) {
   const [state, setState] = useState<CardState>(initial);
   const [textOpen, setTextOpen] = useState(false);
@@ -83,6 +107,11 @@ export default function TakeCardEditor({
   const [includeLink, setIncludeLink] = useState(true);
   const [copied, setCopied] = useState(false);
   const [imgLoading, setImgLoading] = useState(true);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+  const [postingToCourt, setPostingToCourt] = useState(false);
+  const [postedToCourt, setPostedToCourt] = useState(false);
+  const [feedback, setFeedback] = useState<{ tone: "success" | "error"; msg: string } | null>(null);
 
   const ogUrl = useMemo(() => buildOgUrl(state, baseUrl), [state, baseUrl]);
   const shareUrl = useMemo(() => buildShareUrl(state, baseUrl), [state, baseUrl]);
@@ -181,17 +210,99 @@ export default function TakeCardEditor({
     }
   };
 
+  // Fetch today's suggestion deck (refreshed by server cron 3×/day from ESPN news).
+  useEffect(() => {
+    let cancelled = false;
+    setSuggestionsLoading(true);
+    fetch("/api/cards/suggestions")
+      .then((r) => r.json())
+      .then((d: { suggestions?: Suggestion[] }) => {
+        if (cancelled || !d?.suggestions?.length) return;
+        const seen = new Set<string>();
+        setSuggestions(d.suggestions.filter((s) => (seen.has(s.id) ? false : (seen.add(s.id), true))));
+      })
+      .catch(() => { /* suggestions optional */ })
+      .finally(() => { if (!cancelled) setSuggestionsLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
+
+  const applySuggestion = (s: Suggestion) => {
+    setState((prev) => ({
+      ...prev,
+      template: (s.seed.template as Template) || s.template || prev.template,
+      theme: (s.seed.theme as Theme) || s.theme || prev.theme,
+      tag: s.seed.tag || s.tag || prev.tag,
+      headline: s.seed.headline ?? prev.headline,
+      context: s.seed.context ?? prev.context,
+      meta: s.seed.meta ?? prev.meta,
+      num: s.seed.num ?? prev.num,
+      unit: s.seed.unit ?? prev.unit,
+    }));
+  };
+
+  // Publish card to Court + user profile feed. Sends just the card image (no
+  // caption) so the take shows only the visual card, not duplicated text above.
+  const postToCourt = async () => {
+    if (postedToCourt || postingToCourt) return;
+    setPostingToCourt(true);
+    setFeedback(null);
+    try {
+      const res = await fetch("/api/court/takes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: "", tags: [], mediaUrls: [ogUrl] }),
+      });
+      if (res.status === 401) {
+        setFeedback({ tone: "error", msg: "Sign in to post to The Court." });
+      } else if (res.ok) {
+        setPostedToCourt(true);
+        setFeedback({ tone: "success", msg: "Posted to Court + your Profile." });
+      } else {
+        const d = await res.json().catch(() => ({}));
+        setFeedback({ tone: "error", msg: d?.error || "Couldn't post. Try again." });
+      }
+    } catch {
+      setFeedback({ tone: "error", msg: "Couldn't post. Try again." });
+    } finally {
+      setPostingToCourt(false);
+    }
+  };
+
+  const onPostFacebook = () => {
+    const fbCaption = caption.slice(0, 280);
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(fbCaption)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const onPostReddit = () => {
+    const title = (caption || `${state.num} ${state.unit}`).slice(0, 300);
+    const url = `https://www.reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(title)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const onPostInstagram = () => {
+    // Instagram has no public web post-URL API. Copy the caption+link to
+    // clipboard and download the card so the user can paste into IG.
+    onCopyLink();
+    onDownload();
+    setFeedback({ tone: "success", msg: "Card downloaded + caption copied. Paste into Instagram." });
+  };
+
+  const Wrapper = embedded ? "section" : "main";
+
   return (
     <div className="tc-page">
-      <header className="tc-topbar">
-        <Link href="/" className="tc-back" aria-label="Home">‹</Link>
-        <div className="tc-title">TAKE CARD</div>
-        <button className="tc-save-pill" type="button" onClick={onDownload}>
-          DOWNLOAD
-        </button>
-      </header>
+      {!embedded && (
+        <header className="tc-topbar">
+          <Link href="/" className="tc-back" aria-label="Home">‹</Link>
+          <div className="tc-title">TAKE CARD</div>
+          <button className="tc-save-pill" type="button" onClick={onDownload}>
+            DOWNLOAD
+          </button>
+        </header>
+      )}
 
-      <main className="tc-main">
+      <Wrapper className="tc-main">
         <section className="tc-preview-wrap">
           <div className="tc-canvas-label">
             <span>PREVIEW · 4:5 FOR X</span>
@@ -209,6 +320,32 @@ export default function TakeCardEditor({
             />
           </div>
         </section>
+
+        {(suggestionsLoading || suggestions.length > 0) && (
+          <section className="sugg-section">
+            <div className="sugg-head">
+              <span className="ctrl-label">TODAY&apos;S CARDS</span>
+              <span className="sugg-sub">FROM ESPN · TAP TO LOAD</span>
+            </div>
+            {suggestionsLoading && suggestions.length === 0 ? (
+              <div className="sugg-loading">Loading suggestions…</div>
+            ) : (
+              <div className="sugg-row">
+                {suggestions.map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    className={`sugg-card sugg-${s.theme}`}
+                    onClick={() => applySuggestion(s)}
+                  >
+                    <span className="sugg-league">{s.leagueLabel}</span>
+                    <span className="sugg-headline">{s.seed.headline || s.tag}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
 
         <section className="tc-controls">
           <div className="ctrl-group">
@@ -281,10 +418,6 @@ export default function TakeCardEditor({
               )}
               <Field label="Context (small paragraph)" value={state.context} onChange={(v) => setField("context", v)} multiline />
               <Field label="Meta line (date, score, source)" value={state.meta} onChange={(v) => setField("meta", v)} />
-              <div className="field-row">
-                <Field label="Your handle" value={state.handle} onChange={(v) => setField("handle", v.replace(/^@/, ""))} />
-                <Field label="Avatar (2 letters)" value={state.avatar} onChange={(v) => setField("avatar", v.toUpperCase().slice(0, 2))} />
-              </div>
             </div>
           )}
 
@@ -331,27 +464,47 @@ export default function TakeCardEditor({
         </section>
 
         <section className="tc-actions">
-          <button type="button" className="btn-post-x" onClick={onPostX}>
-            <span className="x-mark">X</span>
-            <span>POST ON X</span>
+          <button
+            type="button"
+            className={`btn-post-court ${postedToCourt ? "posted" : ""}`}
+            onClick={postToCourt}
+            disabled={postedToCourt || postingToCourt}
+          >
+            {postingToCourt ? "POSTING…" : postedToCourt ? "POSTED TO COURT" : "POST TO COURT"}
           </button>
+
+          <div className="social-row">
+            <button type="button" className="social-btn social-x" onClick={onPostX} aria-label="Post on X">
+              <span className="x-mark">X</span>
+            </button>
+            <button type="button" className="social-btn social-ig" onClick={onPostInstagram} aria-label="Share to Instagram">
+              <InstagramIcon />
+            </button>
+            <button type="button" className="social-btn social-fb" onClick={onPostFacebook} aria-label="Share to Facebook">
+              <FacebookIcon />
+            </button>
+            <button type="button" className="social-btn social-rd" onClick={onPostReddit} aria-label="Share to Reddit">
+              <RedditIcon />
+            </button>
+          </div>
+
           <div className="action-row">
             <button type="button" className="btn-sec" onClick={onNativeShare}>SHARE…</button>
             <button type="button" className="btn-sec" onClick={onCopyLink}>{copied ? "COPIED" : "COPY LINK"}</button>
             <button type="button" className="btn-sec" onClick={onDownload}>SAVE PNG</button>
           </div>
+
+          {feedback && (
+            <div className={`fb-msg fb-${feedback.tone}`}>{feedback.msg}</div>
+          )}
         </section>
-      </main>
+      </Wrapper>
 
       <style jsx>{`
-        :global(body) { background: #161616; }
         .tc-page {
           min-height: 100vh;
-          background:
-            radial-gradient(circle at 20% 10%, rgba(255, 94, 26, 0.08), transparent 50%),
-            radial-gradient(circle at 80% 90%, rgba(255, 94, 26, 0.05), transparent 50%),
-            #161616;
-          color: #fff;
+          background: var(--bg-primary);
+          color: var(--text-primary);
           font-family: var(--font-archivo), system-ui, sans-serif;
           padding-bottom: 32px;
         }
@@ -360,10 +513,10 @@ export default function TakeCardEditor({
           justify-content: space-between;
           align-items: center;
           padding: 14px 18px;
-          border-bottom: 1px solid #1a1a1a;
+          border-bottom: 1px solid var(--border-color);
           position: sticky;
           top: 0;
-          background: rgba(10,10,10,0.95);
+          background: var(--bg-secondary);
           -webkit-backdrop-filter: blur(20px);
           backdrop-filter: blur(20px);
           z-index: 5;
@@ -371,9 +524,10 @@ export default function TakeCardEditor({
         .tc-back {
           width: 38px; height: 38px;
           border-radius: 50%;
-          background: #1a1a1a;
+          background: var(--bg-secondary);
+          border: 1px solid var(--border-color);
           display: flex; align-items: center; justify-content: center;
-          color: #fff; text-decoration: none;
+          color: var(--text-primary); text-decoration: none;
           font-size: 22px; line-height: 1;
         }
         .tc-title {
@@ -382,9 +536,9 @@ export default function TakeCardEditor({
           letter-spacing: 4px;
         }
         .tc-save-pill {
-          background: #1a1a1a;
-          border: 1px solid #2a2a2a;
-          color: #fff;
+          background: var(--bg-secondary);
+          border: 1px solid var(--border-color);
+          color: var(--text-primary);
           padding: 8px 14px;
           border-radius: 20px;
           font-family: var(--font-jbmono);
@@ -393,13 +547,13 @@ export default function TakeCardEditor({
           cursor: pointer;
         }
         .tc-main {
-          max-width: 480px;
+          max-width: 720px;
           margin: 0 auto;
           padding: 16px;
         }
         .tc-preview-wrap {
-          background: #0a0a0a;
-          border: 1px solid #1f1f1f;
+          background: var(--bg-secondary);
+          border: 1px solid var(--border-color);
           border-radius: 16px;
           padding: 14px;
           margin-bottom: 18px;
@@ -412,12 +566,12 @@ export default function TakeCardEditor({
           font-family: var(--font-jbmono);
           font-size: 11px;
           letter-spacing: 2.5px;
-          color: #8a8a8a;
+          color: var(--text-muted);
         }
         .tc-canvas-label .tc-saved { color: #ff5e1a; }
         .tc-canvas {
           aspect-ratio: 4 / 5;
-          background: #050505;
+          background: var(--input-bg);
           border-radius: 12px;
           overflow: hidden;
           position: relative;
@@ -440,12 +594,12 @@ export default function TakeCardEditor({
           font-family: var(--font-jbmono);
           font-size: 12px;
           letter-spacing: 2px;
-          color: #8a8a8a;
-          background: linear-gradient(135deg, #0d0d0d, #161616);
+          color: var(--text-muted);
+          background: var(--input-bg);
         }
         .tc-controls {
-          background: rgba(255,255,255,0.02);
-          border: 1px solid #1f1f1f;
+          background: var(--input-bg);
+          border: 1px solid var(--border-color);
           border-radius: 16px;
           padding: 16px;
           display: flex;
@@ -458,7 +612,7 @@ export default function TakeCardEditor({
           font-family: var(--font-jbmono);
           font-size: 11px;
           letter-spacing: 2.5px;
-          color: #8a8a8a;
+          color: var(--text-muted);
         }
         .chips {
           display: flex;
@@ -471,19 +625,19 @@ export default function TakeCardEditor({
           flex-shrink: 0;
           padding: 8px 14px;
           border-radius: 20px;
-          background: #1a1a1a;
-          border: 1px solid #2a2a2a;
+          background: var(--bg-secondary);
+          border: 1px solid var(--border-color);
           font-family: var(--font-archivo);
           font-weight: 600;
           font-size: 12px;
-          color: #c4c4c4;
+          color: var(--text-primary);
           cursor: pointer;
           white-space: nowrap;
         }
         .chip.active {
           background: #ff5e1a;
           border-color: #ff5e1a;
-          color: #0a0a0a;
+          color: #fff;
         }
         .swatches { display: flex; gap: 14px; }
         .swatch {
@@ -494,8 +648,8 @@ export default function TakeCardEditor({
           position: relative;
           padding: 0;
         }
-        .swatch.sw-light { background: #f5f1ea; }
-        .swatch.sw-dark { background: #0a0a0a; border-color: #333; }
+        .swatch.sw-light { background: #f5f1ea; border-color: var(--border-color); }
+        .swatch.sw-dark { background: #0a0a0a; border-color: var(--border-color); }
         .swatch.sw-orange { background: #ff5e1a; }
         .swatch.active { border-color: #ff5e1a; box-shadow: 0 0 0 3px rgba(255,94,26,0.25); }
         .sw-lbl {
@@ -505,14 +659,14 @@ export default function TakeCardEditor({
           text-align: center;
           font-family: var(--font-jbmono);
           font-size: 9px;
-          color: #8a8a8a;
+          color: var(--text-muted);
           letter-spacing: 1px;
         }
         .edit-text-btn {
           align-self: flex-start;
           background: transparent;
-          border: 1px dashed #2a2a2a;
-          color: #c4c4c4;
+          border: 1px dashed var(--border-color);
+          color: var(--text-primary);
           font-family: var(--font-archivo);
           font-weight: 700;
           font-size: 11px;
@@ -527,22 +681,22 @@ export default function TakeCardEditor({
           flex-direction: column;
           gap: 10px;
           padding: 12px;
-          background: #0d0d0d;
-          border: 1px solid #1f1f1f;
+          background: var(--input-bg);
+          border: 1px solid var(--border-color);
           border-radius: 10px;
         }
         .field-row { display: flex; gap: 8px; }
         .field-row > * { flex: 1; }
         .caption-box {
-          background: #111;
-          border: 1px solid #252525;
+          background: var(--input-bg);
+          border: 1px solid var(--border-color);
           border-radius: 12px;
           padding: 12px;
         }
         .caption-text {
           width: 100%;
           background: transparent;
-          color: #fff;
+          color: var(--text-primary);
           font-family: var(--font-archivo);
           font-size: 14px;
           line-height: 1.45;
@@ -559,8 +713,8 @@ export default function TakeCardEditor({
         }
         .tone-chip {
           background: transparent;
-          border: 1px solid #333;
-          color: #8a8a8a;
+          border: 1px solid var(--border-color);
+          color: var(--text-muted);
           padding: 6px 11px;
           border-radius: 6px;
           font-family: var(--font-jbmono);
@@ -573,17 +727,17 @@ export default function TakeCardEditor({
           display: flex;
           justify-content: space-between;
           align-items: center;
-          background: #111;
-          border: 1px solid #252525;
+          background: var(--input-bg);
+          border: 1px solid var(--border-color);
           border-radius: 12px;
           padding: 12px 14px;
           cursor: pointer;
         }
-        .lt-l { font-size: 14px; color: #fff; font-weight: 600; }
-        .lt-s { font-size: 11px; color: #8a8a8a; margin-top: 2px; font-family: var(--font-jbmono); letter-spacing: 0.5px; word-break: break-all; }
+        .lt-l { font-size: 14px; color: var(--text-primary); font-weight: 600; }
+        .lt-s { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-family: var(--font-jbmono); letter-spacing: 0.5px; word-break: break-all; }
         .toggle {
           width: 44px; height: 24px;
-          background: #2a2a2a;
+          background: var(--border-color);
           border-radius: 14px;
           position: relative;
           flex-shrink: 0;
@@ -599,8 +753,9 @@ export default function TakeCardEditor({
           background: #fff;
           border-radius: 50%;
           transition: transform 0.15s;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
-        .toggle.on .knob { transform: translateX(20px); background: #0a0a0a; }
+        .toggle.on .knob { transform: translateX(20px); }
         .tc-actions {
           display: flex;
           flex-direction: column;
@@ -638,9 +793,9 @@ export default function TakeCardEditor({
         .btn-sec {
           flex: 1;
           padding: 12px;
-          background: #1a1a1a;
-          border: 1px solid #2a2a2a;
-          color: #fff;
+          background: var(--bg-secondary);
+          border: 1px solid var(--border-color);
+          color: var(--text-primary);
           border-radius: 12px;
           font-family: var(--font-archivo);
           font-weight: 700;
@@ -648,18 +803,149 @@ export default function TakeCardEditor({
           letter-spacing: 1.5px;
           cursor: pointer;
         }
+        /* Today's Cards (auto-populated suggestions) */
+        .sugg-section { margin-bottom: 18px; }
+        .sugg-head {
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          margin-bottom: 8px;
+        }
+        .sugg-sub {
+          font-family: var(--font-jbmono);
+          font-size: 10px;
+          letter-spacing: 1.5px;
+          color: var(--text-muted);
+        }
+        .sugg-loading {
+          font-family: var(--font-jbmono);
+          font-size: 11px;
+          color: var(--text-muted);
+          padding: 24px;
+          text-align: center;
+          background: var(--bg-secondary);
+          border-radius: 10px;
+        }
+        .sugg-row {
+          display: flex;
+          gap: 10px;
+          overflow-x: auto;
+          padding-bottom: 4px;
+          scrollbar-width: thin;
+          scrollbar-color: var(--border-color) transparent;
+        }
+        .sugg-row::-webkit-scrollbar { height: 6px; background: transparent; }
+        .sugg-row::-webkit-scrollbar-track { background: transparent; border-radius: 3px; }
+        .sugg-row::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+        .sugg-row::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+        .sugg-row::-webkit-scrollbar-corner { background: transparent; }
+        .sugg-card {
+          flex: 0 0 200px;
+          min-height: 120px;
+          padding: 12px;
+          border-radius: 10px;
+          text-align: left;
+          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          border: none;
+        }
+        .sugg-light { background: #F5F1EA; color: #0a0a0a; }
+        .sugg-dark { background: #0A0A0A; border: 1px solid rgba(255,255,255,0.1); color: #fff; }
+        .sugg-orange { background: #FF5E1A; color: #0a0a0a; }
+        .sugg-league {
+          font-family: var(--font-jbmono);
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: 1.5px;
+          opacity: 0.85;
+        }
+        .sugg-headline {
+          font-family: var(--font-bebas, var(--font-anton));
+          font-size: 15px;
+          letter-spacing: 0.5px;
+          line-height: 1.15;
+          display: -webkit-box;
+          -webkit-line-clamp: 4;
+          line-clamp: 4;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        /* POST TO COURT — primary publish button */
+        .btn-post-court {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          padding: 16px;
+          background: #FF5E1A;
+          color: #fff;
+          border: none;
+          border-radius: 14px;
+          font-family: var(--font-archivo);
+          font-weight: 800;
+          font-size: 15px;
+          letter-spacing: 1.5px;
+          cursor: pointer;
+          box-shadow: 0 6px 20px rgba(255,94,26,0.35);
+          transition: background 0.15s ease;
+        }
+        .btn-post-court:hover:not(:disabled) { background: #ff7340; }
+        .btn-post-court:disabled { cursor: not-allowed; opacity: 0.85; }
+        .btn-post-court.posted {
+          background: #1A1A1A;
+          color: #10B981;
+          box-shadow: none;
+        }
+
+        /* Social row — X, Instagram, Facebook, Reddit */
+        .social-row { display: flex; gap: 8px; }
+        .social-btn {
+          flex: 1;
+          padding: 14px;
+          border: none;
+          border-radius: 12px;
+          color: #fff;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: filter 0.15s ease;
+        }
+        .social-btn:hover { filter: brightness(1.15); }
+        .social-x { background: #0a0a0a; border: 1px solid #2a2a2a; }
+        .social-ig { background: linear-gradient(45deg, #F58529, #DD2A7B, #8134AF, #515BD4); }
+        .social-fb { background: #1877F2; }
+        .social-rd { background: #FF4500; }
+
+        /* Feedback message */
+        .fb-msg {
+          margin-top: 4px;
+          padding: 10px 12px;
+          border-radius: 8px;
+          font-family: var(--font-archivo);
+          font-size: 13px;
+          text-align: center;
+        }
+        .fb-success { background: rgba(16,185,129,0.12); color: #10B981; border: 1px solid rgba(16,185,129,0.3); }
+        .fb-error { background: rgba(239,68,68,0.1); color: #EF4444; border: 1px solid rgba(239,68,68,0.3); }
+
         @media (min-width: 900px) {
           .tc-main {
             max-width: 1100px;
             display: grid;
             grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
             grid-template-areas:
+              "preview suggestions"
               "preview controls"
               "preview actions";
             gap: 20px;
             align-items: start;
           }
           .tc-preview-wrap { grid-area: preview; margin-bottom: 0; position: sticky; top: 80px; }
+          .sugg-section { grid-area: suggestions; margin-bottom: 0; }
           .tc-controls { grid-area: controls; margin-bottom: 0; }
           .tc-actions { grid-area: actions; }
         }
@@ -693,13 +979,13 @@ function Field({
           font-family: var(--font-jbmono);
           font-size: 10px;
           letter-spacing: 1.5px;
-          color: #8a8a8a;
+          color: var(--text-muted);
           text-transform: uppercase;
         }
         .fld-i {
-          background: #0a0a0a;
-          border: 1px solid #2a2a2a;
-          color: #fff;
+          background: var(--bg-primary);
+          border: 1px solid var(--border-color);
+          color: var(--text-primary);
           font-family: var(--font-archivo);
           font-size: 13px;
           padding: 8px 10px;
@@ -721,4 +1007,30 @@ function fallbackCaption(s: CardState, tone: Tone): string {
   if (tone === "short") return base.split(".")[0].slice(0, 120);
   if (tone === "hot-take") return `Hot take: ${base}`;
   return base;
+}
+
+function InstagramIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+    </svg>
+  );
+}
+
+function FacebookIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.879V14.89h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.989C18.343 21.128 22 16.991 22 12z" />
+    </svg>
+  );
+}
+
+function RedditIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z" />
+    </svg>
+  );
 }

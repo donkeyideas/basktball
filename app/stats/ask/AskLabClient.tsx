@@ -179,10 +179,10 @@ export default function AskLabClient({ examples }: { examples: string[] }) {
   };
 
   return (
-    <main className="lab-page">
+    <div className="lab-page">
       <div className="lab-strip">
         <span><span className="dot" />ASK THE LAB</span>
-        <span>POWERED BY AI</span>
+        <span>POWERED BY NASTBALL</span>
       </div>
 
       <header className="lab-hero">
@@ -335,8 +335,8 @@ export default function AskLabClient({ examples }: { examples: string[] }) {
 
       <style jsx>{`
         .lab-page {
-          background: #0d0d0d;
-          color: #fff;
+          background: var(--bg-primary);
+          color: var(--text-primary);
           font-family: var(--font-inter), system-ui, sans-serif;
           padding-bottom: 80px;
         }
@@ -388,7 +388,7 @@ export default function AskLabClient({ examples }: { examples: string[] }) {
         }
         .lab-hero p {
           font-size: 14px;
-          color: rgba(255,255,255,0.65);
+          color: var(--text-muted);
           line-height: 1.5;
           max-width: 540px;
         }
@@ -402,9 +402,9 @@ export default function AskLabClient({ examples }: { examples: string[] }) {
           margin: 0 auto;
         }
         .lab-input {
-          background: #1A1A1A;
-          border: 1px solid rgba(255,255,255,0.12);
-          color: #fff;
+          background: var(--input-bg);
+          border: 1px solid var(--border-color);
+          color: var(--text-primary);
           font-family: var(--font-inter);
           font-size: 15px;
           padding: 14px 16px;
@@ -460,7 +460,7 @@ export default function AskLabClient({ examples }: { examples: string[] }) {
           font-size: 17px;
           line-height: 1.5;
           letter-spacing: 0.3px;
-          color: rgba(255,255,255,0.85);
+          color: var(--text-primary);
         }
         :global(.ent) {
           padding: 2px 7px;
@@ -535,7 +535,7 @@ export default function AskLabClient({ examples }: { examples: string[] }) {
         }
         .lim-row {
           font-size: 12px;
-          color: rgba(255,255,255,0.75);
+          color: var(--text-muted);
           line-height: 1.45;
           padding: 3px 0;
         }
@@ -550,7 +550,7 @@ export default function AskLabClient({ examples }: { examples: string[] }) {
           justify-content: space-between;
           align-items: baseline;
           padding-bottom: 10px;
-          border-bottom: 1px solid rgba(255,255,255,0.08);
+          border-bottom: 1px solid var(--border-color);
         }
         .res-title {
           font-family: var(--font-anton);
@@ -566,41 +566,56 @@ export default function AskLabClient({ examples }: { examples: string[] }) {
         .res-empty {
           padding: 18px;
           text-align: center;
-          color: rgba(255,255,255,0.55);
+          color: var(--text-muted);
           font-family: var(--font-inter);
           font-size: 14px;
         }
         .res-row {
           display: grid;
-          grid-template-columns: 90px 130px 1fr 80px;
+          grid-template-columns: 70px 1fr auto;
+          grid-template-areas:
+            "date match score"
+            "date stats stats";
           align-items: center;
-          gap: 12px;
+          column-gap: 10px;
+          row-gap: 4px;
           padding: 11px 0;
-          border-bottom: 1px solid rgba(255,255,255,0.06);
+          border-bottom: 1px solid var(--border-color);
           font-family: var(--font-barlow);
           font-size: 13px;
+        }
+        .r-date { grid-area: date; }
+        .r-match { grid-area: match; }
+        .r-stats { grid-area: stats; }
+        .r-score { grid-area: score; }
+        @media (min-width: 640px) {
+          .res-row {
+            grid-template-columns: 90px 130px 1fr 80px;
+            grid-template-areas: "date match stats score";
+            row-gap: 0;
+          }
         }
         .r-date {
           font-family: var(--font-roboto-mono);
           font-size: 11px;
-          color: rgba(255,255,255,0.55);
+          color: var(--text-muted);
         }
         .r-match {
           font-family: var(--font-anton);
           font-size: 16px;
           letter-spacing: 1.5px;
         }
-        .r-at { color: rgba(255,255,255,0.4); margin: 0 4px; }
+        .r-at { color: var(--text-muted); margin: 0 4px; }
         .r-stats {
           font-family: var(--font-roboto-mono);
           font-size: 12px;
-          color: rgba(255,255,255,0.7);
+          color: var(--text-muted);
         }
         .r-stats strong { color: #FF6B35; }
         .r-score {
           font-family: var(--font-roboto-mono);
           font-size: 12px;
-          color: rgba(255,255,255,0.5);
+          color: var(--text-muted);
           text-align: right;
         }
         .res-actions {
@@ -638,7 +653,7 @@ export default function AskLabClient({ examples }: { examples: string[] }) {
           font-family: var(--font-barlow);
           font-size: 11px;
           letter-spacing: 2.5px;
-          color: rgba(255,255,255,0.45);
+          color: var(--text-muted);
           margin-bottom: 10px;
           text-transform: uppercase;
           font-weight: 700;
@@ -648,9 +663,9 @@ export default function AskLabClient({ examples }: { examples: string[] }) {
           justify-content: space-between;
           align-items: center;
           width: 100%;
-          background: #1A1A1A;
-          border: 1px solid rgba(255,255,255,0.08);
-          color: #fff;
+          background: var(--bg-secondary);
+          border: 1px solid var(--border-color);
+          color: var(--text-primary);
           padding: 12px 14px;
           border-radius: 6px;
           font-family: var(--font-barlow);
@@ -660,7 +675,7 @@ export default function AskLabClient({ examples }: { examples: string[] }) {
           cursor: pointer;
         }
         .ex-row:hover { border-color: #FF6B35; }
-        .ex-arrow { color: rgba(255,255,255,0.4); font-size: 18px; }
+        .ex-arrow { color: var(--text-muted); font-size: 18px; }
 
         .err {
           margin: 12px 18px;
@@ -673,7 +688,7 @@ export default function AskLabClient({ examples }: { examples: string[] }) {
           max-width: 720px;
         }
       `}</style>
-    </main>
+    </div>
   );
 }
 
@@ -702,7 +717,7 @@ function ParsedLine({
         .pl-k {
           font-family: var(--font-roboto-mono);
           font-size: 10px;
-          color: rgba(255,255,255,0.55);
+          color: var(--text-muted);
           text-transform: uppercase;
           letter-spacing: 1.5px;
           min-width: 80px;

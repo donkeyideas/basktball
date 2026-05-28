@@ -17,10 +17,10 @@ interface ReactionBarProps {
 }
 
 const REACTION_ICONS: Record<string, { emoji: string; label: string }> = {
-  LIKE: { emoji: "👍", label: "Like" },
-  DISLIKE: { emoji: "👎", label: "Dislike" },
-  FIRE: { emoji: "🔥", label: "Fire" },
-  BRICK: { emoji: "🧱", label: "Brick" },
+  LIKE: { emoji: "LIKE", label: "Like" },
+  DISLIKE: { emoji: "DISLIKE", label: "Dislike" },
+  FIRE: { emoji: "FIRE", label: "Fire" },
+  BRICK: { emoji: "BRICK", label: "Brick" },
 };
 
 export default function ReactionBar({ postId, likeCount: initialLikes, dislikeCount: initialDislikes, reactions: initialReactions }: ReactionBarProps) {

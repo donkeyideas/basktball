@@ -71,12 +71,145 @@ export default function HomePage() {
         <LatestNews />
         {process.env.NEXT_PUBLIC_SHOW_WIP_PAGES && <ToolsGrid />}
 
+        {/* New Features Section */}
+        <section style={{ maxWidth: "1200px", margin: "60px auto 0", padding: "0 20px" }}>
+          <div style={{ textAlign: "center", marginBottom: "32px" }}>
+            <div style={{
+              display: "inline-block",
+              padding: "4px 12px",
+              border: "1px solid var(--orange)",
+              color: "var(--orange)",
+              fontFamily: "var(--font-mono, monospace)",
+              fontSize: "12px",
+              letterSpacing: "2px",
+              marginBottom: "16px",
+              borderRadius: "4px",
+            }}>
+              NEW
+            </div>
+            <h2 style={{
+              fontFamily: "var(--font-anton), Anton, sans-serif",
+              fontSize: "40px",
+              marginBottom: "12px",
+            }}>
+              TWO NEW WAYS TO FLEX
+            </h2>
+            <p style={{
+              color: "var(--text-muted)",
+              fontSize: "16px",
+              maxWidth: "600px",
+              margin: "0 auto",
+            }}>
+              Ask any basketball question in plain English. Turn any stat into a shareable card.
+            </p>
+          </div>
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+            gap: "20px",
+          }}>
+            {/* The Lab card */}
+            <Link href="/cards?tab=lab" style={{
+              display: "block",
+              padding: "32px 28px",
+              background: "var(--bg-secondary)",
+              border: "1px solid var(--border-color)",
+              borderRadius: "16px",
+              textDecoration: "none",
+              color: "inherit",
+              transition: "border-color 0.2s ease",
+            }}>
+              <div style={{
+                fontFamily: "var(--font-mono, monospace)",
+                fontSize: "12px",
+                letterSpacing: "2.5px",
+                color: "var(--orange)",
+                marginBottom: "12px",
+              }}>
+                STAT LAB · AI POWERED
+              </div>
+              <div style={{
+                fontFamily: "var(--font-anton), Anton, sans-serif",
+                fontSize: "28px",
+                letterSpacing: "1px",
+                marginBottom: "10px",
+              }}>
+                ASK THE LAB
+              </div>
+              <div style={{
+                color: "var(--text-muted)",
+                fontSize: "15px",
+                lineHeight: 1.55,
+                marginBottom: "16px",
+              }}>
+                Plain-English stat queries. &ldquo;Show me every Jokic 10-assist game vs a top-10 defense.&rdquo; Get every matching box score.
+              </div>
+              <div style={{
+                color: "var(--orange)",
+                fontFamily: "var(--font-inter)",
+                fontWeight: 700,
+                fontSize: "14px",
+                letterSpacing: "1px",
+              }}>
+                EXPLORE THE LAB ›
+              </div>
+            </Link>
+
+            {/* Take Cards card */}
+            <Link href="/cards" style={{
+              display: "block",
+              padding: "32px 28px",
+              background: "var(--bg-secondary)",
+              border: "1px solid var(--border-color)",
+              borderRadius: "16px",
+              textDecoration: "none",
+              color: "inherit",
+              transition: "border-color 0.2s ease",
+            }}>
+              <div style={{
+                fontFamily: "var(--font-mono, monospace)",
+                fontSize: "12px",
+                letterSpacing: "2.5px",
+                color: "var(--orange)",
+                marginBottom: "12px",
+              }}>
+                SHARE ENGINE · 5 TEMPLATES
+              </div>
+              <div style={{
+                fontFamily: "var(--font-anton), Anton, sans-serif",
+                fontSize: "28px",
+                letterSpacing: "1px",
+                marginBottom: "10px",
+              }}>
+                TAKE CARDS
+              </div>
+              <div style={{
+                color: "var(--text-muted)",
+                fontSize: "15px",
+                lineHeight: 1.55,
+                marginBottom: "16px",
+              }}>
+                Turn any stat into a shareable card. Five templates, three themes, AI-drafted captions. Post to X, Instagram, Facebook, or Reddit.
+              </div>
+              <div style={{
+                color: "var(--orange)",
+                fontFamily: "var(--font-inter)",
+                fontWeight: 700,
+                fontSize: "14px",
+                letterSpacing: "1px",
+              }}>
+                START A CARD ›
+              </div>
+            </Link>
+          </div>
+        </section>
+
         {/* Social Proof Section */}
         <section style={{ maxWidth: "1200px", margin: "60px auto 0", padding: "0 20px" }}>
           <div style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: "24px",
+            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+            gap: "16px",
             textAlign: "center",
           }}>
             <div style={{

@@ -20,7 +20,9 @@ export default function AskLabPage() {
   return (
     <>
       <Header />
-      <AskLabClient examples={EXAMPLES} />
+      <main>
+        <AskLabClient examples={EXAMPLES} />
+      </main>
       <Footer />
     </>
   );

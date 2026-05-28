@@ -25,6 +25,7 @@ function parseState(searchParams: Record<string, string | string[] | undefined>)
     meta: get("meta", "DEN 121  LAL 108  JAN 14, 2026"),
     handle: get("handle", "basktball"),
     avatar: get("avatar", "BB"),
+    avatarUrl: get("avatarUrl", ""),
     brand: get("brand", "BASKTBALL.COM"),
     sourceUrl: get("source", ""),
   };
@@ -42,6 +43,7 @@ function toOgUrl(s: CardState): string {
   if (s.meta) qs.set("meta", s.meta);
   qs.set("handle", s.handle);
   qs.set("avatar", s.avatar);
+  if (s.avatarUrl) qs.set("avatarUrl", s.avatarUrl);
   qs.set("brand", s.brand);
   return `${BASE_URL}/api/og/card?${qs.toString()}`;
 }
