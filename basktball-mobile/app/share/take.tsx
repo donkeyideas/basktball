@@ -10,6 +10,7 @@ import {
   Linking,
   TextInput,
   Alert,
+  Modal,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, router } from 'expo-router';
@@ -108,6 +109,14 @@ export default function TakeCardScreen() {
   const [tone, setTone] = useState<Tone>('analytical');
   const [caption, setCaption] = useState('');
   const [captionLoading, setCaptionLoading] = useState(false);
+  const [postingToCourt, setPostingToCourt] = useState(false);
+  const [postedToCourt, setPostedToCourt] = useState(false);
+  const [feedbackModal, setFeedbackModal] = useState<{
+    visible: boolean;
+    title: string;
+    message: string;
+    tone: 'success' | 'error';
+  }>({ visible: false, title: '', message: '', tone: 'success' });
   const [imageLoading, setImageLoading] = useState(true);
   const [imageError, setImageError] = useState(false);
   const [includeLink, setIncludeLink] = useState(true);
@@ -250,14 +259,49 @@ export default function TakeCardScreen() {
     return parts.filter(Boolean).join(' ');
   }, [caption, includeLink, shareUrl]);
 
+  // Publish the card as a Take so it lands on the user's Profile and the
+  // Court feed. Sends just the card image (no caption) so the take
+  // shows only the visual card, not duplicated text above it. The OG
+  // card PNG URL is CDN-cached for a week so the image stays stable.
+  const postToCourt = async () => {
+    if (!requireAuth()) return;
+    if (postedToCourt || postingToCourt) return;
+    setPostingToCourt(true);
+    try {
+      await api.post('/mobile/takes', {
+        content: '',
+        mediaUrls: [imageUrl],
+      });
+      setPostedToCourt(true);
+      setFeedbackModal({
+        visible: true,
+        tone: 'success',
+        title: 'POSTED',
+        message: 'Your card is live on Court and your Profile.',
+      });
+    } catch (err: any) {
+      setFeedbackModal({
+        visible: true,
+        tone: 'error',
+        title: 'COULDN’T POST',
+        message: err?.message || 'Failed to post to Court. Try again.',
+      });
+    } finally {
+      setPostingToCourt(false);
+    }
+  };
+
   const onPostX = () => {
     if (!requireAuth()) return;
+    // Also publish to the user's feed in the background (best-effort).
+    if (!postedToCourt && !postingToCourt) postToCourt();
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`;
     Linking.openURL(url).catch(() => {});
   };
 
   const onPostFacebook = () => {
     if (!requireAuth()) return;
+    if (!postedToCourt && !postingToCourt) postToCourt();
     // Facebook sharer scrapes the shared URL and pulls the OG image from /share/take meta.
     const fbCaption = caption.slice(0, 280);
     const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(fbCaption)}`;
@@ -266,6 +310,7 @@ export default function TakeCardScreen() {
 
   const onPostReddit = () => {
     if (!requireAuth()) return;
+    if (!postedToCourt && !postingToCourt) postToCourt();
     const title = (caption || `${num} ${unit}`).slice(0, 300);
     const url = `https://www.reddit.com/submit?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(title)}`;
     Linking.openURL(url).catch(() => {});
@@ -273,6 +318,7 @@ export default function TakeCardScreen() {
 
   const onPostInstagram = async () => {
     if (!requireAuth()) return;
+    if (!postedToCourt && !postingToCourt) postToCourt();
     // Instagram has no public post-URL API. Best UX: try to open the IG app
     // (so the user can paste/share manually); fall back to the native share
     // sheet (which still lists IG as a destination on most phones).
@@ -307,7 +353,7 @@ export default function TakeCardScreen() {
   if (!token) {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={[styles.header, { paddingTop: insets.top + 8, borderBottomColor: colors.border }]}>
+        <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
           <View style={styles.headerBtn} />
           <Text style={[styles.headerTitle, { color: colors.text }]}>TAKE CARD</Text>
           <View style={styles.headerBtn} />
@@ -337,7 +383,7 @@ export default function TakeCardScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { paddingTop: insets.top + 8, borderBottomColor: colors.border }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         {/* Spacer — FloatingMenu's hamburger button overlays this position */}
         <View style={styles.headerBtn} />
         <Text style={[styles.headerTitle, { color: colors.text }]}>TAKE CARD</Text>
@@ -602,6 +648,29 @@ export default function TakeCardScreen() {
           </View>
         </TouchableOpacity>
 
+        {/* Primary publish button — drops the card on Court + the user's profile feed. */}
+        <TouchableOpacity
+          style={[styles.postToCourtBtn, (postedToCourt || postingToCourt) && styles.postToCourtBtnPosted]}
+          onPress={postToCourt}
+          activeOpacity={0.85}
+          disabled={postedToCourt || postingToCourt}
+        >
+          {postingToCourt ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <>
+              <Ionicons
+                name={postedToCourt ? 'checkmark-circle' : 'paper-plane'}
+                size={18}
+                color="#fff"
+              />
+              <Text style={styles.postToCourtText}>
+                {postedToCourt ? 'POSTED TO COURT' : 'POST TO COURT'}
+              </Text>
+            </>
+          )}
+        </TouchableOpacity>
+
         {/* Action buttons — X joins the row of 3 (4 across, equal sizing) */}
         <View style={styles.socialRow}>
           <TouchableOpacity style={[styles.socialBtn, styles.socialX]} onPress={onPostX} activeOpacity={0.85}>
@@ -632,6 +701,31 @@ export default function TakeCardScreen() {
 
         <View style={{ height: insets.bottom + 24 }} />
       </ScrollView>
+
+      {/* Themed feedback modal — replaces native Alert so the post-to-Court
+          confirmation uses the app's dark/light surface and Anton type. */}
+      <Modal visible={feedbackModal.visible} transparent animationType="fade" onRequestClose={() => setFeedbackModal((p) => ({ ...p, visible: false }))}>
+        <View style={styles.fbOverlay}>
+          <View style={[styles.fbBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <View style={[styles.fbIconWrap, { backgroundColor: feedbackModal.tone === 'success' ? '#FF5E1A' : '#1A1A1A' }]}>
+              <Ionicons
+                name={feedbackModal.tone === 'success' ? 'checkmark' : 'alert'}
+                size={26}
+                color="#fff"
+              />
+            </View>
+            <Text style={[styles.fbTitle, { color: colors.text }]}>{feedbackModal.title}</Text>
+            <Text style={[styles.fbMessage, { color: colors.textSecondary }]}>{feedbackModal.message}</Text>
+            <TouchableOpacity
+              style={styles.fbBtn}
+              activeOpacity={0.85}
+              onPress={() => setFeedbackModal((p) => ({ ...p, visible: false }))}
+            >
+              <Text style={styles.fbBtnText}>OK</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -702,7 +796,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 12,
     paddingBottom: 12,
-    borderBottomWidth: 1,
   },
   headerBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
   headerTitle: { fontFamily: Fonts.anton, fontSize: 18, letterSpacing: 1.5 },
@@ -955,6 +1048,83 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     lineHeight: 18,
     color: '#fff',
+  },
+  fbOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 32,
+  },
+  fbBox: {
+    width: '100%',
+    maxWidth: 320,
+    borderRadius: 18,
+    borderWidth: 1,
+    padding: 28,
+    alignItems: 'center',
+  },
+  fbIconWrap: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  fbTitle: {
+    fontFamily: Fonts.anton,
+    fontSize: 22,
+    letterSpacing: 2,
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  fbMessage: {
+    fontFamily: Fonts.barlow,
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: 'center',
+    marginBottom: 22,
+  },
+  fbBtn: {
+    backgroundColor: '#FF5E1A',
+    paddingVertical: 12,
+    paddingHorizontal: 48,
+    borderRadius: 10,
+  },
+  fbBtnText: {
+    color: '#fff',
+    fontFamily: Fonts.barlowBold,
+    fontWeight: '800',
+    fontSize: 14,
+    letterSpacing: 2,
+  },
+  postToCourtBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    backgroundColor: '#FF5E1A',
+    paddingVertical: 14,
+    borderRadius: 12,
+    marginBottom: 10,
+    shadowColor: '#FF5E1A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  postToCourtBtnPosted: {
+    backgroundColor: '#1A1A1A',
+    shadowOpacity: 0,
+    elevation: 0,
+  },
+  postToCourtText: {
+    color: '#fff',
+    fontFamily: Fonts.barlowBold,
+    fontWeight: '800',
+    fontSize: 14,
+    letterSpacing: 1.5,
   },
   socialRow: { flexDirection: 'row', gap: 8, marginBottom: 8 },
   socialBtn: {
