@@ -64,14 +64,33 @@ export async function generateMetadata({
     openGraph: {
       title,
       description,
-      images: [{ url: ogUrl, width: 1024, height: 1280, alt: title }],
+      siteName: "BASKTBALL",
+      images: [
+        {
+          url: ogUrl,
+          secureUrl: ogUrl,
+          width: 1024,
+          height: 1280,
+          alt: title,
+          type: "image/png",
+        },
+      ],
       type: "article",
     },
     twitter: {
       card: "summary_large_image",
+      site: "@basktballapp",
+      creator: "@basktballapp",
       title,
       description,
-      images: [ogUrl],
+      images: [{ url: ogUrl, alt: title }],
+    },
+    // Extra hints some older scrapers (Discord, Slack, legacy FB) want.
+    other: {
+      "og:image:type": "image/png",
+      "og:image:width": "1024",
+      "og:image:height": "1280",
+      "twitter:image:alt": title,
     },
   };
 }

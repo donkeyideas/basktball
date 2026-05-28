@@ -287,9 +287,8 @@ export default function SettingsScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={[styles.backButton, { backgroundColor: colors.surface }]}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </TouchableOpacity>
+        {/* Spacer — FloatingMenu's hamburger button overlays this position */}
+        <View style={styles.backButton} />
         <Text style={[styles.headerTitle, { color: colors.text }]}>SETTINGS</Text>
         <View style={{ width: 40 }} />
       </View>

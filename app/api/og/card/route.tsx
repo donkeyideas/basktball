@@ -539,7 +539,12 @@ export async function GET(req: NextRequest) {
           { name: "JetBrains Mono", data: jbMono700, weight: 700, style: "normal" },
         ],
         headers: {
-          "Cache-Control": "public, max-age=300, s-maxage=600, stale-while-revalidate=86400",
+          // Long edge cache (1 week) + immutable so X / FB / IG scrapers
+          // get an instant warm CDN response instead of hitting the Edge
+          // function for every unfurl. The query string already varies the
+          // cache key per unique card, so we can safely treat each as
+          // immutable.
+          "Cache-Control": "public, max-age=86400, s-maxage=604800, stale-while-revalidate=604800, immutable",
         },
       }
     );

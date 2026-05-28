@@ -23,6 +23,16 @@ export default function TabLayout() {
         tabBarActiveTintColor: colors.orange,
         tabBarInactiveTintColor: isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)',
         tabBarLabelStyle: styles.tabLabel,
+        // Slide between tabs to match the stack-pushed screens (tools /
+        // ask the lab / notifications). 350ms with the cubic-out easing
+        // approximates the iOS push spring used by the native stack.
+        animation: 'shift',
+        transitionSpec: {
+          animation: 'timing',
+          config: {
+            duration: 350,
+          },
+        },
       }}
     >
       <Tabs.Screen

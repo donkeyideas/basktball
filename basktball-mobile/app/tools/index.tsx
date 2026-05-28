@@ -47,7 +47,7 @@ export default function ToolsScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { paddingTop: insets.top + 8, borderBottomColor: colors.border }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={{ width: 44 }} />
         <Text style={[styles.headerTitle, { color: colors.text }]}>TOOLS</Text>
         <View style={{ width: 44 }} />
@@ -96,7 +96,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 12,
-    borderBottomWidth: 1,
   },
   headerTitle: {
     fontFamily: Fonts.anton,

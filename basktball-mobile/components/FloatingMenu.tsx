@@ -29,6 +29,8 @@ const TAB_ROUTES = [
   '/tools',
   '/stats/ask',
   '/share/take',
+  '/notifications',
+  '/settings',
 ];
 
 function shouldShowOnRoute(pathname: string | null): boolean {
@@ -247,24 +249,6 @@ export default function FloatingMenu() {
                 <Text style={styles.navLabel}>Sign In</Text>
               </TouchableOpacity>
             )}
-          </View>
-
-          {/* Theme toggle pinned at bottom */}
-          <View style={styles.themeRow}>
-            <TouchableOpacity
-              style={styles.themeToggle}
-              activeOpacity={0.7}
-              onPress={toggleTheme}
-            >
-              <Ionicons
-                name={isDark ? 'sunny-outline' : 'moon-outline'}
-                size={20}
-                color={Colors.orange}
-              />
-              <Text style={styles.themeLabel}>
-                {isDark ? 'Light Mode' : 'Dark Mode'}
-              </Text>
-            </TouchableOpacity>
           </View>
         </Animated.View>
       </Modal>

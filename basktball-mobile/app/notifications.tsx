@@ -118,9 +118,8 @@ export default function NotificationsScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={Colors.white} />
-        </TouchableOpacity>
+        {/* Spacer — FloatingMenu's hamburger button overlays this position */}
+        <View style={styles.backButton} />
         <Text style={styles.headerTitle}>NOTIFICATIONS</Text>
         <TouchableOpacity onPress={handleMarkAllRead} style={{ padding: 8 }}>
           <Ionicons name="checkmark-done" size={22} color={Colors.orange} />

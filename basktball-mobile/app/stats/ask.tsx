@@ -113,7 +113,7 @@ export default function AskLabScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { paddingTop: insets.top + 8, borderBottomColor: colors.border }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         {/* Spacer — FloatingMenu's hamburger button overlays this position */}
         <View style={styles.headerBtn} />
         <Text style={[styles.headerTitle, { color: colors.text }]}>ASK THE LAB</Text>
@@ -298,7 +298,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 12,
     paddingBottom: 12,
-    borderBottomWidth: 1,
   },
   headerBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
   headerTitle: { fontFamily: Fonts.anton, fontSize: 18, letterSpacing: 1.5 },
