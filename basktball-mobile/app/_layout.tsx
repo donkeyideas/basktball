@@ -10,6 +10,8 @@ import Constants from 'expo-constants';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from '@/lib/auth/AuthContext';
 import { ThemeProvider, useTheme } from '@/lib/theme/ThemeContext';
+import { useAppReview } from '@/lib/hooks/useAppReview';
+import RatingModal from '@/components/RatingModal';
 import { api } from '@/lib/api/client';
 import ComposeFAB from '@/components/ComposeFAB';
 import FloatingMenu from '@/components/FloatingMenu';
@@ -294,12 +296,33 @@ function PushNotificationRegistrar() {
   return null;
 }
 
+function AppReviewPrompt() {
+  const { user } = useAuth();
+  const { showModal, tryPromptReview, handleRate, handleMaybeLater, handleNoThanks } = useAppReview();
+
+  useEffect(() => {
+    if (!user) return;
+    const timer = setTimeout(tryPromptReview, 45_000);
+    return () => clearTimeout(timer);
+  }, [user, tryPromptReview]);
+
+  return (
+    <RatingModal
+      visible={showModal}
+      onRate={handleRate}
+      onMaybeLater={handleMaybeLater}
+      onNoThanks={handleNoThanks}
+    />
+  );
+}
+
 function RootLayoutNav() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ThemeProvider>
           <PushNotificationRegistrar />
+          <AppReviewPrompt />
           <ThemedStack />
           <ComposeFAB />
           <FloatingMenu />
