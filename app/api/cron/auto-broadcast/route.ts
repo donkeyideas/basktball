@@ -32,6 +32,12 @@ function formatTime(date: Date): string {
 
 // ── Fetch real data ─────────────────────────────────────────
 
+function isGameToday(gameDate: Date): boolean {
+  const todayET = new Date().toLocaleDateString("en-US", { timeZone: "America/New_York" });
+  const gameET = new Date(gameDate).toLocaleDateString("en-US", { timeZone: "America/New_York" });
+  return todayET === gameET;
+}
+
 async function fetchTodaysGames(): Promise<NormalizedGame[]> {
   const leagues = ["nba", "wnba", "ncaam", "ncaaw"] as const;
   const results = await Promise.allSettled(
@@ -41,27 +47,9 @@ async function fetchTodaysGames(): Promise<NormalizedGame[]> {
   for (const r of results) {
     if (r.status === "fulfilled") all.push(...r.value);
   }
-  return all;
-}
-
-interface NewsArticle {
-  title: string;
-  description?: string;
-  source: string;
-  league?: string;
-}
-
-async function fetchLatestNews(): Promise<NewsArticle[]> {
-  try {
-    const res = await fetch("https://www.basktball.com/api/news?limit=10", {
-      headers: { Accept: "application/json" },
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.articles || [];
-  } catch {
-    return [];
-  }
+  // ESPN can return next-day games on off days (especially playoffs).
+  // Filter to only games actually happening today in Eastern Time.
+  return all.filter((g) => isGameToday(g.gameDate));
 }
 
 // ── Build message from real data ────────────────────────────
@@ -170,27 +158,6 @@ function buildGameDayMessage(games: NormalizedGame[]): { title: string; body: st
   return null;
 }
 
-function buildNewsMessage(articles: NewsArticle[]): { title: string; body: string } | null {
-  if (articles.length === 0) return null;
-  const article = articles[0];
-  const desc = article.description || "";
-  // Truncate body to fit push notification
-  const body = desc.length > 120 ? desc.slice(0, 117) + "..." : desc;
-  return {
-    title: article.title.length > 60 ? article.title.slice(0, 57) + "..." : article.title,
-    body: body || "Read the latest basketball news on BASKTBALL.",
-  };
-}
-
-// App feature promotions (used occasionally when no games/news)
-const FEATURE_MESSAGES = [
-  { title: "Make Your Predictions", body: "Lock in your picks before tip-off. Head to BASKTBALL and put your basketball IQ to the test." },
-  { title: "Challenge Your Friends", body: "Think you know hoops? Send a challenge on BASKTBALL and prove it. Bragging rights are on the line." },
-  { title: "Drop a Hot Take", body: "Got a bold opinion? Post it on BASKTBALL and see if the community gives it a Fire or a Brick." },
-  { title: "Check Advanced Stats", body: "Use the Tools section for advanced metrics, game predictions, draft analysis, and fantasy optimization." },
-  { title: "Follow Live Games", body: "Real-time scores, box scores, and play-by-play. Open BASKTBALL to follow every game as it happens." },
-];
-
 // ── Use DeepSeek to polish message (not generate) ──────────
 
 async function polishWithAI(
@@ -273,39 +240,25 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // --- 1. Fetch real data ---
-    const [games, news] = await Promise.all([fetchTodaysGames(), fetchLatestNews()]);
+    // --- 1. Fetch today's games ---
+    const games = await fetchTodaysGames();
 
     // --- 2. Build message from real data ---
-    let title = "";
-    let body = "";
-    let source = "unknown";
-
-    // Priority: live games > scheduled games > final scores > news > feature promo
+    // Only send the first automatic notification when there are actual games today
+    // (NBA, WNBA, NCAA). No games = no notification — don't force promos or news.
     const gameMsg = buildGameDayMessage(games);
-    if (gameMsg) {
-      const polished = await polishWithAI(gameMsg.title, gameMsg.body, "Today's basketball games");
-      title = polished.title;
-      body = polished.body;
-      source = "games";
-    } else {
-      const newsMsg = buildNewsMessage(news);
-      if (newsMsg) {
-        title = newsMsg.title;
-        body = newsMsg.body;
-        source = "news";
-      } else {
-        // No games or news — use feature promo
-        const promo = FEATURE_MESSAGES[Math.floor(Math.random() * FEATURE_MESSAGES.length)];
-        title = promo.title;
-        body = promo.body;
-        source = "feature-promo";
-      }
+    if (!gameMsg) {
+      return NextResponse.json({
+        skipped: true,
+        message: "No games today — skipping automatic notification",
+        gamesFound: games.length,
+      });
     }
 
-    if (!title || !body) {
-      return NextResponse.json({ skipped: true, message: "No content to broadcast" });
-    }
+    const polished = await polishWithAI(gameMsg.title, gameMsg.body, "Today's basketball games");
+    let title = polished.title;
+    let body = polished.body;
+    let source = "games";
 
     // --- 3. Check for duplicate (don't send same title twice in 6 hours) ---
     const recentDuplicate = await prisma.notificationLog.findFirst({
@@ -315,11 +268,11 @@ export async function GET(request: NextRequest) {
       },
     });
     if (recentDuplicate) {
-      // Fall back to a feature promo instead
-      const promo = FEATURE_MESSAGES[Math.floor(Math.random() * FEATURE_MESSAGES.length)];
-      title = promo.title;
-      body = promo.body;
-      source = "feature-promo-dedup";
+      return NextResponse.json({
+        skipped: true,
+        message: "Same game notification already sent within 6 hours",
+        title,
+      });
     }
 
     // --- 4. Create in-app notifications ---
@@ -392,7 +345,6 @@ export async function GET(request: NextRequest) {
       body,
       source,
       gamesFound: games.length,
-      newsFound: news.length,
       usersNotified: userIds.length,
       pushDelivered: pushResult.successCount,
       pushFailed: pushResult.failureCount,
