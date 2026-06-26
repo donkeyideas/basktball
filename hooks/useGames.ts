@@ -1,37 +1,21 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  transformGame,
+  type League,
+  type Game,
+  type GameTeam,
+  type GameStat,
+} from "@/lib/games/transform";
 
-export type League = "nba" | "wnba" | "ncaam" | "ncaaw" | "euro" | "intl";
-
-export interface GameTeam {
-  id: string;
-  name: string;
-  abbreviation: string;
-  logoUrl: string;
-  score: number;
-}
-
-export interface GameStat {
-  label: string;
-  value: string;
-}
-
-export interface Game {
-  id: string;
-  homeTeam: GameTeam;
-  awayTeam: GameTeam;
-  status: "scheduled" | "live" | "final";
-  quarter?: string;
-  clock?: string;
-  stats: GameStat[];
-  broadcast?: string;
-}
+export type { League, Game, GameTeam, GameStat };
 
 interface UseGamesOptions {
   league?: League;
   refreshInterval?: number; // in milliseconds
   enabled?: boolean;
+  initialGames?: Game[]; // SSR-seeded games to render before the first fetch
 }
 
 interface UseGamesResult {
@@ -42,101 +26,18 @@ interface UseGamesResult {
   lastUpdated: Date | null;
 }
 
-// Transform API response to component format
-function transformGame(apiGame: {
-  id: string;
-  homeTeam: {
-    id: string;
-    name: string;
-    abbreviation: string;
-    logoUrl: string;
-  };
-  awayTeam: {
-    id: string;
-    name: string;
-    abbreviation: string;
-    logoUrl: string;
-  };
-  homeScore: number;
-  awayScore: number;
-  status: "scheduled" | "live" | "final";
-  quarter?: string;
-  clock?: string;
-  gameDate?: string;
-  broadcast?: string;
-}): Game {
-  const stats = [];
-
-  if (apiGame.status === "live") {
-    // Live game - show quarter/clock if available
-    if (apiGame.quarter) {
-      stats.push({ label: apiGame.quarter, value: apiGame.clock || "" });
-    } else {
-      stats.push({ label: "In Progress", value: "" });
-    }
-    // Only show leader if there are actual scores
-    if (apiGame.homeScore > 0 || apiGame.awayScore > 0) {
-      const leader = apiGame.homeScore > apiGame.awayScore
-        ? apiGame.homeTeam.abbreviation
-        : apiGame.awayScore > apiGame.homeScore
-          ? apiGame.awayTeam.abbreviation
-          : "TIE";
-      stats.push({ label: "Lead", value: leader });
-    }
-  } else if (apiGame.status === "final") {
-    stats.push({ label: "Final", value: "" });
-    const winner = apiGame.homeScore > apiGame.awayScore
-      ? apiGame.homeTeam.abbreviation
-      : apiGame.awayTeam.abbreviation;
-    stats.push({ label: "Winner", value: winner });
-  } else {
-    // Scheduled game - show game time
-    if (apiGame.gameDate) {
-      const gameTime = new Date(apiGame.gameDate);
-      const timeStr = gameTime.toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-      });
-      stats.push({ label: "Tip-off", value: timeStr });
-    } else {
-      stats.push({ label: "Scheduled", value: "TBD" });
-    }
-  }
-
-  return {
-    id: apiGame.id,
-    homeTeam: {
-      id: apiGame.homeTeam.id,
-      name: apiGame.homeTeam.name,
-      abbreviation: apiGame.homeTeam.abbreviation,
-      logoUrl: apiGame.homeTeam.logoUrl,
-      score: apiGame.homeScore,
-    },
-    awayTeam: {
-      id: apiGame.awayTeam.id,
-      name: apiGame.awayTeam.name,
-      abbreviation: apiGame.awayTeam.abbreviation,
-      logoUrl: apiGame.awayTeam.logoUrl,
-      score: apiGame.awayScore,
-    },
-    status: apiGame.status,
-    quarter: apiGame.quarter,
-    clock: apiGame.clock,
-    stats,
-    broadcast: apiGame.broadcast,
-  };
-}
-
 export function useGames({
   league = "nba",
   refreshInterval = 30000, // Default 30 seconds
   enabled = true,
+  initialGames,
 }: UseGamesOptions = {}): UseGamesResult {
-  const [games, setGames] = useState<Game[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [games, setGames] = useState<Game[]>(initialGames ?? []);
+  const [isLoading, setIsLoading] = useState(!initialGames);
   const [error, setError] = useState<Error | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  // Skip ONLY the very first fetch when the page already SSR'd games
+  const skipFirstFetch = useRef(Boolean(initialGames));
 
   const fetchGames = useCallback(async () => {
     if (!enabled) return;
@@ -187,8 +88,12 @@ export function useGames({
     }
   }, [league, enabled]);
 
-  // Initial fetch
+  // Initial fetch (skipped exactly once if SSR-seeded)
   useEffect(() => {
+    if (skipFirstFetch.current) {
+      skipFirstFetch.current = false;
+      return;
+    }
     fetchGames();
   }, [fetchGames]);
 

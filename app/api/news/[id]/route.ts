@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { findArticleById } from "@/lib/news/cache";
+import { getArticleById } from "@/lib/news/articles";
 
 // Cache scraped articles at CDN for 10 minutes
 export const revalidate = 600;
@@ -66,7 +66,7 @@ export async function GET(
 ) {
   const { id } = await params;
 
-  const article = findArticleById(id);
+  const article = await getArticleById(id);
 
   if (!article) {
     return NextResponse.json(

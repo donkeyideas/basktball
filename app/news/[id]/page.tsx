@@ -1,21 +1,13 @@
-"use client";
-
-import { useState, useEffect } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { Header, Footer } from "@/components";
+import { getArticleById } from "@/lib/news/articles";
 
-interface NewsArticle {
-  id: string;
-  title: string;
-  link: string;
-  description: string;
-  content?: string;
-  pubDate: string;
-  source: string;
-  sourceLogo?: string;
-  league: string;
-  imageUrl?: string;
-}
+// Re-fetch the RSS-derived article set at most every 10 minutes
+export const revalidate = 600;
+
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://basktball.com";
 
 const LEAGUE_COLORS: Record<string, string> = {
   nba: "var(--orange)",
@@ -46,94 +38,116 @@ function formatDate(dateString: string): string {
   });
 }
 
-export default function ArticlePage({ params }: { params: Promise<{ id: string }> }) {
-  const [article, setArticle] = useState<NewsArticle | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [articleId, setArticleId] = useState<string>("");
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
 
-  useEffect(() => {
-    params.then(({ id }) => setArticleId(id));
-  }, [params]);
-
-  useEffect(() => {
-    if (!articleId) return;
-
-    async function loadArticle() {
-      try {
-        // Fetch all articles and find the matching one by ID
-        const res = await fetch("/api/news?limit=50");
-        const data = await res.json();
-        if (data.success && data.articles) {
-          const found = data.articles.find((a: NewsArticle) => a.id === articleId);
-          if (found) {
-            setArticle(found);
-            // Scrape richer content from the article source
-            if (!found.content) {
-              fetch(`/api/news/scrape?url=${encodeURIComponent(found.link)}`)
-                .then((r) => r.json())
-                .then((d) => {
-                  if (d.success && d.content) {
-                    setArticle((prev) => prev ? { ...prev, content: d.content } : prev);
-                  }
-                })
-                .catch(() => {});
-            }
-          } else {
-            setError("Article not found");
-          }
-        } else {
-          setError("Failed to load news");
-        }
-      } catch {
-        setError("Failed to load article");
-      } finally {
-        setLoading(false);
-      }
+  try {
+    const article = await getArticleById(id);
+    if (!article) {
+      return {
+        title: "Article Not Found",
+        description: "The requested news article could not be found.",
+        robots: { index: false, follow: true },
+      };
     }
 
-    loadArticle();
-  }, [articleId]);
+    const leagueLabel = LEAGUE_LABELS[article.league] || article.league.toUpperCase();
+    const title = `${article.title} | ${leagueLabel} News`;
+    const description = (article.description || article.content || "").substring(0, 160);
+    const canonicalUrl = `${BASE_URL}/news/${id}`;
 
-  if (loading) {
-    return (
-      <>
-        <Header />
-        <main style={{ minHeight: "100vh", padding: "40px 20px" }}>
-          <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-            <div style={{ height: "400px", background: "var(--input-bg)", marginBottom: "30px" }} />
-            <div style={{ height: "20px", background: "var(--border-color)", width: "80px", marginBottom: "20px" }} />
-            <div style={{ height: "40px", background: "var(--border-color)", marginBottom: "15px" }} />
-            <div style={{ height: "100px", background: "var(--input-bg)" }} />
-          </div>
-        </main>
-        <Footer />
-      </>
-    );
+    return {
+      title,
+      description,
+      alternates: { canonical: `/news/${id}` },
+      openGraph: {
+        title: article.title,
+        description,
+        url: canonicalUrl,
+        type: "article",
+        publishedTime: new Date(article.pubDate).toISOString(),
+        ...(article.imageUrl && { images: [{ url: article.imageUrl, alt: article.title }] }),
+      },
+      twitter: {
+        card: article.imageUrl ? "summary_large_image" : "summary",
+        title: article.title,
+        description,
+        ...(article.imageUrl && { images: [article.imageUrl] }),
+      },
+    };
+  } catch {
+    return {
+      title: "Basketball News",
+      description: "Latest NBA, WNBA, college and international basketball news.",
+    };
   }
+}
 
-  if (error || !article) {
-    return (
-      <>
-        <Header />
-        <main style={{ minHeight: "100vh", padding: "80px 20px", textAlign: "center" }}>
-          <p style={{ color: "var(--text-muted)", fontSize: "18px", marginBottom: "20px" }}>
-            {error || "Article not found"}
-          </p>
-          <Link href="/news" style={{ color: "var(--orange)", textDecoration: "none", fontWeight: "600" }}>
-            &larr; Back to News
-          </Link>
-        </main>
-        <Footer />
-      </>
-    );
-  }
+export default async function ArticlePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const article = await getArticleById(id);
+
+  if (!article) notFound();
 
   const leagueColor = LEAGUE_COLORS[article.league] || "var(--orange)";
   const leagueLabel = LEAGUE_LABELS[article.league] || article.league.toUpperCase();
+  const body = article.content || article.description || "";
+  const publishedISO = (() => {
+    const d = new Date(article.pubDate);
+    return isNaN(d.getTime()) ? undefined : d.toISOString();
+  })();
+
+  // NewsArticle JSON-LD
+  const newsArticleJsonLd: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: article.title,
+    description: article.description || body.substring(0, 200),
+    url: `${BASE_URL}/news/${id}`,
+    ...(article.imageUrl && { image: [article.imageUrl] }),
+    ...(publishedISO && { datePublished: publishedISO, dateModified: publishedISO }),
+    publisher: {
+      "@type": "Organization",
+      name: article.source,
+      ...(article.sourceLogo && {
+        logo: { "@type": "ImageObject", url: article.sourceLogo },
+      }),
+    },
+    isBasedOn: article.link,
+    mainEntityOfPage: { "@type": "WebPage", "@id": `${BASE_URL}/news/${id}` },
+    articleSection: leagueLabel,
+  };
+
+  // BreadcrumbList JSON-LD
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: BASE_URL },
+      { "@type": "ListItem", position: 2, name: "News", item: `${BASE_URL}/news` },
+      { "@type": "ListItem", position: 3, name: article.title, item: `${BASE_URL}/news/${id}` },
+    ],
+  };
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(newsArticleJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+
       <Header />
       <main style={{ minHeight: "100vh", padding: "40px 20px" }}>
         <div style={{ maxWidth: "800px", margin: "0 auto" }}>
@@ -148,10 +162,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
               alignItems: "center",
               gap: "6px",
               marginBottom: "30px",
-              transition: "color 0.2s",
             }}
-            onMouseOver={(e) => (e.currentTarget.style.color = "var(--orange)")}
-            onMouseOut={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
           >
             &larr; Back to News
           </Link>
@@ -167,13 +178,11 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
                 background: "var(--input-bg)",
               }}
             >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={article.imageUrl}
-                alt=""
+                alt={article.title}
                 style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                onError={(e) => {
-                  (e.currentTarget.parentElement as HTMLElement).style.display = "none";
-                }}
               />
             </div>
           )}
@@ -187,7 +196,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
                 background: leagueColor,
                 color: "var(--black)",
                 fontSize: "12px",
-                fontWeight: "700",
+                fontWeight: 700,
                 letterSpacing: "1px",
                 textTransform: "uppercase",
               }}
@@ -214,7 +223,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
           {/* Source */}
           <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "30px" }}>
             <span style={{ color: "var(--text-faint)", fontSize: "14px" }}>via</span>
-            <span style={{ color: "var(--text-secondary)", fontSize: "14px", fontWeight: "600" }}>{article.source}</span>
+            <span style={{ color: "var(--text-secondary)", fontSize: "14px", fontWeight: 600 }}>{article.source}</span>
           </div>
 
           {/* Divider */}
@@ -222,7 +231,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
 
           {/* Article content */}
           <div style={{ marginBottom: "40px" }}>
-            {(article.content || article.description).split("\n\n").map((paragraph, i) => (
+            {body.split("\n\n").map((paragraph, i) => (
               <p
                 key={i}
                 style={{
@@ -250,13 +259,10 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
               color: "var(--black)",
               textAlign: "center",
               textDecoration: "none",
-              fontWeight: "700",
+              fontWeight: 700,
               fontSize: "16px",
               letterSpacing: "1px",
-              transition: "opacity 0.2s",
             }}
-            onMouseOver={(e) => (e.currentTarget.style.opacity = "0.9")}
-            onMouseOut={(e) => (e.currentTarget.style.opacity = "1")}
           >
             READ FULL ARTICLE AT {article.source.toUpperCase()} &rarr;
           </a>
@@ -269,10 +275,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
                 color: "var(--text-faint)",
                 textDecoration: "none",
                 fontSize: "14px",
-                transition: "color 0.2s",
               }}
-              onMouseOver={(e) => (e.currentTarget.style.color = "var(--orange)")}
-              onMouseOut={(e) => (e.currentTarget.style.color = "var(--text-faint)")}
             >
               &larr; Back to News
             </Link>

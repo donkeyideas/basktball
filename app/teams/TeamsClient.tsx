@@ -1,0 +1,457 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Header, Footer, FAQ } from "@/components";
+
+const TEAMS_FAQ = [
+  {
+    question: "How many basketball teams are listed on BASKTBALL?",
+    answer: "BASKTBALL features all 30 NBA teams, 12 WNBA teams, and hundreds of NCAA Division I men's and women's basketball programs. Each team page includes roster, schedule, standings, and performance analytics.",
+  },
+  {
+    question: "What information is available on each team page?",
+    answer: "Each team page provides the current roster, season record, conference and division standings, upcoming schedule, and recent game results. For NBA teams, you'll also find advanced analytics and historical performance data.",
+  },
+  {
+    question: "Can I compare teams on BASKTBALL?",
+    answer: "Yes, BASKTBALL offers team comparison tools that let you analyze head-to-head matchups, compare season statistics, and evaluate team performance across multiple categories including offense, defense, and pace metrics.",
+  },
+];
+
+interface Team {
+  id: string;
+  name: string;
+  abbreviation: string;
+  city: string;
+  conference?: string;
+  division?: string;
+  logoUrl?: string;
+  league?: string;
+}
+
+type League = "nba" | "wnba" | "ncaam" | "ncaaw";
+type ConferenceFilter = "all" | "east" | "west";
+
+const LEAGUES: { id: League; name: string; fullName: string }[] = [
+  { id: "nba", name: "NBA", fullName: "National Basketball Association" },
+  { id: "wnba", name: "WNBA", fullName: "Women's National Basketball Association" },
+  { id: "ncaam", name: "NCAAM", fullName: "NCAA Men's Basketball" },
+  { id: "ncaaw", name: "NCAAW", fullName: "NCAA Women's Basketball" },
+];
+
+export default function TeamsClient({
+  initialTeams = {},
+}: {
+  initialTeams?: Record<string, Team[]>;
+}) {
+  const router = useRouter();
+  const hasInitial = Object.keys(initialTeams).length > 0;
+  const [teamsData, setTeamsData] = useState<Record<string, Team[]>>(initialTeams);
+  const [isLoading, setIsLoading] = useState(!hasInitial);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedLeague, setSelectedLeague] = useState<League>("nba");
+  const [conferenceFilter, setConferenceFilter] = useState<ConferenceFilter>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    if (hasInitial) return; // SSR already provided the full grouped team list
+    async function fetchTeams() {
+      try {
+        const res = await fetch("/api/teams?grouped=true");
+        const data = await res.json();
+        if (data.success) {
+          setTeamsData(data.teams || {});
+        } else {
+          setError(data.error || "Failed to load teams");
+        }
+      } catch {
+        setError("Failed to connect to server");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchTeams();
+  }, [hasInitial]);
+
+  const currentTeams = teamsData[selectedLeague] || [];
+
+  const filteredTeams = currentTeams.filter((team) => {
+    // Conference filter (only for NBA)
+    if (selectedLeague === "nba" && conferenceFilter !== "all") {
+      if (!team.conference?.toLowerCase().includes(conferenceFilter)) {
+        return false;
+      }
+    }
+    // Search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      return (
+        team.name.toLowerCase().includes(query) ||
+        team.city.toLowerCase().includes(query) ||
+        team.abbreviation.toLowerCase().includes(query)
+      );
+    }
+    return true;
+  });
+
+  // Group by division (for NBA) or alphabetically (for others)
+  const teamsByGroup = filteredTeams.reduce(
+    (acc, team) => {
+      let group: string;
+      if (selectedLeague === "nba") {
+        group = team.division || "Other";
+      } else {
+        // Group college teams alphabetically by first letter
+        group = team.name.charAt(0).toUpperCase();
+      }
+      if (!acc[group]) acc[group] = [];
+      acc[group].push(team);
+      return acc;
+    },
+    {} as Record<string, Team[]>
+  );
+
+  // Sort groups
+  const sortedGroups = Object.entries(teamsByGroup).sort(([a], [b]) =>
+    a.localeCompare(b)
+  );
+
+  const leagueInfo = LEAGUES.find((l) => l.id === selectedLeague);
+  const teamCount = filteredTeams.length;
+
+  return (
+    <>
+      <Header />
+      <main style={{ minHeight: "100vh", padding: "40px 20px" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+          {/* Page Header */}
+          <h1
+            style={{
+              fontFamily: "var(--font-anton), Anton, sans-serif",
+              fontSize: "48px",
+              marginBottom: "10px",
+              textAlign: "center",
+            }}
+          >
+            BASKETBALL TEAMS
+            <span
+              style={{
+                display: "block",
+                width: "100px",
+                height: "4px",
+                background: "var(--orange)",
+                margin: "15px auto 0",
+              }}
+            ></span>
+          </h1>
+          <p
+            style={{
+              textAlign: "center",
+              color: "var(--text-muted)",
+              marginBottom: "30px",
+            }}
+          >
+            Browse teams from NBA, WNBA, and College Basketball
+          </p>
+
+          {/* League Tabs */}
+          <div
+            style={{
+              display: "flex",
+              gap: "5px",
+              marginBottom: "20px",
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            {LEAGUES.map((league) => (
+              <button
+                key={league.id}
+                onClick={() => {
+                  setSelectedLeague(league.id);
+                  setConferenceFilter("all");
+                  setSearchQuery("");
+                }}
+                style={{
+                  padding: "14px 28px",
+                  background:
+                    selectedLeague === league.id
+                      ? "var(--orange)"
+                      : "var(--dark-gray)",
+                  border: "2px solid",
+                  borderColor:
+                    selectedLeague === league.id
+                      ? "var(--orange)"
+                      : "var(--border-color)",
+                  color: "var(--white)",
+                  fontFamily: "var(--font-anton), Anton, sans-serif",
+                  fontSize: "18px",
+                  letterSpacing: "1px",
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                }}
+              >
+                {league.name}
+              </button>
+            ))}
+          </div>
+
+          {/* League Description */}
+          <p
+            style={{
+              textAlign: "center",
+              color: "var(--text-muted)",
+              marginBottom: "30px",
+              fontSize: "14px",
+            }}
+          >
+            {leagueInfo?.fullName}
+            {!isLoading && ` • ${teamCount} team${teamCount !== 1 ? "s" : ""}`}
+          </p>
+
+          {/* Filters Row */}
+          <div
+            style={{
+              display: "flex",
+              gap: "15px",
+              marginBottom: "30px",
+              justifyContent: "center",
+              flexWrap: "wrap",
+              alignItems: "center",
+            }}
+          >
+            {/* Search */}
+            <input
+              type="text"
+              placeholder="Search teams..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{
+                padding: "12px 20px",
+                background: "var(--dark-gray)",
+                border: "2px solid var(--border-color)",
+                color: "var(--white)",
+                fontFamily: "var(--font-inter), sans-serif",
+                fontSize: "14px",
+                width: "250px",
+                outline: "none",
+              }}
+            />
+
+            {/* Conference Filter (NBA only) */}
+            {selectedLeague === "nba" && (
+              <div style={{ display: "flex", gap: "5px" }}>
+                {[
+                  { id: "all" as ConferenceFilter, name: "All" },
+                  { id: "east" as ConferenceFilter, name: "East" },
+                  { id: "west" as ConferenceFilter, name: "West" },
+                ].map((filter) => (
+                  <button
+                    key={filter.id}
+                    onClick={() => setConferenceFilter(filter.id)}
+                    style={{
+                      padding: "10px 18px",
+                      background:
+                        conferenceFilter === filter.id
+                          ? "var(--orange)"
+                          : "transparent",
+                      border: "2px solid",
+                      borderColor:
+                        conferenceFilter === filter.id
+                          ? "var(--orange)"
+                          : "var(--text-faint)",
+                      color: "var(--white)",
+                      fontFamily: "var(--font-inter), sans-serif",
+                      fontSize: "13px",
+                      fontWeight: "600",
+                      letterSpacing: "1px",
+                      cursor: "pointer",
+                      transition: "all 0.3s ease",
+                    }}
+                  >
+                    {filter.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {isLoading ? (
+            <div>
+              {/* Skeleton loading cards */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                  gap: "20px",
+                }}
+              >
+                {[...Array(12)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="league-card"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "20px",
+                      padding: "20px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "60px",
+                        height: "60px",
+                        borderRadius: "50%",
+                        background: "var(--border-color)",
+                        animation: "pulse 1.5s ease-in-out infinite",
+                      }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <div
+                        style={{
+                          width: "70%",
+                          height: "18px",
+                          background: "var(--border-color)",
+                          marginBottom: "8px",
+                          animation: "pulse 1.5s ease-in-out infinite",
+                        }}
+                      />
+                      <div
+                        style={{
+                          width: "50%",
+                          height: "13px",
+                          background: "var(--border-subtle)",
+                          animation: "pulse 1.5s ease-in-out infinite",
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <style>{`
+                @keyframes pulse {
+                  0%, 100% { opacity: 1; }
+                  50% { opacity: 0.5; }
+                }
+              `}</style>
+            </div>
+          ) : error ? (
+            <div style={{ textAlign: "center", padding: "60px" }}>
+              <p style={{ color: "var(--red)" }}>{error}</p>
+            </div>
+          ) : filteredTeams.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "60px" }}>
+              <p style={{ color: "var(--text-muted)" }}>
+                {searchQuery
+                  ? `No teams found matching "${searchQuery}"`
+                  : `No ${leagueInfo?.name} teams available at this time.`}
+              </p>
+            </div>
+          ) : (
+            sortedGroups.map(([group, groupTeams]) => (
+              <div
+                key={group}
+                className="section"
+                style={{ marginBottom: "30px" }}
+              >
+                <div className="section-title">{group}</div>
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                    gap: "20px",
+                  }}
+                >
+                  {groupTeams.map((team) => (
+                    <div
+                      key={team.id}
+                      className="league-card"
+                      onClick={() => router.push(`/teams/${selectedLeague}/${team.id}`)}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "20px",
+                        padding: "20px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: "60px",
+                          height: "60px",
+                          borderRadius: "50%",
+                          background: "var(--border-color)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          overflow: "hidden",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {team.logoUrl ? (
+                          <Image
+                            src={team.logoUrl}
+                            alt={team.name}
+                            width={50}
+                            height={50}
+                            style={{ objectFit: "contain" }}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = "none";
+                              if (target.parentElement) {
+                                target.parentElement.textContent =
+                                  team.abbreviation;
+                              }
+                            }}
+                          />
+                        ) : (
+                          <span
+                            style={{
+                              fontFamily: "var(--font-anton), Anton, sans-serif",
+                              fontSize: "16px",
+                            }}
+                          >
+                            {team.abbreviation}
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <h3
+                          style={{
+                            fontFamily: "var(--font-anton), Anton, sans-serif",
+                            fontSize: "18px",
+                            marginBottom: "5px",
+                          }}
+                        >
+                          {team.city ? `${team.city} ` : ""}
+                          {team.name}
+                        </h3>
+                        {(team.conference || team.division) && (
+                          <p
+                            style={{
+                              color: "var(--text-muted)",
+                              fontSize: "13px",
+                            }}
+                          >
+                            {[team.conference, team.division]
+                              .filter(Boolean)
+                              .join(" - ")}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))
+          )}
+
+          <FAQ items={TEAMS_FAQ} />
+        </div>
+      </main>
+      <Footer />
+    </>
+  );
+}
